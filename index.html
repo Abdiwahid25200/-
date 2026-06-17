@@ -3,171 +3,167 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>مخطط راتبي — محمي</title>
+<title>مخطط راتبي</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;900&family=IBM+Plex+Mono:wght@500;600&display=swap');
-  :root{--bg:#0F1A17;--panel:#16241F;--panel2:#1C2C26;--line:#2A3D35;--gold:#C9A24B;--golds:#E8D8A8;--mint:#6FBF9B;--coral:#E0795A;--ink:#EDEFE8;--dim:#9FB0A8;}
-  *{box-sizing:border-box;margin:0;padding:0;}
-  html,body{background:var(--bg);color:var(--ink);font-family:'Tajawal',sans-serif;min-height:100vh;direction:rtl;}
+@import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;900&family=IBM+Plex+Mono:wght@500;600&display=swap');
+:root{--bg:#0F1A17;--panel:#16241F;--panel2:#1C2C26;--line:#2A3D35;--gold:#C9A24B;--golds:#E8D8A8;--mint:#6FBF9B;--coral:#E0795A;--ink:#EDEFE8;--dim:#9FB0A8;}
+*{box-sizing:border-box;margin:0;padding:0;}
+html,body{background:var(--bg);color:var(--ink);font-family:'Tajawal',sans-serif;min-height:100vh;direction:rtl;}
 
-  /* Lock */
-  #lockScreen{display:flex;align-items:center;justify-content:center;min-height:100vh;padding:24px;}
-  .lock-box{background:var(--panel);border:1px solid var(--line);border-radius:22px;padding:36px 28px;max-width:400px;width:100%;text-align:center;}
-  .step{display:none;} .step.active{display:block;}
-  .fld{margin-bottom:16px;text-align:right;}
-  .fld label{display:block;font-size:13px;color:var(--dim);margin-bottom:6px;}
-  .fld input{width:100%;background:var(--panel2);border:1px solid var(--line);color:var(--ink);font-family:'IBM Plex Mono',monospace;font-size:16px;padding:12px 44px 12px 14px;border-radius:10px;outline:none;text-align:right;transition:border-color .15s;}
-  .fld input:focus{border-color:var(--gold);}
-  .fld .otp-inp{text-align:center;letter-spacing:.3em;font-size:22px;font-weight:600;padding:12px 14px;}
-  .pw-wrap{position:relative;}
-  .pw-toggle{position:absolute;left:12px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--dim);cursor:pointer;font-size:18px;}
-  .primary-btn{width:100%;padding:14px;border-radius:12px;border:none;background:var(--gold);color:#1a1408;font-family:'Tajawal';font-size:16px;font-weight:700;cursor:pointer;margin-top:8px;transition:opacity .15s;}
-  .primary-btn:hover{opacity:.88;}
-  .ghost-btn{width:100%;padding:12px;border-radius:12px;border:1px solid var(--line);background:transparent;color:var(--dim);font-family:'Tajawal';font-size:14px;cursor:pointer;margin-top:8px;transition:.15s;}
-  .ghost-btn:hover{border-color:var(--gold);color:var(--golds);}
-  .ghost-btn:disabled{opacity:.4;cursor:not-allowed;}
-  .err{background:#2a1a15;border:1px solid var(--coral);border-radius:8px;color:var(--coral);font-size:13px;padding:10px 12px;margin-bottom:14px;display:none;}
-  .suc{background:#122518;border:1px solid var(--mint);border-radius:8px;color:var(--mint);font-size:13px;padding:10px 12px;margin-bottom:14px;display:none;}
-  .otp-info{background:var(--panel2);border-right:3px solid var(--gold);border-radius:8px;padding:10px 12px;font-size:12px;color:var(--dim);margin-bottom:16px;text-align:right;line-height:1.7;}
-  .timer{font-family:'IBM Plex Mono',monospace;font-size:13px;color:var(--gold);margin:8px 0 12px;}
-  .timer.exp{color:var(--coral);}
-  hr.div{border:none;border-top:1px solid var(--line);margin:10px 0;}
+/* AUTH */
+#authScreen{display:flex;align-items:center;justify-content:center;min-height:100vh;padding:24px;}
+.auth-box{background:var(--panel);border:1px solid var(--line);border-radius:22px;padding:36px 28px;max-width:400px;width:100%;}
+.auth-logo{text-align:center;margin-bottom:24px;}
+.auth-logo div:first-child{font-size:40px;margin-bottom:8px;}
+.auth-logo div:last-child{font-size:22px;font-weight:900;}
+.auth-tabs{display:flex;gap:4px;background:var(--panel2);border-radius:12px;padding:4px;margin-bottom:24px;}
+.auth-tab{flex:1;padding:10px;border:none;border-radius:9px;font-family:'Tajawal';font-size:14px;font-weight:700;cursor:pointer;background:transparent;color:var(--dim);transition:.15s;}
+.auth-tab.active{background:var(--gold);color:#1a1408;}
+.fld{margin-bottom:14px;}
+.fld label{display:block;font-size:13px;color:var(--dim);margin-bottom:6px;}
+.fld input{width:100%;background:var(--panel2);border:1px solid var(--line);color:var(--ink);font-family:'IBM Plex Mono',monospace;font-size:15px;padding:12px 14px;border-radius:10px;outline:none;transition:.15s;}
+.fld input:focus{border-color:var(--gold);}
+.primary-btn{width:100%;padding:14px;border-radius:12px;border:none;background:var(--gold);color:#1a1408;font-family:'Tajawal';font-size:16px;font-weight:700;cursor:pointer;margin-top:4px;transition:.15s;}
+.primary-btn:hover{opacity:.88;}
+.primary-btn:disabled{opacity:.5;cursor:not-allowed;}
+.err{background:#2a1a15;border:1px solid var(--coral);border-radius:8px;color:var(--coral);font-size:13px;padding:10px 12px;margin-bottom:12px;display:none;}
+.suc{background:#122518;border:1px solid var(--mint);border-radius:8px;color:var(--mint);font-size:13px;padding:10px 12px;margin-bottom:12px;display:none;}
+.auth-note{font-size:12px;color:var(--dim);text-align:center;margin-top:14px;line-height:1.7;}
 
-  /* App */
-  #mainApp{display:none;padding:28px 16px 80px;}
-  .wrap{max-width:760px;margin:0 auto;}
-  .logout-btn{position:fixed;top:16px;left:16px;background:var(--panel);border:1px solid var(--line);border-radius:20px;color:var(--dim);font-family:'Tajawal';font-size:12px;padding:7px 14px;cursor:pointer;z-index:999;transition:.15s;}
-  .logout-btn:hover{border-color:var(--coral);color:var(--coral);}
-  header{margin-bottom:28px;text-align:center;}
-  .eyebrow{font-family:'IBM Plex Mono',monospace;font-size:12px;letter-spacing:.12em;color:var(--gold);text-transform:uppercase;margin-bottom:10px;}
-  h1{font-size:clamp(28px,6vw,38px);font-weight:900;line-height:1.2;}
-  h1 span{color:var(--gold);}
-  .sub{color:var(--dim);font-size:14px;margin-top:8px;}
-  .card{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:24px;margin-bottom:20px;}
-  .card-title{font-size:16px;font-weight:700;margin-bottom:16px;display:flex;align-items:center;gap:8px;}
-  .card-title .dot{width:8px;height:8px;border-radius:50%;background:var(--gold);flex:none;}
-  .app-label{display:block;font-size:13px;color:var(--dim);margin-bottom:6px;}
-  .num-inp{width:100%;background:var(--panel2);border:1px solid var(--line);color:var(--ink);font-family:'IBM Plex Mono',monospace;font-size:18px;font-weight:600;padding:12px 14px;border-radius:10px;outline:none;transition:border-color .15s;}
-  .num-inp:focus{border-color:var(--gold);}
-  .num-inp::-webkit-outer-spin-button,.num-inp::-webkit-inner-spin-button{-webkit-appearance:none;}
-  .exp-list{display:flex;flex-direction:column;gap:10px;margin-bottom:14px;}
-  .exp-row{display:flex;gap:10px;align-items:center;}
-  .exp-row input[type=text]{flex:2;background:var(--panel2);border:1px solid var(--line);color:var(--ink);font-family:'Tajawal';font-size:14px;padding:10px 12px;border-radius:10px;outline:none;}
-  .exp-row input[type=text]:focus{border-color:var(--gold);}
-  .exp-row input[type=number]{flex:1;min-width:90px;background:var(--panel2);border:1px solid var(--line);color:var(--ink);font-family:'IBM Plex Mono',monospace;font-size:14px;padding:10px 12px;border-radius:10px;outline:none;}
-  .exp-row input[type=number]::-webkit-outer-spin-button,.exp-row input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none;}
-  .exp-del{flex:none;width:36px;height:36px;border-radius:8px;border:1px solid var(--line);background:var(--panel2);color:var(--coral);cursor:pointer;font-size:16px;}
-  .add-btn{width:100%;padding:12px;border-radius:10px;border:1px dashed var(--line);background:transparent;color:var(--golds);font-family:'Tajawal';font-weight:700;cursor:pointer;font-size:14px;}
-  .add-btn:hover{border-color:var(--gold);}
-  .presets{display:flex;gap:8px;margin-bottom:18px;flex-wrap:wrap;}
-  .preset-btn{font-family:'Tajawal';font-size:12px;padding:7px 14px;border-radius:20px;border:1px solid var(--line);background:var(--panel2);color:var(--dim);cursor:pointer;transition:.15s;}
-  .preset-btn:hover{border-color:var(--gold);color:var(--golds);}
-  .preset-btn.active{background:var(--gold);color:#1a1408;border-color:var(--gold);font-weight:700;}
-  .ratio-item{margin-bottom:18px;}
-  .ratio-head{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:8px;}
-  .ratio-name{font-size:14px;font-weight:700;}
-  .ratio-pct{font-family:'IBM Plex Mono',monospace;font-size:14px;color:var(--gold);font-weight:600;}
-  input[type=range]{width:100%;-webkit-appearance:none;height:6px;border-radius:4px;background:var(--panel2);outline:none;}
-  input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:20px;height:20px;border-radius:50%;background:var(--gold);cursor:pointer;border:3px solid var(--bg);box-shadow:0 0 0 1px var(--line);}
-  .results-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;}
-  .result-box{background:var(--panel2);border:1px solid var(--line);border-radius:12px;padding:16px 12px;text-align:center;}
-  .result-label{font-size:12px;color:var(--dim);margin-bottom:6px;}
-  .result-value{font-family:'IBM Plex Mono',monospace;font-size:18px;font-weight:700;}
-  .c-mint{color:var(--mint);} .c-gold{color:var(--golds);} .c-coral{color:var(--coral);}
-  .bar{display:flex;height:14px;border-radius:8px;overflow:hidden;margin:18px 0 6px;border:1px solid var(--line);}
-  .bar>div{height:100%;transition:width .25s;}
-  .bar-legend{display:flex;justify-content:space-between;font-size:11px;color:var(--dim);font-family:'IBM Plex Mono',monospace;}
-  .warn-note{background:var(--panel2);border-right:3px solid var(--gold);border-radius:8px;padding:12px 14px;font-size:13px;color:var(--dim);margin-top:14px;line-height:1.7;display:none;}
-  .warn-note strong{color:var(--golds);}
-  footer{text-align:center;color:var(--dim);font-size:12px;margin-top:24px;}
-  @media(max-width:480px){.results-grid{grid-template-columns:1fr;}.report-grid{grid-template-columns:1fr;}}
-  /* Report */
-  .report-card{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:24px;margin-bottom:20px;}
-  .report-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;}
-  .report-title{font-size:16px;font-weight:700;display:flex;align-items:center;gap:8px;}
-  .print-btn{background:var(--gold);color:#1a1408;border:none;border-radius:10px;padding:8px 16px;font-family:'Tajawal';font-weight:700;font-size:13px;cursor:pointer;}
-  .report-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-bottom:20px;}
-  .report-item{background:var(--panel2);border:1px solid var(--line);border-radius:12px;padding:14px;}
-  .report-item-label{font-size:12px;color:var(--dim);margin-bottom:4px;}
-  .report-item-value{font-family:'IBM Plex Mono',monospace;font-size:20px;font-weight:700;}
-  .report-breakdown{margin-top:16px;}
-  .rb-row{display:flex;align-items:center;gap:10px;margin-bottom:10px;}
-  .rb-label{font-size:13px;flex:1;}
-  .rb-bar-wrap{flex:2;background:var(--panel2);border-radius:6px;height:10px;overflow:hidden;}
-  .rb-bar{height:100%;border-radius:6px;transition:width .3s;}
-  .rb-val{font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--dim);min-width:60px;text-align:left;}
-  .report-tip{background:var(--panel2);border-right:3px solid var(--mint);border-radius:8px;padding:12px 14px;font-size:13px;color:var(--dim);margin-top:16px;line-height:1.7;}
-  .report-tip strong{color:var(--mint);}
-  @media print{
-    #lockScreen,button,.logout-btn{display:none!important;}
-    #mainApp{display:block!important;}
-    body{background:white;color:black;}
-    .card,.report-card{border:1px solid #ccc;box-shadow:none;}
-    .print-btn{display:none!important;}
-  }
+/* APP */
+#mainApp{display:none;padding:28px 16px 80px;}
+.wrap{max-width:760px;margin:0 auto;}
+.top-bar{display:flex;justify-content:space-between;align-items:center;margin-bottom:28px;}
+.user-info{font-size:13px;color:var(--dim);}
+.user-info span{color:var(--gold-soft);font-weight:700;}
+.logout-btn{background:var(--panel);border:1px solid var(--line);border-radius:20px;color:var(--dim);font-family:'Tajawal';font-size:12px;padding:7px 14px;cursor:pointer;transition:.15s;}
+.logout-btn:hover{border-color:var(--coral);color:var(--coral);}
+header{margin-bottom:20px;text-align:center;}
+.eyebrow{font-family:'IBM Plex Mono',monospace;font-size:12px;letter-spacing:.12em;color:var(--gold);text-transform:uppercase;margin-bottom:10px;}
+h1{font-size:clamp(26px,5vw,36px);font-weight:900;line-height:1.2;}
+h1 span{color:var(--gold);}
+.sub{color:var(--dim);font-size:14px;margin-top:8px;}
+.action-btns{display:flex;gap:10px;justify-content:center;margin-top:14px;}
+.action-btn{padding:10px 20px;border-radius:10px;font-family:'Tajawal';font-weight:700;font-size:14px;cursor:pointer;transition:.15s;}
+.btn-save{background:var(--gold);color:#1a1408;border:none;}
+.btn-load{background:var(--panel);border:1px solid var(--line);color:var(--ink);}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:24px;margin-bottom:20px;}
+.card-title{font-size:16px;font-weight:700;margin-bottom:16px;display:flex;align-items:center;gap:8px;}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--gold);flex:none;}
+.app-label{display:block;font-size:13px;color:var(--dim);margin-bottom:6px;}
+.num-inp{width:100%;background:var(--panel2);border:1px solid var(--line);color:var(--ink);font-family:'IBM Plex Mono',monospace;font-size:18px;font-weight:600;padding:12px 14px;border-radius:10px;outline:none;}
+.num-inp:focus{border-color:var(--gold);}
+.num-inp::-webkit-outer-spin-button,.num-inp::-webkit-inner-spin-button{-webkit-appearance:none;}
+.exp-list{display:flex;flex-direction:column;gap:10px;margin-bottom:14px;}
+.exp-row{display:flex;gap:10px;align-items:center;}
+.exp-row input[type=text]{flex:2;background:var(--panel2);border:1px solid var(--line);color:var(--ink);font-family:'Tajawal';font-size:14px;padding:10px 12px;border-radius:10px;outline:none;}
+.exp-row input[type=number]{flex:1;min-width:90px;background:var(--panel2);border:1px solid var(--line);color:var(--ink);font-family:'IBM Plex Mono',monospace;font-size:14px;padding:10px 12px;border-radius:10px;outline:none;}
+.exp-row input::-webkit-outer-spin-button,.exp-row input::-webkit-inner-spin-button{-webkit-appearance:none;}
+.exp-del{flex:none;width:36px;height:36px;border-radius:8px;border:1px solid var(--line);background:var(--panel2);color:var(--coral);cursor:pointer;font-size:16px;}
+.add-btn{width:100%;padding:12px;border-radius:10px;border:1px dashed var(--line);background:transparent;color:var(--golds);font-family:'Tajawal';font-weight:700;cursor:pointer;font-size:14px;}
+.presets{display:flex;gap:8px;margin-bottom:18px;flex-wrap:wrap;}
+.preset-btn{font-family:'Tajawal';font-size:12px;padding:7px 14px;border-radius:20px;border:1px solid var(--line);background:var(--panel2);color:var(--dim);cursor:pointer;}
+.preset-btn.active{background:var(--gold);color:#1a1408;border-color:var(--gold);font-weight:700;}
+.ratio-item{margin-bottom:18px;}
+.ratio-head{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:8px;}
+.ratio-name{font-size:14px;font-weight:700;}
+.ratio-pct{font-family:'IBM Plex Mono',monospace;font-size:14px;color:var(--gold);font-weight:600;}
+input[type=range]{width:100%;-webkit-appearance:none;height:6px;border-radius:4px;background:var(--panel2);outline:none;}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:20px;height:20px;border-radius:50%;background:var(--gold);cursor:pointer;border:3px solid var(--bg);}
+.results-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;}
+.result-box{background:var(--panel2);border:1px solid var(--line);border-radius:12px;padding:16px 12px;text-align:center;}
+.result-label{font-size:12px;color:var(--dim);margin-bottom:6px;}
+.result-value{font-family:'IBM Plex Mono',monospace;font-size:18px;font-weight:700;}
+.c-mint{color:var(--mint);}.c-gold{color:var(--golds);}.c-coral{color:var(--coral);}
+.bar{display:flex;height:14px;border-radius:8px;overflow:hidden;margin:18px 0 6px;border:1px solid var(--line);}
+.bar>div{height:100%;transition:width .25s;}
+.bar-legend{display:flex;justify-content:space-between;font-size:11px;color:var(--dim);font-family:'IBM Plex Mono',monospace;}
+.warn-note{background:var(--panel2);border-right:3px solid var(--gold);border-radius:8px;padding:12px 14px;font-size:13px;color:var(--dim);margin-top:14px;line-height:1.7;display:none;}
+.warn-note strong{color:var(--golds);}
 
+/* Report */
+.report-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;}
+.print-btn{background:var(--gold);color:#1a1408;border:none;border-radius:10px;padding:8px 16px;font-family:'Tajawal';font-weight:700;font-size:13px;cursor:pointer;}
+.date-row{display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap;}
+.date-row>div{flex:1;min-width:130px;}
+.date-inp{width:100%;background:var(--panel2);border:1px solid var(--line);color:var(--ink);font-family:'IBM Plex Mono',monospace;font-size:13px;padding:10px 12px;border-radius:10px;outline:none;}
+.report-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-bottom:16px;}
+.report-item{background:var(--panel2);border:1px solid var(--line);border-radius:12px;padding:14px;}
+.ri-label{font-size:12px;color:var(--dim);margin-bottom:4px;}
+.ri-value{font-family:'IBM Plex Mono',monospace;font-size:20px;font-weight:700;}
+.rb-row{display:flex;align-items:center;gap:10px;margin-bottom:10px;}
+.rb-label{font-size:13px;flex:1;}
+.rb-bar-wrap{flex:2;background:var(--panel2);border-radius:6px;height:10px;overflow:hidden;}
+.rb-bar{height:100%;border-radius:6px;transition:width .3s;}
+.rb-val{font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--dim);min-width:45px;text-align:left;}
+.report-tip{background:var(--panel2);border-right:3px solid var(--mint);border-radius:8px;padding:12px 14px;font-size:13px;color:var(--dim);margin-top:16px;line-height:1.7;}
+.report-tip strong{color:var(--mint);}
+
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--panel);border:1px solid var(--mint);border-radius:10px;padding:10px 20px;color:var(--mint);font-family:'Tajawal';font-size:14px;z-index:9999;display:none;}
+
+footer{text-align:center;color:var(--dim);font-size:12px;margin-top:24px;}
+@media(max-width:480px){.results-grid{grid-template-columns:1fr;}.report-grid{grid-template-columns:1fr;}}
+@media print{#authScreen,#mainApp .top-bar,.action-btns,.add-btn,.preset-btn,.exp-del,.print-btn{display:none!important;}body{background:white;color:black;}.card{border:1px solid #ccc;}}
 </style>
 </head>
 <body>
 
-<!-- LOCK SCREEN -->
-<div id="lockScreen">
-  <div class="lock-box">
-    <div style="font-size:42px;margin-bottom:16px;">🔐</div>
-    <div style="font-size:24px;font-weight:900;margin-bottom:6px;">مخطط راتبي</div>
-    <div style="color:var(--dim);font-size:13px;margin-bottom:28px;line-height:1.7;">محمية بكلمة مرور ورمز تحقق على بريدك</div>
+<!-- AUTH SCREEN -->
+<div id="authScreen">
+  <div class="auth-box">
+    <div class="auth-logo">
+      <div>📊</div>
+      <div>مخطط راتبي</div>
+    </div>
+    <div class="auth-tabs">
+      <button class="auth-tab active" onclick="switchTab('login')">تسجيل الدخول</button>
+      <button class="auth-tab" onclick="switchTab('signup')">حساب جديد</button>
+    </div>
+    <div class="err" id="authErr"></div>
+    <div class="suc" id="authSuc"></div>
 
-    <!-- Step 1 -->
-    <div class="step active" id="step1">
-      <div class="err" id="err1"></div>
-      <div class="fld">
-        <label>كلمة المرور</label>
-        <div class="pw-wrap">
-          <input type="password" id="passInput" placeholder="أدخل كلمة المرور" onkeydown="if(event.key==='Enter')submitPass()">
-          <button class="pw-toggle" onclick="togglePass()">👁</button>
-        </div>
-      </div>
-      <button class="primary-btn" onclick="submitPass()">التالي ←</button>
+    <!-- Login -->
+    <div id="loginForm">
+      <div class="fld"><label>البريد الإلكتروني</label><input type="email" id="loginEmail" placeholder="example@gmail.com"></div>
+      <div class="fld"><label>كلمة المرور</label><input type="password" id="loginPass" placeholder="••••••••" onkeydown="if(event.key==='Enter')login()"></div>
+      <button class="primary-btn" onclick="login()">دخول →</button>
+      <div class="auth-note">نسيت كلمة المرور؟ <a href="#" onclick="resetPass()" style="color:var(--gold)">إعادة تعيين</a></div>
     </div>
 
-    <!-- Step 2 -->
-    <div class="step" id="step2">
-      <div class="suc" id="sucMsg"></div>
-      <div class="otp-info">تم إرسال رمز <strong>6 أرقام</strong> إلى بريدك.<br>تحقق من الوارد أو البريد المزعج.</div>
-      <div class="err" id="err2"></div>
-      <div class="fld">
-        <label>رمز التحقق</label>
-        <input type="text" class="otp-inp" id="otpInput" maxlength="6" placeholder="● ● ● ● ● ●" inputmode="numeric" onkeydown="if(event.key==='Enter')submitOTP()">
-      </div>
-      <div class="timer" id="timerEl"></div>
-      <button class="primary-btn" onclick="submitOTP()">دخول 🔓</button>
-      <hr class="div">
-      <button class="ghost-btn" id="resendBtn" onclick="resendOTP()" disabled>إعادة إرسال الرمز</button>
-      <button class="ghost-btn" onclick="goBack()">← تغيير كلمة المرور</button>
+    <!-- Signup -->
+    <div id="signupForm" style="display:none;">
+      <div class="fld"><label>الاسم</label><input type="text" id="signupName" placeholder="اسمك الكريم"></div>
+      <div class="fld"><label>البريد الإلكتروني</label><input type="email" id="signupEmail" placeholder="example@gmail.com"></div>
+      <div class="fld"><label>كلمة المرور</label><input type="password" id="signupPass" placeholder="8 أحرف على الأقل"></div>
+      <button class="primary-btn" onclick="signup()">إنشاء حساب</button>
+      <div class="auth-note">بإنشاء حساب، بياناتك محفوظة بأمان في السحابة</div>
     </div>
   </div>
 </div>
 
-<!-- LOGOUT -->
-<button class="logout-btn" onclick="logout()">🔒 تسجيل الخروج</button>
-
 <!-- MAIN APP -->
 <div id="mainApp">
   <div class="wrap">
+    <div class="top-bar">
+      <div class="user-info">أهلاً، <span id="userName">—</span></div>
+      <button class="logout-btn" onclick="logout()">🔒 خروج</button>
+    </div>
+
     <header>
       <div class="eyebrow">مخطط الميزانية الشخصية</div>
       <h1>وين <span>بيروح</span> راتبي؟</h1>
-      <div class="sub">دخّل راتبك ومصاريفك، واطّلع على خطة واضحة لتوزيع كل ريال</div>
-      <div style="display:flex;gap:10px;justify-content:center;margin-top:14px;">
-        <button onclick="saveData()" style="background:var(--gold);color:#1a1408;border:none;border-radius:10px;padding:10px 20px;font-family:'Tajawal';font-weight:700;font-size:14px;cursor:pointer;">💾 حفظ</button>
-        <button onclick="loadData()" style="background:var(--panel);border:1px solid var(--line);color:var(--ink);border-radius:10px;padding:10px 20px;font-family:'Tajawal';font-weight:700;font-size:14px;cursor:pointer;">📂 تحميل</button>
+      <div class="sub">دخّل راتبك ومصاريفك، واطّلع على خطة واضحة لكل ريال</div>
+      <div class="action-btns">
+        <button class="action-btn btn-save" onclick="saveData()">💾 حفظ</button>
+        <button class="action-btn btn-load" onclick="loadData()">📂 تحميل</button>
       </div>
     </header>
 
     <div class="card">
       <div class="card-title"><span class="dot"></span> راتبك الشهري</div>
       <label class="app-label">المبلغ</label>
-      <input type="number" class="num-inp" id="salary" value="" placeholder="0" min="0">
+      <input type="number" class="num-inp" id="salary" placeholder="0" min="0">
     </div>
 
     <div class="card">
@@ -179,10 +175,10 @@
     <div class="card">
       <div class="card-title"><span class="dot"></span> خطة توزيع الباقي</div>
       <div class="presets">
-        <button class="preset-btn" data-p="50,30,20">50 / 30 / 20</button>
-        <button class="preset-btn" data-p="60,20,20">60 / 20 / 20</button>
-        <button class="preset-btn" data-p="40,30,30">40 / 30 / 30</button>
-        <button class="preset-btn" data-p="70,15,15">70 / 15 / 15</button>
+        <button class="preset-btn" data-p="50,30,20">50/30/20</button>
+        <button class="preset-btn" data-p="60,20,20">60/20/20</button>
+        <button class="preset-btn" data-p="40,30,30">40/30/30</button>
+        <button class="preset-btn" data-p="70,15,15">70/15/15</button>
       </div>
       <div class="ratio-item">
         <div class="ratio-head"><span class="ratio-name">🟫 ضروريات إضافية</span><span class="ratio-pct" id="pctA">50%</span></div>
@@ -202,9 +198,9 @@
       <div class="card-title"><span class="dot"></span> خلاصة شهرك</div>
       <div class="bar">
         <div id="barExp" style="background:var(--gold);width:0%"></div>
-        <div id="barA"   style="background:var(--coral);width:50%"></div>
-        <div id="barB"   style="background:#D9B85C;width:30%"></div>
-        <div id="barC"   style="background:var(--mint);width:20%"></div>
+        <div id="barA" style="background:var(--coral);width:50%"></div>
+        <div id="barB" style="background:#D9B85C;width:30%"></div>
+        <div id="barC" style="background:var(--mint);width:20%"></div>
       </div>
       <div class="bar-legend"><span>مصاريف ثابتة</span><span>الباقي</span></div>
       <div class="results-grid" style="margin-top:18px;">
@@ -220,231 +216,108 @@
       <div class="warn-note" id="warnNote"></div>
     </div>
 
-
     <!-- REPORT -->
-    <div class="report-card" id="reportCard">
+    <div class="card">
       <div class="report-header">
-        <div class="report-title"><span class="dot"></span> التقرير الشهري</div>
-        <button class="print-btn" onclick="printReport()">🖨️ طباعة / PDF</button>
+        <div class="card-title" style="margin:0"><span class="dot"></span> التقرير الشهري</div>
+        <button class="print-btn" onclick="window.print()">🖨️ PDF</button>
       </div>
-      <div style="display:flex;gap:10px;margin-bottom:18px;flex-wrap:wrap;">
-        <div style="flex:1;min-width:130px;">
-          <label class="app-label">من تاريخ</label>
-          <input type="date" id="dateFrom" onchange="updateReport()" style="width:100%;background:var(--panel2);border:1px solid var(--line);color:var(--ink);font-family:'IBM Plex Mono',monospace;font-size:13px;padding:10px 12px;border-radius:10px;outline:none;">
-        </div>
-        <div style="flex:1;min-width:130px;">
-          <label class="app-label">إلى تاريخ</label>
-          <input type="date" id="dateTo" onchange="updateReport()" style="width:100%;background:var(--panel2);border:1px solid var(--line);color:var(--ink);font-family:'IBM Plex Mono',monospace;font-size:13px;padding:10px 12px;border-radius:10px;outline:none;">
-        </div>
+      <div class="date-row">
+        <div><label class="app-label">من تاريخ</label><input type="date" class="date-inp" id="dateFrom" onchange="updateDateLabel()"></div>
+        <div><label class="app-label">إلى تاريخ</label><input type="date" class="date-inp" id="dateTo" onchange="updateDateLabel()"></div>
       </div>
       <div id="dateRangeLabel" style="font-size:12px;color:var(--dim);margin-bottom:14px;text-align:center;"></div>
-
-      <!-- Summary Grid -->
       <div class="report-grid">
-        <div class="report-item">
-          <div class="report-item-label">💰 إجمالي الدخل</div>
-          <div class="report-item-value c-gold" id="rpSalary">0</div>
-        </div>
-        <div class="report-item">
-          <div class="report-item-label">🧾 إجمالي المصاريف</div>
-          <div class="report-item-value c-coral" id="rpExp">0</div>
-        </div>
-        <div class="report-item">
-          <div class="report-item-label">💚 الادخار المتوقع</div>
-          <div class="report-item-value c-mint" id="rpSave">0</div>
-        </div>
-        <div class="report-item">
-          <div class="report-item-label">📊 نسبة الادخار</div>
-          <div class="report-item-value c-mint" id="rpSavePct">0%</div>
-        </div>
+        <div class="report-item"><div class="ri-label">💰 إجمالي الدخل</div><div class="ri-value c-gold" id="rpSalary">0</div></div>
+        <div class="report-item"><div class="ri-label">🧾 إجمالي المصاريف</div><div class="ri-value c-coral" id="rpExp">0</div></div>
+        <div class="report-item"><div class="ri-label">💚 الادخار المتوقع</div><div class="ri-value c-mint" id="rpSave">0</div></div>
+        <div class="report-item"><div class="ri-label">📊 نسبة الادخار</div><div class="ri-value c-mint" id="rpSavePct">0%</div></div>
       </div>
-
-      <!-- Breakdown Bars -->
-      <div class="report-breakdown">
-        <div class="rb-row">
-          <span class="rb-label">🟫 مصاريف ثابتة</span>
-          <div class="rb-bar-wrap"><div class="rb-bar" id="rbFixed" style="background:var(--gold);width:0%"></div></div>
-          <span class="rb-val" id="rbFixedVal">0%</span>
-        </div>
-        <div class="rb-row">
-          <span class="rb-label">🔴 ضروريات إضافية</span>
-          <div class="rb-bar-wrap"><div class="rb-bar" id="rbA" style="background:var(--coral);width:0%"></div></div>
-          <span class="rb-val" id="rbAVal">0%</span>
-        </div>
-        <div class="rb-row">
-          <span class="rb-label">🟡 كماليات</span>
-          <div class="rb-bar-wrap"><div class="rb-bar" id="rbB" style="background:#D9B85C;width:0%"></div></div>
-          <span class="rb-val" id="rbBVal">0%</span>
-        </div>
-        <div class="rb-row">
-          <span class="rb-label">🟢 ادخار / ديون</span>
-          <div class="rb-bar-wrap"><div class="rb-bar" id="rbC" style="background:var(--mint);width:0%"></div></div>
-          <span class="rb-val" id="rbCVal">0%</span>
-        </div>
-      </div>
-
-      <div class="report-tip" id="reportTip"></div>
+      <div class="rb-row"><span class="rb-label">🟫 مصاريف ثابتة</span><div class="rb-bar-wrap"><div class="rb-bar" id="rbFixed" style="background:var(--gold);width:0%"></div></div><span class="rb-val" id="rbFixedVal">0%</span></div>
+      <div class="rb-row"><span class="rb-label">🔴 ضروريات إضافية</span><div class="rb-bar-wrap"><div class="rb-bar" id="rbA" style="background:var(--coral);width:0%"></div></div><span class="rb-val" id="rbAVal">0%</span></div>
+      <div class="rb-row"><span class="rb-label">🟡 كماليات</span><div class="rb-bar-wrap"><div class="rb-bar" id="rbB" style="background:#D9B85C;width:0%"></div></div><span class="rb-val" id="rbBVal">0%</span></div>
+      <div class="rb-row"><span class="rb-label">🟢 ادخار</span><div class="rb-bar-wrap"><div class="rb-bar" id="rbC" style="background:var(--mint);width:0%"></div></div><span class="rb-val" id="rbCVal">0%</span></div>
+      <div class="report-tip" id="reportTip" style="display:none;"></div>
     </div>
 
-    <footer>كل الحسابات في متصفحك فقط — لا تُخزَّن ولا تُرسَل.</footer>
+    <footer>بياناتك محفوظة بأمان في السحابة 🔒</footer>
   </div>
 </div>
 
+<div class="toast" id="toast"></div>
+
 <script>
-// ══════════════════════════════════════════
-// CONFIG
-// ══════════════════════════════════════════
-const CFG = {
-  PASSWORD:        "MyBudget@2025",
-  OTP_TTL:         120,
-  MAX_ATTEMPTS:    5,
-  LOCKOUT_MINUTES: 5,
-  TG_TOKEN:        "8892349643:AAHEWyT96HF0qAK20JCDPgFJlfE4prY1BJI",
-  TG_CHAT_ID:      "6330171267",
-  SB_URL:          "https://skapbpobqwantksimxpp.supabase.co",
-  SB_KEY:          "sb_publishable_Qux4fPGMGSPirrjWHi1LLg_k9NVgC0C",
-};
-// ══════════════════════════════════════════
+const SB_URL = "https://skapbpobqwantksimxpp.supabase.co";
+const SB_KEY = "sb_publishable_Qux4fPGMGSPirrjWHi1LLg_k9NVgC0C";
+const sb = supabase.createClient(SB_URL, SB_KEY);
 
-let currentOTP = "", otpExpiry = 0, timerInt = null;
-let passAttempts = 0, lockoutUntil = 0;
-
-function show(id,msg){const e=document.getElementById(id);e.textContent=msg;e.style.display='block';}
-function hide(id){document.getElementById(id).style.display='none';}
-function fmt(n){return Math.round(n).toLocaleString('en-US');}
-
-function togglePass(){
-  const i=document.getElementById('passInput');
-  i.type = i.type==='password'?'text':'password';
+// ── AUTH ──────────────────────────────────────
+function switchTab(tab){
+  document.querySelectorAll('.auth-tab').forEach((t,i)=>t.classList.toggle('active',i===(tab==='login'?0:1)));
+  document.getElementById('loginForm').style.display  = tab==='login'?'block':'none';
+  document.getElementById('signupForm').style.display = tab==='signup'?'block':'none';
+  hideAuthMsg();
 }
 
-// ── STEP 1 ──
-function submitPass(){
-  hide('err1');
-  if(Date.now()<lockoutUntil){
-    show('err1',`⛔ محجوب. حاول بعد ${Math.ceil((lockoutUntil-Date.now())/60000)} دقيقة.`);
-    return;
-  }
-  const p = document.getElementById('passInput').value;
-  if(!p.trim()){show('err1','أدخل كلمة المرور.');return;}
-  if(p !== CFG.PASSWORD){
-    passAttempts++;
-    const left = CFG.MAX_ATTEMPTS - passAttempts;
-    if(left<=0){
-      lockoutUntil = Date.now()+CFG.LOCKOUT_MINUTES*60000;
-      passAttempts=0;
-      show('err1',`⛔ تجاوزت الحد. محجوب ${CFG.LOCKOUT_MINUTES} دقائق.`);
-    } else {
-      show('err1',`❌ كلمة المرور خاطئة. متبقي ${left} محاولة.`);
-    }
-    document.getElementById('passInput').value='';
-    return;
-  }
-  passAttempts=0;
-  sendOTP();
+function showErr(msg){const e=document.getElementById('authErr');e.textContent=msg;e.style.display='block';document.getElementById('authSuc').style.display='none';}
+function showSuc(msg){const e=document.getElementById('authSuc');e.textContent=msg;e.style.display='block';document.getElementById('authErr').style.display='none';}
+function hideAuthMsg(){document.getElementById('authErr').style.display='none';document.getElementById('authSuc').style.display='none';}
+
+async function login(){
+  const email = document.getElementById('loginEmail').value.trim();
+  const pass  = document.getElementById('loginPass').value;
+  if(!email||!pass){showErr('أدخل البريد وكلمة المرور.');return;}
+  const btn = document.querySelector('#loginForm .primary-btn');
+  btn.disabled=true; btn.textContent='جارٍ الدخول...';
+  const {error} = await sb.auth.signInWithPassword({email,password:pass});
+  btn.disabled=false; btn.textContent='دخول →';
+  if(error) showErr('❌ ' + (error.message.includes('Invalid')?'البريد أو كلمة المرور غلط':error.message));
 }
 
-// ── SEND OTP ──
-function sendOTP(){
-  currentOTP = String(Math.floor(100000+Math.random()*900000));
-  otpExpiry  = Date.now()+CFG.OTP_TTL*1000;
-
-  document.getElementById('step1').classList.remove('active');
-  document.getElementById('step2').classList.add('active');
-  show('sucMsg','⏳ جارٍ الإرسال...');
-  document.getElementById('otpInput').value='';
-  hide('err2');
-  document.getElementById('resendBtn').disabled=true;
-  startTimer();
-
-    const tgMsg = `🔐 مخطط راتبي — رمز التحقق\n\nرمزك هو: ${currentOTP}\n\nصالح لمدة دقيقتين فقط.`;
-  fetch(`https://api.telegram.org/bot${CFG.TG_TOKEN}/sendMessage`,{
-    method:"POST",
-    headers:{"Content-Type":"application/json"},
-    body:JSON.stringify({chat_id:CFG.TG_CHAT_ID, text:tgMsg})
-  })
-  .then(r=>r.json())
-  .then(d=>{
-    if(d.ok) show('sucMsg','✅ تم إرسال الرمز إلى Telegram 📱');
-    else     show('sucMsg','⚠️ تعذّر الإرسال. تحقق من اتصالك.');
-  })
-  .catch(()=> show('sucMsg','⚠️ تعذّر الإرسال. تحقق من اتصالك.'));
+async function signup(){
+  const name  = document.getElementById('signupName').value.trim();
+  const email = document.getElementById('signupEmail').value.trim();
+  const pass  = document.getElementById('signupPass').value;
+  if(!name||!email||!pass){showErr('أكمل جميع الحقول.');return;}
+  if(pass.length<8){showErr('كلمة المرور 8 أحرف على الأقل.');return;}
+  const btn = document.querySelector('#signupForm .primary-btn');
+  btn.disabled=true; btn.textContent='جارٍ الإنشاء...';
+  const {error} = await sb.auth.signUp({email,password:pass,options:{data:{full_name:name}}});
+  btn.disabled=false; btn.textContent='إنشاء حساب';
+  if(error) showErr('❌ '+error.message);
+  else showSuc('✅ تم الإنشاء! تحقق من بريدك لتأكيد الحساب.');
 }
 
-// ── TIMER ──
-function startTimer(){
-  clearInterval(timerInt);
-  updateTimer();
-  timerInt = setInterval(updateTimer,1000);
-}
-function updateTimer(){
-  const left = Math.max(0,Math.ceil((otpExpiry-Date.now())/1000));
-  const el   = document.getElementById('timerEl');
-  const mm   = String(Math.floor(left/60)).padStart(2,'0');
-  const ss   = String(left%60).padStart(2,'0');
-  if(left>0){
-    el.textContent=`⏱ ينتهي خلال: ${mm}:${ss}`;
-    el.className='timer';
-  } else {
-    el.textContent='⚠️ انتهى الرمز. اضغط إعادة إرسال.';
-    el.className='timer exp';
-    clearInterval(timerInt);
-    currentOTP='';
-    document.getElementById('resendBtn').disabled=false;
-  }
+async function resetPass(){
+  const email = document.getElementById('loginEmail').value.trim();
+  if(!email){showErr('أدخل بريدك الإلكتروني أولاً.');return;}
+  await sb.auth.resetPasswordForEmail(email);
+  showSuc('✅ تم إرسال رابط إعادة التعيين إلى بريدك.');
 }
 
-// ── STEP 2 ──
-function submitOTP(){
-  hide('err2');
-  const entered = document.getElementById('otpInput').value.trim();
-  if(entered.length!==6){show('err2','الرمز 6 أرقام.');return;}
-  if(!currentOTP||Date.now()>otpExpiry){show('err2','⚠️ انتهى الرمز. أعد الإرسال.');return;}
-  if(entered!==currentOTP){show('err2','❌ الرمز غير صحيح.');document.getElementById('otpInput').value='';return;}
-  clearInterval(timerInt);
-  currentOTP='';
-  unlockApp();
-}
-
-function resendOTP(){hide('err2');sendOTP();}
-
-function goBack(){
-  clearInterval(timerInt);
-  document.getElementById('step2').classList.remove('active');
-  document.getElementById('step1').classList.add('active');
-  document.getElementById('passInput').value='';
-  hide('err1');hide('sucMsg');
-}
-
-function unlockApp(){
-  document.getElementById('lockScreen').style.display='none';
-  document.getElementById('mainApp').style.display='block';
-  initApp();
-}
-
-function logout(){
-  clearInterval(timerInt);
-  currentOTP='';
+async function logout(){
+  await sb.auth.signOut();
   document.getElementById('mainApp').style.display='none';
-  document.getElementById('lockScreen').style.display='flex';
-  document.getElementById('step2').classList.remove('active');
-  document.getElementById('step1').classList.add('active');
-  document.getElementById('passInput').value='';
-  document.getElementById('otpInput').value='';
-  hide('sucMsg');hide('err1');hide('err2');
+  document.getElementById('authScreen').style.display='flex';
+  resetApp();
 }
 
-// ══════════════════════════════════════════
-// MAIN APP
-// ══════════════════════════════════════════
+// Listen to auth state
+sb.auth.onAuthStateChange((event, session)=>{
+  if(session?.user){
+    document.getElementById('authScreen').style.display='none';
+    document.getElementById('mainApp').style.display='block';
+    const name = session.user.user_metadata?.full_name || session.user.email.split('@')[0];
+    document.getElementById('userName').textContent = name;
+    initApp();
+    loadData();
+  }
+});
+
+// ── APP ──────────────────────────────────────
 let appInited = false;
 function initApp(){
-  if(appInited)return; appInited=true;
-
-  // Default expenses
-  // no default expenses
-
-  // Sliders
+  if(appInited) return; appInited=true;
   ['A','B','C'].forEach(k=>{
     document.getElementById('slider'+k).addEventListener('input',function(){
       normalizeSliders(k);
@@ -452,8 +325,6 @@ function initApp(){
       calculate();
     });
   });
-
-  // Presets
   document.querySelectorAll('.preset-btn').forEach(btn=>{
     btn.addEventListener('click',function(){
       const [a,b,c]=this.dataset.p.split(',').map(Number);
@@ -466,81 +337,62 @@ function initApp(){
       calculate();
     });
   });
-
   document.getElementById('salary').addEventListener('input',calculate);
+  // Set default dates
+  const now=new Date(), y=now.getFullYear(), m=String(now.getMonth()+1).padStart(2,'0');
+  const last=new Date(y,now.getMonth()+1,0).getDate();
+  document.getElementById('dateFrom').value=`${y}-${m}-01`;
+  document.getElementById('dateTo').value=`${y}-${m}-${String(last).padStart(2,'0')}`;
+  updateDateLabel();
   updatePcts();
   calculate();
-
-  // Set default date range (current month)
-  const now = new Date();
-  const y = now.getFullYear();
-  const m = String(now.getMonth()+1).padStart(2,'0');
-  const lastDay = new Date(y, now.getMonth()+1, 0).getDate();
-  document.getElementById('dateFrom').value = `${y}-${m}-01`;
-  document.getElementById('dateTo').value = `${y}-${m}-${String(lastDay).padStart(2,'0')}`;
-  updateReport();
 }
 
-function updateReport(){
-  const from = document.getElementById('dateFrom').value;
-  const to   = document.getElementById('dateTo').value;
-  const lbl  = document.getElementById('dateRangeLabel');
-  if(from && to){
-    const f = new Date(from).toLocaleDateString('ar-SA',{year:'numeric',month:'long',day:'numeric'});
-    const t = new Date(to).toLocaleDateString('ar-SA',{year:'numeric',month:'long',day:'numeric'});
-    lbl.textContent = `📅 الفترة: ${f} — ${t}`;
-  }
-  calculate();
+function resetApp(){
+  appInited=false;
+  document.getElementById('salary').value='';
+  document.getElementById('expList').innerHTML='';
+  ['A','B','C'].forEach(k=>document.getElementById('slider'+k).value=k==='A'?50:k==='B'?30:20);
+  updatePcts(); calculate();
 }
 
-function addExp(n='',a=''){addExpRow(n,a);calculate();}
-
-function addExpRow(name,amount){
+function addExp(n='',a=''){
   const el=document.getElementById('expList');
   const row=document.createElement('div');
   row.className='exp-row';
-  row.innerHTML=`<input type="text" placeholder="اسم المصروف" value="${name}"><input type="number" placeholder="المبلغ" min="0" value="${amount}"><button class="exp-del" onclick="this.parentElement.remove();calculate()">×</button>`;
+  row.innerHTML=`<input type="text" placeholder="اسم المصروف" value="${n}"><input type="number" placeholder="المبلغ" min="0" value="${a}"><button class="exp-del" onclick="this.parentElement.remove();calculate()">×</button>`;
   row.querySelectorAll('input').forEach(i=>i.addEventListener('input',calculate));
   el.appendChild(row);
+  calculate();
 }
 
 function normalizeSliders(changed){
   const sA=document.getElementById('sliderA'),sB=document.getElementById('sliderB'),sC=document.getElementById('sliderC');
   let vals={A:+sA.value,B:+sB.value,C:+sC.value};
   const others=['A','B','C'].filter(k=>k!==changed);
-  const diff=100-vals[changed];
-  const sumO=others.reduce((s,k)=>s+vals[k],0);
+  const diff=100-vals[changed], sumO=others.reduce((s,k)=>s+vals[k],0);
   if(sumO<=0){others.forEach(k=>vals[k]=diff/2);}
   else{others.forEach(k=>vals[k]=Math.max(0,vals[k]+(diff-sumO)*(vals[k]/sumO)));}
   sA.value=Math.round(vals.A);sB.value=Math.round(vals.B);sC.value=Math.round(vals.C);
-  const tot=(+sA.value)+(+sB.value)+(+sC.value);
-  const drift=100-tot;
-  if(drift!==0){
-    const map={A:sA,B:sB,C:sC};
-    map[others[0]].value=Math.max(0,+map[others[0]].value+drift);
-  }
+  const tot=(+sA.value)+(+sB.value)+(+sC.value),drift=100-tot;
+  if(drift){const map={A:sA,B:sB,C:sC};map[others[0]].value=Math.max(0,+map[others[0]].value+drift);}
   updatePcts();
 }
 
 function updatePcts(){
-  ['A','B','C'].forEach(k=>{
-    document.getElementById('pct'+k).textContent=document.getElementById('slider'+k).value+'%';
-  });
+  ['A','B','C'].forEach(k=>document.getElementById('pct'+k).textContent=document.getElementById('slider'+k).value+'%');
 }
+
+function fmt(n){return Math.round(n).toLocaleString('en-US');}
 
 function calculate(){
   const salary=parseFloat(document.getElementById('salary').value)||0;
   const rows=[...document.getElementById('expList').querySelectorAll('.exp-row')];
   const totalExp=rows.reduce((s,r)=>s+(parseFloat(r.querySelectorAll('input')[1].value)||0),0);
   const remaining=salary-totalExp;
-  const a=+document.getElementById('sliderA').value;
-  const b=+document.getElementById('sliderB').value;
-  const c=+document.getElementById('sliderC').value;
-  const vA=remaining>0?remaining*a/100:0;
-  const vB=remaining>0?remaining*b/100:0;
-  const vC=remaining>0?remaining*c/100:0;
+  const a=+document.getElementById('sliderA').value,b=+document.getElementById('sliderB').value,c=+document.getElementById('sliderC').value;
+  const vA=remaining>0?remaining*a/100:0,vB=remaining>0?remaining*b/100:0,vC=remaining>0?remaining*c/100:0;
   const expPct=salary>0?Math.min(totalExp/salary*100,100):0;
-
   document.getElementById('rTotalExp').textContent=fmt(totalExp);
   document.getElementById('rRemaining').textContent=fmt(Math.max(0,remaining));
   document.getElementById('rRemaining').className='result-value '+(remaining<0?'c-coral':'c-gold');
@@ -548,137 +400,88 @@ function calculate(){
   document.getElementById('rA').textContent=fmt(vA);
   document.getElementById('rB').textContent=fmt(vB);
   document.getElementById('rC').textContent=fmt(vC);
-
-  const restPct=100-expPct;
+  const rPct=100-expPct;
   document.getElementById('barExp').style.width=expPct+'%';
-  document.getElementById('barA').style.width=(restPct*a/100)+'%';
-  document.getElementById('barB').style.width=(restPct*b/100)+'%';
-  document.getElementById('barC').style.width=(restPct*c/100)+'%';
-
-
-  // Update Report
-  const rpSalary = salary;
-  const rpSavePct = salary>0 ? Math.round(vC/salary*100) : 0;
-  document.getElementById('rpSalary').textContent = fmt(rpSalary);
-  document.getElementById('rpExp').textContent = fmt(totalExp);
-  document.getElementById('rpSave').textContent = fmt(vC);
-  document.getElementById('rpSavePct').textContent = rpSavePct+'%';
-
-  const fixedPct = salary>0?Math.min(Math.round(totalExp/salary*100),100):0;
-  const aPct = salary>0?Math.round(vA/salary*100):0;
-  const bPct = salary>0?Math.round(vB/salary*100):0;
-  const cPct = salary>0?Math.round(vC/salary*100):0;
-
-  document.getElementById('rbFixed').style.width=fixedPct+'%';
-  document.getElementById('rbFixedVal').textContent=fixedPct+'%';
-  document.getElementById('rbA').style.width=aPct+'%';
-  document.getElementById('rbAVal').textContent=aPct+'%';
-  document.getElementById('rbB').style.width=bPct+'%';
-  document.getElementById('rbBVal').textContent=bPct+'%';
-  document.getElementById('rbC').style.width=cPct+'%';
-  document.getElementById('rbCVal').textContent=cPct+'%';
-
-  const tip = document.getElementById('reportTip');
-  if(salary===0){tip.style.display='none';}
-  else if(cPct>=20){tip.style.display='block';tip.innerHTML='<strong>ممتاز! 🌟</strong> ادخارك '+cPct+'% من راتبك — أنت على المسار الصحيح.';}
-  else if(cPct>=10){tip.style.display='block';tip.innerHTML='<strong>جيد 👍</strong> ادخارك '+cPct+'%. حاول تزيده لـ 20% للأمان المالي.';}
-  else{tip.style.display='block';tip.innerHTML='<strong>تنبيه ⚠️</strong> ادخارك أقل من 10%. راجع مصاريفك وحاول تقلل الكماليات.';}
-
+  document.getElementById('barA').style.width=(rPct*a/100)+'%';
+  document.getElementById('barB').style.width=(rPct*b/100)+'%';
+  document.getElementById('barC').style.width=(rPct*c/100)+'%';
   const warn=document.getElementById('warnNote');
-  if(remaining<0){
-    warn.style.display='block';
-    warn.innerHTML=`<strong>تنبيه:</strong> مصاريفك (${fmt(totalExp)}) تجاوزت راتبك (${fmt(salary)}) بمقدار ${fmt(Math.abs(remaining))}.`;
-  } else if(expPct>70){
-    warn.style.display='block';
-    warn.innerHTML=`<strong>تنبيه:</strong> مصاريفك تستهلك ${Math.round(expPct)}% من راتبك. حاول تقلل بعض البنود.`;
-  } else {
-    warn.style.display='none';
+  if(remaining<0){warn.style.display='block';warn.innerHTML=`<strong>تنبيه:</strong> مصاريفك (${fmt(totalExp)}) تجاوزت راتبك (${fmt(salary)}).`;}
+  else if(expPct>70){warn.style.display='block';warn.innerHTML=`<strong>تنبيه:</strong> مصاريفك تستهلك ${Math.round(expPct)}% من راتبك.`;}
+  else{warn.style.display='none';}
+  // Report
+  const savePct=salary>0?Math.round(vC/salary*100):0;
+  document.getElementById('rpSalary').textContent=fmt(salary);
+  document.getElementById('rpExp').textContent=fmt(totalExp);
+  document.getElementById('rpSave').textContent=fmt(vC);
+  document.getElementById('rpSavePct').textContent=savePct+'%';
+  const fP=Math.round(expPct),aP=salary>0?Math.round(vA/salary*100):0,bP=salary>0?Math.round(vB/salary*100):0,cP=savePct;
+  ['Fixed','A','B','C'].forEach((k,i)=>{const p=[fP,aP,bP,cP][i];document.getElementById('rb'+k).style.width=p+'%';document.getElementById('rb'+k+'Val').textContent=p+'%';});
+  const tip=document.getElementById('reportTip');
+  if(salary===0){tip.style.display='none';}
+  else if(savePct>=20){tip.style.display='block';tip.innerHTML=`<strong>ممتاز! 🌟</strong> ادخارك ${savePct}% — أنت على المسار الصحيح.`;}
+  else if(savePct>=10){tip.style.display='block';tip.innerHTML=`<strong>جيد 👍</strong> ادخارك ${savePct}%. حاول تزيده لـ 20%.`;}
+  else{tip.style.display='block';tip.innerHTML=`<strong>تنبيه ⚠️</strong> ادخارك أقل من 10%. راجع مصاريفك.`;}
+}
+
+function updateDateLabel(){
+  const from=document.getElementById('dateFrom').value,to=document.getElementById('dateTo').value;
+  if(from&&to){
+    const f=new Date(from).toLocaleDateString('ar-SA',{year:'numeric',month:'long',day:'numeric'});
+    const t=new Date(to).toLocaleDateString('ar-SA',{year:'numeric',month:'long',day:'numeric'});
+    document.getElementById('dateRangeLabel').textContent=`📅 ${f} — ${t}`;
   }
 }
 
-
-// ══════════════════════════════════════════
-// SUPABASE — حفظ وتحميل البيانات
-// ══════════════════════════════════════════
-
-async function sbRequest(method, path, body=null){
-  const opts = {
-    method,
-    headers:{
-      "Content-Type":"application/json",
-      "apikey": CFG.SB_KEY,
-      "Authorization": "Bearer " + CFG.SB_KEY,
-      "Prefer": method==="POST" ? "return=representation" : ""
-    }
-  };
-  if(body) opts.body = JSON.stringify(body);
-  const res = await fetch(CFG.SB_URL + "/rest/v1/" + path, opts);
-  return res.ok ? res.json() : null;
+function showToast(msg,color='var(--mint)'){
+  const t=document.getElementById('toast');
+  t.textContent=msg;t.style.borderColor=color;t.style.color=color;t.style.display='block';
+  setTimeout(()=>t.style.display='none',2500);
 }
 
+// ── SUPABASE DATA ──────────────────────────────
 async function saveData(){
-  const salary = parseFloat(document.getElementById('salary').value)||0;
-  const rows = [...document.getElementById('expList').querySelectorAll('.exp-row')];
-  const expenses = rows.map(r=>{
-    const [n,a] = r.querySelectorAll('input');
-    return {name:n.value, amount:parseFloat(a.value)||0};
-  });
-  const ratios = {
-    a:+document.getElementById('sliderA').value,
-    b:+document.getElementById('sliderB').value,
-    c:+document.getElementById('sliderC').value
-  };
-  const dateFrom = document.getElementById('dateFrom').value;
-  const dateTo   = document.getElementById('dateTo').value;
-  const monthYear = dateFrom ? dateFrom.slice(0,7) : new Date().toISOString().slice(0,7);
-
-  // Check if record exists for this month
-  const existing = await sbRequest("GET", `budget_data?month_year=eq.${monthYear}&select=id`);
+  const {data:{user},error:authErr} = await sb.auth.getUser();
+  if(authErr||!user){showToast('سجّل دخولك أولاً','var(--coral)');return;}
   
-  if(existing && existing.length > 0){
-    await sbRequest("PATCH", `budget_data?month_year=eq.${monthYear}`, {salary,expenses,ratios,date_from:dateFrom,date_to:dateTo});
+  const salary=parseFloat(document.getElementById('salary').value)||0;
+  const rows=[...document.getElementById('expList').querySelectorAll('.exp-row')];
+  const expenses=rows.map(r=>{const [n,a]=r.querySelectorAll('input');return{name:n.value,amount:parseFloat(a.value)||0};});
+  const ratios={a:+document.getElementById('sliderA').value,b:+document.getElementById('sliderB').value,c:+document.getElementById('sliderC').value};
+  const dateFrom=document.getElementById('dateFrom').value,dateTo=document.getElementById('dateTo').value;
+  const monthYear=dateFrom?dateFrom.slice(0,7):new Date().toISOString().slice(0,7);
+  const payload={user_id:user.id,month_year:monthYear,salary,expenses,ratios,date_from:dateFrom,date_to:dateTo};
+
+  // upsert يحفظ أو يحدث تلقائياً
+  const {error} = await sb.from('budget_data').upsert(payload, {onConflict:'user_id,month_year'});
+  if(error){
+    console.error('Save error:',error);
+    showToast('❌ خطأ في الحفظ: '+error.message,'var(--coral)');
   } else {
-    await sbRequest("POST", "budget_data", {month_year:monthYear,salary,expenses,ratios,date_from:dateFrom,date_to:dateTo});
+    showToast('✅ تم الحفظ بنجاح!');
   }
-  showSaveStatus('✅ تم الحفظ!');
 }
 
 async function loadData(){
-  const monthYear = new Date().toISOString().slice(0,7);
-  const data = await sbRequest("GET", `budget_data?month_year=eq.${monthYear}&select=*`);
-  if(!data || data.length===0){ showSaveStatus('لا توجد بيانات محفوظة لهذا الشهر'); return; }
-  
-  const d = data[0];
-  document.getElementById('salary').value = d.salary||'';
-  
-  // Load expenses
-  const expList = document.getElementById('expList');
-  expList.innerHTML = '';
-  (d.expenses||[]).forEach(e=>addExpRow(e.name, e.amount));
-  
-  // Load ratios
-  if(d.ratios){
-    document.getElementById('sliderA').value = d.ratios.a||50;
-    document.getElementById('sliderB').value = d.ratios.b||30;
-    document.getElementById('sliderC').value = d.ratios.c||20;
+  const {data:{user},error:authErr} = await sb.auth.getUser();
+  if(authErr||!user) return;
+  const monthYear=new Date().toISOString().slice(0,7);
+  const {data,error} = await sb.from('budget_data').select('*').eq('user_id',user.id).eq('month_year',monthYear).maybeSingle();
+  if(error){console.error('Load error:',error);return;}
+  if(!data){showToast('لا توجد بيانات محفوظة لهذا الشهر','var(--gold)');return;}
+  document.getElementById('salary').value=data.salary||'';
+  document.getElementById('expList').innerHTML='';
+  (data.expenses||[]).forEach(e=>addExp(e.name,e.amount));
+  if(data.ratios){
+    document.getElementById('sliderA').value=data.ratios.a||50;
+    document.getElementById('sliderB').value=data.ratios.b||30;
+    document.getElementById('sliderC').value=data.ratios.c||20;
     updatePcts();
   }
-  if(d.date_from) document.getElementById('dateFrom').value = d.date_from;
-  if(d.date_to)   document.getElementById('dateTo').value   = d.date_to;
-  
-  calculate();
-  showSaveStatus('✅ تم التحميل!');
-}
-
-function showSaveStatus(msg){
-  let el = document.getElementById('saveStatus');
-  if(!el){ el=document.createElement('div'); el.id='saveStatus'; el.style.cssText='position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:#16241F;border:1px solid #6FBF9B;border-radius:10px;padding:10px 20px;color:#6FBF9B;font-family:Tajawal;font-size:14px;z-index:9999;'; document.body.appendChild(el); }
-  el.textContent=msg; el.style.display='block';
-  setTimeout(()=>el.style.display='none', 2500);
-}
-
-function printReport(){
-  window.print();
+  if(data.date_from)document.getElementById('dateFrom').value=data.date_from;
+  if(data.date_to)document.getElementById('dateTo').value=data.date_to;
+  updateDateLabel();calculate();
+  showToast('✅ تم التحميل!');
 }
 </script>
 </body>
