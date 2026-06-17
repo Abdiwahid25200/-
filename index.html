@@ -163,7 +163,7 @@
     <div class="card">
       <div class="card-title"><span class="dot"></span> راتبك الشهري</div>
       <label class="app-label">المبلغ</label>
-      <input type="number" class="num-inp" id="salary" value="800" min="0">
+      <input type="number" class="num-inp" id="salary" value="" placeholder="0" min="0">
     </div>
 
     <div class="card">
@@ -175,7 +175,7 @@
     <div class="card">
       <div class="card-title"><span class="dot"></span> خطة توزيع الباقي</div>
       <div class="presets">
-        <button class="preset-btn active" data-p="50,30,20">50 / 30 / 20</button>
+        <button class="preset-btn" data-p="50,30,20">50 / 30 / 20</button>
         <button class="preset-btn" data-p="60,20,20">60 / 20 / 20</button>
         <button class="preset-btn" data-p="40,30,30">40 / 30 / 30</button>
         <button class="preset-btn" data-p="70,15,15">70 / 15 / 15</button>
@@ -223,6 +223,17 @@
         <div class="report-title"><span class="dot"></span> التقرير الشهري</div>
         <button class="print-btn" onclick="printReport()">🖨️ طباعة / PDF</button>
       </div>
+      <div style="display:flex;gap:10px;margin-bottom:18px;flex-wrap:wrap;">
+        <div style="flex:1;min-width:130px;">
+          <label class="app-label">من تاريخ</label>
+          <input type="date" id="dateFrom" onchange="updateReport()" style="width:100%;background:var(--panel2);border:1px solid var(--line);color:var(--ink);font-family:'IBM Plex Mono',monospace;font-size:13px;padding:10px 12px;border-radius:10px;outline:none;">
+        </div>
+        <div style="flex:1;min-width:130px;">
+          <label class="app-label">إلى تاريخ</label>
+          <input type="date" id="dateTo" onchange="updateReport()" style="width:100%;background:var(--panel2);border:1px solid var(--line);color:var(--ink);font-family:'IBM Plex Mono',monospace;font-size:13px;padding:10px 12px;border-radius:10px;outline:none;">
+        </div>
+      </div>
+      <div id="dateRangeLabel" style="font-size:12px;color:var(--dim);margin-bottom:14px;text-align:center;"></div>
 
       <!-- Summary Grid -->
       <div class="report-grid">
@@ -425,7 +436,7 @@ function initApp(){
   if(appInited)return; appInited=true;
 
   // Default expenses
-  [['سكن / إيجار',''],['فواتير (كهرباء، ماء، نت)',''],['نقل / بنزين','']].forEach(([n,a])=>addExpRow(n,a));
+  // no default expenses
 
   // Sliders
   ['A','B','C'].forEach(k=>{
@@ -452,6 +463,27 @@ function initApp(){
 
   document.getElementById('salary').addEventListener('input',calculate);
   updatePcts();
+  calculate();
+
+  // Set default date range (current month)
+  const now = new Date();
+  const y = now.getFullYear();
+  const m = String(now.getMonth()+1).padStart(2,'0');
+  const lastDay = new Date(y, now.getMonth()+1, 0).getDate();
+  document.getElementById('dateFrom').value = `${y}-${m}-01`;
+  document.getElementById('dateTo').value = `${y}-${m}-${String(lastDay).padStart(2,'0')}`;
+  updateReport();
+}
+
+function updateReport(){
+  const from = document.getElementById('dateFrom').value;
+  const to   = document.getElementById('dateTo').value;
+  const lbl  = document.getElementById('dateRangeLabel');
+  if(from && to){
+    const f = new Date(from).toLocaleDateString('ar-SA',{year:'numeric',month:'long',day:'numeric'});
+    const t = new Date(to).toLocaleDateString('ar-SA',{year:'numeric',month:'long',day:'numeric'});
+    lbl.textContent = `📅 الفترة: ${f} — ${t}`;
+  }
   calculate();
 }
 
