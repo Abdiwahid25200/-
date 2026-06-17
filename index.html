@@ -158,6 +158,10 @@
       <div class="eyebrow">مخطط الميزانية الشخصية</div>
       <h1>وين <span>بيروح</span> راتبي؟</h1>
       <div class="sub">دخّل راتبك ومصاريفك، واطّلع على خطة واضحة لتوزيع كل ريال</div>
+      <div style="display:flex;gap:10px;justify-content:center;margin-top:14px;">
+        <button onclick="saveData()" style="background:var(--gold);color:#1a1408;border:none;border-radius:10px;padding:10px 20px;font-family:'Tajawal';font-weight:700;font-size:14px;cursor:pointer;">💾 حفظ</button>
+        <button onclick="loadData()" style="background:var(--panel);border:1px solid var(--line);color:var(--ink);border-radius:10px;padding:10px 20px;font-family:'Tajawal';font-weight:700;font-size:14px;cursor:pointer;">📂 تحميل</button>
+      </div>
     </header>
 
     <div class="card">
@@ -297,6 +301,8 @@ const CFG = {
   LOCKOUT_MINUTES: 5,
   TG_TOKEN:        "8892349643:AAHEWyT96HF0qAK20JCDPgFJlfE4prY1BJI",
   TG_CHAT_ID:      "6330171267",
+  SB_URL:          "https://skapbpobqwantksimxpp.supabase.co",
+  SB_KEY:          "sb_publishable_Qux4fPGMGSPirrjWHi1LLg_k9NVgC0C",
 };
 // ══════════════════════════════════════════
 
@@ -588,6 +594,87 @@ function calculate(){
   } else {
     warn.style.display='none';
   }
+}
+
+
+// ══════════════════════════════════════════
+// SUPABASE — حفظ وتحميل البيانات
+// ══════════════════════════════════════════
+
+async function sbRequest(method, path, body=null){
+  const opts = {
+    method,
+    headers:{
+      "Content-Type":"application/json",
+      "apikey": CFG.SB_KEY,
+      "Authorization": "Bearer " + CFG.SB_KEY,
+      "Prefer": method==="POST" ? "return=representation" : ""
+    }
+  };
+  if(body) opts.body = JSON.stringify(body);
+  const res = await fetch(CFG.SB_URL + "/rest/v1/" + path, opts);
+  return res.ok ? res.json() : null;
+}
+
+async function saveData(){
+  const salary = parseFloat(document.getElementById('salary').value)||0;
+  const rows = [...document.getElementById('expList').querySelectorAll('.exp-row')];
+  const expenses = rows.map(r=>{
+    const [n,a] = r.querySelectorAll('input');
+    return {name:n.value, amount:parseFloat(a.value)||0};
+  });
+  const ratios = {
+    a:+document.getElementById('sliderA').value,
+    b:+document.getElementById('sliderB').value,
+    c:+document.getElementById('sliderC').value
+  };
+  const dateFrom = document.getElementById('dateFrom').value;
+  const dateTo   = document.getElementById('dateTo').value;
+  const monthYear = dateFrom ? dateFrom.slice(0,7) : new Date().toISOString().slice(0,7);
+
+  // Check if record exists for this month
+  const existing = await sbRequest("GET", `budget_data?month_year=eq.${monthYear}&select=id`);
+  
+  if(existing && existing.length > 0){
+    await sbRequest("PATCH", `budget_data?month_year=eq.${monthYear}`, {salary,expenses,ratios,date_from:dateFrom,date_to:dateTo});
+  } else {
+    await sbRequest("POST", "budget_data", {month_year:monthYear,salary,expenses,ratios,date_from:dateFrom,date_to:dateTo});
+  }
+  showSaveStatus('✅ تم الحفظ!');
+}
+
+async function loadData(){
+  const monthYear = new Date().toISOString().slice(0,7);
+  const data = await sbRequest("GET", `budget_data?month_year=eq.${monthYear}&select=*`);
+  if(!data || data.length===0){ showSaveStatus('لا توجد بيانات محفوظة لهذا الشهر'); return; }
+  
+  const d = data[0];
+  document.getElementById('salary').value = d.salary||'';
+  
+  // Load expenses
+  const expList = document.getElementById('expList');
+  expList.innerHTML = '';
+  (d.expenses||[]).forEach(e=>addExpRow(e.name, e.amount));
+  
+  // Load ratios
+  if(d.ratios){
+    document.getElementById('sliderA').value = d.ratios.a||50;
+    document.getElementById('sliderB').value = d.ratios.b||30;
+    document.getElementById('sliderC').value = d.ratios.c||20;
+    updatePcts();
+  }
+  if(d.date_from) document.getElementById('dateFrom').value = d.date_from;
+  if(d.date_to)   document.getElementById('dateTo').value   = d.date_to;
+  
+  calculate();
+  showSaveStatus('✅ تم التحميل!');
+}
+
+function showSaveStatus(msg){
+  let el = document.getElementById('saveStatus');
+  if(!el){ el=document.createElement('div'); el.id='saveStatus'; el.style.cssText='position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:#16241F;border:1px solid #6FBF9B;border-radius:10px;padding:10px 20px;color:#6FBF9B;font-family:Tajawal;font-size:14px;z-index:9999;'; document.body.appendChild(el); }
+  el.textContent=msg; el.style.display='block';
+  setTimeout(()=>el.style.display='none', 2500);
 }
 
 function printReport(){
