@@ -207,7 +207,7 @@ const CFG = {
   LOCKOUT_MINUTES: 5,
   EJS_SERVICE:     "service_gvvhbdd",
   EJS_TEMPLATE:    "template_gim132k",
-  EJS_KEY:         "0aaVeum7Pf6DjpOFF1l5g",
+  EJS_KEY:         "AcrWf9n51CqcYJ-sP",
 };
 // ══════════════════════════════════════════
 
@@ -268,8 +268,8 @@ function sendOTP(){
     body:JSON.stringify({
       service_id:  CFG.EJS_SERVICE,
       template_id: CFG.EJS_TEMPLATE,
-      user_id:     CFG.EJS_KEY,
-      accessToken: CFG.EJS_KEY,
+      user_id:     'AcrWf9n51CqcYJ-sP',
+      accessToken: '0aaVeum7Pf6DjpOFF1l5g',
       template_params:{
         to_email:   CFG.TARGET_EMAIL,
         passcode:   currentOTP,
