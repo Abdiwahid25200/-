@@ -1,1 +1,464 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>مخطط راتبي — محمي</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;900&family=IBM+Plex+Mono:wght@500;600&display=swap');
+  :root{--bg:#0F1A17;--panel:#16241F;--panel2:#1C2C26;--line:#2A3D35;--gold:#C9A24B;--golds:#E8D8A8;--mint:#6FBF9B;--coral:#E0795A;--ink:#EDEFE8;--dim:#9FB0A8;}
+  *{box-sizing:border-box;margin:0;padding:0;}
+  html,body{background:var(--bg);color:var(--ink);font-family:'Tajawal',sans-serif;min-height:100vh;direction:rtl;}
 
+  /* Lock */
+  #lockScreen{display:flex;align-items:center;justify-content:center;min-height:100vh;padding:24px;}
+  .lock-box{background:var(--panel);border:1px solid var(--line);border-radius:22px;padding:36px 28px;max-width:400px;width:100%;text-align:center;}
+  .step{display:none;} .step.active{display:block;}
+  .fld{margin-bottom:16px;text-align:right;}
+  .fld label{display:block;font-size:13px;color:var(--dim);margin-bottom:6px;}
+  .fld input{width:100%;background:var(--panel2);border:1px solid var(--line);color:var(--ink);font-family:'IBM Plex Mono',monospace;font-size:16px;padding:12px 44px 12px 14px;border-radius:10px;outline:none;text-align:right;transition:border-color .15s;}
+  .fld input:focus{border-color:var(--gold);}
+  .fld .otp-inp{text-align:center;letter-spacing:.3em;font-size:22px;font-weight:600;padding:12px 14px;}
+  .pw-wrap{position:relative;}
+  .pw-toggle{position:absolute;left:12px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--dim);cursor:pointer;font-size:18px;}
+  .primary-btn{width:100%;padding:14px;border-radius:12px;border:none;background:var(--gold);color:#1a1408;font-family:'Tajawal';font-size:16px;font-weight:700;cursor:pointer;margin-top:8px;transition:opacity .15s;}
+  .primary-btn:hover{opacity:.88;}
+  .ghost-btn{width:100%;padding:12px;border-radius:12px;border:1px solid var(--line);background:transparent;color:var(--dim);font-family:'Tajawal';font-size:14px;cursor:pointer;margin-top:8px;transition:.15s;}
+  .ghost-btn:hover{border-color:var(--gold);color:var(--golds);}
+  .ghost-btn:disabled{opacity:.4;cursor:not-allowed;}
+  .err{background:#2a1a15;border:1px solid var(--coral);border-radius:8px;color:var(--coral);font-size:13px;padding:10px 12px;margin-bottom:14px;display:none;}
+  .suc{background:#122518;border:1px solid var(--mint);border-radius:8px;color:var(--mint);font-size:13px;padding:10px 12px;margin-bottom:14px;display:none;}
+  .otp-info{background:var(--panel2);border-right:3px solid var(--gold);border-radius:8px;padding:10px 12px;font-size:12px;color:var(--dim);margin-bottom:16px;text-align:right;line-height:1.7;}
+  .timer{font-family:'IBM Plex Mono',monospace;font-size:13px;color:var(--gold);margin:8px 0 12px;}
+  .timer.exp{color:var(--coral);}
+  hr.div{border:none;border-top:1px solid var(--line);margin:10px 0;}
+
+  /* App */
+  #mainApp{display:none;padding:28px 16px 80px;}
+  .wrap{max-width:760px;margin:0 auto;}
+  .logout-btn{position:fixed;top:16px;left:16px;background:var(--panel);border:1px solid var(--line);border-radius:20px;color:var(--dim);font-family:'Tajawal';font-size:12px;padding:7px 14px;cursor:pointer;z-index:999;transition:.15s;}
+  .logout-btn:hover{border-color:var(--coral);color:var(--coral);}
+  header{margin-bottom:28px;text-align:center;}
+  .eyebrow{font-family:'IBM Plex Mono',monospace;font-size:12px;letter-spacing:.12em;color:var(--gold);text-transform:uppercase;margin-bottom:10px;}
+  h1{font-size:clamp(28px,6vw,38px);font-weight:900;line-height:1.2;}
+  h1 span{color:var(--gold);}
+  .sub{color:var(--dim);font-size:14px;margin-top:8px;}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:24px;margin-bottom:20px;}
+  .card-title{font-size:16px;font-weight:700;margin-bottom:16px;display:flex;align-items:center;gap:8px;}
+  .card-title .dot{width:8px;height:8px;border-radius:50%;background:var(--gold);flex:none;}
+  .app-label{display:block;font-size:13px;color:var(--dim);margin-bottom:6px;}
+  .num-inp{width:100%;background:var(--panel2);border:1px solid var(--line);color:var(--ink);font-family:'IBM Plex Mono',monospace;font-size:18px;font-weight:600;padding:12px 14px;border-radius:10px;outline:none;transition:border-color .15s;}
+  .num-inp:focus{border-color:var(--gold);}
+  .num-inp::-webkit-outer-spin-button,.num-inp::-webkit-inner-spin-button{-webkit-appearance:none;}
+  .exp-list{display:flex;flex-direction:column;gap:10px;margin-bottom:14px;}
+  .exp-row{display:flex;gap:10px;align-items:center;}
+  .exp-row input[type=text]{flex:2;background:var(--panel2);border:1px solid var(--line);color:var(--ink);font-family:'Tajawal';font-size:14px;padding:10px 12px;border-radius:10px;outline:none;}
+  .exp-row input[type=text]:focus{border-color:var(--gold);}
+  .exp-row input[type=number]{flex:1;min-width:90px;background:var(--panel2);border:1px solid var(--line);color:var(--ink);font-family:'IBM Plex Mono',monospace;font-size:14px;padding:10px 12px;border-radius:10px;outline:none;}
+  .exp-row input[type=number]::-webkit-outer-spin-button,.exp-row input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none;}
+  .exp-del{flex:none;width:36px;height:36px;border-radius:8px;border:1px solid var(--line);background:var(--panel2);color:var(--coral);cursor:pointer;font-size:16px;}
+  .add-btn{width:100%;padding:12px;border-radius:10px;border:1px dashed var(--line);background:transparent;color:var(--golds);font-family:'Tajawal';font-weight:700;cursor:pointer;font-size:14px;}
+  .add-btn:hover{border-color:var(--gold);}
+  .presets{display:flex;gap:8px;margin-bottom:18px;flex-wrap:wrap;}
+  .preset-btn{font-family:'Tajawal';font-size:12px;padding:7px 14px;border-radius:20px;border:1px solid var(--line);background:var(--panel2);color:var(--dim);cursor:pointer;transition:.15s;}
+  .preset-btn:hover{border-color:var(--gold);color:var(--golds);}
+  .preset-btn.active{background:var(--gold);color:#1a1408;border-color:var(--gold);font-weight:700;}
+  .ratio-item{margin-bottom:18px;}
+  .ratio-head{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:8px;}
+  .ratio-name{font-size:14px;font-weight:700;}
+  .ratio-pct{font-family:'IBM Plex Mono',monospace;font-size:14px;color:var(--gold);font-weight:600;}
+  input[type=range]{width:100%;-webkit-appearance:none;height:6px;border-radius:4px;background:var(--panel2);outline:none;}
+  input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:20px;height:20px;border-radius:50%;background:var(--gold);cursor:pointer;border:3px solid var(--bg);box-shadow:0 0 0 1px var(--line);}
+  .results-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;}
+  .result-box{background:var(--panel2);border:1px solid var(--line);border-radius:12px;padding:16px 12px;text-align:center;}
+  .result-label{font-size:12px;color:var(--dim);margin-bottom:6px;}
+  .result-value{font-family:'IBM Plex Mono',monospace;font-size:18px;font-weight:700;}
+  .c-mint{color:var(--mint);} .c-gold{color:var(--golds);} .c-coral{color:var(--coral);}
+  .bar{display:flex;height:14px;border-radius:8px;overflow:hidden;margin:18px 0 6px;border:1px solid var(--line);}
+  .bar>div{height:100%;transition:width .25s;}
+  .bar-legend{display:flex;justify-content:space-between;font-size:11px;color:var(--dim);font-family:'IBM Plex Mono',monospace;}
+  .warn-note{background:var(--panel2);border-right:3px solid var(--gold);border-radius:8px;padding:12px 14px;font-size:13px;color:var(--dim);margin-top:14px;line-height:1.7;display:none;}
+  .warn-note strong{color:var(--golds);}
+  footer{text-align:center;color:var(--dim);font-size:12px;margin-top:24px;}
+  @media(max-width:480px){.results-grid{grid-template-columns:1fr;}}
+</style>
+</head>
+<body>
+
+<!-- LOCK SCREEN -->
+<div id="lockScreen">
+  <div class="lock-box">
+    <div style="font-size:42px;margin-bottom:16px;">🔐</div>
+    <div style="font-size:24px;font-weight:900;margin-bottom:6px;">مخطط راتبي</div>
+    <div style="color:var(--dim);font-size:13px;margin-bottom:28px;line-height:1.7;">محمية بكلمة مرور ورمز تحقق على بريدك</div>
+
+    <!-- Step 1 -->
+    <div class="step active" id="step1">
+      <div class="err" id="err1"></div>
+      <div class="fld">
+        <label>كلمة المرور</label>
+        <div class="pw-wrap">
+          <input type="password" id="passInput" placeholder="أدخل كلمة المرور" onkeydown="if(event.key==='Enter')submitPass()">
+          <button class="pw-toggle" onclick="togglePass()">👁</button>
+        </div>
+      </div>
+      <button class="primary-btn" onclick="submitPass()">التالي ←</button>
+    </div>
+
+    <!-- Step 2 -->
+    <div class="step" id="step2">
+      <div class="suc" id="sucMsg"></div>
+      <div class="otp-info">تم إرسال رمز <strong>6 أرقام</strong> إلى بريدك.<br>تحقق من الوارد أو البريد المزعج.</div>
+      <div class="err" id="err2"></div>
+      <div class="fld">
+        <label>رمز التحقق</label>
+        <input type="text" class="otp-inp" id="otpInput" maxlength="6" placeholder="● ● ● ● ● ●" inputmode="numeric" onkeydown="if(event.key==='Enter')submitOTP()">
+      </div>
+      <div class="timer" id="timerEl"></div>
+      <button class="primary-btn" onclick="submitOTP()">دخول 🔓</button>
+      <hr class="div">
+      <button class="ghost-btn" id="resendBtn" onclick="resendOTP()" disabled>إعادة إرسال الرمز</button>
+      <button class="ghost-btn" onclick="goBack()">← تغيير كلمة المرور</button>
+    </div>
+  </div>
+</div>
+
+<!-- LOGOUT -->
+<button class="logout-btn" onclick="logout()">🔒 تسجيل الخروج</button>
+
+<!-- MAIN APP -->
+<div id="mainApp">
+  <div class="wrap">
+    <header>
+      <div class="eyebrow">مخطط الميزانية الشخصية</div>
+      <h1>وين <span>بيروح</span> راتبي؟</h1>
+      <div class="sub">دخّل راتبك ومصاريفك، واطّلع على خطة واضحة لتوزيع كل ريال</div>
+    </header>
+
+    <div class="card">
+      <div class="card-title"><span class="dot"></span> راتبك الشهري</div>
+      <label class="app-label">المبلغ</label>
+      <input type="number" class="num-inp" id="salary" value="800" min="0">
+    </div>
+
+    <div class="card">
+      <div class="card-title"><span class="dot"></span> مصاريفك الثابتة</div>
+      <div class="exp-list" id="expList"></div>
+      <button class="add-btn" onclick="addExp()">+ أضف مصروف</button>
+    </div>
+
+    <div class="card">
+      <div class="card-title"><span class="dot"></span> خطة توزيع الباقي</div>
+      <div class="presets">
+        <button class="preset-btn active" data-p="50,30,20">50 / 30 / 20</button>
+        <button class="preset-btn" data-p="60,20,20">60 / 20 / 20</button>
+        <button class="preset-btn" data-p="40,30,30">40 / 30 / 30</button>
+        <button class="preset-btn" data-p="70,15,15">70 / 15 / 15</button>
+      </div>
+      <div class="ratio-item">
+        <div class="ratio-head"><span class="ratio-name">🟫 ضروريات إضافية</span><span class="ratio-pct" id="pctA">50%</span></div>
+        <input type="range" id="sliderA" min="0" max="100" value="50">
+      </div>
+      <div class="ratio-item">
+        <div class="ratio-head"><span class="ratio-name">🟨 رغبات وكماليات</span><span class="ratio-pct" id="pctB">30%</span></div>
+        <input type="range" id="sliderB" min="0" max="100" value="30">
+      </div>
+      <div class="ratio-item">
+        <div class="ratio-head"><span class="ratio-name">🟩 ادخار وسداد ديون</span><span class="ratio-pct" id="pctC">20%</span></div>
+        <input type="range" id="sliderC" min="0" max="100" value="20">
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title"><span class="dot"></span> خلاصة شهرك</div>
+      <div class="bar">
+        <div id="barExp" style="background:var(--gold);width:0%"></div>
+        <div id="barA"   style="background:var(--coral);width:50%"></div>
+        <div id="barB"   style="background:#D9B85C;width:30%"></div>
+        <div id="barC"   style="background:var(--mint);width:20%"></div>
+      </div>
+      <div class="bar-legend"><span>مصاريف ثابتة</span><span>الباقي</span></div>
+      <div class="results-grid" style="margin-top:18px;">
+        <div class="result-box"><div class="result-label">المصاريف الثابتة</div><div class="result-value c-gold" id="rTotalExp">0</div></div>
+        <div class="result-box"><div class="result-label">المتبقي</div><div class="result-value c-gold" id="rRemaining">0</div></div>
+        <div class="result-box"><div class="result-label">ادخار شهري</div><div class="result-value c-mint" id="rSave">0</div></div>
+      </div>
+      <div class="results-grid" style="margin-top:10px;">
+        <div class="result-box"><div class="result-label">ضروريات إضافية</div><div class="result-value c-coral" id="rA">0</div></div>
+        <div class="result-box"><div class="result-label">كماليات</div><div class="result-value" style="color:#D9B85C" id="rB">0</div></div>
+        <div class="result-box"><div class="result-label">ادخار / ديون</div><div class="result-value c-mint" id="rC">0</div></div>
+      </div>
+      <div class="warn-note" id="warnNote"></div>
+    </div>
+
+    <footer>كل الحسابات في متصفحك فقط — لا تُخزَّن ولا تُرسَل.</footer>
+  </div>
+</div>
+
+<script>
+// ══════════════════════════════════════════
+// CONFIG
+// ══════════════════════════════════════════
+const CFG = {
+  PASSWORD:        "MyBudget@2025",
+  TARGET_EMAIL:    "Abdiwahidyasin252@gmail.com",
+  OTP_TTL:         120,
+  MAX_ATTEMPTS:    5,
+  LOCKOUT_MINUTES: 5,
+  EJS_SERVICE:     "service_gvvhbdd",
+  EJS_TEMPLATE:    "template_gim132k",
+  EJS_KEY:         "0aaVeum7Pf6DjpOFF1l5g",
+};
+// ══════════════════════════════════════════
+
+let currentOTP = "", otpExpiry = 0, timerInt = null;
+let passAttempts = 0, lockoutUntil = 0;
+
+function show(id,msg){const e=document.getElementById(id);e.textContent=msg;e.style.display='block';}
+function hide(id){document.getElementById(id).style.display='none';}
+function fmt(n){return Math.round(n).toLocaleString('en-US');}
+
+function togglePass(){
+  const i=document.getElementById('passInput');
+  i.type = i.type==='password'?'text':'password';
+}
+
+// ── STEP 1 ──
+function submitPass(){
+  hide('err1');
+  if(Date.now()<lockoutUntil){
+    show('err1',`⛔ محجوب. حاول بعد ${Math.ceil((lockoutUntil-Date.now())/60000)} دقيقة.`);
+    return;
+  }
+  const p = document.getElementById('passInput').value;
+  if(!p.trim()){show('err1','أدخل كلمة المرور.');return;}
+  if(p !== CFG.PASSWORD){
+    passAttempts++;
+    const left = CFG.MAX_ATTEMPTS - passAttempts;
+    if(left<=0){
+      lockoutUntil = Date.now()+CFG.LOCKOUT_MINUTES*60000;
+      passAttempts=0;
+      show('err1',`⛔ تجاوزت الحد. محجوب ${CFG.LOCKOUT_MINUTES} دقائق.`);
+    } else {
+      show('err1',`❌ كلمة المرور خاطئة. متبقي ${left} محاولة.`);
+    }
+    document.getElementById('passInput').value='';
+    return;
+  }
+  passAttempts=0;
+  sendOTP();
+}
+
+// ── SEND OTP ──
+function sendOTP(){
+  currentOTP = String(Math.floor(100000+Math.random()*900000));
+  otpExpiry  = Date.now()+CFG.OTP_TTL*1000;
+
+  document.getElementById('step1').classList.remove('active');
+  document.getElementById('step2').classList.add('active');
+  show('sucMsg','⏳ جارٍ الإرسال...');
+  document.getElementById('otpInput').value='';
+  hide('err2');
+  document.getElementById('resendBtn').disabled=true;
+  startTimer();
+
+  fetch("https://api.emailjs.com/api/v1.0/email/send",{
+    method:"POST",
+    headers:{"Content-Type":"application/json"},
+    body:JSON.stringify({
+      service_id:  CFG.EJS_SERVICE,
+      template_id: CFG.EJS_TEMPLATE,
+      user_id:     CFG.EJS_KEY,
+      accessToken: CFG.EJS_KEY,
+      template_params:{
+        to_email:   CFG.TARGET_EMAIL,
+        passcode:   currentOTP,
+        expires_in: "2 دقيقة",
+        app_name:   "مخطط راتبي"
+      }
+    })
+  })
+  .then(r=>{
+    if(r.ok) show('sucMsg',`✅ تم إرسال الرمز إلى ${CFG.TARGET_EMAIL}`);
+    else     show('sucMsg',`⚠️ تعذّر الإرسال. تحقق من اتصالك.`);
+  })
+  .catch(()=> show('sucMsg',`⚠️ تعذّر الإرسال. تحقق من اتصالك.`));
+}
+
+// ── TIMER ──
+function startTimer(){
+  clearInterval(timerInt);
+  updateTimer();
+  timerInt = setInterval(updateTimer,1000);
+}
+function updateTimer(){
+  const left = Math.max(0,Math.ceil((otpExpiry-Date.now())/1000));
+  const el   = document.getElementById('timerEl');
+  const mm   = String(Math.floor(left/60)).padStart(2,'0');
+  const ss   = String(left%60).padStart(2,'0');
+  if(left>0){
+    el.textContent=`⏱ ينتهي خلال: ${mm}:${ss}`;
+    el.className='timer';
+  } else {
+    el.textContent='⚠️ انتهى الرمز. اضغط إعادة إرسال.';
+    el.className='timer exp';
+    clearInterval(timerInt);
+    currentOTP='';
+    document.getElementById('resendBtn').disabled=false;
+  }
+}
+
+// ── STEP 2 ──
+function submitOTP(){
+  hide('err2');
+  const entered = document.getElementById('otpInput').value.trim();
+  if(entered.length!==6){show('err2','الرمز 6 أرقام.');return;}
+  if(!currentOTP||Date.now()>otpExpiry){show('err2','⚠️ انتهى الرمز. أعد الإرسال.');return;}
+  if(entered!==currentOTP){show('err2','❌ الرمز غير صحيح.');document.getElementById('otpInput').value='';return;}
+  clearInterval(timerInt);
+  currentOTP='';
+  unlockApp();
+}
+
+function resendOTP(){hide('err2');sendOTP();}
+
+function goBack(){
+  clearInterval(timerInt);
+  document.getElementById('step2').classList.remove('active');
+  document.getElementById('step1').classList.add('active');
+  document.getElementById('passInput').value='';
+  hide('err1');hide('sucMsg');
+}
+
+function unlockApp(){
+  document.getElementById('lockScreen').style.display='none';
+  document.getElementById('mainApp').style.display='block';
+  initApp();
+}
+
+function logout(){
+  clearInterval(timerInt);
+  currentOTP='';
+  document.getElementById('mainApp').style.display='none';
+  document.getElementById('lockScreen').style.display='flex';
+  document.getElementById('step2').classList.remove('active');
+  document.getElementById('step1').classList.add('active');
+  document.getElementById('passInput').value='';
+  document.getElementById('otpInput').value='';
+  hide('sucMsg');hide('err1');hide('err2');
+}
+
+// ══════════════════════════════════════════
+// MAIN APP
+// ══════════════════════════════════════════
+let appInited = false;
+function initApp(){
+  if(appInited)return; appInited=true;
+
+  // Default expenses
+  [['سكن / إيجار',''],['فواتير (كهرباء، ماء، نت)',''],['نقل / بنزين','']].forEach(([n,a])=>addExpRow(n,a));
+
+  // Sliders
+  ['A','B','C'].forEach(k=>{
+    document.getElementById('slider'+k).addEventListener('input',function(){
+      normalizeSliders(k);
+      document.querySelectorAll('.preset-btn').forEach(b=>b.classList.remove('active'));
+      calculate();
+    });
+  });
+
+  // Presets
+  document.querySelectorAll('.preset-btn').forEach(btn=>{
+    btn.addEventListener('click',function(){
+      const [a,b,c]=this.dataset.p.split(',').map(Number);
+      document.getElementById('sliderA').value=a;
+      document.getElementById('sliderB').value=b;
+      document.getElementById('sliderC').value=c;
+      updatePcts();
+      document.querySelectorAll('.preset-btn').forEach(b=>b.classList.remove('active'));
+      this.classList.add('active');
+      calculate();
+    });
+  });
+
+  document.getElementById('salary').addEventListener('input',calculate);
+  updatePcts();
+  calculate();
+}
+
+function addExp(n='',a=''){addExpRow(n,a);calculate();}
+
+function addExpRow(name,amount){
+  const el=document.getElementById('expList');
+  const row=document.createElement('div');
+  row.className='exp-row';
+  row.innerHTML=`<input type="text" placeholder="اسم المصروف" value="${name}"><input type="number" placeholder="المبلغ" min="0" value="${amount}"><button class="exp-del" onclick="this.parentElement.remove();calculate()">×</button>`;
+  row.querySelectorAll('input').forEach(i=>i.addEventListener('input',calculate));
+  el.appendChild(row);
+}
+
+function normalizeSliders(changed){
+  const sA=document.getElementById('sliderA'),sB=document.getElementById('sliderB'),sC=document.getElementById('sliderC');
+  let vals={A:+sA.value,B:+sB.value,C:+sC.value};
+  const others=['A','B','C'].filter(k=>k!==changed);
+  const diff=100-vals[changed];
+  const sumO=others.reduce((s,k)=>s+vals[k],0);
+  if(sumO<=0){others.forEach(k=>vals[k]=diff/2);}
+  else{others.forEach(k=>vals[k]=Math.max(0,vals[k]+(diff-sumO)*(vals[k]/sumO)));}
+  sA.value=Math.round(vals.A);sB.value=Math.round(vals.B);sC.value=Math.round(vals.C);
+  const tot=(+sA.value)+(+sB.value)+(+sC.value);
+  const drift=100-tot;
+  if(drift!==0){
+    const map={A:sA,B:sB,C:sC};
+    map[others[0]].value=Math.max(0,+map[others[0]].value+drift);
+  }
+  updatePcts();
+}
+
+function updatePcts(){
+  ['A','B','C'].forEach(k=>{
+    document.getElementById('pct'+k).textContent=document.getElementById('slider'+k).value+'%';
+  });
+}
+
+function calculate(){
+  const salary=parseFloat(document.getElementById('salary').value)||0;
+  const rows=[...document.getElementById('expList').querySelectorAll('.exp-row')];
+  const totalExp=rows.reduce((s,r)=>s+(parseFloat(r.querySelectorAll('input')[1].value)||0),0);
+  const remaining=salary-totalExp;
+  const a=+document.getElementById('sliderA').value;
+  const b=+document.getElementById('sliderB').value;
+  const c=+document.getElementById('sliderC').value;
+  const vA=remaining>0?remaining*a/100:0;
+  const vB=remaining>0?remaining*b/100:0;
+  const vC=remaining>0?remaining*c/100:0;
+  const expPct=salary>0?Math.min(totalExp/salary*100,100):0;
+
+  document.getElementById('rTotalExp').textContent=fmt(totalExp);
+  document.getElementById('rRemaining').textContent=fmt(Math.max(0,remaining));
+  document.getElementById('rRemaining').className='result-value '+(remaining<0?'c-coral':'c-gold');
+  document.getElementById('rSave').textContent=fmt(vC);
+  document.getElementById('rA').textContent=fmt(vA);
+  document.getElementById('rB').textContent=fmt(vB);
+  document.getElementById('rC').textContent=fmt(vC);
+
+  const restPct=100-expPct;
+  document.getElementById('barExp').style.width=expPct+'%';
+  document.getElementById('barA').style.width=(restPct*a/100)+'%';
+  document.getElementById('barB').style.width=(restPct*b/100)+'%';
+  document.getElementById('barC').style.width=(restPct*c/100)+'%';
+
+  const warn=document.getElementById('warnNote');
+  if(remaining<0){
+    warn.style.display='block';
+    warn.innerHTML=`<strong>تنبيه:</strong> مصاريفك (${fmt(totalExp)}) تجاوزت راتبك (${fmt(salary)}) بمقدار ${fmt(Math.abs(remaining))}.`;
+  } else if(expPct>70){
+    warn.style.display='block';
+    warn.innerHTML=`<strong>تنبيه:</strong> مصاريفك تستهلك ${Math.round(expPct)}% من راتبك. حاول تقلل بعض البنود.`;
+  } else {
+    warn.style.display='none';
+  }
+}
+</script>
+</body>
+</html>
