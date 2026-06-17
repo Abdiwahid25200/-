@@ -263,23 +263,63 @@ function showErr(msg){const e=document.getElementById('authErr');e.textContent=m
 function showSuc(msg){const e=document.getElementById('authSuc');e.textContent=msg;e.style.display='block';document.getElementById('authErr').style.display='none';}
 function hideAuthMsg(){document.getElementById('authErr').style.display='none';document.getElementById('authSuc').style.display='none';}
 
+// Rate limiting
+const loginAttempts = {};
+function checkRateLimit(email){
+  const now = Date.now();
+  if(!loginAttempts[email]) loginAttempts[email] = {count:0, lockedUntil:0};
+  const rec = loginAttempts[email];
+  if(now < rec.lockedUntil){
+    const mins = Math.ceil((rec.lockedUntil - now)/60000);
+    return `⛔ محجوب لمدة ${mins} دقيقة بسبب كثرة المحاولات.`;
+  }
+  return null;
+}
+function recordFailedAttempt(email){
+  if(!loginAttempts[email]) loginAttempts[email] = {count:0, lockedUntil:0};
+  loginAttempts[email].count++;
+  if(loginAttempts[email].count >= 5){
+    loginAttempts[email].lockedUntil = Date.now() + 5*60*1000;
+    loginAttempts[email].count = 0;
+  }
+}
+
 async function login(){
-  const email = document.getElementById('loginEmail').value.trim();
+  const email = document.getElementById('loginEmail').value.trim().toLowerCase();
   const pass  = document.getElementById('loginPass').value;
   if(!email||!pass){showErr('أدخل البريد وكلمة المرور.');return;}
+  
+  // Rate limit check
+  const blocked = checkRateLimit(email);
+  if(blocked){showErr(blocked);return;}
+  
+  // Validate email format
+  if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){showErr('البريد الإلكتروني غير صحيح.');return;}
+
   const btn = document.querySelector('#loginForm .primary-btn');
   btn.disabled=true; btn.textContent='جارٍ الدخول...';
   const {error} = await sb.auth.signInWithPassword({email,password:pass});
   btn.disabled=false; btn.textContent='دخول →';
-  if(error) showErr('❌ ' + (error.message.includes('Invalid')?'البريد أو كلمة المرور غلط':error.message));
+  if(error){
+    recordFailedAttempt(email);
+    const attempts = loginAttempts[email]?.count||0;
+    const remaining = 5 - attempts;
+    showErr(`❌ البريد أو كلمة المرور غلط. متبقي ${remaining} محاولة.`);
+  } else {
+    loginAttempts[email] = {count:0, lockedUntil:0};
+  }
 }
 
 async function signup(){
   const name  = document.getElementById('signupName').value.trim();
-  const email = document.getElementById('signupEmail').value.trim();
+  const email = document.getElementById('signupEmail').value.trim().toLowerCase();
   const pass  = document.getElementById('signupPass').value;
   if(!name||!email||!pass){showErr('أكمل جميع الحقول.');return;}
+  if(name.length < 2){showErr('الاسم قصير جداً.');return;}
+  if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){showErr('البريد الإلكتروني غير صحيح.');return;}
   if(pass.length<8){showErr('كلمة المرور 8 أحرف على الأقل.');return;}
+  if(!/(?=.*[a-zA-Z])(?=.*[0-9])/.test(pass)){showErr('كلمة المرور تحتاج أحرف وأرقام.');return;}
+  
   const btn = document.querySelector('#signupForm .primary-btn');
   btn.disabled=true; btn.textContent='جارٍ الإنشاء...';
   const {error} = await sb.auth.signUp({email,password:pass,options:{data:{full_name:name}}});
@@ -302,6 +342,19 @@ async function logout(){
   resetApp();
 }
 
+// Auto logout after 30min inactivity
+let inactivityTimer;
+function resetInactivityTimer(){
+  clearTimeout(inactivityTimer);
+  inactivityTimer = setTimeout(()=>{
+    if(document.getElementById('mainApp').style.display !== 'none'){
+      showToast('⏱ تم تسجيل الخروج تلقائياً لعدم النشاط','var(--coral)');
+      setTimeout(logout, 2000);
+    }
+  }, 30*60*1000);
+}
+['click','keypress','scroll','touchstart'].forEach(e=>document.addEventListener(e, resetInactivityTimer));
+
 // Listen to auth state
 sb.auth.onAuthStateChange((event, session)=>{
   if(session?.user){
@@ -311,6 +364,10 @@ sb.auth.onAuthStateChange((event, session)=>{
     document.getElementById('userName').textContent = name;
     initApp();
     loadData();
+    resetInactivityTimer();
+  } else {
+    document.getElementById('mainApp').style.display='none';
+    document.getElementById('authScreen').style.display='flex';
   }
 });
 
@@ -445,6 +502,8 @@ async function saveData(){
   if(authErr||!user){showToast('سجّل دخولك أولاً','var(--coral)');return;}
   
   const salary=parseFloat(document.getElementById('salary').value)||0;
+  // Validate data
+  if(salary < 0 || salary > 10000000){showToast('❌ قيمة الراتب غير صحيحة','var(--coral)');return;}
   const rows=[...document.getElementById('expList').querySelectorAll('.exp-row')];
   const expenses=rows.map(r=>{const [n,a]=r.querySelectorAll('input');return{name:n.value,amount:parseFloat(a.value)||0};});
   const ratios={a:+document.getElementById('sliderA').value,b:+document.getElementById('sliderB').value,c:+document.getElementById('sliderC').value};
