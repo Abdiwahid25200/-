@@ -8,5 +8,5 @@ export default async function Page({
 }) {
   const { locale } = await params;
   setRequestLocale(locale);
-  return <ComingSoon />;
+  return <ComingSoon pageKey="accounts" />;
 }

@@ -4,9 +4,9 @@ import ComingSoon from "@/components/ComingSoon";
 export default async function Page({
   params,
 }: {
-  params: Promise<{ locale: string }>;
+  params: Promise<{ locale: string; id: string }>;
 }) {
   const { locale } = await params;
   setRequestLocale(locale);
-  return <ComingSoon pageKey="account" />;
+  return <ComingSoon pageKey="game" />;
 }

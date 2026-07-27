@@ -34,30 +34,36 @@
     "label": "Language"
   },
   "home": {
-    "badge": "Phase 1B — Layout",
-    "tagline": "The new site is under construction — try the nav and theme",
-    "checksTitle": "Foundations verified",
-    "paletteTitle": "Color palette",
-    "nextStep": "Next up: the 12 site pages"
-  },
-  "checks": {
-    "langTitle": "Three languages",
-    "langNote": "Arabic · English · Somali",
-    "dirTitle": "Automatic text direction",
-    "dirNote": "Right-to-left for Arabic, left-to-right for the rest",
-    "navTitle": "Header, bottom nav and footer",
-    "navNote": "The bottom bar stays fixed, like a mobile app",
-    "themeTitle": "Three appearance modes",
-    "themeNote": "Auto · Light · Dark — from the button above"
-  },
-  "palette": {
-    "primary": "Primary",
-    "secondary": "Secondary",
-    "dark": "Dark"
+    "badge": "Phase 1 — complete ✓",
+    "tagline": "Your new site — the structure is ready, products are next",
+    "nextStep": "Next up: Phase 2 — building the product pages"
   },
   "soon": {
     "title": "This page is under construction",
     "note": "We build it in the next phase — head back home for now",
+    "back": "Back to home"
+  },
+  "pages": {
+    "electronics": "Electronics",
+    "pubg": "PUBG UC",
+    "efootball": "eFootball Icons",
+    "accounts": "Accounts",
+    "efootballAccounts": "eFootball accounts",
+    "tiktok": "TikTok",
+    "games": "Browse games",
+    "game": "Game page",
+    "help": "Help & support",
+    "policy": "Policies",
+    "account": "My account",
+    "cart": "Shopping cart"
+  },
+  "sections": {
+    "title": "Shop by category",
+    "browse": "Browse"
+  },
+  "notFound": {
+    "title": "Page not found",
+    "note": "There is no page at this address",
     "back": "Back to home"
   }
 }

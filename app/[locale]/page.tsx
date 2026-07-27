@@ -1,12 +1,6 @@
 import { getTranslations, setRequestLocale } from "next-intl/server";
-
-const checkKeys = ["lang", "dir", "nav", "theme"] as const;
-
-const palette = [
-  { key: "primary", value: "#3D5AFE", className: "bg-orange" },
-  { key: "secondary", value: "#00B589", className: "bg-yellow" },
-  { key: "dark", value: "#0D1424", className: "bg-navy" },
-] as const;
+import { Link } from "@/i18n/navigation";
+import { sections } from "@/lib/sections";
 
 export default async function Home({
   params,
@@ -17,11 +11,11 @@ export default async function Home({
   setRequestLocale(locale);
 
   const t = await getTranslations("home");
-  const tc = await getTranslations("checks");
-  const tp = await getTranslations("palette");
+  const ts = await getTranslations("sections");
+  const tp = await getTranslations("pages");
 
   return (
-    <main className="mx-auto flex max-w-2xl flex-col gap-8 px-5 py-10">
+    <main className="mx-auto flex max-w-4xl flex-col gap-10 px-5 py-10">
       <header className="text-center">
         <span className="inline-block rounded-full bg-yellow/12 px-4 py-1.5 text-sm font-semibold text-yellow">
           {t("badge")}
@@ -32,41 +26,23 @@ export default async function Home({
         <p className="mt-3 text-lg text-muted">{t("tagline")}</p>
       </header>
 
-      <section className="rounded-card border border-line bg-surface p-6 shadow-sm">
-        <h2 className="mb-5 text-xl font-semibold">{t("checksTitle")}</h2>
-        <ul className="space-y-4">
-          {checkKeys.map((key) => (
-            <li key={key} className="flex items-start gap-3">
-              <span
-                aria-hidden
-                className="mt-0.5 flex size-6 shrink-0 items-center justify-center rounded-full bg-yellow text-sm font-bold text-white"
-              >
-                ✓
+      <section>
+        <h2 className="mb-4 text-xl font-semibold">{ts("title")}</h2>
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+          {sections.map(({ key, href, Icon }) => (
+            <Link
+              key={key}
+              href={href}
+              className="group flex min-h-32 flex-col items-center justify-center gap-3 rounded-card border border-line bg-surface p-4 text-center shadow-sm transition-colors hover:border-orange"
+            >
+              <span className="flex size-12 items-center justify-center rounded-card bg-orange/10 text-orange">
+                <Icon className="size-7" />
               </span>
-              <span>
-                <span className="block font-medium">{tc(`${key}Title`)}</span>
-                <span className="block text-sm text-muted">
-                  {tc(`${key}Note`)}
-                </span>
+              <span className="font-semibold">{tp(key)}</span>
+              <span className="text-xs text-muted group-hover:text-orange">
+                {ts("browse")} ←
               </span>
-            </li>
-          ))}
-        </ul>
-      </section>
-
-      <section className="rounded-card border border-line bg-surface p-6 shadow-sm">
-        <h2 className="mb-5 text-xl font-semibold">{t("paletteTitle")}</h2>
-        <div className="grid grid-cols-3 gap-4">
-          {palette.map((p) => (
-            <div key={p.value} className="text-center">
-              <div
-                className={`${p.className} h-16 w-full rounded-card border border-line`}
-              />
-              <div className="mt-2 text-sm font-medium">{tp(p.key)}</div>
-              <div className="text-xs text-muted" dir="ltr">
-                {p.value}
-              </div>
-            </div>
+            </Link>
           ))}
         </div>
       </section>
