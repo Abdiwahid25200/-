@@ -1,0 +1,31 @@
+{
+  "meta": {
+    "title": "Ramaan Store",
+    "description": "Game top-ups and electronics — for Somalia and the diaspora"
+  },
+  "home": {
+    "badge": "Phase 1 — Languages",
+    "tagline": "The new site is under construction — try switching languages",
+    "checksTitle": "Foundations verified",
+    "paletteTitle": "Color palette",
+    "nextStep": "Next up: header, navigation and footer"
+  },
+  "checks": {
+    "langTitle": "Three languages",
+    "langNote": "Arabic · English · Somali",
+    "dirTitle": "Automatic text direction",
+    "dirNote": "Right-to-left for Arabic, left-to-right for the rest",
+    "fontTitle": "IBM Plex Sans Arabic",
+    "fontNote": "Arabic letters render clearly and connected",
+    "themeTitle": "Dark and light mode",
+    "themeNote": "Follows your device settings"
+  },
+  "palette": {
+    "primary": "Primary",
+    "secondary": "Secondary",
+    "dark": "Dark"
+  },
+  "lang": {
+    "label": "Language"
+  }
+}

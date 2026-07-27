@@ -1,0 +1,31 @@
+{
+  "meta": {
+    "title": "Ramaan Store",
+    "description": "Buuxinta ciyaaraha iyo qalabka elektaroonigga ah — Soomaaliya iyo qurbaha"
+  },
+  "home": {
+    "badge": "Wajiga 1 — Luqadaha",
+    "tagline": "Degelka cusub wuu dhismayaa — isku day beddelka luqadda",
+    "checksTitle": "Aasaaska waa la xaqiijiyay",
+    "paletteTitle": "Midabbada",
+    "nextStep": "Xiga: madaxa, navigation-ka iyo hoosta"
+  },
+  "checks": {
+    "langTitle": "Saddex luqadood",
+    "langNote": "Carabi · Ingiriisi · Soomaali",
+    "dirTitle": "Jihada qorista oo toos ah",
+    "dirNote": "Midig-bidix Carabiga, bidix-midig kuwa kale",
+    "fontTitle": "Farta IBM Plex Sans Arabic",
+    "fontNote": "Xarfaha Carabiga si cad ayay u muuqdaan",
+    "themeTitle": "Habka mugdiga iyo iftiinka",
+    "themeNote": "Wuxuu raacayaa goobaha aaladdaada"
+  },
+  "palette": {
+    "primary": "Aasaasi",
+    "secondary": "Labaad",
+    "dark": "Mugdi"
+  },
+  "lang": {
+    "label": "Luqadda"
+  }
+}
