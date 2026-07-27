@@ -1,0 +1,51 @@
+@import "tailwindcss";
+
+/* ═══════════════════════════════════════════════════════════
+   هوية Ramaan Store البصرية — لوحة Clarity
+   ملاحظة: أسماء المتغيّرات القديمة (orange / yellow) محفوظة عمداً
+   حتى لا تنكسر الأنماط، لكن قيمها من لوحة Clarity الجديدة.
+   ═══════════════════════════════════════════════════════════ */
+@theme {
+  --color-orange: #3d5afe; /* الأساسي — أزرق (الاسم قديم، القيمة جديدة) */
+  --color-yellow: #00b589; /* الثانوي — أخضر */
+  --color-navy: #0d1424; /* الداكن */
+  --color-bg: #f6f7fb; /* خلفية الصفحة */
+  --color-surface: #ffffff; /* خلفية البطاقات */
+  --color-line: #e6e9f0; /* الحدود */
+  --color-text: #0d1424; /* النص الأساسي */
+  --color-muted: #5b6478; /* النص الثانوي */
+
+  /* نصف قطر الحواف — سُمّي card تفادياً للتعارض مع rounded-r المدمجة بـ Tailwind */
+  --radius-card: 16px;
+
+  --font-arabic: var(--font-plex-arabic);
+}
+
+/* ── الوضع الليلي ── */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-bg: #0d1424;
+    --color-surface: #161f35;
+    --color-text: #f6f7fb;
+    --color-line: #232c42;
+    --color-muted: #9aa3b8;
+  }
+}
+
+html {
+  background: var(--color-bg);
+}
+
+body {
+  background: var(--color-bg);
+  color: var(--color-text);
+  /* العربية تحتاج حجماً أكبر — لا خط أصغر من 12.5px بأي مكان */
+  font-size: 16px;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* حالة تركيز واضحة على كل عنصر تفاعلي */
+:focus-visible {
+  outline: 3px solid var(--color-orange);
+  outline-offset: 2px;
+}

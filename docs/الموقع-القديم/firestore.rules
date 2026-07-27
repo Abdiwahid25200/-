@@ -1,0 +1,23 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isAdmin() {
+      return request.auth != null
+        && request.auth.token.email != null
+        && request.auth.token.email.lower() in [
+          "abdiwahidyasin615@gmail.com"
+        ];
+    }
+
+    match /store/{docId} {
+
+      allow read: if true;
+
+      allow write: if isAdmin() ||
+        (request.auth != null && docId in [
+          'marjan-orders', 'marjan-support-msgs', 'marjan-chats', 'marjan-users'
+        ]);
+    }
+  }
+}
