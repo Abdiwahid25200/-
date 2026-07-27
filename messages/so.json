@@ -174,5 +174,109 @@
     "mine": "Akoonkayga",
     "info": "Dukaanka",
     "whatsapp": "Nagala hadal WhatsApp"
+  },
+  "cart": {
+    "title": "Dambiisha wax-iibsiga",
+    "note": "Elektaroonig kaliya",
+    "add": "Ku dar dambiisha",
+    "added": "Waa la daray",
+    "empty": "Dambiishaada waa madhan",
+    "emptyNote": "Fiiri elektaroonigga oo ku dar wixii ku qanciya",
+    "keepShopping": "Sii wad wax-iibsiga",
+    "remove": "Ka saar",
+    "clear": "Madhi dambiisha",
+    "delivery": "Faahfaahinta gaarsiinta",
+    "name": "Magaca oo buuxa",
+    "contact": "Lambarka WhatsApp",
+    "address": "Cinwaanka",
+    "fillFirst": "Marka hore buuxi faahfaahinta gaarsiinta"
+  },
+  "help": {
+    "title": "Caawimaad & taageero",
+    "note": "Kooxdayada waa diyaar",
+    "soon": "Dhawaan",
+    "hoursValue": "Sabti – Khamiis · 9am – 11pm",
+    "faqTitle": "Su'aalaha inta badan la weydiiyo",
+    "whatsapp": {
+      "title": "WhatsApp",
+      "action": "Noo soo qor"
+    },
+    "email": {
+      "title": "Iimayl",
+      "action": "Dir iimayl"
+    },
+    "hours": {
+      "title": "Saacadaha shaqada",
+      "action": ""
+    },
+    "faq": {
+      "delivery": {
+        "q": "Intee in le'eg ayay qaadataa buuxinta PUBG UC?",
+        "a": "Buuxintu waa degdeg marka lacagta la xaqiijiyo — caadiyan daqiiqado gudahood. Haddii ay soo daahdo, nagala soo xiriir WhatsApp adigoo soo dirayo koodhka dalabkaaga."
+      },
+      "efootball": {
+        "q": "Sidee ku helayaa akoonka eFootball?",
+        "a": "Marka dalabkaaga la aqbalo waxaan kuu soo dirnaa xogta gelitaanka WhatsApp. Akoon kastaa waa gaar oo hal mar ayaa la iibiyaa."
+      },
+      "payment": {
+        "q": "Habab kee ah lacag-bixinta aad aqbashaan?",
+        "a": "Waxaan aqbalnaa EVC Plus, JEEB, E-Dahab, ZAAD, SAHAL, WAAFI iyo Premier Wallet."
+      },
+      "track": {
+        "q": "Sidee ula socdaa dalabkayga?",
+        "a": "Kaydso koodhka dalabka ee ka dib xaqiijinta soo baxa (sida M-123456) oo noo soo dir WhatsApp."
+      },
+      "refund": {
+        "q": "Lacagta ma laga celin karaa?",
+        "a": "Haa — haddii aan awoodi weyno inaan dalabkaaga fulino waxaan celinaynaa lacagta oo dhan. Alaabta dhijitaalka ah ee la gaarsiiyay lama celin karo."
+      }
+    }
+  },
+  "policy": {
+    "title": "Siyaasadaha",
+    "note": "Shuruudaha macaamilka dukaanka",
+    "editable": "⚠️ Qoraal bilow ah — waa laga bedeli karaa maamulka",
+    "terms": {
+      "title": "Shuruudaha isticmaalka",
+      "body": "Adigoo isticmaalaya Ramaan Store waxaad ogolaanaysaa inaad bixiso xog sax ah.\nQiimayaasha waa la beddeli karaa iyada oo aan ogeysiis hore la bixin.\nWaxaan xaq u leenahay inaan diidno dalab kasta oo shaki leh."
+    },
+    "privacy": {
+      "title": "Siyaasadda asturnaanta",
+      "body": "Waxaan uruurinaa oo kaliya waxa aan u baahannahay: magac, lambar xiriir iyo xogta akoonka ciyaarta.\nWeligeen xogtaada ma iibinno mana la wadaagno cid saddexaad.\nXogta akoonka ciyaarta waxaa loo isticmaalaa dalabka oo kaliya."
+    },
+    "refund": {
+      "title": "Siyaasadda celinta lacagta",
+      "body": "Haddii aan dalabkaaga fulin waxaan lacagta oo dhan celinaynaa 24 saac gudahood.\nAlaabta dhijitaalka ah ee la gaarsiiyay lama celin karo.\nElektaroonigga waa la beddeli karaa 3 maalmood gudahood haddii ay burburay."
+    },
+    "delivery": {
+      "title": "Siyaasadda gaarsiinta",
+      "body": "Alaabta dhijitaalka: gaarsiin degdeg ah marka lacagta la xaqiijiyo.\nElektaroonig: 1–2 maalmood Muqdisho gudaha, 2–4 maalmood magaalooyinka kale."
+    }
+  },
+  "accountPage": {
+    "title": "Akoonkayga",
+    "note": "Dalabyadaada iyo xogtaada",
+    "guest": "Waxaad u fiirinaysaa sida marti",
+    "guestNote": "Gal si aad ula socoto dalabyadaada",
+    "login": "Gal",
+    "register": "Samee akoon",
+    "soon": "⚠️ Waxaa la furi doonaa marka xogta la isku xiro (Wajiga 3)",
+    "links": {
+      "orders": "Dalabyadayda",
+      "cart": "Dambiisha",
+      "help": "Caawimaad"
+    }
+  },
+  "tiktokFlow": {
+    "title": "Akoonka TikTok",
+    "note": "Geli magaca isticmaalaha si dalabku kuu soo gaaro",
+    "username": "Magaca isticmaalaha (@)",
+    "hint": "Geli magaca isticmaalaha si aad u sii wadato"
+  },
+  "accountsFlow": {
+    "title": "Faahfaahinta xiriirka",
+    "note": "Waxaan xogta akoonka ku soo dirnaa lambarkan marka dalabka la aqbalo",
+    "contact": "Lambarka WhatsApp",
+    "hint": "Geli lambar WhatsApp si aad u sii wadato"
   }
 }

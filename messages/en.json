@@ -174,5 +174,109 @@
     "mine": "My account",
     "info": "Store",
     "whatsapp": "Chat with us on WhatsApp"
+  },
+  "cart": {
+    "title": "Shopping cart",
+    "note": "Electronics only",
+    "add": "Add to cart",
+    "added": "Added",
+    "empty": "Your cart is empty",
+    "emptyNote": "Browse the electronics and add what you like",
+    "keepShopping": "Keep shopping",
+    "remove": "Remove",
+    "clear": "Empty cart",
+    "delivery": "Delivery details",
+    "name": "Full name",
+    "contact": "WhatsApp number",
+    "address": "Address",
+    "fillFirst": "Complete your delivery details first"
+  },
+  "help": {
+    "title": "Help & support",
+    "note": "Our team is here for you",
+    "soon": "Coming soon",
+    "hoursValue": "Sat – Thu · 9am – 11pm",
+    "faqTitle": "Frequently asked questions",
+    "whatsapp": {
+      "title": "WhatsApp",
+      "action": "Message us"
+    },
+    "email": {
+      "title": "Email",
+      "action": "Send email"
+    },
+    "hours": {
+      "title": "Working hours",
+      "action": ""
+    },
+    "faq": {
+      "delivery": {
+        "q": "How long does a PUBG UC top-up take?",
+        "a": "Top-ups are instant once payment is confirmed — usually within minutes. If it is delayed, message us on WhatsApp with your order code."
+      },
+      "efootball": {
+        "q": "How do I receive an eFootball account?",
+        "a": "Once your order is accepted we send the login details on WhatsApp. Each account is unique and sold only once."
+      },
+      "payment": {
+        "q": "Which payment methods do you accept?",
+        "a": "We accept EVC Plus, JEEB, E-Dahab, ZAAD, SAHAL, WAAFI and Premier Wallet."
+      },
+      "track": {
+        "q": "How do I track my order?",
+        "a": "Keep the order code shown after confirmation (like M-123456) and send it to us on WhatsApp to check the status."
+      },
+      "refund": {
+        "q": "Can I get a refund?",
+        "a": "Yes — if we cannot fulfil your order we refund the full amount. Delivered digital goods are non-refundable."
+      }
+    }
+  },
+  "policy": {
+    "title": "Policies",
+    "note": "Terms of dealing with the store",
+    "editable": "⚠️ Draft text — editable from the admin panel later",
+    "terms": {
+      "title": "Terms of use",
+      "body": "By using Ramaan Store you agree to provide accurate details when ordering.\nPrices may change without prior notice.\nWe reserve the right to refuse any suspicious order."
+    },
+    "privacy": {
+      "title": "Privacy policy",
+      "body": "We collect only what we need to fulfil your order: name, contact number and game account details.\nWe never sell your data or share it with third parties.\nGame account details are used to fulfil the order only, then stored securely."
+    },
+    "refund": {
+      "title": "Refund policy",
+      "body": "If we cannot fulfil your order we refund the full amount within 24 hours.\nDelivered digital products are non-refundable.\nElectronics can be exchanged within 3 days if they arrive damaged."
+    },
+    "delivery": {
+      "title": "Delivery policy",
+      "body": "Digital products: instant delivery once payment is confirmed.\nElectronics: 1–2 days within Mogadishu, 2–4 days for other cities."
+    }
+  },
+  "accountPage": {
+    "title": "My account",
+    "note": "Your orders and details",
+    "guest": "You are browsing as a guest",
+    "guestNote": "Sign in to track your orders and save your details",
+    "login": "Sign in",
+    "register": "Create account",
+    "soon": "⚠️ Enabled once the database is connected (Phase 3)",
+    "links": {
+      "orders": "My orders",
+      "cart": "Shopping cart",
+      "help": "Help & support"
+    }
+  },
+  "tiktokFlow": {
+    "title": "TikTok account",
+    "note": "Enter your username so the order reaches your account",
+    "username": "Username (@)",
+    "hint": "Enter your username to continue"
+  },
+  "accountsFlow": {
+    "title": "Contact details",
+    "note": "We send the account details to this number once the order is accepted",
+    "contact": "WhatsApp number",
+    "hint": "Enter a WhatsApp number to continue"
   }
 }

@@ -1,12 +1,31 @@
-import { setRequestLocale } from "next-intl/server";
-import ComingSoon from "@/components/ComingSoon";
+import { getTranslations, setRequestLocale } from "next-intl/server";
+import SectionHead from "@/components/SectionHead";
 
-export default async function Page({
+const sections = ["terms", "privacy", "refund", "delivery"] as const;
+
+export default async function PolicyPage({
   params,
 }: {
   params: Promise<{ locale: string }>;
 }) {
   const { locale } = await params;
   setRequestLocale(locale);
-  return <ComingSoon pageKey="policy" />;
+  const t = await getTranslations("policy");
+
+  return (
+    <main className="mx-auto flex max-w-3xl flex-col gap-5 px-4 py-6">
+      <SectionHead title={t("title")} note={t("note")} />
+
+      {sections.map((k) => (
+        <section key={k} className="rounded-card border border-line bg-surface p-5">
+          <h2 className="mb-2 text-lg font-bold">{t(`${k}.title`)}</h2>
+          <p className="whitespace-pre-line text-sm leading-relaxed text-muted">
+            {t(`${k}.body`)}
+          </p>
+        </section>
+      ))}
+
+      <p className="text-center text-sm text-muted">{t("editable")}</p>
+    </main>
+  );
 }

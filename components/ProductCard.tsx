@@ -1,7 +1,9 @@
 import { fin, fmt } from "@/lib/format";
 import Thumb from "./Thumb";
+import AddToCart from "./AddToCart";
 
 type Props = {
+  id: string;
   name: string;
   price: number;
   old?: number;
@@ -14,6 +16,7 @@ type Props = {
 };
 
 export default function ProductCard({
+  id,
   name,
   price,
   old,
@@ -41,7 +44,7 @@ export default function ProductCard({
         <h3 className="font-semibold leading-snug">{name}</h3>
         {desc && <p className="text-[0.8rem] leading-relaxed text-muted">{desc}</p>}
 
-        <div className="mt-auto flex items-baseline gap-2 pt-2">
+        <div className="mt-auto flex items-baseline gap-2 pb-2 pt-2">
           <span className="text-lg font-bold text-orange" dir="ltr">
             {fmt(final)}
           </span>
@@ -51,6 +54,8 @@ export default function ProductCard({
             </span>
           )}
         </div>
+
+        <AddToCart id={id} name={name} price={final} img={img} />
       </div>
     </article>
   );

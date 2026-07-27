@@ -2,7 +2,8 @@ import { getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
 import Logo from "./Logo";
 import MenuDrawer from "./MenuDrawer";
-import { IconCart, IconSearch, IconUser } from "./icons";
+import CartButton from "./CartButton";
+import { IconSearch, IconUser } from "./icons";
 import { store } from "@/lib/data";
 
 export default async function Header() {
@@ -45,16 +46,7 @@ export default async function Header() {
             <IconUser />
           </Link>
 
-          <Link
-            href="/cart"
-            aria-label={t("cart")}
-            className="relative flex size-12 items-center justify-center rounded-card text-muted transition-colors hover:bg-bg hover:text-orange"
-          >
-            <IconCart />
-            <span className="absolute end-1.5 top-1.5 flex min-w-5 items-center justify-center rounded-full bg-orange px-1 text-[0.7rem] font-bold text-white">
-              0
-            </span>
-          </Link>
+          <CartButton />
 
           <MenuDrawer phone={store.phone} />
         </div>
