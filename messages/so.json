@@ -101,7 +101,17 @@
     "receiptSoon": "Waxaa la furi doonaa marka xogta la isku xiro (Wajiga 3)",
     "total": "Wadarta",
     "confirm": "Xaqiiji dalabka",
-    "accountFirst": "Marka hore buuxi faahfaahinta akoonka"
+    "accountFirst": "Marka hore buuxi faahfaahinta akoonka",
+    "orderCode": "Koodhka dalabka",
+    "item": "Xirmada",
+    "summary": "Kooban dalabka",
+    "account": "Akoonka",
+    "time": "Waqtiga",
+    "doneTitle": "Dalabkaaga waa la helay",
+    "doneNote": "Kaydso koodhka dalabka si aad ula socoto",
+    "sendWa": "Ku dir dalabka WhatsApp",
+    "notSavedYet": "⚠️ Dalabkan halkan ayuu ku muuqdaa oo weli lama kaydin — kaydinta tooska ah waxay bilaabmaysaa marka xogta la isku xiro (Wajiga 3)",
+    "newOrder": "Dalab cusub"
   },
   "pubgFlow": {
     "title": "Faahfaahinta ciyaartoyga",

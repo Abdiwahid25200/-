@@ -57,6 +57,7 @@ export default function PubgFlow() {
     <BuyFlow
       packs={packs}
       accountReady={ready}
+      accountSummary={`${t("placeholder")}: ${pid.replace(/\D/g, "")}`}
       Icon={IconBolt}
       accountForm={
         <section className="rounded-card border border-line bg-surface p-4">

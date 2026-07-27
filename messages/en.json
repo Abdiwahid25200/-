@@ -101,7 +101,17 @@
     "receiptSoon": "Enabled once the database is connected (Phase 3)",
     "total": "Total",
     "confirm": "Confirm order",
-    "accountFirst": "Complete your account details above first"
+    "accountFirst": "Complete your account details above first",
+    "orderCode": "Order code",
+    "item": "Package",
+    "summary": "Order summary",
+    "account": "Account",
+    "time": "Time",
+    "doneTitle": "Your order was received",
+    "doneNote": "Save the order code to track it",
+    "sendWa": "Send order via WhatsApp",
+    "notSavedYet": "⚠️ This order is shown here only and is not saved yet — automatic saving starts once the database is connected (Phase 3)",
+    "newOrder": "New order"
   },
   "pubgFlow": {
     "title": "Player details",

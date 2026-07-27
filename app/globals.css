@@ -82,3 +82,9 @@ body {
   outline: 3px solid var(--color-orange);
   outline-offset: 2px;
 }
+
+/* مساحة إضافية أسفل الصفحة عندما يظهر شريط تأكيد الطلب،
+   حتى لا يغطّي الشريط آخر سطر بالفوتر */
+body.has-buybar {
+  padding-bottom: calc(9.75rem + env(safe-area-inset-bottom));
+}
