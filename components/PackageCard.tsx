@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { fin, fmt } from "@/lib/format";
 
 type Props = {
@@ -8,6 +9,7 @@ type Props = {
   price: number;
   old?: number;
   disc?: number;
+  img?: string;
   selected: boolean;
   onSelect: () => void;
   discLabel: string;
@@ -21,6 +23,7 @@ export default function PackageCard({
   price,
   old,
   disc,
+  img,
   selected,
   onSelect,
   discLabel,
@@ -46,7 +49,13 @@ export default function PackageCard({
         </span>
       ) : null}
 
-      <Icon className={`size-7 ${selected ? "text-orange" : "text-muted"}`} />
+      {img ? (
+        <span className="relative size-12 overflow-hidden rounded-card">
+          <Image src={img} alt={title} fill sizes="96px" className="object-cover" />
+        </span>
+      ) : (
+        <Icon className={`size-7 ${selected ? "text-orange" : "text-muted"}`} />
+      )}
       <span className="font-bold leading-tight">{title}</span>
       {sub && <span className="text-xs text-muted">{sub}</span>}
 

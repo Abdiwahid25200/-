@@ -1,4 +1,5 @@
 import { fin, fmt } from "@/lib/format";
+import Thumb from "./Thumb";
 
 type Props = {
   name: string;
@@ -6,6 +7,7 @@ type Props = {
   old?: number;
   disc?: number;
   desc?: string;
+  img?: string;
   /** أيقونة تظهر مكان الصورة حتى تُرفع صور المنتجات الحقيقية */
   Icon: (p: { className?: string }) => React.ReactElement;
   discLabel: string;
@@ -17,6 +19,7 @@ export default function ProductCard({
   old,
   disc,
   desc,
+  img,
   Icon,
   discLabel,
 }: Props) {
@@ -26,7 +29,7 @@ export default function ProductCard({
   return (
     <article className="group flex flex-col overflow-hidden rounded-card border border-line bg-surface shadow-sm transition-shadow hover:shadow-md">
       <div className="relative flex aspect-square items-center justify-center bg-gradient-to-br from-navy to-[#1e2a45]">
-        <Icon className="size-14 text-white/85" />
+        <Thumb img={img} alt={name} Icon={Icon} />
         {disc ? (
           <span className="absolute start-2 top-2 rounded-full bg-yellow px-2.5 py-1 text-xs font-bold text-white">
             {discLabel.replace("{n}", String(disc))}

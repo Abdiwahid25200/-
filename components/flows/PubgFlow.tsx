@@ -19,6 +19,7 @@ export default function PubgFlow() {
     price: p.price,
     old: p.old,
     disc: p.disc,
+    img: p.img,
   }));
 
   async function verify() {

@@ -31,6 +31,7 @@ export default async function Home({
               old={p.old}
               disc={p.disc}
               desc={p.desc}
+              img={p.img}
               Icon={IconDevice}
               discLabel={tc("discount")}
             />

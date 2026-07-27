@@ -26,6 +26,7 @@ export default async function TiktokPage({
             old={p.old}
             disc={p.disc}
             desc={p.desc}
+            img={p.img}
             Icon={IconMusic}
             discLabel={tc("discount")}
           />

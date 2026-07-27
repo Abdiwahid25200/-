@@ -14,6 +14,7 @@ export type Pack = {
   price: number;
   old?: number;
   disc?: number;
+  img?: string;
 };
 
 /** رمز الطلب بنفس صيغة الموقع القديم: M-123456 */
@@ -167,6 +168,7 @@ export default function BuyFlow({
               price={p.price}
               old={p.old}
               disc={p.disc}
+              img={p.img}
               selected={p.id === packId}
               onSelect={() => setPackId(p.id)}
               discLabel={tc("discount")}

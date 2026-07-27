@@ -8,6 +8,8 @@
 export type Product = {
   id: string;
   name: string;
+  /** مسار الصورة داخل public/ — مثال: "/images/elec/headset.jpg" */
+  img?: string;
   price: number;
   old?: number;
   disc?: number;
@@ -17,6 +19,7 @@ export type Product = {
 export type UcPack = {
   id: string;
   amount: number;
+  img?: string;
   price: number;
   old?: number;
   disc?: number;
@@ -26,6 +29,7 @@ export type CoinPack = {
   id: string;
   name: string;
   amount: number;
+  img?: string;
   price: number;
   old?: number;
 };
@@ -33,13 +37,14 @@ export type CoinPack = {
 export type GameAccount = {
   id: string;
   title: string;
+  img?: string;
   price: number;
   note?: string;
 };
 
 /** الإلكترونيات — تظهر بالصفحة الرئيسية */
 export const elec: Product[] = [
-  { id: "e1", name: "سماعة بلوتوث لاسلكية", price: 32, disc: 25, desc: "عزل ضوضاء · بطارية ٣٠ ساعة" },
+  { id: "e1", name: "سماعة بلوتوث لاسلكية", price: 32, disc: 25, img: "/images/elec/test.jpg", desc: "عزل ضوضاء · بطارية ٣٠ ساعة" },
   { id: "e2", name: "شاحن سريع 65W", price: 18, desc: "ثلاثة منافذ · شحن سريع للجوال واللابتوب" },
   { id: "e3", name: "باور بانك 20000mAh", price: 35, disc: 20, desc: "شحن سريع · يكفي لثلاث شحنات" },
   { id: "e4", name: "ساعة ذكية رياضية", price: 42, desc: "قياس النبض · مقاومة للماء" },

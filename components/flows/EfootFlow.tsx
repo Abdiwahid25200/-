@@ -17,6 +17,7 @@ export default function EfootFlow() {
     sub: `${p.amount.toLocaleString("en")} 🪙`,
     price: p.price,
     old: p.old,
+    img: p.img,
   }));
 
   const ready = email.includes("@") && pass.length >= 4;
