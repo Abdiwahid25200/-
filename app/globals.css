@@ -9,11 +9,14 @@
   --color-orange: #3d5afe; /* الأساسي — أزرق (الاسم قديم، القيمة جديدة) */
   --color-yellow: #00b589; /* الثانوي — أخضر */
   --color-navy: #0d1424; /* الداكن */
-  --color-bg: #f6f7fb; /* خلفية الصفحة */
-  --color-surface: #ffffff; /* خلفية البطاقات */
-  --color-line: #e6e9f0; /* الحدود */
-  --color-text: #0d1424; /* النص الأساسي */
-  --color-muted: #5b6478; /* النص الثانوي */
+  --color-danger: #e5484d; /* الخطأ */
+  --color-gold: #f5a623; /* عملة UC — لوني دلالي، لا يُغيَّر */
+
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-line: var(--line);
+  --color-text: var(--text);
+  --color-muted: var(--muted);
 
   /* نصف قطر الحواف — سُمّي card تفادياً للتعارض مع rounded-r المدمجة بـ Tailwind */
   --radius-card: 16px;
@@ -21,24 +24,54 @@
   --font-arabic: var(--font-plex-arabic);
 }
 
-/* ── الوضع الليلي ── */
+/* ── الوضع النهاري (الافتراضي) ── */
+:root {
+  --bg: #f6f7fb;
+  --surface: #ffffff;
+  --line: #e6e9f0;
+  --text: #0d1424;
+  --muted: #5b6478;
+  color-scheme: light;
+}
+
+/* ── الوضع التلقائي: يتبع إعدادات الجهاز ── */
 @media (prefers-color-scheme: dark) {
   :root {
-    --color-bg: #0d1424;
-    --color-surface: #161f35;
-    --color-text: #f6f7fb;
-    --color-line: #232c42;
-    --color-muted: #9aa3b8;
+    --bg: #0d1424;
+    --surface: #161f35;
+    --line: #232c42;
+    --text: #f6f7fb;
+    --muted: #9aa3b8;
+    color-scheme: dark;
   }
 }
 
+/* ── الاختيار اليدوي يتغلّب على إعدادات الجهاز ── */
+:root[data-theme="light"] {
+  --bg: #f6f7fb;
+  --surface: #ffffff;
+  --line: #e6e9f0;
+  --text: #0d1424;
+  --muted: #5b6478;
+  color-scheme: light;
+}
+
+:root[data-theme="dark"] {
+  --bg: #0d1424;
+  --surface: #161f35;
+  --line: #232c42;
+  --text: #f6f7fb;
+  --muted: #9aa3b8;
+  color-scheme: dark;
+}
+
 html {
-  background: var(--color-bg);
+  background: var(--bg);
 }
 
 body {
-  background: var(--color-bg);
-  color: var(--color-text);
+  background: var(--bg);
+  color: var(--text);
   /* العربية تحتاج حجماً أكبر — لا خط أصغر من 12.5px بأي مكان */
   font-size: 16px;
   -webkit-font-smoothing: antialiased;

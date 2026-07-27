@@ -1,7 +1,6 @@
 import { getTranslations, setRequestLocale } from "next-intl/server";
-import LocaleSwitcher from "@/components/LocaleSwitcher";
 
-const checkKeys = ["lang", "dir", "font", "theme"] as const;
+const checkKeys = ["lang", "dir", "nav", "theme"] as const;
 
 const palette = [
   { key: "primary", value: "#3D5AFE", className: "bg-orange" },
@@ -22,7 +21,7 @@ export default async function Home({
   const tp = await getTranslations("palette");
 
   return (
-    <main className="mx-auto flex min-h-dvh max-w-2xl flex-col justify-center gap-8 px-5 py-12">
+    <main className="mx-auto flex max-w-2xl flex-col gap-8 px-5 py-10">
       <header className="text-center">
         <span className="inline-block rounded-full bg-yellow/12 px-4 py-1.5 text-sm font-semibold text-yellow">
           {t("badge")}
@@ -32,8 +31,6 @@ export default async function Home({
         </h1>
         <p className="mt-3 text-lg text-muted">{t("tagline")}</p>
       </header>
-
-      <LocaleSwitcher />
 
       <section className="rounded-card border border-line bg-surface p-6 shadow-sm">
         <h2 className="mb-5 text-xl font-semibold">{t("checksTitle")}</h2>

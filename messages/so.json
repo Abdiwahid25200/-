@@ -3,29 +3,61 @@
     "title": "Ramaan Store",
     "description": "Buuxinta ciyaaraha iyo qalabka elektaroonigga ah — Soomaaliya iyo qurbaha"
   },
+  "header": {
+    "brand": "Ramaan Store",
+    "tagline": "Buuxin & elektaroonig",
+    "searchPlaceholder": "Raadi alaab…",
+    "account": "Akoonkayga",
+    "cart": "Dambiisha"
+  },
+  "nav": {
+    "label": "Navigation",
+    "home": "Bogga hore",
+    "games": "Ciyaaraha",
+    "accounts": "Akoonnada",
+    "support": "Caawimaad"
+  },
+  "footer": {
+    "links": "Xiriirro",
+    "help": "Caawimaad",
+    "policy": "Siyaasadaha",
+    "account": "Akoonkayga",
+    "rights": "© Ramaan Store — Xuquuqda oo dhan way dhowran tahay"
+  },
+  "theme": {
+    "label": "Muuqaalka",
+    "auto": "Toos",
+    "light": "Iftiin",
+    "dark": "Mugdi"
+  },
+  "lang": {
+    "label": "Luqadda"
+  },
   "home": {
-    "badge": "Wajiga 1 — Luqadaha",
-    "tagline": "Degelka cusub wuu dhismayaa — isku day beddelka luqadda",
+    "badge": "Wajiga 1B — Qaabka",
+    "tagline": "Degelka cusub wuu dhismayaa — isku day navigation-ka iyo muuqaalka",
     "checksTitle": "Aasaaska waa la xaqiijiyay",
     "paletteTitle": "Midabbada",
-    "nextStep": "Xiga: madaxa, navigation-ka iyo hoosta"
+    "nextStep": "Xiga: 12-ka bog ee degelka"
   },
   "checks": {
     "langTitle": "Saddex luqadood",
     "langNote": "Carabi · Ingiriisi · Soomaali",
     "dirTitle": "Jihada qorista oo toos ah",
     "dirNote": "Midig-bidix Carabiga, bidix-midig kuwa kale",
-    "fontTitle": "Farta IBM Plex Sans Arabic",
-    "fontNote": "Xarfaha Carabiga si cad ayay u muuqdaan",
-    "themeTitle": "Habka mugdiga iyo iftiinka",
-    "themeNote": "Wuxuu raacayaa goobaha aaladdaada"
+    "navTitle": "Madax, navigation hoose iyo hoosta",
+    "navNote": "Xariiqda hoose way taagan tahay sida app-ka mobilka",
+    "themeTitle": "Saddex qaab oo muuqaal ah",
+    "themeNote": "Toos · Iftiin · Mugdi — badhanka kore"
   },
   "palette": {
     "primary": "Aasaasi",
     "secondary": "Labaad",
     "dark": "Mugdi"
   },
-  "lang": {
-    "label": "Luqadda"
+  "soon": {
+    "title": "Boggan weli waa la dhisayaa",
+    "note": "Waxaan dhisi doonaa wajiga xiga — hadda ku laabo bogga hore",
+    "back": "Ku laabo bogga hore"
   }
 }

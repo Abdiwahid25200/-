@@ -4,6 +4,10 @@ import { hasLocale, NextIntlClientProvider } from "next-intl";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { notFound } from "next/navigation";
 import { localeDir, routing, type Locale } from "@/i18n/routing";
+import Header from "@/components/Header";
+import BottomNav from "@/components/BottomNav";
+import Footer from "@/components/Footer";
+import { themeInitScript } from "@/components/ThemeToggle";
 import "../globals.css";
 
 const plexArabic = IBM_Plex_Sans_Arabic({
@@ -52,9 +56,20 @@ export default async function LocaleLayout({
       lang={locale}
       dir={localeDir[locale as Locale]}
       className={plexArabic.variable}
+      suppressHydrationWarning
     >
-      <body className="font-arabic">
-        <NextIntlClientProvider>{children}</NextIntlClientProvider>
+      <head>
+        {/* يُنفَّذ قبل الرسم لمنع وميض الأبيض عند فتح الصفحة بالوضع الليلي */}
+        <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
+      </head>
+      {/* الحشو السفلي يمنع القائمة الثابتة من تغطية الفوتر — كما بالموقع القديم */}
+      <body className="flex min-h-dvh flex-col pb-[calc(5.5rem+env(safe-area-inset-bottom))] font-arabic">
+        <NextIntlClientProvider>
+          <Header />
+          <div className="flex-1">{children}</div>
+          <Footer />
+          <BottomNav />
+        </NextIntlClientProvider>
       </body>
     </html>
   );
