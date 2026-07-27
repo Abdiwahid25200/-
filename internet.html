@@ -16,7 +16,15 @@
 /* السمة hidden يجب أن تتغلب على قواعد display في الأصناف */
 [hidden]{display:none!important}
 
+/* ---------- الألوان ----------
+   الترتيب مقصود: القيم الافتراضية فاتحة، ثم يتكفّل تفضيل النظام بالوضع الليلي،
+   ثم تتغلّب السمة data-theme (زر التبديل) على الاثنين في الاتجاهين. */
+
 :root{
+  /* ثوابت لا تتغير بين الوضعين */
+  --radius:16px;
+  --radius-sm:10px;
+
   --bg:#f4f7fb;
   --bg-soft:#eaf0f8;
   --card:#ffffff;
@@ -31,11 +39,28 @@
   --danger:#d33b3b;
   --shadow:0 1px 2px rgba(15,27,45,.06), 0 8px 24px rgba(15,27,45,.08);
   --shadow-lg:0 12px 40px rgba(15,27,45,.18);
-  --radius:16px;
-  --radius-sm:10px;
 }
 
-html[data-theme="dark"]{
+@media (prefers-color-scheme: dark){
+  :root{
+    --bg:#0c1219;
+    --bg-soft:#121b25;
+    --card:#151f2b;
+    --text:#e8eef7;
+    --muted:#93a3b8;
+    --border:#243244;
+    --brand:#4189dd;
+    --brand-2:#68a4ea;
+    --brand-ink:#06121f;
+    --accent:#25c48c;
+    --warn:#e0a44f;
+    --danger:#f06767;
+    --shadow:0 1px 2px rgba(0,0,0,.4), 0 8px 24px rgba(0,0,0,.35);
+    --shadow-lg:0 12px 40px rgba(0,0,0,.55);
+  }
+}
+
+:root[data-theme="dark"]{
   --bg:#0c1219;
   --bg-soft:#121b25;
   --card:#151f2b;
@@ -50,6 +75,23 @@ html[data-theme="dark"]{
   --danger:#f06767;
   --shadow:0 1px 2px rgba(0,0,0,.4), 0 8px 24px rgba(0,0,0,.35);
   --shadow-lg:0 12px 40px rgba(0,0,0,.55);
+}
+
+:root[data-theme="light"]{
+  --bg:#f4f7fb;
+  --bg-soft:#eaf0f8;
+  --card:#ffffff;
+  --text:#0f1b2d;
+  --muted:#5d6b80;
+  --border:#dde5f0;
+  --brand:#0b6fd1;
+  --brand-2:#4189dd;
+  --brand-ink:#ffffff;
+  --accent:#0aa06e;
+  --warn:#c9761a;
+  --danger:#d33b3b;
+  --shadow:0 1px 2px rgba(15,27,45,.06), 0 8px 24px rgba(15,27,45,.08);
+  --shadow-lg:0 12px 40px rgba(15,27,45,.18);
 }
 
 body{
@@ -1136,18 +1178,37 @@ function renderOrders(){
    ========================================================================== */
 
 // المظهر
-function applyTheme(theme){
-  document.documentElement.setAttribute("data-theme", theme);
-  save(LS.theme, theme);
+const darkQuery = window.matchMedia ? window.matchMedia("(prefers-color-scheme: dark)") : null;
+
+/** الوضع المعروض فعلياً: السمة الصريحة إن وُجدت، وإلا تفضيل النظام. */
+function effectiveTheme(){
+  const attr = document.documentElement.getAttribute("data-theme");
+  if (attr === "dark" || attr === "light") return attr;
+  return darkQuery && darkQuery.matches ? "dark" : "light";
+}
+
+function setThemeIcon(theme){
   $("#themeIcon").innerHTML = theme === "dark"
     ? '<circle cx="12" cy="12" r="4.2"/><path d="M12 2v2.4M12 19.6V22M4.9 4.9l1.7 1.7M17.4 17.4l1.7 1.7M2 12h2.4M19.6 12H22M4.9 19.1l1.7-1.7M17.4 6.6l1.7-1.7"/>'
     : '<path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/>';
 }
 
+function applyTheme(theme){
+  document.documentElement.setAttribute("data-theme", theme);
+  save(LS.theme, theme);
+  setThemeIcon(theme);
+}
+
 $("#themeBtn").addEventListener("click", function(){
-  const now = document.documentElement.getAttribute("data-theme") === "dark" ? "light" : "dark";
-  applyTheme(now);
+  applyTheme(effectiveTheme() === "dark" ? "light" : "dark");
 });
+
+// ما دام المستخدم لم يختر وضعاً بنفسه، نتابع تغيّر إعداد النظام
+if (darkQuery && darkQuery.addEventListener) {
+  darkQuery.addEventListener("change", function(){
+    if (!load(LS.theme, null)) setThemeIcon(effectiveTheme());
+  });
+}
 
 // العملة
 function applyCurrency(cur){
@@ -1277,7 +1338,11 @@ $("#clearOrders").addEventListener("click", function(){
    ١٠) التشغيل الأولي
    ========================================================================== */
 
-applyTheme(load(LS.theme, window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light"));
+// لا نفرض سمة إلا إذا اختار المستخدم وضعاً سابقاً؛ وإلا نترك تفضيل النظام يعمل.
+const storedTheme = load(LS.theme, null);
+if (storedTheme === "dark" || storedTheme === "light") applyTheme(storedTheme);
+else setThemeIcon(effectiveTheme());
+
 applyCurrency(state.cur);
 
 $("#statPkgs").textContent = PACKAGES.length;
