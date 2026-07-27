@@ -34,9 +34,7 @@
     "label": "Language"
   },
   "home": {
-    "badge": "Phase 1 — complete ✓",
-    "tagline": "Your new site — the structure is ready, products are next",
-    "nextStep": "Next up: Phase 2 — building the product pages"
+    "elecTitle": "Electronics"
   },
   "soon": {
     "title": "This page is under construction",
@@ -57,13 +55,40 @@
     "account": "My account",
     "cart": "Shopping cart"
   },
-  "sections": {
-    "title": "Shop by category",
-    "browse": "Browse"
-  },
   "notFound": {
     "title": "Page not found",
     "note": "There is no page at this address",
     "back": "Back to home"
+  },
+  "common": {
+    "count": "{n} products",
+    "packs": "{n} packages",
+    "items": "{n} items",
+    "discount": "{n}% off",
+    "sampleData": "⚠️ Sample data — replaced with your real products later"
+  },
+  "games": {
+    "title": "Games",
+    "note": "Instant, guaranteed top-ups",
+    "pubg": {
+      "title": "PUBG UC",
+      "note": "Direct top-up with your player ID"
+    },
+    "efootball": {
+      "title": "eFootball Coins",
+      "note": "Loaded straight onto your account"
+    }
+  },
+  "accountsPage": {
+    "title": "Accounts",
+    "note": "Ready accounts and services",
+    "efootball": {
+      "title": "eFootball accounts",
+      "note": "Full accounts — each one unique"
+    },
+    "tiktok": {
+      "title": "TikTok",
+      "note": "Followers, views and coins"
+    }
   }
 }

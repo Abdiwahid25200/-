@@ -34,9 +34,7 @@
     "label": "Luqadda"
   },
   "home": {
-    "badge": "Wajiga 1 — waa dhammaaday ✓",
-    "tagline": "Degelkaaga cusub — qaabku wuu diyaar yahay, alaabtu way soo socotaa",
-    "nextStep": "Xiga: Wajiga 2 — dhisidda bogagga alaabta"
+    "elecTitle": "Elektaroonig"
   },
   "soon": {
     "title": "Boggan weli waa la dhisayaa",
@@ -57,13 +55,40 @@
     "account": "Akoonkayga",
     "cart": "Dambiisha wax-iibsiga"
   },
-  "sections": {
-    "title": "Ku iibso qaybaha",
-    "browse": "Fiiri"
-  },
   "notFound": {
     "title": "Bogga lama helin",
     "note": "Ciwaankan bog kuma jiro",
     "back": "Ku laabo bogga hore"
+  },
+  "common": {
+    "count": "{n} alaab",
+    "packs": "{n} xirmo",
+    "items": "{n} shay",
+    "discount": "{n}% dhimis",
+    "sampleData": "⚠️ Xog tijaabo ah — waxaa lagu beddeli doonaa alaabtaada dhabta ah"
+  },
+  "games": {
+    "title": "Ciyaaraha",
+    "note": "Buuxin degdeg ah oo dammaanad qaadan",
+    "pubg": {
+      "title": "PUBG UC",
+      "note": "Si toos ah ugu buuxi ID-gaaga"
+    },
+    "efootball": {
+      "title": "Lacagta eFootball",
+      "note": "Si toos ah ayaa akoonkaaga loogu shubaa"
+    }
+  },
+  "accountsPage": {
+    "title": "Akoonnada",
+    "note": "Akoonno iyo adeegyo diyaar ah",
+    "efootball": {
+      "title": "Akoonnada eFootball",
+      "note": "Akoonno buuxa — mid walba gaar ah"
+    },
+    "tiktok": {
+      "title": "TikTok",
+      "note": "Raacayaal, daawasho iyo lacag"
+    }
   }
 }
