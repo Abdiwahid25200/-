@@ -165,5 +165,14 @@
   "hero": {
     "topup": "TOP UP",
     "browse": "BROWSE"
+  },
+  "menu": {
+    "open": "Menu",
+    "close": "Close",
+    "title": "Store menu",
+    "shop": "Shop",
+    "mine": "My account",
+    "info": "Store",
+    "whatsapp": "Chat with us on WhatsApp"
   }
 }

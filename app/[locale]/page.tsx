@@ -18,8 +18,6 @@ export default async function Home({
 
   return (
     <main className="mx-auto flex max-w-5xl flex-col gap-8 px-4 py-6">
-      <TrustRow />
-
       <section>
         <SectionHead
           title={t("elecTitle")}
@@ -42,7 +40,9 @@ export default async function Home({
         </div>
       </section>
 
-      <p className="mt-10 text-center text-sm text-muted">{tc("sampleData")}</p>
+      <TrustRow />
+
+      <p className="text-center text-sm text-muted">{tc("sampleData")}</p>
     </main>
   );
 }

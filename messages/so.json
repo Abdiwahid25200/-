@@ -165,5 +165,14 @@
   "hero": {
     "topup": "BUUXI",
     "browse": "FIIRI"
+  },
+  "menu": {
+    "open": "Menu-ka",
+    "close": "Xir",
+    "title": "Menu-ka dukaanka",
+    "shop": "Iibso",
+    "mine": "Akoonkayga",
+    "info": "Dukaanka",
+    "whatsapp": "Nagala hadal WhatsApp"
   }
 }

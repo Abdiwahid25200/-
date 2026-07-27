@@ -1,9 +1,9 @@
 import { getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
 import Logo from "./Logo";
-import LocaleSwitcher from "./LocaleSwitcher";
-import ThemeToggle from "./ThemeToggle";
+import MenuDrawer from "./MenuDrawer";
 import { IconCart, IconSearch, IconUser } from "./icons";
+import { store } from "@/lib/data";
 
 export default async function Header() {
   const t = await getTranslations("header");
@@ -37,9 +37,6 @@ export default async function Header() {
         </form>
 
         <div className="ms-auto flex items-center gap-1 md:ms-0">
-          <LocaleSwitcher compact />
-          <ThemeToggle />
-
           <Link
             href="/account"
             aria-label={t("account")}
@@ -58,6 +55,8 @@ export default async function Header() {
               0
             </span>
           </Link>
+
+          <MenuDrawer phone={store.phone} />
         </div>
       </div>
     </header>

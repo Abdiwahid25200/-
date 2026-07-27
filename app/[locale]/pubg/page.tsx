@@ -23,8 +23,8 @@ export default async function PubgPage({
         badge={tc("instant")}
         img="/images/pubg/hero.jpg"
       />
-      <TrustRow />
       <PubgFlow />
+      <TrustRow />
       <PayPartners />
       <p className="text-center text-sm text-muted">{tc("sampleData")}</p>
     </main>

@@ -22,8 +22,8 @@ export default async function EfootballPage({
         title={t("efootball.title")}
         img="/images/efootball/hero.jpg"
       />
-      <TrustRow />
       <EfootFlow />
+      <TrustRow />
       <PayPartners />
       <p className="text-center text-sm text-muted">{tc("sampleData")}</p>
     </main>
