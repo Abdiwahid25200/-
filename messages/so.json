@@ -90,5 +90,37 @@
       "title": "TikTok",
       "note": "Raacayaal, daawasho iyo lacag"
     }
+  },
+  "buy": {
+    "selectPackage": "Dooro xirmo",
+    "payTitle": "Habka lacag-bixinta",
+    "ussdNote": "Wac lambarkan si aad u dhammaystirto:",
+    "copy": "Koobi",
+    "copied": "Waa la koobiyeeyay ✓",
+    "receipt": "Soo geli rasiidka lacagta",
+    "receiptSoon": "Waxaa la furi doonaa marka xogta la isku xiro (Wajiga 3)",
+    "total": "Wadarta",
+    "confirm": "Xaqiiji dalabka",
+    "accountFirst": "Marka hore buuxi faahfaahinta akoonka"
+  },
+  "pubgFlow": {
+    "title": "Faahfaahinta ciyaartoyga",
+    "note": "Geli ID-ga PUBG si buuxintu kuu soo gaarto",
+    "placeholder": "ID-ga ciyaartoyga",
+    "verify": "Xaqiiji",
+    "badId": "ID khaldan",
+    "wait": "Waa la xaqiijinayaa…",
+    "manual": "Gacan ayaan ku xaqiijin doonnaa markaan dalabkaaga eegno"
+  },
+  "efootFlow": {
+    "title": "Faahfaahinta akoonka eFootball",
+    "note": "Waxaan u baahannahay xogta gelitaanka ciyaarta",
+    "email": "Iimaylka akoonka ciyaarta",
+    "pass": "Furaha sirta akoonka",
+    "hint": "Buuxi labada meelood si aad u sii wadato",
+    "ready": "Xogtu diyaar bay tahay"
+  },
+  "accountItem": {
+    "unique": "⚠️ Akoon kastaa waa gaar, hal mar ayaa la iibiyaa — waa laga saaraa dukaanka marka dalabkaaga la aqbalo"
   }
 }

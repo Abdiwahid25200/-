@@ -90,5 +90,37 @@
       "title": "TikTok",
       "note": "Followers, views and coins"
     }
+  },
+  "buy": {
+    "selectPackage": "Choose a package",
+    "payTitle": "Payment method",
+    "ussdNote": "Dial this code to complete the transfer:",
+    "copy": "Copy",
+    "copied": "Copied ✓",
+    "receipt": "Upload payment receipt",
+    "receiptSoon": "Enabled once the database is connected (Phase 3)",
+    "total": "Total",
+    "confirm": "Confirm order",
+    "accountFirst": "Complete your account details above first"
+  },
+  "pubgFlow": {
+    "title": "Player details",
+    "note": "Enter your PUBG player ID so the top-up reaches you directly",
+    "placeholder": "Player ID",
+    "verify": "Verify",
+    "badId": "Invalid ID",
+    "wait": "Verifying…",
+    "manual": "We will verify manually when reviewing your order"
+  },
+  "efootFlow": {
+    "title": "eFootball account details",
+    "note": "We need your game login to load the coins",
+    "email": "Game account email",
+    "pass": "Game account password",
+    "hint": "Fill both fields to continue",
+    "ready": "Details ready"
+  },
+  "accountItem": {
+    "unique": "⚠️ Each account is unique and sold once — removed from the store as soon as your order is accepted"
   }
 }

@@ -85,3 +85,25 @@ export const accounts: GameAccount[] = [
   { id: "a2", title: "حساب eFootball — ٤ نجوم", price: 28, note: "رصيد كوينز إضافي" },
   { id: "a3", title: "حساب مبتدئ + ٢٠٠٠ كوينز", price: 15, note: "مناسب للبداية" },
 ];
+
+/** طرق الدفع — نفس شكل DB.pay في الموقع القديم */
+export type PayMethod = {
+  id: string;
+  nameAr: string;
+  nameEn: string;
+  numbers: string[];
+  ussd: string;
+  on: boolean;
+};
+
+export const pay: PayMethod[] = [
+  { id: "p1", nameAr: "EVC Plus", nameEn: "EVC Plus", numbers: ["612345678"], ussd: "*712*{num}*{amt}#", on: true },
+  { id: "p2", nameAr: "JEEB", nameEn: "JEEB", numbers: ["901234567"], ussd: "*789*{num}*{amt}#", on: true },
+  { id: "p3", nameAr: "E-Dahab", nameEn: "E-Dahab", numbers: ["651234567"], ussd: "*770*{num}*{amt}#", on: true },
+];
+
+/**
+ * رابط خدمة التحقق من آيدي ببجي — يأتي من إعدادات الأدمن (DB.set.idApi).
+ * فارغ الآن ⇒ يعمل الموقع بوضع التحقق اليدوي، تماماً كالموقع القديم.
+ */
+export const idApi: string = "";
