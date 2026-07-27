@@ -65,7 +65,11 @@
     "packs": "{n} xirmo",
     "items": "{n} shay",
     "discount": "{n}% dhimis",
-    "sampleData": "⚠️ Xog tijaabo ah — waxaa lagu beddeli doonaa alaabtaada dhabta ah"
+    "sampleData": "⚠️ Xog tijaabo ah — waxaa lagu beddeli doonaa alaabtaada dhabta ah",
+    "instant": "Degdeg",
+    "popular": "Ugu caansan",
+    "buy": "Iibso",
+    "selected": "La doortay"
   },
   "games": {
     "title": "Ciyaaraha",
@@ -132,5 +136,34 @@
   },
   "accountItem": {
     "unique": "⚠️ Akoon kastaa waa gaar, hal mar ayaa la iibiyaa — waa laga saaraa dukaanka marka dalabkaaga la aqbalo"
+  },
+  "topbar": {
+    "help": "Xarunta caawimaadda"
+  },
+  "trust": {
+    "instant": {
+      "title": "Gaarsiin degdeg ah",
+      "note": "Daqiiqado gudahood"
+    },
+    "secure": {
+      "title": "Lacag-bixin ammaan ah",
+      "note": "Habab la aamini karo"
+    },
+    "support": {
+      "title": "Taageero toos ah",
+      "note": "WhatsApp 24 saac"
+    },
+    "trusted": {
+      "title": "Dalabyo dammaanad qaadan",
+      "note": "Ama lacagtaada waa laguu celinayaa"
+    }
+  },
+  "partners": {
+    "title": "Haabka lacag-bixinta la aqbalo",
+    "note": "Ku bixi sida kugu habboon"
+  },
+  "hero": {
+    "topup": "BUUXI",
+    "browse": "FIIRI"
   }
 }

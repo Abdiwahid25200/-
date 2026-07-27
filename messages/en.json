@@ -65,7 +65,11 @@
     "packs": "{n} packages",
     "items": "{n} items",
     "discount": "{n}% off",
-    "sampleData": "⚠️ Sample data — replaced with your real products later"
+    "sampleData": "⚠️ Sample data — replaced with your real products later",
+    "instant": "Instant",
+    "popular": "Most popular",
+    "buy": "Buy",
+    "selected": "Selected"
   },
   "games": {
     "title": "Games",
@@ -132,5 +136,34 @@
   },
   "accountItem": {
     "unique": "⚠️ Each account is unique and sold once — removed from the store as soon as your order is accepted"
+  },
+  "topbar": {
+    "help": "Help center"
+  },
+  "trust": {
+    "instant": {
+      "title": "Instant delivery",
+      "note": "Within minutes"
+    },
+    "secure": {
+      "title": "Secure payment",
+      "note": "Trusted methods"
+    },
+    "support": {
+      "title": "Direct support",
+      "note": "WhatsApp around the clock"
+    },
+    "trusted": {
+      "title": "Guaranteed orders",
+      "note": "Or your money back"
+    }
+  },
+  "partners": {
+    "title": "Accepted payment methods",
+    "note": "Pay the way that suits you"
+  },
+  "hero": {
+    "topup": "TOP UP",
+    "browse": "BROWSE"
   }
 }

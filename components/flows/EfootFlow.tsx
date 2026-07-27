@@ -18,6 +18,8 @@ export default function EfootFlow() {
     price: p.price,
     old: p.old,
     img: p.img,
+    instant: p.instant,
+    popular: p.popular,
   }));
 
   const ready = email.includes("@") && pass.length >= 4;

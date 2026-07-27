@@ -1,5 +1,6 @@
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import SectionHead from "@/components/SectionHead";
+import TrustRow from "@/components/TrustRow";
 import ProductCard from "@/components/ProductCard";
 import { IconDevice } from "@/components/icons";
 import { elec } from "@/lib/data";
@@ -16,7 +17,9 @@ export default async function Home({
   const tc = await getTranslations("common");
 
   return (
-    <main className="mx-auto max-w-5xl px-4 py-8">
+    <main className="mx-auto flex max-w-5xl flex-col gap-8 px-4 py-6">
+      <TrustRow />
+
       <section>
         <SectionHead
           title={t("elecTitle")}

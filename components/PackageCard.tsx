@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import Badge from "./Badge";
 import { fin, fmt } from "@/lib/format";
 
 type Props = {
@@ -10,13 +11,21 @@ type Props = {
   old?: number;
   disc?: number;
   img?: string;
+  instant?: boolean;
+  popular?: boolean;
   selected: boolean;
   onSelect: () => void;
-  discLabel: string;
+  labels: {
+    disc: string;
+    instant: string;
+    popular: string;
+    buy: string;
+    selected: string;
+  };
   Icon: (p: { className?: string }) => React.ReactElement;
 };
 
-/** بطاقة باقة قابلة للاختيار — تتحدّد بإطار برتقالي كما بالموقع القديم */
+/** بطاقة باقة — صورة كبيرة + سعر أخضر + زر شراء، وتتحدّد بإطار ملوّن عند الاختيار */
 export default function PackageCard({
   title,
   sub,
@@ -24,9 +33,11 @@ export default function PackageCard({
   old,
   disc,
   img,
+  instant,
+  popular,
   selected,
   onSelect,
-  discLabel,
+  labels,
   Icon,
 }: Props) {
   const final = fin({ price, disc });
@@ -37,38 +48,70 @@ export default function PackageCard({
       type="button"
       onClick={onSelect}
       aria-pressed={selected}
-      className={`relative flex min-h-32 flex-col items-center justify-center gap-1 rounded-card border-2 p-4 text-center transition-all ${
+      className={`group flex flex-col overflow-hidden rounded-card border-2 text-start transition-all ${
         selected
-          ? "border-orange bg-orange/5 shadow-md"
-          : "border-line bg-surface hover:border-orange/50"
+          ? "border-orange shadow-md"
+          : "border-line bg-surface hover:border-orange/50 hover:shadow-sm"
       }`}
     >
-      {disc ? (
-        <span className="absolute start-2 top-2 rounded-full bg-yellow px-2 py-0.5 text-[0.7rem] font-bold text-white">
-          {discLabel.replace("{n}", String(disc))}
-        </span>
-      ) : null}
+      {/* الصورة */}
+      <div className="relative flex aspect-square items-center justify-center overflow-hidden bg-gradient-to-br from-navy to-[#1e2a45]">
+        {img ? (
+          <Image
+            src={img}
+            alt={title}
+            fill
+            sizes="(max-width: 640px) 45vw, 200px"
+            className="object-cover transition-transform group-hover:scale-105"
+          />
+        ) : (
+          <Icon className="size-12 text-white/85" />
+        )}
 
-      {img ? (
-        <span className="relative size-12 overflow-hidden rounded-card">
-          <Image src={img} alt={title} fill sizes="96px" className="object-cover" />
+        <span className="absolute inset-x-1.5 top-1.5 flex flex-wrap justify-between gap-1">
+          {disc ? (
+            <Badge tone="green">{labels.disc.replace("{n}", String(disc))}</Badge>
+          ) : (
+            <span />
+          )}
+          {popular && <Badge tone="blue">★ {labels.popular}</Badge>}
         </span>
-      ) : (
-        <Icon className={`size-7 ${selected ? "text-orange" : "text-muted"}`} />
-      )}
-      <span className="font-bold leading-tight">{title}</span>
-      {sub && <span className="text-xs text-muted">{sub}</span>}
 
-      <span className="mt-1 flex items-baseline gap-1.5">
-        <span className="font-bold text-orange" dir="ltr">
-          {fmt(final)}
-        </span>
-        {before && before > final && (
-          <span className="text-xs text-muted line-through" dir="ltr">
-            {fmt(before)}
+        {instant && (
+          <span className="absolute bottom-1.5 start-1.5">
+            <Badge tone="soft">⚡ {labels.instant}</Badge>
           </span>
         )}
-      </span>
+      </div>
+
+      {/* التفاصيل */}
+      <div className="flex flex-1 flex-col gap-1 p-3">
+        <span className="font-bold leading-tight">{title}</span>
+        {sub && <span className="text-xs text-muted">{sub}</span>}
+
+        <div className="mt-auto flex items-center justify-between gap-2 pt-2">
+          <span className="flex flex-col leading-tight">
+            <span className="text-lg font-bold text-yellow" dir="ltr">
+              {fmt(final)}
+            </span>
+            {before && before > final && (
+              <span className="text-xs text-muted line-through" dir="ltr">
+                {fmt(before)}
+              </span>
+            )}
+          </span>
+
+          <span
+            className={`rounded-card px-3 py-1.5 text-xs font-bold transition-colors ${
+              selected
+                ? "bg-orange text-white"
+                : "bg-yellow/12 text-yellow group-hover:bg-yellow group-hover:text-white"
+            }`}
+          >
+            {selected ? "✓ " + labels.selected : labels.buy}
+          </span>
+        </div>
+      </div>
     </button>
   );
 }

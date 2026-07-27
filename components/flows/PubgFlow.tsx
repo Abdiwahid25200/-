@@ -20,6 +20,8 @@ export default function PubgFlow() {
     old: p.old,
     disc: p.disc,
     img: p.img,
+    instant: p.instant,
+    popular: p.popular,
   }));
 
   async function verify() {

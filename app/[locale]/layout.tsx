@@ -4,6 +4,7 @@ import { hasLocale, NextIntlClientProvider } from "next-intl";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { notFound } from "next/navigation";
 import { localeDir, routing, type Locale } from "@/i18n/routing";
+import TopBar from "@/components/TopBar";
 import Header from "@/components/Header";
 import BottomNav from "@/components/BottomNav";
 import Footer from "@/components/Footer";
@@ -65,6 +66,7 @@ export default async function LocaleLayout({
       {/* الحشو السفلي يمنع القائمة الثابتة من تغطية الفوتر — كما بالموقع القديم */}
       <body className="flex min-h-dvh flex-col pb-[calc(5.5rem+env(safe-area-inset-bottom))] font-arabic">
         <NextIntlClientProvider>
+          <TopBar />
           <Header />
           <div className="flex-1">{children}</div>
           <Footer />

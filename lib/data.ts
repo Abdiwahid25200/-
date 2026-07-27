@@ -20,6 +20,9 @@ export type UcPack = {
   id: string;
   amount: number;
   img?: string;
+  /** فوري = يُشحن تلقائياً · يدوي = يحتاج مراجعة */
+  instant?: boolean;
+  popular?: boolean;
   price: number;
   old?: number;
   disc?: number;
@@ -30,6 +33,8 @@ export type CoinPack = {
   name: string;
   amount: number;
   img?: string;
+  instant?: boolean;
+  popular?: boolean;
   price: number;
   old?: number;
 };
@@ -56,19 +61,19 @@ export const elec: Product[] = [
 
 /** شدات ببجي — UC */
 export const pubg: UcPack[] = [
-  { id: "u1", amount: 60, price: 1.2 },
-  { id: "u2", amount: 325, price: 6, disc: 10 },
-  { id: "u3", amount: 660, price: 10.5 },
-  { id: "u4", amount: 1800, price: 30, disc: 10 },
-  { id: "u5", amount: 3850, price: 54 },
-  { id: "u6", amount: 8100, price: 120, disc: 10 },
+  { id: "u1", amount: 60, price: 1.2, instant: true },
+  { id: "u2", amount: 325, price: 6, disc: 10, instant: true },
+  { id: "u3", amount: 660, price: 10.5, instant: true, popular: true },
+  { id: "u4", amount: 1800, price: 30, disc: 10, instant: true },
+  { id: "u5", amount: 3850, price: 54, instant: true },
+  { id: "u6", amount: 8100, price: 120, disc: 10, instant: true },
 ];
 
 /** كوينز eFootball */
 export const icons: CoinPack[] = [
   { id: "c1", name: "باقة صغيرة", amount: 100, price: 1.5 },
   { id: "c2", name: "باقة فضية", amount: 550, price: 7.5, old: 8 },
-  { id: "c3", name: "باقة ذهبية", amount: 1300, price: 16 },
+  { id: "c3", name: "باقة ذهبية", amount: 1300, price: 16, popular: true },
   { id: "c4", name: "باقة بلاتينية", amount: 2800, price: 33, old: 36 },
   { id: "c5", name: "باقة ماسية", amount: 5900, price: 68 },
   { id: "c6", name: "الباقة الكبرى", amount: 12000, price: 130, old: 145 },
@@ -119,3 +124,15 @@ export const idApi: string = "";
  * عند تعبئته ⇒ يفتح زر التأكيد واتساب برسالة الطلب جاهزة.
  */
 export const wa: string = "";
+
+/** إعدادات المتجر — تأتي لاحقاً من DB.set */
+export const store = {
+  phone: "",          // مثال: "252612345678"
+  email: "",          // مثال: "support@eramaan.com"
+  telegram: "",
+};
+
+/** شركاء الدفع — تُعرض بالفوتر وصفحة الدفع لبناء الثقة */
+export const partners = [
+  "EVC Plus", "JEEB", "E-Dahab", "ZAAD", "SAHAL", "WAAFI", "Premier Wallet",
+];

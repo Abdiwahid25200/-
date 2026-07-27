@@ -15,6 +15,8 @@ export type Pack = {
   old?: number;
   disc?: number;
   img?: string;
+  instant?: boolean;
+  popular?: boolean;
 };
 
 /** رمز الطلب بنفس صيغة الموقع القديم: M-123456 */
@@ -169,9 +171,17 @@ export default function BuyFlow({
               old={p.old}
               disc={p.disc}
               img={p.img}
+              instant={p.instant}
+              popular={p.popular}
               selected={p.id === packId}
               onSelect={() => setPackId(p.id)}
-              discLabel={tc("discount")}
+              labels={{
+                disc: tc("discount"),
+                instant: tc("instant"),
+                popular: tc("popular"),
+                buy: tc("buy"),
+                selected: tc("selected"),
+              }}
               Icon={Icon}
             />
           ))}
