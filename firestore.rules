@@ -1,0 +1,78 @@
+rules_version = '2';
+
+/**
+ * قواعد أمان Firestore — Ramaan Store
+ *
+ * ⚠️ درسٌ من الموقع القديم: كانت الطلبات مصفوفة واحدة يقرأها **أي شخص**،
+ *    وفيها كلمات مرور الحسابات نصّاً صريحاً. هذه القواعد تمنع ذلك نهائياً:
+ *
+ *    ① كل طلب وثيقة مستقلّة — لا مصفوفة عملاقة يقرأها الجميع
+ *    ② الزبون يرى طلباته هو فقط، ولا يرى طلبات غيره أبداً
+ *    ③ بيانات التسليم الحسّاسة (كلمات مرور الحسابات المُباعة) في مجموعة
+ *      فرعية `private` لا يقرأها إلا الأدمن — حتى صاحب الطلب لا يصل لها مباشرة
+ *    ④ الزبون لا يستطيع تعديل سعر أو حالة طلبه بعد إنشائه
+ */
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    /* ── من هو الأدمن؟ ──
+       وثيقة باسم الـuid داخل مجموعة admins. تُضاف يدوياً من Firebase Console،
+       فلا يستطيع أحد ترقية نفسه لأن الكتابة في admins ممنوعة على الجميع. */
+    function isAdmin() {
+      return request.auth != null
+        && exists(/databases/$(database)/documents/admins/$(request.auth.uid));
+    }
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    match /admins/{uid} {
+      allow read: if isAdmin();
+      allow write: if false;   // من Firebase Console فقط
+    }
+
+    /* ── الطلبات ── */
+    match /orders/{orderId} {
+
+      function validNewOrder() {
+        let d = request.resource.data;
+        return d.uid == request.auth.uid
+          && d.status == 'pending'                 // لا يبدأ الطلب مدفوعاً
+          && d.total is number && d.total >= 0
+          && d.code is string && d.code.size() <= 32
+          && d.items is list && d.items.size() > 0 && d.items.size() <= 50
+          && d.createdAt == request.time;          // لا يزوّر تاريخ الطلب
+      }
+
+      // الزبون يرى طلباته هو فقط · الأدمن يرى الكل
+      allow read: if isAdmin()
+        || (isSignedIn() && resource.data.uid == request.auth.uid);
+
+      allow create: if isSignedIn() && validNewOrder();
+
+      // بعد الإنشاء لا يملك الزبون تعديل شيء — الحالة والسعر بيد الأدمن وحده
+      allow update, delete: if isAdmin();
+
+      /* بيانات التسليم الحسّاسة — كلمات مرور الحسابات المُباعة وما شابه.
+         الأدمن فقط. تُسلَّم للزبون عبر واتساب لا عبر الموقع. */
+      match /private/{docId} {
+        allow read, write: if isAdmin();
+      }
+    }
+
+    /* ── المنتجات والأقسام والإعدادات ──
+       يقرأها الجميع (متجر عام) · لا يكتبها إلا الأدمن من لوحة الإدارة */
+    match /products/{id}  { allow read: if true; allow write: if isAdmin(); }
+    match /packages/{id}  { allow read: if true; allow write: if isAdmin(); }
+    match /sections/{id}  { allow read: if true; allow write: if isAdmin(); }
+    match /settings/{id}  { allow read: if true; allow write: if isAdmin(); }
+
+    /* ── أي شيء آخر: ممنوع ──
+       الافتراض هو المنع، فأي مجموعة جديدة تحتاج قاعدة صريحة أعلاه. */
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

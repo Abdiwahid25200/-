@@ -7,6 +7,8 @@ import { Link } from "@/i18n/navigation";
 import { useCart } from "@/lib/cart";
 import { fmt } from "@/lib/format";
 import { pay, wa } from "@/lib/data";
+import { useAuth } from "@/lib/auth";
+import { saveOrder } from "@/lib/orders";
 import { IconDevice } from "@/components/icons";
 
 const newCode = () => "M-" + Math.floor(100000 + Math.random() * 900000);
@@ -22,6 +24,8 @@ export default function CartView() {
   const [addr, setAddr] = useState("");
   const [payId, setPayId] = useState<string | null>(null);
   const [done, setDone] = useState<{ code: string } | null>(null);
+  const [saved, setSaved] = useState<"idle" | "saving" | "ok" | "auth" | "local" | "error">("idle");
+  const { user } = useAuth();
 
   const methods = pay.filter((m) => m.on);
   const method = methods.find((m) => m.id === payId) ?? methods[0];
@@ -59,6 +63,14 @@ export default function CartView() {
             dir="ltr"
           >
             {done.code}
+          </div>
+
+          <div className="mt-3 text-sm">
+            {saved === "saving" && <span className="text-muted">⏳ {tb("saving")}</span>}
+            {saved === "ok" && <span className="font-medium text-yellow">✓ {tb("savedOk")}</span>}
+            {(saved === "auth" || saved === "local" || saved === "error") && (
+              <span className="text-muted">{tb("saveManual")}</span>
+            )}
           </div>
         </section>
 
@@ -236,10 +248,24 @@ export default function CartView() {
         <button
           type="button"
           disabled={!canOrder}
-          onClick={() => {
-            setDone({ code: newCode() });
+          onClick={async () => {
+            const code = newCode();
+            // نلتقط الأصناف قبل تفريغ السلة
+            const items = lines.map((l) => ({
+              id: l.id, title: l.name, qty: l.qty, price: l.price,
+            }));
+            const sum = total;
+            setDone({ code });
             clear();
             window.scrollTo({ top: 0, behavior: "smooth" });
+
+            setSaved("saving");
+            const r = await saveOrder(user, {
+              code, kind: "elec", items, total: sum,
+              payMethod: methodName,
+              account: `${name.trim()} · ${contact.trim()} · ${addr.trim()}`,
+            });
+            setSaved(r.ok ? "ok" : r.reason);
           }}
           className="min-h-12 w-full rounded-card bg-orange font-bold text-white transition-opacity enabled:hover:opacity-90 disabled:opacity-40"
         >

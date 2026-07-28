@@ -6,6 +6,8 @@ import PackageCard from "./PackageCard";
 import PaySection from "./PaySection";
 import { fin, fmt } from "@/lib/format";
 import { pay, wa } from "@/lib/data";
+import { useAuth } from "@/lib/auth";
+import { saveOrder } from "@/lib/orders";
 
 export type Pack = {
   id: string;
@@ -34,6 +36,7 @@ export default function BuyFlow({
   accountReady,
   accountSummary,
   Icon,
+  kind,
 }: {
   packs: Pack[];
   /** بطاقة بيانات الحساب — تختلف بين ببجي و eFootball */
@@ -43,6 +46,8 @@ export default function BuyFlow({
   /** سطر يصف بيانات الحساب، يظهر بملخّص الطلب */
   accountSummary: string;
   Icon: (p: { className?: string }) => React.ReactElement;
+  /** القسم الذي جاء منه الطلب — يُحفظ مع الطلب لتصنيفه في الإدارة */
+  kind: string;
 }) {
   const t = useTranslations("buy");
   const tc = useTranslations("common");
@@ -51,6 +56,10 @@ export default function BuyFlow({
   const [packId, setPackId] = useState<string | null>(null);
   const [payId, setPayId] = useState<string | null>(null);
   const [done, setDone] = useState<null | { code: string; at: string }>(null);
+  /** نتيجة حفظ الطلب في قاعدة البيانات — تُعرض للزبون بصراحة */
+  const [saved, setSaved] = useState<"idle" | "saving" | "ok" | "auth" | "local" | "error">("idle");
+
+  const { user, enabled: authOn, signIn } = useAuth();
 
   const found = packs.find((p) => p.id === packId) ?? null;
   // حارس: لو أُغلقت باقة مختارة سابقاً تُهمل بدل أن تُشترى
@@ -70,15 +79,28 @@ export default function BuyFlow({
     return () => document.body.classList.remove("has-buybar");
   }, [barVisible]);
 
-  function confirm() {
-    if (!canConfirm) return;
+  async function confirm() {
+    if (!canConfirm || !pack) return;
     const code = newCode();
     setDone({ code, at: new Date().toLocaleString(locale === "ar" ? "ar" : "en") });
     window.scrollTo({ top: 0, behavior: "smooth" });
+
+    // الحفظ لا يمنع الزبون من متابعة طلبه عبر واتساب مهما كانت نتيجته
+    setSaved("saving");
+    const r = await saveOrder(user, {
+      code,
+      kind,
+      items: [{ id: pack.id, title: pack.title, qty: 1, price: total }],
+      total,
+      payMethod: methodName,
+      account: accountSummary,
+    });
+    setSaved(r.ok ? "ok" : r.reason);
   }
 
   function reset() {
     setDone(null);
+    setSaved("idle");
     setPackId(null);
     setPayId(null);
   }
@@ -112,6 +134,29 @@ export default function BuyFlow({
           >
             {done.code}
           </div>
+
+          {/* حالة الحفظ — نصارح الزبون بدل أن نوهمه أن الطلب محفوظ */}
+          {saved === "saving" && (
+            <p className="mt-3 text-sm text-muted">⏳ {t("saving")}</p>
+          )}
+          {saved === "ok" && (
+            <p className="mt-3 text-sm font-medium text-yellow">✓ {t("savedOk")}</p>
+          )}
+          {saved === "auth" && authOn && (
+            <div className="mt-3">
+              <p className="text-sm text-muted">{t("savePrompt")}</p>
+              <button
+                type="button"
+                onClick={() => signIn().catch(() => {})}
+                className="mt-2 min-h-12 rounded-card border border-line px-5 text-sm font-bold transition-colors hover:border-orange"
+              >
+                {tc("googleSignIn")}
+              </button>
+            </div>
+          )}
+          {(saved === "local" || saved === "error") && (
+            <p className="mt-3 text-sm text-muted">{t("saveManual")}</p>
+          )}
         </section>
 
         <section className="rounded-card border border-line bg-surface p-4">

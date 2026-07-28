@@ -26,6 +26,7 @@ export default function AccountsFlow() {
       packs={packs}
       accountReady={ready}
       accountSummary={`${t("contact")}: ${contact.trim()}`}
+      kind="accounts"
       Icon={IconBall}
       accountForm={
         <section className="rounded-card border border-line bg-surface p-4">

@@ -77,7 +77,8 @@
     "buy": "Iibso",
     "selected": "La doortay",
     "back": "Dib u noqo",
-    "soon": "Dhawaan"
+    "soon": "Dhawaan",
+    "googleSignIn": "Ku sii wad Google"
   },
   "games": {
     "title": "Ciyaaraha",
@@ -128,7 +129,11 @@
     "payGlobalNote": "Waa laga heli karaa dal kasta",
     "payLocal": "🇸🇴 Wareejin maxalli ah",
     "payLocalNote": "USSD taleefankaaga",
-    "globalNote": "Ka dib xaqiijinta waxaan kuu soo dirnaa faahfaahinta {method} lambarka aad gelisay."
+    "globalNote": "Ka dib xaqiijinta waxaan kuu soo dirnaa faahfaahinta {method} lambarka aad gelisay.",
+    "saving": "Dalabkaaga waa la kaydinayaa…",
+    "savedOk": "Dalabka waa lagu kaydiyay akoonkaaga",
+    "savePrompt": "Gal si dalabkan loogu kaydiyo akoonkaaga oo aad dib u eegto.",
+    "saveManual": "Dalabkaagu weli lama kaydin — fadlan WhatsApp ku soo dir si loo xaqiijiyo."
   },
   "pubgFlow": {
     "title": "Faahfaahinta ciyaartoyga",
@@ -279,6 +284,17 @@
       "orders": "Dalabyadayda",
       "cart": "Dambiisha",
       "help": "Caawimaad"
+    },
+    "google": "Ku sii wad Google",
+    "signOut": "Ka bax",
+    "myOrders": "Dalabkayga",
+    "noOrders": "Wax dalab ah ma jiro — dalabkaagu halkan ayuu ka soo muuqan doonaa.",
+    "loginError": "Gelitaanku ma dhammaan. Fadlan isku day mar kale.",
+    "status": {
+      "pending": "La eegayo",
+      "paid": "La bixiyay",
+      "done": "La gaarsiiyay",
+      "cancelled": "La joojiyay"
     }
   },
   "tiktokFlow": {

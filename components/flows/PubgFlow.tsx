@@ -66,6 +66,7 @@ export default function PubgFlow() {
       packs={packs}
       accountReady={ready}
       accountSummary={`${t("placeholder")}: ${pid.replace(/\D/g, "")}`}
+      kind="pubg"
       Icon={IconBolt}
       accountForm={
         <section className="rounded-card border border-line bg-surface p-4">

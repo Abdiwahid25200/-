@@ -27,6 +27,7 @@ export default function TiktokFlow() {
       packs={packs}
       accountReady={ready}
       accountSummary={`${t("contact")}: ${contact.trim()}`}
+      kind="tiktok"
       Icon={IconMusic}
       accountForm={
         <section className="rounded-card border border-line bg-surface p-4">

@@ -33,6 +33,7 @@ export default function EfootFlow() {
       packs={packs}
       accountReady={ready}
       accountSummary={`${t("email")}: ${email}`}
+      kind="efootball"
       Icon={IconBall}
       accountForm={
         <section className="rounded-card border border-line bg-surface p-4">

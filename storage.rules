@@ -1,0 +1,43 @@
+rules_version = '2';
+
+/**
+ * قواعد أمان Storage — Ramaan Store
+ *
+ * ⚠️ درسٌ من الموقع القديم: كانت صور المنتجات تُحوَّل base64 وتُحشر داخل
+ *    وثيقة Firestore، فتضرب حدّ المليون بايت للوثيقة ويتعطّل الحفظ.
+ *    الصور الآن ملفات حقيقية هنا، وفي Firestore رابطها فقط.
+ */
+
+service firebase.storage {
+  match /b/{bucket}/o {
+
+    function isAdmin() {
+      return request.auth != null
+        && firestore.exists(/databases/(default)/documents/admins/$(request.auth.uid));
+    }
+
+    function isImage() {
+      return request.resource.contentType.matches('image/.*')
+        && request.resource.size < 5 * 1024 * 1024;   // ٥ ميجابايت كحدّ أقصى
+    }
+
+    /* صور المنتجات والباقات — يراها الجميع · ترفعها الإدارة فقط */
+    match /products/{allPaths=**} {
+      allow read: if true;
+      allow write: if isAdmin() && isImage();
+    }
+
+    /* إيصالات الدفع — يرفعها الزبون المسجَّل، ولا يقرأها إلا الأدمن
+       (إيصال فيه رقم هاتف ومبلغ — لا يُعرض للعامة) */
+    match /receipts/{uid}/{fileName} {
+      allow read: if isAdmin() || (request.auth != null && request.auth.uid == uid);
+      allow create: if request.auth != null && request.auth.uid == uid && isImage();
+      allow update, delete: if isAdmin();
+    }
+
+    /* أي مسار آخر: ممنوع */
+    match /{allPaths=**} {
+      allow read, write: if false;
+    }
+  }
+}

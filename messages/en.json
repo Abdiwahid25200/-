@@ -77,7 +77,8 @@
     "buy": "Buy",
     "selected": "Selected",
     "back": "Back",
-    "soon": "Coming soon"
+    "soon": "Coming soon",
+    "googleSignIn": "Continue with Google"
   },
   "games": {
     "title": "Games",
@@ -128,7 +129,11 @@
     "payGlobalNote": "Available from any country",
     "payLocal": "🇸🇴 Local transfer",
     "payLocalNote": "Via USSD from your phone",
-    "globalNote": "After you confirm, we send the {method} payment details to the contact you entered."
+    "globalNote": "After you confirm, we send the {method} payment details to the contact you entered.",
+    "saving": "Saving your order…",
+    "savedOk": "Order saved to your account",
+    "savePrompt": "Sign in to keep this order in your account and track it later.",
+    "saveManual": "Your order is not saved online yet — please send it on WhatsApp to confirm."
   },
   "pubgFlow": {
     "title": "Player details",
@@ -279,6 +284,17 @@
       "orders": "My orders",
       "cart": "Shopping cart",
       "help": "Help & support"
+    },
+    "google": "Continue with Google",
+    "signOut": "Sign out",
+    "myOrders": "My orders",
+    "noOrders": "No orders yet — your orders will appear here after you buy.",
+    "loginError": "Sign-in did not complete. Please try again.",
+    "status": {
+      "pending": "Pending",
+      "paid": "Paid",
+      "done": "Delivered",
+      "cancelled": "Cancelled"
     }
   },
   "tiktokFlow": {
