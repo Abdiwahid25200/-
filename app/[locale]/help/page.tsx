@@ -2,7 +2,6 @@ import { getTranslations, setRequestLocale } from "next-intl/server";
 import SectionHead from "@/components/SectionHead";
 import Faq from "@/components/Faq";
 import TrustRow from "@/components/TrustRow";
-import PayPartners from "@/components/PayPartners";
 import MessageForm from "@/components/MessageForm";
 import { IconChat, IconClock, IconEmail, IconWhatsApp } from "@/components/icons";
 import { faqKeys, site, supportChannels } from "@/lib/content";
@@ -90,7 +89,6 @@ export default async function HelpPage({
         <Faq items={faqKeys.map((k) => ({ q: t(`faq.${k}.q`), a: t(`faq.${k}.a`) }))} />
       </section>
 
-      <PayPartners />
     </main>
   );
 }

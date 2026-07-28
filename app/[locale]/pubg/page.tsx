@@ -2,7 +2,6 @@ import { getTranslations, setRequestLocale } from "next-intl/server";
 import Hero from "@/components/Hero";
 import PubgFlow from "@/components/flows/PubgFlow";
 import TrustRow from "@/components/TrustRow";
-import PayPartners from "@/components/PayPartners";
 
 export default async function PubgPage({
   params,
@@ -25,7 +24,6 @@ export default async function PubgPage({
       />
       <PubgFlow />
       <TrustRow />
-      <PayPartners />
       <p className="text-center text-sm text-muted">{tc("sampleData")}</p>
     </main>
   );

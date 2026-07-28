@@ -2,7 +2,6 @@ import { getTranslations, setRequestLocale } from "next-intl/server";
 import Hero from "@/components/Hero";
 import TiktokFlow from "@/components/flows/TiktokFlow";
 import TrustRow from "@/components/TrustRow";
-import PayPartners from "@/components/PayPartners";
 
 export default async function TiktokPage({
   params,
@@ -24,7 +23,6 @@ export default async function TiktokPage({
       </p>
       <TiktokFlow />
       <TrustRow />
-      <PayPartners />
       <p className="text-center text-sm text-muted">{tc("sampleData")}</p>
     </main>
   );

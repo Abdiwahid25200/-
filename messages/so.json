@@ -18,11 +18,17 @@
     "support": "Caawimaad"
   },
   "footer": {
-    "links": "Xiriirro",
-    "help": "Caawimaad",
-    "policy": "Siyaasadaha",
-    "account": "Akoonkayga",
-    "rights": "© Ramaan Store — Xuquuqda oo dhan way dhowran tahay"
+    "quick": "Xiriirro degdeg ah",
+    "policies": "Siyaasadaha",
+    "contact": "Nala soo xiriir",
+    "contactSoon": "Xogta xiriirka dhawaan",
+    "weAccept": "Waxaan aqbalnaa:",
+    "rights": "Xuquuqda oo dhan way dhowran tahay",
+    "policy": {
+      "privacy": "Siyaasadda asturnaanta",
+      "terms": "Shuruudaha",
+      "refund": "Siyaasadda celinta"
+    }
   },
   "theme": {
     "label": "Muuqaalka",
@@ -162,10 +168,6 @@
       "title": "Dalabyo dammaanad qaadan",
       "note": "Ama lacagtaada waa laguu celinayaa"
     }
-  },
-  "partners": {
-    "title": "Haabka lacag-bixinta la aqbalo",
-    "note": "Ku bixi sida kugu habboon"
   },
   "hero": {
     "topup": "BUUXI",

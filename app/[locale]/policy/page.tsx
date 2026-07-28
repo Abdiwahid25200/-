@@ -17,7 +17,11 @@ export default async function PolicyPage({
       <SectionHead title={t("title")} note={t("note")} />
 
       {sections.map((k) => (
-        <section key={k} className="rounded-card border border-line bg-surface p-5">
+        <section
+          key={k}
+          id={k}
+          className="scroll-mt-24 rounded-card border border-line bg-surface p-5"
+        >
           <h2 className="mb-2 text-lg font-bold">{t(`${k}.title`)}</h2>
           <p className="whitespace-pre-line text-sm leading-relaxed text-muted">
             {t(`${k}.body`)}

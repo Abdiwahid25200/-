@@ -2,7 +2,6 @@ import { getTranslations, setRequestLocale } from "next-intl/server";
 import Hero from "@/components/Hero";
 import EfootFlow from "@/components/flows/EfootFlow";
 import TrustRow from "@/components/TrustRow";
-import PayPartners from "@/components/PayPartners";
 
 export default async function EfootballPage({
   params,
@@ -24,7 +23,6 @@ export default async function EfootballPage({
       />
       <EfootFlow />
       <TrustRow />
-      <PayPartners />
       <p className="text-center text-sm text-muted">{tc("sampleData")}</p>
     </main>
   );

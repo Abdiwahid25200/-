@@ -18,11 +18,17 @@
     "support": "Support"
   },
   "footer": {
-    "links": "Links",
-    "help": "Help",
-    "policy": "Policies",
-    "account": "My account",
-    "rights": "© Ramaan Store — All rights reserved"
+    "quick": "Quick links",
+    "policies": "Policies",
+    "contact": "Contact us",
+    "contactSoon": "Contact details coming soon",
+    "weAccept": "We accept:",
+    "rights": "All rights reserved",
+    "policy": {
+      "privacy": "Privacy policy",
+      "terms": "Terms & conditions",
+      "refund": "Refund policy"
+    }
   },
   "theme": {
     "label": "Appearance",
@@ -162,10 +168,6 @@
       "title": "Guaranteed orders",
       "note": "Or your money back"
     }
-  },
-  "partners": {
-    "title": "Accepted payment methods",
-    "note": "Pay the way that suits you"
   },
   "hero": {
     "topup": "TOP UP",

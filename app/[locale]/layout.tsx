@@ -71,7 +71,7 @@ export default async function LocaleLayout({
             <TopBar />
             <Header />
             <div className="flex-1">{children}</div>
-            <Footer />
+            <Footer locale={locale} />
             <BottomNav />
           </CartProvider>
         </NextIntlClientProvider>
