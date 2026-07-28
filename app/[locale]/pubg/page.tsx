@@ -16,7 +16,7 @@ export default async function PubgPage({
   const te = await getTranslations("eyebrow");
 
   return (
-    <main className="mx-auto flex max-w-4xl flex-col gap-5 px-4 py-6">
+    <main className="seq mx-auto flex max-w-4xl flex-col gap-5 px-4 py-6">
       <BackLink href="/games" />
       <SectionHead
         eyebrow={te("pubg")}

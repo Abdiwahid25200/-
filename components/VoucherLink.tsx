@@ -31,7 +31,7 @@ export default function VoucherLink({
   return (
     <Link
       href={href}
-      className="group relative flex flex-col rounded-card border border-line bg-surface p-4 shadow-sm transition-all hover:border-orange/60 hover:shadow-md"
+      className="lift relative flex flex-col rounded-card border border-line bg-surface p-4 shadow-sm"
     >
       <span className="flex items-start gap-2">
         <span className="min-w-0 flex-1">

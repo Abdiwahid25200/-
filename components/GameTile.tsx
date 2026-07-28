@@ -31,7 +31,7 @@ export default function GameTile({
 }: Props) {
   const tile = (
     <>
-      <span className="relative flex aspect-[4/5] flex-col items-center justify-center gap-2.5 overflow-hidden rounded-[18px] border border-line bg-surface px-2 py-4 shadow-sm transition-shadow group-hover:shadow-md">
+      <span className="lift relative flex aspect-[4/5] flex-col items-center justify-center gap-2.5 overflow-hidden rounded-[18px] border border-line bg-surface px-2 py-4 shadow-sm">
         {img ? (
           <Image
             src={img}

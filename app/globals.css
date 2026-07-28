@@ -226,3 +226,50 @@ body.has-buybar {
 .nav-ico {
   transition: transform 0.14s ease;
 }
+
+/* ═══════════════════════════════════════════════════════════
+   نظام الحركة — منقول من المعاينة التي اعتمدتها صاحبة المشروع
+   ═══════════════════════════════════════════════════════════ */
+
+/* ① ظهور متدرّج: كل قسم يصعد بعد سابقه بجزء من الثانية،
+      فتُقرأ الصفحة كتسلسل لا كدفعة واحدة. */
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+}
+
+.seq > * {
+  animation: rise 0.5s ease both;
+}
+
+.seq > *:nth-child(1) { animation-delay: 0.04s; }
+.seq > *:nth-child(2) { animation-delay: 0.10s; }
+.seq > *:nth-child(3) { animation-delay: 0.16s; }
+.seq > *:nth-child(4) { animation-delay: 0.22s; }
+.seq > *:nth-child(5) { animation-delay: 0.28s; }
+.seq > *:nth-child(6) { animation-delay: 0.34s; }
+.seq > *:nth-child(n + 7) { animation-delay: 0.4s; }
+
+/* ② الارتفاع عند اللمس أو المرور — إحساس بطاقة تُلتقط باليد */
+.lift {
+  transition:
+    transform 0.2s ease,
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+@media (hover: hover) {
+  .lift:hover {
+    transform: translateY(-3px);
+    border-color: var(--accent);
+  }
+}
+
+.lift:active {
+  transform: scale(0.97);
+}
+
+/* الحركة كلها تُلغى لمن طلب تقليلها في إعدادات جهازه —
+   القاعدة العامة أسفل الملف تتكفّل بذلك. */

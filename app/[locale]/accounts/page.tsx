@@ -18,7 +18,7 @@ export default async function AccountsPage({
   const tc = await getTranslations("common");
 
   return (
-    <main className="mx-auto flex max-w-3xl flex-col gap-4 px-4 py-6">
+    <main className="seq mx-auto flex max-w-3xl flex-col gap-4 px-4 py-6">
       <BackLink />
       <SectionHead
         eyebrow={te("accounts")} title={t("title")} note={t("note")} />

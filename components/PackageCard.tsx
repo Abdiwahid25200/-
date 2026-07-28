@@ -63,7 +63,7 @@ export default function PackageCard({
       onClick={onSelect}
       disabled={soon}
       aria-pressed={selected}
-      className={`group relative flex flex-col rounded-card border bg-surface p-4 text-start shadow-sm transition-all ${
+      className={`lift relative flex flex-col rounded-card border bg-surface p-4 text-start shadow-sm ${
         soon
           ? "cursor-not-allowed opacity-60"
           : selected
