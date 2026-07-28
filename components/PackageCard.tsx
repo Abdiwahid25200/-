@@ -76,50 +76,82 @@ export default function PackageCard({
             : "border-line hover:border-orange/60 hover:shadow-md"
       }`}
     >
-      {img && (
-        // مربّعة وكبيرة كما في Midasbuy — الصورة هي البطل لا الرقم.
-        // `contain` لا `cover`: صور الباقات رسومٌ لها حدود، والقصّ يبتر
-        // كومة العملات أو الشعار فتفقد الصورة معناها.
+      {img ? (
+        /* بصورة: الصورة تملأ الأعلى والكمّية **فوقها** كما في Midasbuy.
+           تدرّج داكن أسفل الصورة يضمن قراءة الرقم مهما كانت الصورة فاتحة. */
         <span className="relative mb-3 block aspect-square overflow-hidden rounded-[14px] bg-surface2 text-orange">
           <Thumb
             img={img}
             alt={title}
             Icon={Icon}
-            fit="contain"
             iconClass="size-14"
             sizes="(max-width: 640px) 45vw, 30vw"
           />
-        </span>
-      )}
 
-      <span className="flex items-start gap-2">
-        <span className="min-w-0 flex-1">
           <span
-            className={
-              isNumeric
-                ? "num block text-[1.75rem] font-bold leading-none text-orange"
-                : "block text-base font-bold leading-snug text-balance break-words text-orange"
-            }
-          >
-            {amount}
+            aria-hidden
+            className="absolute inset-x-0 bottom-0 h-3/5 bg-gradient-to-t from-black/85 via-black/45 to-transparent"
+          />
+
+          <span className="absolute inset-x-0 bottom-0 flex flex-col items-start p-3 leading-none">
+            <span
+              className={
+                isNumeric
+                  ? "num block text-[1.6rem] font-bold text-white drop-shadow"
+                  : "block text-sm font-bold leading-snug text-balance break-words text-white drop-shadow"
+              }
+            >
+              {amount}
+            </span>
+            {unit && (
+              <span className="mt-1.5 block text-[0.66rem] font-bold uppercase tracking-[0.16em] text-white/85 rtl:tracking-normal">
+                {unit}
+              </span>
+            )}
           </span>
-          {unit && (
-            <span className="mt-1.5 block text-[0.68rem] font-bold uppercase tracking-[0.16em] text-muted rtl:tracking-normal">
-              {unit}
+
+          {(disc || popular) && (
+            <span className="absolute start-2 top-2">
+              {disc ? (
+                <Badge tone="gold">−{disc}%</Badge>
+              ) : (
+                <Badge tone="green">{labels.popular}</Badge>
+              )}
             </span>
           )}
         </span>
+      ) : (
+        <span className="flex items-start gap-2">
+          <span className="min-w-0 flex-1">
+            <span
+              className={
+                isNumeric
+                  ? "num block text-[1.75rem] font-bold leading-none text-orange"
+                  : "block text-base font-bold leading-snug text-balance break-words text-orange"
+              }
+            >
+              {amount}
+            </span>
+            {unit && (
+              <span className="mt-1.5 block text-[0.68rem] font-bold uppercase tracking-[0.16em] text-muted rtl:tracking-normal">
+                {unit}
+              </span>
+            )}
+          </span>
 
-        {disc ? (
-          <Badge tone="gold">−{disc}%</Badge>
-        ) : popular ? (
-          <Badge tone="green">{labels.popular}</Badge>
-        ) : null}
-      </span>
+          {disc ? (
+            <Badge tone="gold">−{disc}%</Badge>
+          ) : popular ? (
+            <Badge tone="green">{labels.popular}</Badge>
+          ) : null}
+        </span>
+      )}
 
       {/* خطّ التقطيع بين الحزّتين — هنا تُقصّ القسيمة */}
       <span
-        className="voucher-notch relative mt-5 block border-t border-dashed border-line"
+        className={`voucher-notch relative block border-t border-dashed border-line ${
+          img ? "mt-1" : "mt-5"
+        }`}
         style={{ "--notch-y": "-7px" } as React.CSSProperties}
       />
 

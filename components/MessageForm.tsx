@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useTranslations } from "next-intl";
 import { site } from "@/lib/content";
-import { IconCheckCircle } from "./icons";
+import { IconSuccess } from "./icons";
 
 /**
  * نموذج مراسلة الدعم.
@@ -42,7 +42,7 @@ export default function MessageForm() {
           aria-hidden
           className="mx-auto flex size-12 items-center justify-center rounded-full bg-yellow/15 text-yellow"
         >
-          <IconCheckCircle className="size-7" />
+          <IconSuccess className="size-8" />
         </span>
         <h2 className="mt-2 text-lg font-bold">{t("sentTitle")}</h2>
         <p className="mt-1 text-sm text-muted">{t("sentNote")}</p>

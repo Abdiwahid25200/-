@@ -12,6 +12,7 @@ import { saveOrder } from "@/lib/orders";
 import {
   IconCartEmpty,
   IconCheckCircle,
+  IconSuccess,
   IconDevice,
   IconSpinner,
   IconTrash,
@@ -64,7 +65,7 @@ export default function CartView() {
             aria-hidden
             className="mx-auto flex size-14 items-center justify-center rounded-full bg-yellow/15 text-yellow"
           >
-            <IconCheckCircle className="size-8" />
+            <IconSuccess className="size-9" />
           </span>
           <h2 className="mt-3 text-xl font-bold">{tb("doneTitle")}</h2>
           <p className="mt-1 text-muted">{tb("doneNote")}</p>

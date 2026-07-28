@@ -173,28 +173,25 @@ export type PayMarkKey =
 /**
  * طرق الدفع.
  *
- * كلّها `off` الآن بقرار صاحبة المشروع — والأرقام أدناه تجريبية، فعرضها
- * كان سيرسل تحويلات الزبائن إلى أرقام ليست أرقامها.
+ * كلّها `soon` الآن بقرار صاحبة المشروع: تُعرض بوسم "قريباً" ولا تُختار.
+ * الزبون يرى ما سيتوفّر فيطمئنّ، ولا يحوّل إلى رقم تجريبي ليس رقمها.
  *
- * وحين لا تبقى طريقة واحدة يختفي **قسم الدفع كلّه** من الشراء والسلة،
- * ويختفي صفّ "نقبل" من الفوتر — فلا يبقى عنوان فوق فراغ.
- *
- * لتشغيلها: ضعي الرقم الصحيح في `numbers` ثم بدّلي `off` إلى `on`،
- * فتعود في الدفع والسلة والفوتر وصفحة الدعم دفعة واحدة.
+ * لتشغيل أي طريقة: ضعي الرقم الصحيح في `numbers` ثم بدّلي `soon` إلى `on`،
+ * فتعمل في الدفع والسلة والفوتر وصفحة الدعم دفعة واحدة.
  */
 export const pay: PayMethod[] = [
   // 🇸🇴 محلية — تحويل بكود USSD
-  { id: "p1", nameAr: "EVC Plus", nameEn: "EVC Plus", operator: "Hormuud", numbers: ["612345678"], ussd: "*712*{num}*{amt}#", scope: "local", mark: "evc", status: "off" },
-  { id: "p2", nameAr: "JEEB", nameEn: "JEEB", operator: "Somnet", numbers: ["901234567"], ussd: "*789*{num}*{amt}#", scope: "local", mark: "jeeb", status: "off" },
-  { id: "p3", nameAr: "E-Dahab", nameEn: "E-Dahab", operator: "Somtel", numbers: [], ussd: "*770*{num}*{amt}#", scope: "local", mark: "edahab", status: "off" },
-  { id: "p4", nameAr: "ZAAD", nameEn: "ZAAD", operator: "Telesom", numbers: [], ussd: "", scope: "local", mark: "zaad", status: "off" },
-  { id: "p5", nameAr: "SAHAL", nameEn: "SAHAL", operator: "Golis", numbers: [], ussd: "", scope: "local", mark: "sahal", status: "off" },
-  { id: "p6", nameAr: "WAAFI", nameEn: "WAAFI", operator: "Salaam Bank", numbers: [], ussd: "", scope: "local", mark: "waafi", status: "off" },
+  { id: "p1", nameAr: "EVC Plus", nameEn: "EVC Plus", operator: "Hormuud", numbers: ["612345678"], ussd: "*712*{num}*{amt}#", scope: "local", mark: "evc", status: "soon" },
+  { id: "p2", nameAr: "JEEB", nameEn: "JEEB", operator: "Somnet", numbers: ["901234567"], ussd: "*789*{num}*{amt}#", scope: "local", mark: "jeeb", status: "soon" },
+  { id: "p3", nameAr: "E-Dahab", nameEn: "E-Dahab", operator: "Somtel", numbers: [], ussd: "*770*{num}*{amt}#", scope: "local", mark: "edahab", status: "soon" },
+  { id: "p4", nameAr: "ZAAD", nameEn: "ZAAD", operator: "Telesom", numbers: [], ussd: "", scope: "local", mark: "zaad", status: "soon" },
+  { id: "p5", nameAr: "SAHAL", nameEn: "SAHAL", operator: "Golis", numbers: [], ussd: "", scope: "local", mark: "sahal", status: "soon" },
+  { id: "p6", nameAr: "WAAFI", nameEn: "WAAFI", operator: "Salaam Bank", numbers: [], ussd: "", scope: "local", mark: "waafi", status: "soon" },
   // 🌍 عالمية — تُفتح حين يجهز حساب الاستقبال
-  { id: "g1", nameAr: "PayPal", nameEn: "PayPal", numbers: [], ussd: "", scope: "global", mark: "paypal", status: "off" },
-  { id: "g2", nameAr: "بطاقة ائتمان أو خصم", nameEn: "Credit / Debit card", numbers: [], ussd: "", scope: "global", mark: "card", status: "off" },
-  { id: "g3", nameAr: "USDT (TRC20)", nameEn: "USDT (TRC20)", numbers: [], ussd: "", scope: "global", mark: "usdt", status: "off" },
-  { id: "g4", nameAr: "Binance Pay", nameEn: "Binance Pay", numbers: [], ussd: "", scope: "global", mark: "binance", status: "off" },
+  { id: "g1", nameAr: "PayPal", nameEn: "PayPal", numbers: [], ussd: "", scope: "global", mark: "paypal", status: "soon" },
+  { id: "g2", nameAr: "بطاقة ائتمان أو خصم", nameEn: "Credit / Debit card", numbers: [], ussd: "", scope: "global", mark: "card", status: "soon" },
+  { id: "g3", nameAr: "USDT (TRC20)", nameEn: "USDT (TRC20)", numbers: [], ussd: "", scope: "global", mark: "usdt", status: "soon" },
+  { id: "g4", nameAr: "Binance Pay", nameEn: "Binance Pay", numbers: [], ussd: "", scope: "global", mark: "binance", status: "soon" },
 ];
 
 /**

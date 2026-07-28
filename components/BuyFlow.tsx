@@ -8,7 +8,7 @@ import { fin, fmt } from "@/lib/format";
 import { isBuyable, live, pay, wa } from "@/lib/data";
 import { useAuth } from "@/lib/auth";
 import { Link } from "@/i18n/navigation";
-import { IconCheckCircle, IconSpinner } from "./icons";
+import { IconCheckCircle, IconSpinner, IconSuccess } from "./icons";
 import { saveOrder } from "@/lib/orders";
 
 export type Pack = {
@@ -158,7 +158,7 @@ export default function BuyFlow({
             aria-hidden
             className="mx-auto flex size-14 items-center justify-center rounded-full bg-yellow/15 text-yellow"
           >
-            <IconCheckCircle className="size-8" />
+            <IconSuccess className="size-9" />
           </span>
           <h2 className="mt-3 text-xl font-bold">{t("doneTitle")}</h2>
           <p className="mt-1 text-muted">{t("doneNote")}</p>

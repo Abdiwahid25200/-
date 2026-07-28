@@ -478,6 +478,23 @@ export function IconNavHelp({ className = "" }: IconProps) {
   );
 }
 
+/** نجاح — قرص مصمت وعلامة صحّ بيضاء. أوضح من حلقة رفيعة في شاشة التأكيد */
+export function IconSuccess({ className = "" }: IconProps) {
+  return (
+    <svg viewBox="0 0 24 24" className={`size-6 ${className}`} aria-hidden>
+      <circle cx="12" cy="12" r="10" fill="currentColor" />
+      <path
+        d="m7.8 12.3 2.9 2.9 5.5-5.9"
+        fill="none"
+        stroke="var(--surface)"
+        strokeWidth="2.2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
+
 /* ── أيقونات الدردشة المباشرة ── */
 
 /** فقاعة حوار خطّية — زرّ فتح الدردشة */
@@ -533,11 +550,18 @@ export function IconCall({ className = "" }: IconProps) {
 export function IconTrash({ className = "" }: IconProps) {
   return (
     <svg viewBox="0 0 24 24" strokeWidth="1.8" className={`${base} ${className}`} aria-hidden>
+      <path strokeLinecap="round" d="M4 6.8h16" />
       <path
         strokeLinecap="round"
         strokeLinejoin="round"
-        d="M4.5 7h15M9.5 7V5.6c0-.6.5-1.1 1.1-1.1h2.8c.6 0 1.1.5 1.1 1.1V7M6.5 7l.8 11.4c.05.7.6 1.1 1.3 1.1h6.8c.7 0 1.25-.4 1.3-1.1L17.5 7M10.5 11v5M13.5 11v5"
+        d="M9.6 6.8V5.7c0-.66.54-1.2 1.2-1.2h2.4c.66 0 1.2.54 1.2 1.2v1.1"
       />
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        d="M6.4 6.8h11.2l-.85 12.05a1.2 1.2 0 0 1-1.2 1.15H8.45a1.2 1.2 0 0 1-1.2-1.15L6.4 6.8Z"
+      />
+      <path strokeLinecap="round" d="M10.4 10.6v5.6M13.6 10.6v5.6" />
     </svg>
   );
 }
@@ -564,10 +588,10 @@ export function IconCartEmpty({ className = "" }: IconProps) {
       <path
         strokeLinecap="round"
         strokeLinejoin="round"
-        d="M3 4.5h2.2l2.1 10.4c.15.7.75 1.2 1.5 1.2h8.1c.7 0 1.3-.45 1.47-1.13L20.2 8H6.3"
+        d="M2.8 3.8h1.9a1 1 0 0 1 .98.8l.42 2.1m0 0 1.72 8.6a1.6 1.6 0 0 0 1.57 1.28h7.68a1.6 1.6 0 0 0 1.56-1.23l1.62-6.75a.8.8 0 0 0-.78-.99L6.1 6.7Z"
       />
-      <circle cx="10" cy="19.5" r="1.4" />
-      <circle cx="17" cy="19.5" r="1.4" />
+      <circle cx="9.8" cy="20" r="1.5" />
+      <circle cx="17.2" cy="20" r="1.5" />
     </svg>
   );
 }
