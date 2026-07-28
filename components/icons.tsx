@@ -437,3 +437,43 @@ export function IconPadMono({ className = "" }: IconProps) {
     </svg>
   );
 }
+
+/* ─── أيقونات القائمة السفلية — مطابقة للمعاينة ────────────
+   خطوط رفيعة موحّدة السماكة (1.8) وأطراف مستديرة، فتبدو عائلة واحدة. */
+
+export function IconNavHome({ className = "" }: IconProps) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" className={className} aria-hidden>
+      <path d="M4 10.5 12 4l8 6.5V19a1.5 1.5 0 0 1-1.5 1.5h-13A1.5 1.5 0 0 1 4 19v-8.5Z" stroke="currentColor" strokeWidth="1.8" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
+export function IconNavGames({ className = "" }: IconProps) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" className={className} aria-hidden>
+      <rect x="3" y="7" width="18" height="10.5" rx="3.4" stroke="currentColor" strokeWidth="1.8" />
+      <path d="M7.6 12.2h2.4M8.8 11v2.4" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" />
+      <circle cx="15.6" cy="11.6" r="1" fill="currentColor" />
+      <circle cx="17.4" cy="13.4" r="1" fill="currentColor" />
+    </svg>
+  );
+}
+
+export function IconNavAccounts({ className = "" }: IconProps) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" className={className} aria-hidden>
+      <circle cx="12" cy="8.2" r="3.6" stroke="currentColor" strokeWidth="1.8" />
+      <path d="M4.8 20c.7-3.7 3.7-5.8 7.2-5.8s6.5 2.1 7.2 5.8" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+    </svg>
+  );
+}
+
+/** الدعم — فقاعة محادثة مستديرة، نفس أيقونة المعاينة */
+export function IconNavHelp({ className = "" }: IconProps) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" className={className} aria-hidden>
+      <path d="M20 12a8 8 0 1 0-3.2 6.4L20 20l-.8-3.2A7.9 7.9 0 0 0 20 12Z" stroke="currentColor" strokeWidth="1.8" strokeLinejoin="round" />
+    </svg>
+  );
+}

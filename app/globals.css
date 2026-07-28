@@ -206,3 +206,23 @@ body.has-buybar {
   70% { box-shadow: 0 0 0 9px transparent; }
   100% { box-shadow: 0 0 0 0 transparent; }
 }
+
+/* ── حركة الضغط على تبويبات القائمة السفلية ────────────────
+   :active صريح بدل متغيّر Tailwind، ليعمل على اللمس في كل المتصفّحات. */
+.nav-tap {
+  transition:
+    color 0.15s ease,
+    transform 0.14s ease;
+}
+
+.nav-tap:active {
+  transform: scale(0.92);
+}
+
+.nav-tap:active .nav-ico {
+  transform: scale(1.12);
+}
+
+.nav-ico {
+  transition: transform 0.14s ease;
+}

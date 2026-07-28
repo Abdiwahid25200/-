@@ -2,15 +2,25 @@
 
 import { useTranslations } from "next-intl";
 import { Link, usePathname } from "@/i18n/navigation";
-import { IconGames, IconHome, IconSupport, IconUser } from "./icons";
+import {
+  IconNavAccounts,
+  IconNavGames,
+  IconNavHelp,
+  IconNavHome,
+} from "./icons";
 
 const tabs = [
-  { key: "home", href: "/", Icon: IconHome },
-  { key: "games", href: "/games", Icon: IconGames },
-  { key: "accounts", href: "/accounts", Icon: IconUser },
-  { key: "help", href: "/help", Icon: IconSupport },
+  { key: "home", href: "/", Icon: IconNavHome },
+  { key: "games", href: "/games", Icon: IconNavGames },
+  { key: "accounts", href: "/accounts", Icon: IconNavAccounts },
+  { key: "help", href: "/help", Icon: IconNavHelp },
 ] as const;
 
+/**
+ * القائمة السفلية — مطابقة للمعاينة التي اعتمدتها صاحبة المشروع:
+ * شريط عائم مدوّر، أيقونات خطّية موحّدة، تسميات صغيرة بأحرف كبيرة متباعدة،
+ * ومؤشّر صغير فوق التبويب النشط ينزلق مكانه.
+ */
 export default function BottomNav() {
   const pathname = usePathname();
   const t = useTranslations("nav");
@@ -18,10 +28,9 @@ export default function BottomNav() {
   return (
     <nav
       aria-label={t("label")}
-      // ترتفع قليلاً عن الحافة وتُدوَّر من كل جوانبها — كما طلبت صاحبة المشروع
       className="fixed inset-x-3 bottom-[calc(0.6rem+env(safe-area-inset-bottom))] z-40 rounded-[26px] border border-line bg-surface/95 shadow-[0_6px_28px_rgba(0,0,0,0.12)] backdrop-blur"
     >
-      <div className="mx-auto flex max-w-5xl">
+      <div className="mx-auto flex max-w-5xl px-1.5 py-1">
         {tabs.map(({ key, href, Icon }) => {
           const isActive =
             href === "/" ? pathname === "/" : pathname.startsWith(href);
@@ -30,19 +39,22 @@ export default function BottomNav() {
               key={key}
               href={href}
               aria-current={isActive ? "page" : undefined}
-              className={`relative flex min-h-14 flex-1 flex-col items-center justify-center gap-1 py-2 text-[0.78rem] font-semibold transition-colors ${
+              // الحركة عند الضغط: انكماش خفيف يعود فوراً — إحساس زرّ حقيقي
+              className={`nav-tap relative flex min-h-14 flex-1 flex-col items-center justify-center gap-1.5 rounded-[18px] py-1.5 ${
                 isActive ? "text-orange" : "text-muted hover:text-text"
               }`}
             >
-              {/* المؤشر فوق التبويب النشط — أُنزل قليلاً لئلا تقصّه الزاوية الدائرية */}
-              {isActive && (
-                <span
-                  aria-hidden
-                  className="absolute top-2 h-[3px] w-7 rounded-full bg-orange"
-                />
-              )}
-              <Icon className="size-6" />
-              <span>{t(key)}</span>
+              {/* المؤشّر — يظهر بحجمه الكامل على النشط ويتلاشى على غيره */}
+              <span
+                aria-hidden
+                className={`h-[3px] rounded-full bg-orange transition-all duration-200 ${
+                  isActive ? "w-5 opacity-100" : "w-0 opacity-0"
+                }`}
+              />
+              <Icon className="nav-ico size-6" />
+              <span className="text-[0.8rem] font-bold uppercase tracking-[0.08em] rtl:tracking-normal">
+                {t(key)}
+              </span>
             </Link>
           );
         })}
