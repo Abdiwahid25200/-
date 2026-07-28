@@ -23,16 +23,35 @@ import { getStorage, type FirebaseStorage } from "firebase/storage";
  *
  * ومع ذلك تبقى متغيّرات البيئة أولوية، فيمكن تبديل المشروع من Vercel دون لمس الكود.
  */
+/**
+ * النطاقات التي نمرّر عليها مصادقة Firebase (انظري `next.config.ts`)
+ * **وهي نفسها** المسجَّلة في Firebase ← Authorized domains.
+ */
+const PROXIED_HOSTS = new Set([
+  "eramaan.com",
+  "www.eramaan.com",
+  "admin.eramaan.com",
+  "ramaan-store.vercel.app",
+]);
+
+/**
+ * نطاق المصادقة: نطاقنا نفسه متى أمكن.
+ *
+ * السبب ليس الشكل فقط: سفاري يحجب تخزين المواقع الخارجية، فلو جرت المصادقة
+ * على `ramaa-store.firebaseapp.com` عاد الزبون **زائراً** رغم نجاح دخوله.
+ * وعلى معاينات Vercel المؤقّتة (نطاق عشوائي غير مسجَّل) نرجع لنطاق Firebase
+ * فلا تنكسر المعاينة.
+ */
+function authDomain(): string {
+  if (typeof window === "undefined") return "eramaan.com";
+  const host = window.location.hostname;
+  return PROXIED_HOSTS.has(host) ? host : "ramaa-store.firebaseapp.com";
+}
+
 const cfg = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY
     ?? "AIzaSyDuw9sVohgx7r54b5zHJiI5HROVCsseSwY",
-  /**
-   * نطاق مصادقة Firebase. اسم المتجر الذي يراه الزبون في شاشة جوجل
-   * يأتي من "App name" في Google Cloud ← Branding (= Ramaan Store)،
-   * لا من هذا النطاق — فلا حاجة لتمرير يبطّئ الدخول.
-   */
-  authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN
-    ?? "ramaa-store.firebaseapp.com",
+  authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN ?? authDomain(),
   projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID
     ?? "ramaa-store",
   storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET

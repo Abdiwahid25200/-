@@ -4,6 +4,8 @@ import { routing } from "./i18n/routing";
 export default createMiddleware(routing);
 
 export const config = {
-  // كل المسارات ما عدا الملفات الثابتة وملفات النظام
-  matcher: "/((?!api|_next|_vercel|.*\\..*).*)",
+  // كل المسارات ما عدا الملفات الثابتة وملفات النظام.
+  // `__` مستثنى عمداً: مسارات مصادقة Firebase — لو دخلت هنا أضاف الوسيط
+  // بادئة اللغة (`/en/__/auth/handler`) فصار ٤٠٤ وانكسر تسجيل الدخول.
+  matcher: "/((?!api|_next|_vercel|__|.*\\..*).*)",
 };
