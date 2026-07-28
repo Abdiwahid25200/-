@@ -26,8 +26,15 @@ import { getStorage, type FirebaseStorage } from "firebase/storage";
 const cfg = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY
     ?? "AIzaSyDuw9sVohgx7r54b5zHJiI5HROVCsseSwY",
-  authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN
-    ?? "ramaa-store.firebaseapp.com",
+  /**
+   * دومين المتجر نفسه لا `ramaa-store.firebaseapp.com`، فلا يرى الزبون
+   * اسماً تقنياً في شاشة جوجل ولا في شريط العنوان.
+   *
+   * يعمل بفضل تمرير `/__/auth/*` في `next.config.ts` نحو Firebase،
+   * مع تسجيل `https://eramaan.com/__/auth/handler` في Google Cloud Console
+   * ضمن Authorized redirect URIs. لو عُطّل أحدهما توقّف الدخول.
+   */
+  authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN ?? "eramaan.com",
   projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID
     ?? "ramaa-store",
   storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET
