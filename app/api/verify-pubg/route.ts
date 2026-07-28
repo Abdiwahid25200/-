@@ -148,6 +148,10 @@ export async function GET(request: Request) {
       return NextResponse.json({
         ok: false,
         reason: res.status === 404 ? "not-found" : "manual",
+        // للتشخيص فقط: رقم الحالة وهل وصل المفتاح — بلا كشف المفتاح نفسه.
+        // 401/403 ⇒ المفتاح ناقص أو خاطئ · 429 ⇒ نفد الرصيد
+        status: res.status,
+        keyed: Boolean(KEY),
       });
     }
 
@@ -159,9 +163,14 @@ export async function GET(request: Request) {
       return NextResponse.json({ ok: true, name });
     }
 
-    return NextResponse.json({ ok: false, reason: "not-found" });
+    return NextResponse.json({ ok: false, reason: "not-found", keyed: Boolean(KEY) });
   } catch {
     // انقطاع أو مهلة ⇒ نكمل يدوياً بدل تعطيل الطلب على الزبون
-    return NextResponse.json({ ok: false, reason: "manual" });
+    return NextResponse.json({
+      ok: false,
+      reason: "manual",
+      status: "no-reply",
+      keyed: Boolean(KEY),
+    });
   }
 }
