@@ -1,37 +1,68 @@
 import { Link } from "@/i18n/navigation";
-import Thumb from "./Thumb";
+import SectionIcon, { type SectionIconKey } from "./SectionIcon";
+import Badge from "./Badge";
 
 type Props = {
   href: string;
   title: string;
   note: string;
   count: string;
-  img?: string;
-  Icon: (p: { className?: string }) => React.ReactElement;
+  icon: SectionIconKey;
+  /** قسم "قريباً" يُعرض معطّلاً بشارة بدل رابط */
+  soon?: boolean;
+  soonLabel?: string;
 };
 
-/** بطاقة قسم كبيرة — تُستخدم بصفحتَي الألعاب والحسابات */
-export default function CategoryCard({ href, title, note, count, img, Icon }: Props) {
+/**
+ * بطاقة قسم مضغوطة — أفقية بأيقونة ملوّنة بدل الصورة الكبيرة،
+ * فتظهر كل الأقسام بشاشة واحدة دون تمرير.
+ */
+export default function CategoryCard({
+  href,
+  title,
+  note,
+  count,
+  icon,
+  soon,
+  soonLabel,
+}: Props) {
+  const inner = (
+    <>
+      <SectionIcon name={icon} className="size-14 shrink-0" />
+      <span className="min-w-0 flex-1">
+        <span className="flex flex-wrap items-center gap-2">
+          <span className="font-bold">{title}</span>
+          {soon && <Badge tone="outline">{soonLabel}</Badge>}
+        </span>
+        <span className="mt-0.5 block truncate text-sm text-muted">{note}</span>
+        {!soon && (
+          <span className="mt-1 block text-sm font-semibold text-orange">
+            {count}
+          </span>
+        )}
+      </span>
+      {!soon && (
+        <span aria-hidden className="shrink-0 text-xl text-muted rtl:rotate-180">
+          ›
+        </span>
+      )}
+    </>
+  );
+
+  const cls =
+    "flex items-center gap-4 rounded-card border border-line bg-surface p-4 shadow-sm";
+
+  if (soon) {
+    return (
+      <div className={`${cls} opacity-60`} aria-disabled="true">
+        {inner}
+      </div>
+    );
+  }
+
   return (
-    <Link
-      href={href}
-      className="group flex flex-col overflow-hidden rounded-card border border-line bg-surface shadow-sm transition-all hover:border-orange hover:shadow-md"
-    >
-      {/* ارتفاع ثابت بالجوال حتى يظهر القسمان بشاشة واحدة، ونسبة أوسع بالشاشات الكبيرة */}
-      <div className="relative flex h-32 items-center justify-center overflow-hidden bg-gradient-to-br from-navy to-[#1e2a45] sm:h-auto sm:aspect-[16/10]">
-        <Thumb
-          img={img}
-          alt={title}
-          Icon={Icon}
-          iconClass="size-16 text-white/90 transition-transform group-hover:scale-110"
-          sizes="(max-width: 640px) 100vw, 50vw"
-        />
-      </div>
-      <div className="flex flex-col gap-1 p-4">
-        <h3 className="text-lg font-bold">{title}</h3>
-        <p className="text-sm text-muted">{note}</p>
-        <span className="mt-1 text-sm font-semibold text-orange">{count}</span>
-      </div>
+    <Link href={href} className={`${cls} transition-colors hover:border-orange`}>
+      {inner}
     </Link>
   );
 }

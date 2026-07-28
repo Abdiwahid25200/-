@@ -1,5 +1,6 @@
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import Hero from "@/components/Hero";
+import BackLink from "@/components/BackLink";
 import AccountsFlow from "@/components/flows/AccountsFlow";
 import TrustRow from "@/components/TrustRow";
 
@@ -17,6 +18,7 @@ export default async function EfootAccountsPage({
 
   return (
     <main className="mx-auto flex max-w-4xl flex-col gap-5 px-4 py-6">
+      <BackLink href="/accounts" />
       <Hero eyebrow={th("browse")} title={t("efootball.title")} />
       <p className="rounded-card border border-line bg-surface p-3 text-sm text-muted">
         {ta("unique")}

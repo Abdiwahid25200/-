@@ -68,6 +68,51 @@ export const acceptedPayments = [
   "WAAFI",
 ];
 
+/* ═══════════════════════════════════════════════════════════
+   أقسام المتجر — تُدار من: الإدارة ← الموقع ← الأقسام
+   ═══════════════════════════════════════════════════════════ */
+
+export type SectionStatus =
+  | "on"    // ظاهر ويعمل
+  | "soon"  // ظاهر بشارة "قريباً" ولا يفتح
+  | "off";  // مخفي تماماً
+
+export type Section = {
+  /** مفتاح الترجمة في messages/*.json ← pages.<key> */
+  key: string;
+  href: string;
+  /** مفتاح الأيقونة الملوّنة في components/icons.tsx */
+  icon: "pubg" | "efoot" | "tiktok" | "device" | "games";
+  /** الصفحة التي يظهر بها: الألعاب أم الحسابات */
+  group: "games" | "accounts";
+  status: SectionStatus;
+};
+
+/**
+ * لإضافة قسم جديد: أضيفي عنصراً هنا بحالة "soon" — سيظهر فوراً
+ * بشارة "قريباً" دون الحاجة لصفحة. وعند جاهزية الصفحة غيّري الحالة إلى "on".
+ */
+export const sections: Section[] = [
+  { key: "pubg", href: "/pubg", icon: "pubg", group: "games", status: "on" },
+  { key: "efootball", href: "/efootball", icon: "efoot", group: "games", status: "on" },
+  { key: "efootballAccounts", href: "/efootball-accounts", icon: "efoot", group: "accounts", status: "on" },
+  { key: "tiktok", href: "/tiktok", icon: "tiktok", group: "accounts", status: "on" },
+];
+
+/** أقسام المجموعة الظاهرة فقط (تستبعد off) */
+export const visibleSections = (group: Section["group"]) =>
+  sections.filter((s) => s.group === group && s.status !== "off");
+
+/** هل القسم مفتوح فعلاً؟ يمنع فتح صفحة قسم موقوف */
+export const isSectionOpen = (key: string) =>
+  sections.find((s) => s.key === key)?.status === "on";
+
+/**
+ * رابط خدمة التحقق من آيدي ببجي — تُدار من: الإدارة ← عام ← الإعدادات
+ * تُقرأ من متغيّر البيئة أولاً حتى لا يُرفع الرابط على GitHub إن كان خاصاً.
+ */
+export const pubgIdApi = process.env.PUBG_ID_API ?? "";
+
 /** قنوات الدعم بصفحة المساعدة — الترتيب هنا هو ترتيب العرض */
 export const supportChannels = [
   { key: "whatsapp", icon: "whatsapp" },

@@ -1,5 +1,6 @@
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import SectionHead from "@/components/SectionHead";
+import BackLink from "@/components/BackLink";
 
 const sections = ["terms", "privacy", "refund", "delivery"] as const;
 
@@ -14,6 +15,7 @@ export default async function PolicyPage({
 
   return (
     <main className="mx-auto flex max-w-3xl flex-col gap-5 px-4 py-6">
+      <BackLink href="/" />
       <SectionHead title={t("title")} note={t("note")} />
 
       {sections.map((k) => (

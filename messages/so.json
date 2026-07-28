@@ -75,7 +75,9 @@
     "instant": "Degdeg",
     "popular": "Ugu caansan",
     "buy": "Iibso",
-    "selected": "La doortay"
+    "selected": "La doortay",
+    "back": "Dib u noqo",
+    "soon": "Dhawaan"
   },
   "games": {
     "title": "Ciyaaraha",
@@ -135,7 +137,8 @@
     "verify": "Xaqiiji",
     "badId": "ID khaldan",
     "wait": "Waa la xaqiijinayaa…",
-    "manual": "Gacan ayaan ku xaqiijin doonnaa markaan dalabkaaga eegno"
+    "manual": "Gacan ayaan ku xaqiijin doonnaa markaan dalabkaaga eegno",
+    "notFound": "Ciyaartoyga lama helin — hubi ID-ga"
   },
   "efootFlow": {
     "title": "Faahfaahinta akoonka eFootball",

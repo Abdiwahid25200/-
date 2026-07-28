@@ -4,9 +4,13 @@ import { useState } from "react";
 import { useTranslations } from "next-intl";
 import BuyFlow, { type Pack } from "@/components/BuyFlow";
 import { IconBolt } from "@/components/icons";
-import { idApi, pubg } from "@/lib/data";
+import { pubg } from "@/lib/data";
 
-type Vrf = { kind: "idle" | "bad" | "wait" | "manual" | "ok"; name?: string };
+type Vrf =
+  | { kind: "idle" }
+  | { kind: "wait" }
+  | { kind: "ok"; name: string }
+  | { kind: "bad" | "notFound" | "manual" };
 
 export default function PubgFlow() {
   const t = useTranslations("pubgFlow");
@@ -28,19 +32,12 @@ export default function PubgFlow() {
     const clean = pid.replace(/\D/g, "");
     if (clean.length < 5) return setVrf({ kind: "bad" });
 
-    // بلا رابط خدمة تحقق ⇒ وضع التحقق اليدوي، تماماً كالموقع القديم
-    if (!idApi) return setVrf({ kind: "manual" });
-
     setVrf({ kind: "wait" });
     try {
-      const r = await fetch(
-        idApi + (idApi.includes("?") ? "&" : "?") + "id=" + clean,
-        { cache: "no-store" },
-      );
-      const d = await r.json();
-      const name = d.name || d?.data?.username || "";
-      if ((d.ok === true || d.status === true) && name) setVrf({ kind: "ok", name });
-      else setVrf({ kind: "bad" });
+      const res = await fetch(`/api/verify-pubg?id=${clean}`, { cache: "no-store" });
+      const d = await res.json();
+      if (d.ok) return setVrf({ kind: "ok", name: d.name });
+      setVrf({ kind: d.reason === "not-found" ? "notFound" : d.reason === "bad-id" ? "bad" : "manual" });
     } catch {
       setVrf({ kind: "manual" });
     }
@@ -48,13 +45,20 @@ export default function PubgFlow() {
 
   const ready = pid.replace(/\D/g, "").length >= 5;
 
-  const msg: Record<Vrf["kind"], string> = {
+  const MSG: Record<Vrf["kind"], string> = {
     idle: "",
-    bad: "✕ " + t("badId"),
     wait: "⏳ " + t("wait"),
+    ok: "",
+    bad: "✕ " + t("badId"),
+    notFound: "✕ " + t("notFound"),
     manual: t("manual"),
-    ok: "✓ " + (vrf.name ?? ""),
   };
+  const tone =
+    vrf.kind === "ok"
+      ? "text-yellow"
+      : vrf.kind === "bad" || vrf.kind === "notFound"
+        ? "text-danger"
+        : "text-muted";
 
   return (
     <BuyFlow
@@ -92,19 +96,13 @@ export default function PubgFlow() {
             </button>
           </div>
 
-          {vrf.kind !== "idle" && (
-            <p
-              className={`mt-2 text-sm ${
-                vrf.kind === "ok"
-                  ? "text-yellow"
-                  : vrf.kind === "bad"
-                    ? "text-danger"
-                    : "text-muted"
-              }`}
-            >
-              {msg[vrf.kind]}
+          {vrf.kind === "ok" ? (
+            <p className="mt-2 flex items-center gap-2 text-sm font-medium text-yellow">
+              ✓ {vrf.name}
             </p>
-          )}
+          ) : vrf.kind !== "idle" ? (
+            <p className={`mt-2 text-sm ${tone}`}>{MSG[vrf.kind]}</p>
+          ) : null}
         </section>
       }
     />

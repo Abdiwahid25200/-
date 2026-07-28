@@ -75,7 +75,9 @@
     "instant": "Instant",
     "popular": "Most popular",
     "buy": "Buy",
-    "selected": "Selected"
+    "selected": "Selected",
+    "back": "Back",
+    "soon": "Coming soon"
   },
   "games": {
     "title": "Games",
@@ -135,7 +137,8 @@
     "verify": "Verify",
     "badId": "Invalid ID",
     "wait": "Verifying…",
-    "manual": "We will verify manually when reviewing your order"
+    "manual": "We will verify manually when reviewing your order",
+    "notFound": "Player not found — check the ID"
   },
   "efootFlow": {
     "title": "eFootball account details",

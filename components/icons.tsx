@@ -215,3 +215,69 @@ export function IconChat({ className = "" }: IconProps) {
     </svg>
   );
 }
+
+/* ── أيقونات الأقسام الملوّنة — بديل الأيقونات الخطّية الرمادية ── */
+
+export function IconPubgColor({ className = "" }: IconProps) {
+  return (
+    <svg viewBox="0 0 48 48" className={className} aria-hidden>
+      <rect width="48" height="48" rx="12" fill="#F2A900" />
+      <circle cx="24" cy="24" r="13" fill="#FFD35C" stroke="#B87A00" strokeWidth="2" />
+      <path d="M18.5 30V18h5.2a3.9 3.9 0 0 1 0 7.8H21" fill="none" stroke="#8A5A00" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
+      <path d="M27 18v7.6a4.4 4.4 0 0 0 8.8 0V18" fill="none" stroke="#8A5A00" strokeWidth="3" strokeLinecap="round" transform="translate(-3.5)" />
+    </svg>
+  );
+}
+
+export function IconEfootColor({ className = "" }: IconProps) {
+  return (
+    <svg viewBox="0 0 48 48" className={className} aria-hidden>
+      <rect width="48" height="48" rx="12" fill="#0B7A4B" />
+      <circle cx="24" cy="24" r="12" fill="#fff" />
+      <path d="m24 16.5 6.4 4.65-2.45 7.5h-7.9l-2.45-7.5L24 16.5Z" fill="#0D1424" />
+      <path d="M24 12v4.5M36 20.5l-5.6.1M32.5 34l-4.6-5M15.5 34l4.6-5M12 20.5l5.6.1" stroke="#0D1424" strokeWidth="2.2" strokeLinecap="round" />
+    </svg>
+  );
+}
+
+export function IconTiktokColor({ className = "" }: IconProps) {
+  return (
+    <svg viewBox="0 0 48 48" className={className} aria-hidden>
+      <rect width="48" height="48" rx="12" fill="#010101" />
+      <path d="M30.5 13c.6 3.4 2.6 5.5 6 5.9v4c-2 .2-3.8-.4-5.9-1.7v7.5c0 5.4-3.4 9.3-8.4 9.3-4.6 0-8.2-3.4-8.2-8 0-4.9 4.1-8.6 9.5-7.9v4.3c-3.2-.6-5.4 1.1-5.4 3.7 0 2.3 1.7 3.9 3.9 3.9 2.3 0 4-1.6 4-4.4V13h4.5Z" fill="#25F4EE" transform="translate(-1.6 1.4)" />
+      <path d="M30.5 13c.6 3.4 2.6 5.5 6 5.9v4c-2 .2-3.8-.4-5.9-1.7v7.5c0 5.4-3.4 9.3-8.4 9.3-4.6 0-8.2-3.4-8.2-8 0-4.9 4.1-8.6 9.5-7.9v4.3c-3.2-.6-5.4 1.1-5.4 3.7 0 2.3 1.7 3.9 3.9 3.9 2.3 0 4-1.6 4-4.4V13h4.5Z" fill="#FE2C55" transform="translate(1.6 -1.4)" />
+      <path d="M30.5 13c.6 3.4 2.6 5.5 6 5.9v4c-2 .2-3.8-.4-5.9-1.7v7.5c0 5.4-3.4 9.3-8.4 9.3-4.6 0-8.2-3.4-8.2-8 0-4.9 4.1-8.6 9.5-7.9v4.3c-3.2-.6-5.4 1.1-5.4 3.7 0 2.3 1.7 3.9 3.9 3.9 2.3 0 4-1.6 4-4.4V13h4.5Z" fill="#fff" />
+    </svg>
+  );
+}
+
+export function IconDeviceColor({ className = "" }: IconProps) {
+  return (
+    <svg viewBox="0 0 48 48" className={className} aria-hidden>
+      <rect width="48" height="48" rx="12" fill="#3D5AFE" />
+      <rect x="16" y="10" width="16" height="28" rx="3.5" fill="#fff" />
+      <rect x="18" y="14" width="12" height="18" rx="1.5" fill="#0D1424" opacity=".85" />
+      <circle cx="24" cy="35" r="1.6" fill="#0D1424" opacity=".55" />
+    </svg>
+  );
+}
+
+export function IconGamesColor({ className = "" }: IconProps) {
+  return (
+    <svg viewBox="0 0 48 48" className={className} aria-hidden>
+      <rect width="48" height="48" rx="12" fill="#6B3DFE" />
+      <path d="M16 18h16a6 6 0 0 1 6 6.2l-.5 5.4a3.8 3.8 0 0 1-6.8 2l-1.9-2.6h-7.6l-1.9 2.6a3.8 3.8 0 0 1-6.8-2l-.5-5.4A6 6 0 0 1 16 18Z" fill="#fff" />
+      <path d="M18.5 24h4M20.5 22v4" stroke="#6B3DFE" strokeWidth="2.2" strokeLinecap="round" />
+      <circle cx="29" cy="23.5" r="1.7" fill="#6B3DFE" />
+      <circle cx="32.5" cy="26.5" r="1.7" fill="#6B3DFE" />
+    </svg>
+  );
+}
+
+export function IconBack({ className = "" }: IconProps) {
+  return (
+    <svg viewBox="0 0 24 24" strokeWidth="2" className={`${base} ${className}`} aria-hidden>
+      <path strokeLinecap="round" strokeLinejoin="round" d="M15 5l-7 7 7 7" />
+    </svg>
+  );
+}

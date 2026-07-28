@@ -7,27 +7,18 @@ import { Link, usePathname } from "@/i18n/navigation";
 import { localeNames, routing, type Locale } from "@/i18n/routing";
 import { ThemeChoice } from "./ThemeToggle";
 import Logo from "./Logo";
-import {
-  IconBall,
-  IconBolt,
-  IconCart,
-  IconDevice,
-  IconDoc,
-  IconGames,
-  IconMenu,
-  IconMusic,
-  IconSupport,
-  IconUser,
-} from "./icons";
+import { IconCart, IconDoc, IconMenu, IconSupport, IconUser } from "./icons";
+import SectionIcon, { type SectionIconKey } from "./SectionIcon";
+import { sections } from "@/lib/content";
 
+/** الأقسام تُقرأ من الإعدادات — القسم الموقوف (off) لا يظهر بالقائمة */
 const shop = [
-  { key: "electronics", href: "/", Icon: IconDevice },
-  { key: "pubg", href: "/pubg", Icon: IconBolt },
-  { key: "efootball", href: "/efootball", Icon: IconBall },
-  { key: "efootballAccounts", href: "/efootball-accounts", Icon: IconBall },
-  { key: "tiktok", href: "/tiktok", Icon: IconMusic },
-  { key: "games", href: "/games", Icon: IconGames },
-] as const;
+  { key: "electronics", href: "/", icon: "device" as SectionIconKey },
+  ...sections
+    .filter((s) => s.status === "on")
+    .map((s) => ({ key: s.key, href: s.href, icon: s.icon as SectionIconKey })),
+  { key: "games", href: "/games", icon: "games" as SectionIconKey },
+];
 
 const mine = [
   { key: "account", href: "/account", Icon: IconUser },
@@ -72,7 +63,12 @@ export default function MenuDrawer({ phone }: { phone?: string }) {
     items,
   }: {
     title: string;
-    items: readonly { key: string; href: string; Icon: (p: { className?: string }) => React.ReactElement }[];
+    items: readonly {
+      key: string;
+      href: string;
+      Icon?: (p: { className?: string }) => React.ReactElement;
+      icon?: SectionIconKey;
+    }[];
   }) {
     return (
       <div>
@@ -80,10 +76,14 @@ export default function MenuDrawer({ phone }: { phone?: string }) {
           {title}
         </h3>
         <ul>
-          {items.map(({ key, href, Icon }) => (
+          {items.map(({ key, href, Icon, icon }) => (
             <li key={key}>
               <Link href={href} onClick={() => setOpen(false)} className={row}>
-                <Icon className="size-5 text-muted" />
+                {icon ? (
+                  <SectionIcon name={icon} className="size-7 shrink-0" />
+                ) : Icon ? (
+                  <Icon className="size-5 shrink-0 text-muted" />
+                ) : null}
                 {tp(key)}
               </Link>
             </li>

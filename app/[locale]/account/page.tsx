@@ -1,5 +1,6 @@
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import SectionHead from "@/components/SectionHead";
+import BackLink from "@/components/BackLink";
 import { Link } from "@/i18n/navigation";
 import { IconCart, IconDoc, IconSupport, IconUser } from "@/components/icons";
 
@@ -20,6 +21,7 @@ export default async function AccountPage({
 
   return (
     <main className="mx-auto flex max-w-2xl flex-col gap-5 px-4 py-6">
+      <BackLink href="/" />
       <SectionHead title={t("title")} note={t("note")} />
 
       <section className="rounded-card border border-line bg-surface p-6 text-center">

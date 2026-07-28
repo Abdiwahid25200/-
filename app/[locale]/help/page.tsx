@@ -1,5 +1,6 @@
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import SectionHead from "@/components/SectionHead";
+import BackLink from "@/components/BackLink";
 import Faq from "@/components/Faq";
 import TrustRow from "@/components/TrustRow";
 import MessageForm from "@/components/MessageForm";
@@ -43,6 +44,7 @@ export default async function HelpPage({
 
   return (
     <main className="mx-auto flex max-w-5xl flex-col gap-8 px-4 py-6">
+      <BackLink href="/" />
       <SectionHead title={t("title")} note={t("note")} />
 
       {/* قنوات التواصل */}

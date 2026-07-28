@@ -1,8 +1,14 @@
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import SectionHead from "@/components/SectionHead";
 import CategoryCard from "@/components/CategoryCard";
-import { IconBall, IconBolt } from "@/components/icons";
+import BackLink from "@/components/BackLink";
+import { visibleSections } from "@/lib/content";
 import { icons, pubg } from "@/lib/data";
+
+const COUNTS: Record<string, number> = {
+  pubg: pubg.length,
+  efootball: icons.length,
+};
 
 export default async function GamesPage({
   params,
@@ -11,31 +17,29 @@ export default async function GamesPage({
 }) {
   const { locale } = await params;
   setRequestLocale(locale);
-
   const t = await getTranslations("games");
+  const tp = await getTranslations("pages");
   const tc = await getTranslations("common");
 
-  const cats = [
-    { href: "/pubg", key: "pubg", Icon: IconBolt, n: pubg.length },
-    { href: "/efootball", key: "efootball", Icon: IconBall, n: icons.length },
-  ] as const;
-
   return (
-    <main className="mx-auto max-w-5xl px-4 py-8">
+    <main className="mx-auto flex max-w-3xl flex-col gap-4 px-4 py-6">
+      <BackLink />
       <SectionHead title={t("title")} note={t("note")} />
-      <div className="grid gap-4 sm:grid-cols-2">
-        {cats.map(({ href, key, Icon, n }) => (
+
+      <div className="flex flex-col gap-3">
+        {visibleSections("games").map((s) => (
           <CategoryCard
-            key={key}
-            href={href}
-            Icon={Icon}
-            title={t(`${key}.title`)}
-            note={t(`${key}.note`)}
-            count={tc("packs", { n })}
+            key={s.key}
+            href={s.href}
+            icon={s.icon}
+            title={tp(s.key)}
+            note={t(`${s.key}.note`)}
+            count={tc("packs", { n: COUNTS[s.key] ?? 0 })}
+            soon={s.status === "soon"}
+            soonLabel={tc("soon")}
           />
         ))}
       </div>
-      <p className="mt-10 text-center text-sm text-muted">{tc("sampleData")}</p>
     </main>
   );
 }
