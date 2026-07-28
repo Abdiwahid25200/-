@@ -173,17 +173,19 @@ export type PayMarkKey =
 /**
  * طرق الدفع.
  *
- * `on` لما تملكه صاحبة المتجر فعلاً — EVC Plus وJEEB وحدهما اليوم.
- * وما عداهما `off`: مخفيّ تماماً بقرارها. صفٌّ من "قريباً" يشغل مساحة
- * ولا يبيع شيئاً، والزبون يقرأ ما لا ينفعه قبل أن يصل لطريقته.
+ * كلّها `off` الآن بقرار صاحبة المشروع — والأرقام أدناه تجريبية، فعرضها
+ * كان سيرسل تحويلات الزبائن إلى أرقام ليست أرقامها.
  *
- * لتشغيل أي طريقة لاحقاً: بدّلي `off` إلى `on` بعد وضع الرقم والكود
- * الصحيحين، فتظهر فوراً في الدفع والفوتر وصفحة الدعم معاً.
+ * وحين لا تبقى طريقة واحدة يختفي **قسم الدفع كلّه** من الشراء والسلة،
+ * ويختفي صفّ "نقبل" من الفوتر — فلا يبقى عنوان فوق فراغ.
+ *
+ * لتشغيلها: ضعي الرقم الصحيح في `numbers` ثم بدّلي `off` إلى `on`،
+ * فتعود في الدفع والسلة والفوتر وصفحة الدعم دفعة واحدة.
  */
 export const pay: PayMethod[] = [
   // 🇸🇴 محلية — تحويل بكود USSD
-  { id: "p1", nameAr: "EVC Plus", nameEn: "EVC Plus", operator: "Hormuud", numbers: ["612345678"], ussd: "*712*{num}*{amt}#", scope: "local", mark: "evc", status: "on" },
-  { id: "p2", nameAr: "JEEB", nameEn: "JEEB", operator: "Somnet", numbers: ["901234567"], ussd: "*789*{num}*{amt}#", scope: "local", mark: "jeeb", status: "on" },
+  { id: "p1", nameAr: "EVC Plus", nameEn: "EVC Plus", operator: "Hormuud", numbers: ["612345678"], ussd: "*712*{num}*{amt}#", scope: "local", mark: "evc", status: "off" },
+  { id: "p2", nameAr: "JEEB", nameEn: "JEEB", operator: "Somnet", numbers: ["901234567"], ussd: "*789*{num}*{amt}#", scope: "local", mark: "jeeb", status: "off" },
   { id: "p3", nameAr: "E-Dahab", nameEn: "E-Dahab", operator: "Somtel", numbers: [], ussd: "*770*{num}*{amt}#", scope: "local", mark: "edahab", status: "off" },
   { id: "p4", nameAr: "ZAAD", nameEn: "ZAAD", operator: "Telesom", numbers: [], ussd: "", scope: "local", mark: "zaad", status: "off" },
   { id: "p5", nameAr: "SAHAL", nameEn: "SAHAL", operator: "Golis", numbers: [], ussd: "", scope: "local", mark: "sahal", status: "off" },

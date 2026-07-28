@@ -1,7 +1,14 @@
 import { getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
 import Logo from "./Logo";
-import { IconTelegram, IconWhatsApp } from "./icons";
+import {
+  IconCall,
+  IconClockLine,
+  IconEmailLine,
+  IconPin,
+  IconTelegram,
+  IconWhatsApp,
+} from "./icons";
 import { acceptedPayments, footerLinks, site } from "@/lib/content";
 import type { Locale } from "@/i18n/routing";
 
@@ -10,11 +17,14 @@ export default async function Footer({ locale }: { locale: string }) {
   const tp = await getTranslations("pages");
   const L = locale as Locale;
 
+  const accepted = acceptedPayments().filter((p) => !p.soon);
+
+  // أيقونات خطّية لا إيموجي: الإيموجي يختلف شكله بين الأجهزة ولا يأخذ لون الهوية
   const contact = [
-    { icon: "📍", value: site.address[L], href: null },
-    { icon: "📞", value: site.whatsapp, href: site.whatsapp ? `tel:${site.whatsapp}` : null, ltr: true },
-    { icon: "✉️", value: site.email, href: site.email ? `mailto:${site.email}` : null, ltr: true },
-    { icon: "🕐", value: site.hours[L], href: null },
+    { key: "addr", Icon: IconPin, value: site.address[L], href: null },
+    { key: "tel", Icon: IconCall, value: site.whatsapp, href: site.whatsapp ? `tel:${site.whatsapp}` : null, ltr: true },
+    { key: "mail", Icon: IconEmailLine, value: site.email, href: site.email ? `mailto:${site.email}` : null, ltr: true },
+    { key: "hours", Icon: IconClockLine, value: site.hours[L], href: null },
   ].filter((c) => c.value);
 
   const socials = [
@@ -90,10 +100,8 @@ export default async function Footer({ locale }: { locale: string }) {
             <h3 className={head}>{t("contact")}</h3>
             {contact.length ? (
               contact.map((c) => (
-                <div key={c.icon} className="flex items-start gap-2 text-sm text-muted">
-                  <span aria-hidden className="mt-0.5 shrink-0">
-                    {c.icon}
-                  </span>
+                <div key={c.key} className="flex items-start gap-2 text-sm text-muted">
+                  <c.Icon className="mt-0.5 size-4 shrink-0 text-orange" />
                   {c.href ? (
                     <a href={c.href} dir={c.ltr ? "ltr" : undefined} className="hover:text-orange">
                       {c.value}
@@ -109,13 +117,12 @@ export default async function Footer({ locale }: { locale: string }) {
           </div>
         </div>
 
-        {/* وسائل الدفع — تُعرض هنا فقط، لا تتكرر في الصفحات */}
+        {/* وسائل الدفع — الفوتر يقول "نقبل"، فلا يُذكر فيه إلا ما يُقبل
+            فعلاً اليوم. وبلا وسيلة واحدة يختفي الصفّ كلّه بعنوانه. */}
+        {accepted.length > 0 && (
         <div className="mt-8 flex flex-wrap items-center justify-center gap-2 border-t border-line pt-6">
           <span className="text-sm font-medium">{t("weAccept")}</span>
-          {acceptedPayments()
-            // الفوتر يقول "نقبل" — فلا يُذكر فيه إلا ما يُقبل فعلاً اليوم
-            .filter((p) => !p.soon)
-            .map((p) => (
+          {accepted.map((p) => (
               <span
                 key={p.name}
                 dir="ltr"
@@ -125,6 +132,7 @@ export default async function Footer({ locale }: { locale: string }) {
               </span>
             ))}
         </div>
+        )}
 
         <p className="mt-6 text-center text-sm text-muted">
           © {new Date().getFullYear()} {site.brand} — {t("rights")}

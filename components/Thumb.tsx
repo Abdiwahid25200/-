@@ -7,6 +7,8 @@ type Props = {
   Icon: (p: { className?: string }) => React.ReactElement;
   iconClass?: string;
   sizes?: string;
+  /** `cover` يملأ الإطار ويقصّ · `contain` يُظهر الصورة كاملة */
+  fit?: "cover" | "contain";
 };
 
 /**
@@ -19,6 +21,7 @@ export default function Thumb({
   Icon,
   iconClass = "size-20",
   sizes = "(max-width: 640px) 50vw, 25vw",
+  fit = "cover",
 }: Props) {
   if (img) {
     return (
@@ -27,7 +30,7 @@ export default function Thumb({
         alt={alt}
         fill
         sizes={sizes}
-        className="object-cover"
+        className={fit === "contain" ? "object-contain p-2" : "object-cover"}
       />
     );
   }

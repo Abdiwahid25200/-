@@ -7,10 +7,14 @@ import { acceptedPayments } from "@/lib/content";
  */
 export default async function PayChips() {
   const tc = await getTranslations("common");
+  const list = acceptedPayments();
+
+  // بلا وسيلة واحدة لا نترك صفّاً فارغاً في صفحة الدعم
+  if (!list.length) return null;
 
   return (
     <ul className="flex flex-wrap gap-2">
-      {acceptedPayments().map(({ name, soon }) => (
+      {list.map(({ name, soon }) => (
         <li
           key={name}
           dir="ltr"

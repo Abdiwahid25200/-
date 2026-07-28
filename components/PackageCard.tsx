@@ -77,12 +77,16 @@ export default function PackageCard({
       }`}
     >
       {img && (
-        <span className="relative mb-3 block aspect-[5/4] overflow-hidden rounded-[14px] bg-surface2 text-orange">
+        // مربّعة وكبيرة كما في Midasbuy — الصورة هي البطل لا الرقم.
+        // `contain` لا `cover`: صور الباقات رسومٌ لها حدود، والقصّ يبتر
+        // كومة العملات أو الشعار فتفقد الصورة معناها.
+        <span className="relative mb-3 block aspect-square overflow-hidden rounded-[14px] bg-surface2 text-orange">
           <Thumb
             img={img}
             alt={title}
             Icon={Icon}
-            iconClass="size-12"
+            fit="contain"
+            iconClass="size-14"
             sizes="(max-width: 640px) 45vw, 30vw"
           />
         </span>

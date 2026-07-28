@@ -53,6 +53,8 @@ export default function PaySection({
   const methods = live(pay);
   // الطريقة المختارة لا تكون إلا طريقة عاملة — "قريباً" معروضة لا مُتاحة
   const ready = methods.filter(isBuyable);
+  // بلا طرق دفع لا نعرض عنواناً فوق فراغ — يختفي القسم كلّه
+  if (!methods.length) return null;
   const active = ready.find((m) => m.id === selected) ?? ready[0];
   const label = (m: PayMethod) => (locale === "ar" ? m.nameAr : m.nameEn);
 

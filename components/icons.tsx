@@ -571,3 +571,32 @@ export function IconCartEmpty({ className = "" }: IconProps) {
     </svg>
   );
 }
+
+/* ── أيقونات الفوتر الخطّية — بديل الإيموجي ── */
+
+export function IconPin({ className = "" }: IconProps) {
+  return (
+    <svg viewBox="0 0 24 24" strokeWidth="1.8" className={`${base} ${className}`} aria-hidden>
+      <path strokeLinecap="round" strokeLinejoin="round" d="M12 21s7-5.4 7-11a7 7 0 1 0-14 0c0 5.6 7 11 7 11Z" />
+      <circle cx="12" cy="10" r="2.6" />
+    </svg>
+  );
+}
+
+export function IconEmailLine({ className = "" }: IconProps) {
+  return (
+    <svg viewBox="0 0 24 24" strokeWidth="1.8" className={`${base} ${className}`} aria-hidden>
+      <rect x="3" y="5.5" width="18" height="13" rx="2.5" />
+      <path strokeLinecap="round" strokeLinejoin="round" d="m4 7.5 8 5.5 8-5.5" />
+    </svg>
+  );
+}
+
+export function IconClockLine({ className = "" }: IconProps) {
+  return (
+    <svg viewBox="0 0 24 24" strokeWidth="1.8" className={`${base} ${className}`} aria-hidden>
+      <circle cx="12" cy="12" r="8.5" />
+      <path strokeLinecap="round" d="M12 7.5V12l3 2" />
+    </svg>
+  );
+}
