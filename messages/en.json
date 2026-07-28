@@ -111,7 +111,7 @@
   "buy": {
     "selectPackage": "Choose a package",
     "payTitle": "Payment method",
-    "ussdNote": "Dial this code to complete the transfer:",
+    "ussdNote": "Tap the button and the code dials itself:",
     "copy": "Copy",
     "copied": "Copied ✓",
     "receipt": "Upload payment receipt",
@@ -144,7 +144,8 @@
     },
     "payOnWhatsapp": "Agreed on WhatsApp",
     "continueWa": "Continue on WhatsApp",
-    "waFirst": "Enter your WhatsApp number to continue"
+    "waFirst": "Enter your WhatsApp number to continue",
+    "callNow": "Call to transfer"
   },
   "pubgFlow": {
     "title": "Player details",

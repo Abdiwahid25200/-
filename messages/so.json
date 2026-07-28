@@ -111,7 +111,7 @@
   "buy": {
     "selectPackage": "Dooro xirmo",
     "payTitle": "Habka lacag-bixinta",
-    "ussdNote": "Wac lambarkan si aad u dhammaystirto:",
+    "ussdNote": "Taabo badhanka, koodhkuna wuu iska wacayaa:",
     "copy": "Koobi",
     "copied": "Waa la koobiyeeyay ✓",
     "receipt": "Soo geli rasiidka lacagta",
@@ -144,7 +144,8 @@
     },
     "payOnWhatsapp": "Lagu heshiiyay WhatsApp",
     "continueWa": "Ku sii wad WhatsApp",
-    "waFirst": "Qor lambarkaaga WhatsApp si aad u sii waddo"
+    "waFirst": "Qor lambarkaaga WhatsApp si aad u sii waddo",
+    "callNow": "Wac si aad u wareejiso"
   },
   "pubgFlow": {
     "title": "Faahfaahinta ciyaartoyga",

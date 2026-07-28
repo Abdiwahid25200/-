@@ -515,3 +515,16 @@ export function IconSend({ className = "" }: IconProps) {
     </svg>
   );
 }
+
+/** سمّاعة هاتف — زرّ الاتصال بكود التحويل */
+export function IconCall({ className = "" }: IconProps) {
+  return (
+    <svg viewBox="0 0 24 24" strokeWidth="1.8" className={`${base} ${className}`} aria-hidden>
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        d="M4.5 5.8c0-.7.6-1.3 1.3-1.3h2.1c.6 0 1.1.4 1.3 1l.7 2.7c.1.5-.1 1-.5 1.3l-1.3 1a12.6 12.6 0 0 0 5.4 5.4l1-1.3c.3-.4.8-.6 1.3-.5l2.7.7c.6.2 1 .7 1 1.3v2.1c0 .7-.6 1.3-1.3 1.3C10.6 19.5 4.5 13.4 4.5 5.8Z"
+      />
+    </svg>
+  );
+}

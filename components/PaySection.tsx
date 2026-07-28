@@ -1,13 +1,32 @@
 "use client";
 
-import { useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import { isBuyable, live, pay, type PayMethod } from "@/lib/data";
 import PayMark from "./PayMark";
+import { IconCall } from "./icons";
+
+/**
+ * المبلغ داخل كود الـUSSD: الفاصلة العشرية تُكتب نجمة لا نقطة.
+ * ٥٫٤٠ دولار ⇒ `5*4` — هكذا تقبله شبكات الصومال، والنقطة تُفشل التحويل.
+ */
+function ussdAmount(amount: number) {
+  return String(Math.round(amount * 100) / 100).replace(".", "*");
+}
 
 /** بناء كود الـUSSD بتعويض الرقم والمبلغ — للطرق المحلية فقط */
 function buildUssd(m: PayMethod, amount: number) {
-  return m.ussd.replace("{num}", m.numbers[0] ?? "").replace("{amt}", String(amount));
+  return m.ussd
+    .replace("{num}", m.numbers[0] ?? "")
+    .replace("{amt}", ussdAmount(amount));
+}
+
+/**
+ * رابط الاتصال بالكود.
+ * علامة `#` تُرمَّز `%23` وإلا اعتبرها المتصفّح بداية مرساة داخل الصفحة
+ * فيصل للهاتف كودٌ ناقص لا يعمل.
+ */
+function telHref(code: string) {
+  return `tel:${code.replace(/#/g, "%23")}`;
 }
 
 /**
@@ -30,7 +49,6 @@ export default function PaySection({
   const t = useTranslations("buy");
   const tc = useTranslations("common");
   const locale = useLocale();
-  const [copied, setCopied] = useState(false);
 
   const methods = live(pay);
   // الطريقة المختارة لا تكون إلا طريقة عاملة — "قريباً" معروضة لا مُتاحة
@@ -44,16 +62,6 @@ export default function PaySection({
     { scope: "local" as const, title: t("payLocal"), note: t("payLocalNote") },
     { scope: "global" as const, title: t("payGlobal"), note: t("payGlobalNote") },
   ];
-
-  async function copy(text: string) {
-    try {
-      await navigator.clipboard.writeText(text);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 1800);
-    } catch {
-      /* المتصفح رفض النسخ — الكود ظاهر ويمكن نسخه يدوياً */
-    }
-  }
 
   return (
     <section className="rounded-card border border-line bg-surface p-4">
@@ -128,21 +136,20 @@ export default function PaySection({
                           {m.scope === "local" && m.ussd ? (
                             <>
                               <p className="mb-2 text-sm text-muted">{t("ussdNote")}</p>
-                              <div className="flex flex-wrap items-center gap-2">
-                                <code
-                                  dir="ltr"
-                                  className="min-w-0 flex-1 overflow-x-auto rounded-card border border-line bg-surface px-3 py-2.5 font-mono text-sm"
-                                >
-                                  {buildUssd(m, amount)}
-                                </code>
-                                <button
-                                  type="button"
-                                  onClick={() => copy(buildUssd(m, amount))}
-                                  className="min-h-12 rounded-card bg-navy px-5 font-medium text-white transition-opacity hover:opacity-90"
-                                >
-                                  {copied ? t("copied") : t("copy")}
-                                </button>
-                              </div>
+                              <code
+                                dir="ltr"
+                                className="mb-2 block overflow-x-auto rounded-card border border-line bg-surface px-3 py-2.5 text-center font-mono text-sm"
+                              >
+                                {buildUssd(m, amount)}
+                              </code>
+                              {/* الاتصال مباشرة: الكود يصل للهاتف جاهزاً بلا نسخ ولا كتابة */}
+                              <a
+                                href={telHref(buildUssd(m, amount))}
+                                className="lift flex min-h-12 items-center justify-center gap-2.5 rounded-card bg-orange font-bold text-onaccent"
+                              >
+                                <IconCall className="size-5" />
+                                {t("callNow")}
+                              </a>
                             </>
                           ) : (
                             <p className="text-sm text-muted">
