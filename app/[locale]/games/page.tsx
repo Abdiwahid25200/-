@@ -1,14 +1,9 @@
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import SectionHead from "@/components/SectionHead";
-import CategoryCard from "@/components/CategoryCard";
+import GameTile from "@/components/GameTile";
 import BackLink from "@/components/BackLink";
 import { visibleSections } from "@/lib/content";
-import { icons, live, pubg } from "@/lib/data";
 
-const COUNTS: Record<string, number> = {
-  pubg: live(pubg).length,
-  efootball: live(icons).length,
-};
 
 export default async function GamesPage({
   params,
@@ -26,15 +21,16 @@ export default async function GamesPage({
       <BackLink />
       <SectionHead title={t("title")} note={t("note")} />
 
-      <div className="flex flex-col gap-3">
+      <div className="grid grid-cols-3 gap-3 sm:grid-cols-4">
         {visibleSections("games").map((s) => (
-          <CategoryCard
+          <GameTile
             key={s.key}
             href={s.href}
             icon={s.icon}
+            img={s.img}
             title={tp(s.key)}
-            note={t(`${s.key}.note`)}
-            count={tc("packs", { n: COUNTS[s.key] ?? 0 })}
+            badge={s.badge}
+            badgeLabel={s.badge ? tc(s.badge) : undefined}
             soon={s.status === "soon"}
             soonLabel={tc("soon")}
           />

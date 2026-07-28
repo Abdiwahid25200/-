@@ -86,6 +86,10 @@ export type Section = {
   /** الصفحة التي يظهر بها: الألعاب أم الحسابات */
   group: "games" | "accounts";
   status: SectionStatus;
+  /** وسم على البطاقة: فوري (يُشحن تلقائياً) أم يدوي (بمراجعة) */
+  badge?: "instant" | "manual";
+  /** صورة القسم — تُرفع لاحقاً من لوحة الإدارة إلى public/images/sections/ */
+  img?: string;
 };
 
 /**
@@ -93,10 +97,10 @@ export type Section = {
  * بشارة "قريباً" دون الحاجة لصفحة. وعند جاهزية الصفحة غيّري الحالة إلى "on".
  */
 export const sections: Section[] = [
-  { key: "pubg", href: "/pubg", icon: "pubg", group: "games", status: "on" },
-  { key: "efootball", href: "/efootball", icon: "efoot", group: "games", status: "on" },
-  { key: "efootballAccounts", href: "/efootball-accounts", icon: "efoot", group: "accounts", status: "on" },
-  { key: "tiktok", href: "/tiktok", icon: "tiktok", group: "accounts", status: "on" },
+  { key: "pubg", href: "/pubg", icon: "pubg", group: "games", status: "on", badge: "instant" },
+  { key: "efootball", href: "/efootball", icon: "efoot", group: "games", status: "on", badge: "manual" },
+  { key: "efootballAccounts", href: "/efootball-accounts", icon: "efoot", group: "accounts", status: "on", badge: "manual" },
+  { key: "tiktok", href: "/tiktok", icon: "tiktok", group: "accounts", status: "on", badge: "manual" },
 ];
 
 /** أقسام المجموعة الظاهرة فقط (تستبعد off) */
@@ -112,6 +116,15 @@ export const isSectionOpen = (key: string) =>
  * تُقرأ من متغيّر البيئة أولاً حتى لا يُرفع الرابط على GitHub إن كان خاصاً.
  */
 export const pubgIdApi = process.env.PUBG_ID_API ?? "";
+
+/**
+ * قسم "كيف يعمل المتجر" بصفحة الدعم — تُدار من: الإدارة ← الموقع ← النصوص
+ * `youtubeId` فارغ ⇒ يُخفى الفيديو وتبقى الخطوات الثلاث ظاهرة.
+ */
+export const howItWorks = {
+  youtubeId: "",
+  steps: ["choose", "pay", "receive"] as const,
+};
 
 /** قنوات الدعم بصفحة المساعدة — الترتيب هنا هو ترتيب العرض */
 export const supportChannels = [

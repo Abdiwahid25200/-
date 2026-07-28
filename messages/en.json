@@ -78,7 +78,8 @@
     "selected": "Selected",
     "back": "Back",
     "soon": "Coming soon",
-    "googleSignIn": "Continue with Google"
+    "googleSignIn": "Continue with Google",
+    "manual": "Manual"
   },
   "games": {
     "title": "Games",
@@ -343,5 +344,24 @@
     "disabled": "Sign-in is not available yet.",
     "signIn": "Sign in",
     "phone": "Phone"
+  },
+  "how": {
+    "badge": "Process overview",
+    "title": "How Ramaan Store works",
+    "note": "The fastest and safest way to top up your games and buy accounts — in three simple steps.",
+    "steps": {
+      "choose": {
+        "title": "Choose",
+        "note": "Pick your section and package"
+      },
+      "pay": {
+        "title": "Pay securely",
+        "note": "Card, PayPal, USDT or local transfer"
+      },
+      "receive": {
+        "title": "Receive",
+        "note": "Delivered to your account in minutes"
+      }
+    }
   }
 }

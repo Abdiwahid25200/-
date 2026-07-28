@@ -1,14 +1,9 @@
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import SectionHead from "@/components/SectionHead";
-import CategoryCard from "@/components/CategoryCard";
+import GameTile from "@/components/GameTile";
 import BackLink from "@/components/BackLink";
 import { visibleSections } from "@/lib/content";
-import { accounts, live, tiktok } from "@/lib/data";
 
-const COUNTS: Record<string, number> = {
-  efootballAccounts: live(accounts).length,
-  tiktok: live(tiktok).length,
-};
 
 export default async function AccountsPage({
   params,
@@ -26,15 +21,16 @@ export default async function AccountsPage({
       <BackLink />
       <SectionHead title={t("title")} note={t("note")} />
 
-      <div className="flex flex-col gap-3">
+      <div className="grid grid-cols-3 gap-3 sm:grid-cols-4">
         {visibleSections("accounts").map((s) => (
-          <CategoryCard
+          <GameTile
             key={s.key}
             href={s.href}
             icon={s.icon}
+            img={s.img}
             title={tp(s.key)}
-            note={t(`${s.key === "efootballAccounts" ? "efootball" : s.key}.note`)}
-            count={tc("items", { n: COUNTS[s.key] ?? 0 })}
+            badge={s.badge}
+            badgeLabel={s.badge ? tc(s.badge) : undefined}
             soon={s.status === "soon"}
             soonLabel={tc("soon")}
           />

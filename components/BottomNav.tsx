@@ -18,7 +18,8 @@ export default function BottomNav() {
   return (
     <nav
       aria-label={t("label")}
-      className="fixed inset-x-0 bottom-0 z-40 border-t border-line bg-surface/95 pb-[env(safe-area-inset-bottom)] backdrop-blur"
+      // ملتصقة بحافة الشاشة، وزواياها العليا دائرية كما طلبت صاحبة المشروع
+      className="fixed inset-x-0 bottom-0 z-40 rounded-t-[28px] border-t border-line bg-surface/95 pb-[env(safe-area-inset-bottom)] shadow-[0_-4px_24px_rgba(0,0,0,0.08)] backdrop-blur"
     >
       <div className="mx-auto flex max-w-5xl">
         {tabs.map(({ key, href, Icon }) => {
@@ -33,11 +34,11 @@ export default function BottomNav() {
                 isActive ? "text-orange" : "text-muted hover:text-text"
               }`}
             >
-              {/* المؤشر فوق التبويب النشط — كما بالموقع القديم */}
+              {/* المؤشر فوق التبويب النشط — أُنزل قليلاً لئلا تقصّه الزاوية الدائرية */}
               {isActive && (
                 <span
                   aria-hidden
-                  className="absolute top-0 h-[3px] w-7 rounded-b bg-orange"
+                  className="absolute top-1.5 h-[3px] w-7 rounded-full bg-orange"
                 />
               )}
               <Icon className="size-6" />

@@ -78,7 +78,8 @@
     "selected": "La doortay",
     "back": "Dib u noqo",
     "soon": "Dhawaan",
-    "googleSignIn": "Ku sii wad Google"
+    "googleSignIn": "Ku sii wad Google",
+    "manual": "Gacanta"
   },
   "games": {
     "title": "Ciyaaraha",
@@ -343,5 +344,24 @@
     "disabled": "Gelitaanku weli lama heli karo.",
     "signIn": "Gal",
     "phone": "Taleefan"
+  },
+  "how": {
+    "badge": "Sida ay u shaqeyso",
+    "title": "Sida Ramaan Store u shaqeeyo",
+    "note": "Habka ugu dhaqsaha badan uguna ammaanka badan ee aad ciyaaraha ku buuxsato — saddex tallaabo.",
+    "steps": {
+      "choose": {
+        "title": "Dooro",
+        "note": "Dooro qaybta iyo xirmada"
+      },
+      "pay": {
+        "title": "Bixi si ammaan ah",
+        "note": "Kaarka, PayPal, USDT ama lacag-wareejin"
+      },
+      "receive": {
+        "title": "Hel",
+        "note": "Daqiiqado gudahood ayuu kuu gaari doonaa"
+      }
+    }
   }
 }

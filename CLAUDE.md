@@ -92,3 +92,10 @@
 `lib/profile.ts` فيه `dialCodes` (٢٢ دولة) و`isComplete()`.
 `AuthProvider` فيه مهلة ٦ ثوانٍ: لو تعذّر الوصول لجوجل يُعتبر الزائر غير مسجّل
 بدل شاشة انتظار أبدية.
+
+## عرض الأقسام و"كيف يعمل المتجر"
+
+`components/GameTile.tsx` — بلاطة مربّعة والاسم تحتها، ثلاث بالصف.
+لكل قسم في `lib/content.ts`: `badge: "instant" | "manual"` و`img` (تُرفع لاحقاً).
+`components/HowItWorks.tsx` بصفحة الدعم — `howItWorks.youtubeId` في `lib/content.ts`:
+فارغ ⇒ يُخفى الفيديو وتبقى الخطوات الثلاث.
