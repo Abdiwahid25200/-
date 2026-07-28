@@ -15,8 +15,8 @@ import {
   IconCheckCircle,
   IconGoogle,
   IconShieldCheck,
-  IconSparkle,
 } from "@/components/icons";
+import Logo from "@/components/Logo";
 
 /**
  * تسجيل الدخول بخطوتين — بالترتيب الذي طلبته صاحبة المشروع:
@@ -96,12 +96,9 @@ export default function LoginFlow() {
   if (step === "google") {
     return (
       <Card>
-        <span
-          aria-hidden
-          className="mx-auto flex size-16 items-center justify-center rounded-2xl bg-orange text-onaccent"
-        >
-          <IconSparkle className="size-9" />
-        </span>
+        {/* شعار المتجر لا أيقونة عامّة — أول ما تراه العين في شاشة الدخول
+            يجب أن يؤكّد للزبون أنه على موقعك أنتِ، لا على صفحة مجهولة */}
+        <Logo solid className="mx-auto size-16 rounded-2xl shadow-sm" />
 
         <h1 className="mt-4 text-center text-2xl font-bold">{t("welcome")}</h1>
         <p className="mt-1 text-center text-xs font-semibold uppercase tracking-widest text-muted">

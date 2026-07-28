@@ -1,6 +1,7 @@
 import { getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
 import Logo from "./Logo";
+import CartButton from "./CartButton";
 import MenuDrawer from "./MenuDrawer";
 import { site as store } from "@/lib/content";
 
@@ -32,7 +33,10 @@ export default async function Header() {
           </span>
         </Link>
 
-        <div className="ms-auto">
+        {/* السلة بجانب زرّ القائمة — بطلب صاحبة المشروع.
+            وجودها هنا يجعل عدّاد المشتريات مرئياً في كل صفحة بلا فتح القائمة. */}
+        <div className="ms-auto flex items-center gap-1">
+          <CartButton />
           <MenuDrawer phone={store.whatsapp} />
         </div>
       </div>
