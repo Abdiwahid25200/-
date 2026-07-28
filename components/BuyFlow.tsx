@@ -5,7 +5,7 @@ import { useLocale, useTranslations } from "next-intl";
 import PackageCard from "./PackageCard";
 import PaySection from "./PaySection";
 import { fin, fmt } from "@/lib/format";
-import { pay, wa } from "@/lib/data";
+import { isBuyable, live, pay, wa } from "@/lib/data";
 import { useAuth } from "@/lib/auth";
 import { Link } from "@/i18n/navigation";
 import { saveOrder } from "@/lib/orders";
@@ -77,7 +77,7 @@ export default function BuyFlow({
 
   const isWa = mode === "whatsapp";
 
-  const methods = pay.filter((m) => m.on);
+  const methods = live(pay).filter(isBuyable);
   const method = methods.find((m) => m.id === payId) ?? methods[0];
   const methodName = isWa
     ? t("payOnWhatsapp")

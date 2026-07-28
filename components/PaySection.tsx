@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
-import { pay, type PayMethod } from "@/lib/data";
+import { isBuyable, live, pay, type PayMethod } from "@/lib/data";
 import PayMark from "./PayMark";
 
 /** بناء كود الـUSSD بتعويض الرقم والمبلغ — للطرق المحلية فقط */
@@ -28,16 +28,21 @@ export default function PaySection({
   onSelect: (id: string) => void;
 }) {
   const t = useTranslations("buy");
+  const tc = useTranslations("common");
   const locale = useLocale();
   const [copied, setCopied] = useState(false);
 
-  const methods = pay.filter((m) => m.on);
-  const active = methods.find((m) => m.id === selected) ?? methods[0];
+  const methods = live(pay);
+  // الطريقة المختارة لا تكون إلا طريقة عاملة — "قريباً" معروضة لا مُتاحة
+  const ready = methods.filter(isBuyable);
+  const active = ready.find((m) => m.id === selected) ?? ready[0];
   const label = (m: PayMethod) => (locale === "ar" ? m.nameAr : m.nameEn);
 
+  // المحلي أولاً: هو ما يعمل اليوم. لو صدّرنا مجموعةً كلّها "قريباً"
+  // لظنّ الزبون أن الدفع كلّه معطّل قبل أن يصل للطريقة التي تخصّه.
   const groups = [
-    { scope: "global" as const, title: t("payGlobal"), note: t("payGlobalNote") },
     { scope: "local" as const, title: t("payLocal"), note: t("payLocalNote") },
+    { scope: "global" as const, title: t("payGlobal"), note: t("payGlobalNote") },
   ];
 
   async function copy(text: string) {
@@ -68,21 +73,26 @@ export default function PaySection({
 
               <div role="radiogroup" aria-label={g.title} className="flex flex-col gap-2">
                 {list.map((m) => {
-                  const on = m.id === active?.id;
+                  const soon = !isBuyable(m);
+                  const on = !soon && m.id === active?.id;
                   return (
                     <div key={m.id}>
                       <button
                         type="button"
                         role="radio"
                         aria-checked={on}
-                        onClick={() => onSelect(m.id)}
+                        aria-disabled={soon}
+                        disabled={soon}
+                        onClick={() => !soon && onSelect(m.id)}
                         className={`flex w-full items-center gap-3 rounded-card border-2 p-3 text-start transition-colors ${
-                          on
-                            ? "border-orange bg-orange/5"
-                            : "border-line hover:border-orange/50"
+                          soon
+                            ? "cursor-not-allowed border-line opacity-55"
+                            : on
+                              ? "border-orange bg-orange/5"
+                              : "border-line hover:border-orange/50"
                         }`}
                       >
-                        <PayMark mark={m.mark} />
+                        <PayMark mark={m.mark} logo={m.logo} alt={label(m)} />
 
                         <span className="min-w-0 flex-1 leading-tight">
                           <span className="block truncate font-bold">{label(m)}</span>
@@ -91,19 +101,25 @@ export default function PaySection({
                           </span>
                         </span>
 
-                        {/* دائرة الاختيار — نفس ما تراه على مواقع الدفع العالمية */}
-                        <span
-                          aria-hidden
-                          className={`flex size-5 shrink-0 items-center justify-center rounded-full border-2 transition-colors ${
-                            on ? "border-orange" : "border-line"
-                          }`}
-                        >
+                        {soon ? (
+                          <span className="shrink-0 rounded-full border border-line px-2.5 py-1 text-xs text-muted">
+                            {tc("soon")}
+                          </span>
+                        ) : (
+                          /* دائرة الاختيار — نفس ما تراه على مواقع الدفع العالمية */
                           <span
-                            className={`size-2.5 rounded-full bg-orange transition-transform ${
-                              on ? "scale-100" : "scale-0"
+                            aria-hidden
+                            className={`flex size-5 shrink-0 items-center justify-center rounded-full border-2 transition-colors ${
+                              on ? "border-orange" : "border-line"
                             }`}
-                          />
-                        </span>
+                          >
+                            <span
+                              className={`size-2.5 rounded-full bg-orange transition-transform ${
+                                on ? "scale-100" : "scale-0"
+                              }`}
+                            />
+                          </span>
+                        )}
                       </button>
 
                       {/* تفاصيل الطريقة المختارة — تحت صفّها مباشرة لا في آخر القسم */}

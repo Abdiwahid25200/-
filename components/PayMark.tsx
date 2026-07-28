@@ -19,6 +19,9 @@ const tone: Record<PayMarkKey, string> = {
   evc: "#00A550",
   jeeb: "#1B63C8",
   edahab: "#E1471D",
+  zaad: "#0B7BC1",
+  sahal: "#7A3FBF",
+  waafi: "#0F8A6B",
 };
 
 /** حروف قصيرة داخل المربّع للخدمات المحلية — أوضح من أي رسم مجرّد */
@@ -26,17 +29,36 @@ const letters: Partial<Record<PayMarkKey, string>> = {
   evc: "EVC",
   jeeb: "JEEB",
   edahab: "eD",
+  zaad: "ZAAD",
+  sahal: "SAHAL",
+  waafi: "WAAFI",
   paypal: "PP",
 };
 
 export default function PayMark({
   mark,
+  logo,
+  alt = "",
   className = "",
 }: {
   mark: PayMarkKey;
+  /** الشعار الحقيقي متى رُفع — يحلّ محلّ الرسم بلا تعديل على أي صفحة */
+  logo?: string;
+  alt?: string;
   className?: string;
 }) {
   const fill = tone[mark];
+
+  if (logo) {
+    return (
+      // eslint-disable-next-line @next/next/no-img-element
+      <img
+        src={logo}
+        alt={alt}
+        className={`${box} border border-line bg-white object-contain p-1 ${className}`}
+      />
+    );
+  }
 
   return (
     <svg viewBox="0 0 40 40" className={`${box} ${className}`} aria-hidden>
@@ -79,7 +101,9 @@ export default function PayMark({
           textAnchor="middle"
           dominantBaseline="central"
           fill="#fff"
-          fontSize={letters[mark]!.length > 3 ? 10 : 13}
+          fontSize={
+            letters[mark]!.length >= 5 ? 8.5 : letters[mark]!.length > 3 ? 10 : 13
+          }
           fontWeight="700"
           fontFamily="system-ui, sans-serif"
           letterSpacing="0.3"
