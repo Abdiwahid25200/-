@@ -15,7 +15,10 @@ export default async function Header() {
   const t = await getTranslations("header");
 
   return (
-    <header className="sticky top-0 z-40 border-b border-line bg-surface/95 backdrop-blur">
+    // بلا خلفية بيضاء ولا خطّ فاصل — يجلس على أرضية الصفحة كما بالمعاينة.
+    // ولأنه شفّاف فهو لا يلتصق بالأعلى، وإلا ظهر المحتوى من خلفه عند التمرير؛
+    // التنقّل الدائم مكانه القائمة السفلية.
+    <header className="coast-glow relative z-30">
       <div className="mx-auto flex max-w-5xl items-center gap-3 px-4 py-3">
         <Link href="/" className="flex min-w-0 items-center gap-3">
           <Logo solid className="size-11 shrink-0 rounded-[13px] shadow-sm" />
