@@ -137,7 +137,14 @@
     "saving": "Saving your order…",
     "savedOk": "Order saved to your account",
     "savePrompt": "Sign in to keep this order in your account and track it later.",
-    "saveManual": "Your order is not saved online yet — please send it on WhatsApp to confirm."
+    "saveManual": "Your order is not saved online yet — please send it on WhatsApp to confirm.",
+    "payKind": {
+      "global": "Available worldwide",
+      "local": "Local transfer"
+    },
+    "payOnWhatsapp": "Agreed on WhatsApp",
+    "continueWa": "Continue on WhatsApp",
+    "waFirst": "Enter your WhatsApp number to continue"
   },
   "pubgFlow": {
     "title": "Player details",

@@ -140,19 +140,36 @@ export type PayMethod = {
   ussd: string;
   /** global = متاحة لأي زبون في العالم · local = تحويل محلي بكود USSD */
   scope: "global" | "local";
+  /**
+   * شركة الاتصالات صاحبة الخدمة — تظهر تحت الاسم.
+   * الزبون الصومالي يعرف "هرمود" و"سومنت" أكثر من اسم الخدمة أحياناً،
+   * وذكرها يقطع الشكّ: هل هذا الرقم يقبل تحويلي أم لا.
+   */
+  operator?: string;
+  /** أي علامة تُرسم بجانبه — انظري `components/PayMark.tsx` */
+  mark: PayMarkKey;
   on: boolean;
 };
 
+export type PayMarkKey =
+  | "paypal"
+  | "card"
+  | "usdt"
+  | "binance"
+  | "evc"
+  | "jeeb"
+  | "edahab";
+
 export const pay: PayMethod[] = [
   // 🌍 عالمية — لأي زبون في أي بلد
-  { id: "g1", nameAr: "PayPal", nameEn: "PayPal", numbers: [], ussd: "", scope: "global", on: true },
-  { id: "g2", nameAr: "بطاقة ائتمان", nameEn: "Credit / Debit card", numbers: [], ussd: "", scope: "global", on: true },
-  { id: "g3", nameAr: "USDT (TRC20)", nameEn: "USDT (TRC20)", numbers: [], ussd: "", scope: "global", on: true },
-  { id: "g4", nameAr: "Binance Pay", nameEn: "Binance Pay", numbers: [], ussd: "", scope: "global", on: true },
+  { id: "g1", nameAr: "PayPal", nameEn: "PayPal", numbers: [], ussd: "", scope: "global", mark: "paypal", on: true },
+  { id: "g2", nameAr: "بطاقة ائتمان أو خصم", nameEn: "Credit / Debit card", numbers: [], ussd: "", scope: "global", mark: "card", on: true },
+  { id: "g3", nameAr: "USDT (TRC20)", nameEn: "USDT (TRC20)", numbers: [], ussd: "", scope: "global", mark: "usdt", on: true },
+  { id: "g4", nameAr: "Binance Pay", nameEn: "Binance Pay", numbers: [], ussd: "", scope: "global", mark: "binance", on: true },
   // 🇸🇴 محلية — تحويل بكود USSD
-  { id: "p1", nameAr: "EVC Plus", nameEn: "EVC Plus", numbers: ["612345678"], ussd: "*712*{num}*{amt}#", scope: "local", on: true },
-  { id: "p2", nameAr: "JEEB", nameEn: "JEEB", numbers: ["901234567"], ussd: "*789*{num}*{amt}#", scope: "local", on: true },
-  { id: "p3", nameAr: "E-Dahab", nameEn: "E-Dahab", numbers: ["651234567"], ussd: "*770*{num}*{amt}#", scope: "local", on: true },
+  { id: "p1", nameAr: "EVC Plus", nameEn: "EVC Plus", operator: "Hormuud", numbers: ["612345678"], ussd: "*712*{num}*{amt}#", scope: "local", mark: "evc", on: true },
+  { id: "p2", nameAr: "JEEB", nameEn: "JEEB", operator: "Somnet", numbers: ["901234567"], ussd: "*789*{num}*{amt}#", scope: "local", mark: "jeeb", on: true },
+  { id: "p3", nameAr: "E-Dahab", nameEn: "E-Dahab", operator: "Somtel", numbers: ["651234567"], ussd: "*770*{num}*{amt}#", scope: "local", mark: "edahab", on: true },
 ];
 
 /**

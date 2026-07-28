@@ -137,7 +137,14 @@
     "saving": "Dalabkaaga waa la kaydinayaa…",
     "savedOk": "Dalabka waa lagu kaydiyay akoonkaaga",
     "savePrompt": "Gal si dalabkan loogu kaydiyo akoonkaaga oo aad dib u eegto.",
-    "saveManual": "Dalabkaagu weli lama kaydin — fadlan WhatsApp ku soo dir si loo xaqiijiyo."
+    "saveManual": "Dalabkaagu weli lama kaydin — fadlan WhatsApp ku soo dir si loo xaqiijiyo.",
+    "payKind": {
+      "global": "Adduunka oo dhan",
+      "local": "Wareejin maxalli ah"
+    },
+    "payOnWhatsapp": "Lagu heshiiyay WhatsApp",
+    "continueWa": "Ku sii wad WhatsApp",
+    "waFirst": "Qor lambarkaaga WhatsApp si aad u sii waddo"
   },
   "pubgFlow": {
     "title": "Faahfaahinta ciyaartoyga",

@@ -38,6 +38,7 @@ export default function BuyFlow({
   accountSummary,
   Icon,
   kind,
+  mode = "pay",
 }: {
   packs: Pack[];
   /** بطاقة بيانات الحساب — تختلف بين ببجي و eFootball */
@@ -49,6 +50,12 @@ export default function BuyFlow({
   Icon: (p: { className?: string }) => React.ReactElement;
   /** القسم الذي جاء منه الطلب — يُحفظ مع الطلب لتصنيفه في الإدارة */
   kind: string;
+  /**
+   * `pay` — الشدّات والكوينز: يدفع الزبون بنفسه ويستلم فوراً.
+   * `whatsapp` — الحسابات: كل حساب فريد وسعره يُتّفق عليه، فالزبون
+   * يختار الحساب ثم يترك رقم واتسابه، وصاحبة المتجر تكمل معه بالمحادثة.
+   */
+  mode?: "pay" | "whatsapp";
 }) {
   const t = useTranslations("buy");
   const tc = useTranslations("common");
@@ -68,9 +75,17 @@ export default function BuyFlow({
   const total = pack ? fin(pack) : 0;
   const canConfirm = !!pack && accountReady;
 
+  const isWa = mode === "whatsapp";
+
   const methods = pay.filter((m) => m.on);
   const method = methods.find((m) => m.id === payId) ?? methods[0];
-  const methodName = method ? (locale === "ar" ? method.nameAr : method.nameEn) : "";
+  const methodName = isWa
+    ? t("payOnWhatsapp")
+    : method
+      ? locale === "ar"
+        ? method.nameAr
+        : method.nameEn
+      : "";
 
   const barVisible = !!pack && !done;
 
@@ -80,9 +95,34 @@ export default function BuyFlow({
     return () => document.body.classList.remove("has-buybar");
   }, [barVisible]);
 
+  /** سطور الطلب — تُعرض بالملخّص وتُرسل نصّاً بواتساب */
+  function orderLines(code: string) {
+    return [
+      `${t("orderCode")}: ${code}`,
+      `${t("item")}: ${pack?.title ?? ""}`,
+      `${t("total")}: ${fmt(total)}`,
+      isWa ? "" : `${t("payTitle")}: ${methodName}`,
+      accountSummary,
+    ].filter(Boolean);
+  }
+
+  function waLink(code: string) {
+    if (!wa) return null;
+    const text = encodeURIComponent(orderLines(code).join("\n"));
+    return `https://wa.me/${wa.replace(/\D/g, "")}?text=${text}`;
+  }
+
   async function confirm() {
     if (!canConfirm || !pack) return;
     const code = newCode();
+
+    // في وضع الحسابات نفتح واتساب فوراً داخل ضغطة الزبون نفسها —
+    // لو انتظرنا انتهاء الحفظ لحجب المتصفّح النافذة باعتبارها غير مقصودة
+    if (isWa) {
+      const href = waLink(code);
+      if (href) window.open(href, "_blank", "noopener");
+    }
+
     setDone({ code, at: new Date().toLocaleString(locale === "ar" ? "ar" : "en") });
     window.scrollTo({ top: 0, behavior: "smooth" });
 
@@ -108,17 +148,7 @@ export default function BuyFlow({
 
   /* ── شاشة تأكيد الطلب ── */
   if (done && pack) {
-    const lines = [
-      `${t("orderCode")}: ${done.code}`,
-      `${t("item")}: ${pack.title}`,
-      `${t("total")}: ${fmt(total)}`,
-      `${t("payTitle")}: ${methodName}`,
-      accountSummary,
-    ].filter(Boolean);
-
-    const waHref = wa
-      ? `https://wa.me/${wa.replace(/\D/g, "")}?text=${encodeURIComponent(lines.join("\n"))}`
-      : null;
+    const waHref = waLink(done.code);
 
     return (
       <div className="flex flex-col gap-5">
@@ -206,7 +236,9 @@ export default function BuyFlow({
   /* ── تدفّق الشراء ── */
   return (
     <div className="flex flex-col gap-5">
-      {accountForm}
+      {/* في وضع الحسابات يختار الزبون الحساب أولاً، ثم يظهر حقل الواتساب —
+          بالترتيب الذي طلبته صاحبة المشروع */}
+      {!isWa && accountForm}
 
       <section>
         <h2 className="mb-3 text-lg font-bold">{t("selectPackage")}</h2>
@@ -239,8 +271,10 @@ export default function BuyFlow({
         </div>
       </section>
 
-      {/* قسم الدفع يظهر تلقائياً بعد اختيار الباقة */}
-      {pack && <PaySection amount={total} selected={payId} onSelect={setPayId} />}
+      {/* بعد الاختيار: حقل الواتساب في وضع الحسابات · قسم الدفع في غيره */}
+      {pack && (isWa ? accountForm : (
+        <PaySection amount={total} selected={payId} onSelect={setPayId} />
+      ))}
 
       {/* الشريط السفلي الثابت — فوق قائمة التنقّل مباشرة */}
       {barVisible && (
@@ -258,11 +292,13 @@ export default function BuyFlow({
               disabled={!canConfirm}
               className="ms-auto min-h-12 rounded-card bg-orange px-7 font-bold text-onaccent transition-opacity enabled:hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-40"
             >
-              {t("confirm")}
+              {isWa ? t("continueWa") : t("confirm")}
             </button>
           </div>
           {!accountReady && (
-            <p className="pb-2 text-center text-xs text-muted">{t("accountFirst")}</p>
+            <p className="pb-2 text-center text-xs text-muted">
+              {isWa ? t("waFirst") : t("accountFirst")}
+            </p>
           )}
         </div>
       )}
