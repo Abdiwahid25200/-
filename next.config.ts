@@ -17,12 +17,21 @@ const nextConfig: NextConfig = {
    * `authDomain` في `lib/firebase.ts` إلى `eramaan.com`.
    */
   async rewrites() {
-    return [
-      {
-        source: "/__/auth/:path*",
-        destination: "https://ramaa-store.firebaseapp.com/__/auth/:path*",
-      },
-    ];
+    // beforeFiles: يُمرَّر قبل أي مسار في التطبيق، فلا يلتقطه شيء آخر
+    return {
+      beforeFiles: [
+        {
+          source: "/__/auth/:path*",
+          destination: "https://ramaa-store.firebaseapp.com/__/auth/:path*",
+        },
+        {
+          source: "/__/firebase/:path*",
+          destination: "https://ramaa-store.firebaseapp.com/__/firebase/:path*",
+        },
+      ],
+      afterFiles: [],
+      fallback: [],
+    };
   },
 };
 
