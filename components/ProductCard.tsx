@@ -36,7 +36,7 @@ export default function ProductCard({
 
   return (
     <article className="group flex flex-col overflow-hidden rounded-card border border-line bg-surface shadow-sm transition-shadow hover:shadow-md">
-      <div className="relative flex aspect-square items-center justify-center bg-gradient-to-br from-navy to-[#1e2a45]">
+      <div className="relative flex aspect-square items-center justify-center bg-surface2 text-orange">
         <Thumb img={img} alt={name} Icon={Icon} />
         {soon && (
           <span className="absolute inset-0 flex items-center justify-center bg-navy/65 text-sm font-bold text-white">

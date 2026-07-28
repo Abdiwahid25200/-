@@ -84,7 +84,7 @@ export type Section = {
   /** مفتاح الأيقونة الملوّنة في components/icons.tsx */
   icon: "pubg" | "efoot" | "tiktok" | "device" | "games";
   /** الصفحة التي يظهر بها: الألعاب أم الحسابات */
-  group: "games" | "accounts";
+  group: "games" | "accounts" | "home";
   status: SectionStatus;
   /** وسم على البطاقة: فوري · يدوي · يُشحن (سلعة تُرسل) */
   badge?: "instant" | "manual" | "shipped";
@@ -101,8 +101,11 @@ export const sections: Section[] = [
   { key: "efootball", href: "/efootball", icon: "efoot", group: "games", status: "on", badge: "manual" },
   { key: "efootballAccounts", href: "/efootball-accounts", icon: "efoot", group: "accounts", status: "on", badge: "manual" },
   { key: "tiktok", href: "/tiktok", icon: "tiktok", group: "accounts", status: "on", badge: "manual" },
-  { key: "electronics", href: "/", icon: "device", group: "games", status: "on", badge: "shipped" },
-  { key: "freefire", href: "/soon", icon: "games", group: "games", status: "soon" },
+  // الإلكترونيات مكانها الرئيسية وحدها — لا تظهر بصفحة الألعاب
+  { key: "electronics", href: "/", icon: "device", group: "home", status: "on", badge: "shipped" },
+  // مخفي بأمر صاحبة المشروع: الألعاب = شدات ببجي وكوينز eFootball فقط.
+  // لإظهاره كقسم "قريباً": غيّري off إلى soon.
+  { key: "freefire", href: "/soon", icon: "games", group: "games", status: "off" },
 ];
 
 /** أقسام المجموعة الظاهرة فقط (تستبعد off) */

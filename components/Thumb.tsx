@@ -17,7 +17,7 @@ export default function Thumb({
   img,
   alt,
   Icon,
-  iconClass = "size-14 text-white/85",
+  iconClass = "size-14",
   sizes = "(max-width: 640px) 50vw, 25vw",
 }: Props) {
   if (img) {

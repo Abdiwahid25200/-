@@ -71,9 +71,12 @@ export default async function LocaleLayout({
           <AuthProvider>
             <CartProvider>
               <TopBar />
-              <Header />
-              <div className="flex-1">{children}</div>
-              <Footer locale={locale} />
+              {/* الإطار المدوّر — الانحناءات التي طلبتها صاحبة المشروع */}
+              <div className="app-shell flex flex-1 flex-col">
+                <Header />
+                <div className="flex-1">{children}</div>
+                <Footer locale={locale} />
+              </div>
               <BottomNav />
             </CartProvider>
           </AuthProvider>
