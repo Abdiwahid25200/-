@@ -118,10 +118,17 @@ export const isSectionOpen = (key: string) =>
   sections.find((s) => s.key === key)?.status === "on";
 
 /**
- * رابط خدمة التحقق من آيدي ببجي — تُدار من: الإدارة ← عام ← الإعدادات
- * تُقرأ من متغيّر البيئة أولاً حتى لا يُرفع الرابط على GitHub إن كان خاصاً.
+ * رابط خدمة التحقق من آيدي ببجي (check-id-game على RapidAPI).
+ *
+ * موضوع هنا عمداً لا في متغيّرات البيئة: **الرابط ليس سرّاً** — هو عنوان
+ * عام في سوق RapidAPI يفتحه أي أحد. السرّ هو `PUBG_API_KEY` وحده،
+ * وهو الوحيد الذي يُضبط في Vercel. متغيّراً واحداً أقلّ يعني خطأً أقلّ.
+ *
+ * ويبقى `PUBG_ID_API` أولوية، فتُبدَّل الخدمة من Vercel دون لمس الكود.
  */
-export const pubgIdApi = process.env.PUBG_ID_API ?? "";
+export const pubgIdApi =
+  process.env.PUBG_ID_API ??
+  "https://check-id-game1.p.rapidapi.com/api/game/pubg-mobile-global";
 
 /* ═══════════════════════════════════════════════════════════
    شرائح البانر المتحرّك — تُدار من: الإدارة ← الموقع ← البانر
