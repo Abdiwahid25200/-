@@ -29,7 +29,7 @@ export default function AddToCart({
         setTimeout(() => setDone(false), 1400);
       }}
       className={`min-h-11 w-full rounded-card text-sm font-bold transition-colors ${
-        done ? "bg-yellow text-white" : "bg-orange text-white hover:opacity-90"
+        done ? "bg-yellow text-onaccent" : "bg-orange text-onaccent hover:opacity-90"
       }`}
     >
       {done ? "✓ " + t("added") : t("add")}

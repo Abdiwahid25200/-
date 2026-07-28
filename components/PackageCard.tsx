@@ -54,7 +54,7 @@ export default function PackageCard({
       onClick={onSelect}
       disabled={soon}
       aria-pressed={selected}
-      className={`group flex flex-col overflow-hidden rounded-card border-2 text-start transition-all ${
+      className={`group relative flex flex-col rounded-card border-2 text-start transition-all ${
         soon
           ? "cursor-not-allowed border-line bg-surface opacity-60"
           : selected
@@ -63,7 +63,7 @@ export default function PackageCard({
       }`}
     >
       {/* الصورة */}
-      <div className="relative flex aspect-square items-center justify-center overflow-hidden bg-gradient-to-br from-navy to-[#1e2a45]">
+      <div className="relative flex aspect-[5/4] items-center justify-center overflow-hidden rounded-t-[calc(var(--radius-card)-2px)] bg-gradient-to-br from-navy to-[color-mix(in_srgb,var(--accent)_22%,var(--deep))]">
         {img ? (
           <Image
             src={img}
@@ -102,18 +102,23 @@ export default function PackageCard({
         )}
       </div>
 
-      {/* التفاصيل */}
-      <div className="flex flex-1 flex-col gap-1 p-3">
-        <span className="font-bold leading-tight">{title}</span>
+      {/* التفاصيل — الحزّتان وخطّ التقطيع على حدّها العلوي تماماً،
+          فتُقصّ البطاقة كقسيمة بين الصورة والسعر */}
+      <div className="voucher-notch relative flex flex-1 flex-col gap-1 p-3" style={{ "--notch-y": "-7px" } as React.CSSProperties}>
+        <span
+          aria-hidden
+          className="absolute inset-x-2 top-0 border-t border-dashed border-line"
+        />
+        <span className="num text-[1.05rem] font-bold leading-tight">{title}</span>
         {sub && <span className="text-xs text-muted">{sub}</span>}
 
         <div className="mt-auto flex items-center justify-between gap-2 pt-2">
           <span className="flex flex-col leading-tight">
-            <span className="text-lg font-bold text-yellow" dir="ltr">
+            <span className="num text-lg font-bold text-yellow" dir="ltr">
               {fmt(final)}
             </span>
             {before && before > final && (
-              <span className="text-xs text-muted line-through" dir="ltr">
+              <span className="num text-xs text-muted line-through" dir="ltr">
                 {fmt(before)}
               </span>
             )}
@@ -124,8 +129,8 @@ export default function PackageCard({
               soon
                 ? "bg-line text-muted"
                 : selected
-                  ? "bg-orange text-white"
-                  : "bg-yellow/12 text-yellow group-hover:bg-yellow group-hover:text-white"
+                  ? "bg-orange text-onaccent"
+                  : "bg-yellow/12 text-yellow group-hover:bg-yellow group-hover:text-onaccent"
             }`}
           >
             {soon

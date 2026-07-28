@@ -12,14 +12,14 @@ export default async function EfootballPage({
   const { locale } = await params;
   setRequestLocale(locale);
   const t = await getTranslations("games");
-  const th = await getTranslations("hero");
   const tc = await getTranslations("common");
+  const te = await getTranslations("eyebrow");
 
   return (
     <main className="mx-auto flex max-w-4xl flex-col gap-5 px-4 py-6">
       <BackLink href="/games" />
       <Hero
-        eyebrow={th("topup")}
+        eyebrow={te("efootball")}
         title={t("efootball.title")}
         img="/images/efootball/hero.jpg"
       />

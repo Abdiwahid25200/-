@@ -13,13 +13,13 @@ export default async function EfootAccountsPage({
   setRequestLocale(locale);
   const t = await getTranslations("accountsPage");
   const ta = await getTranslations("accountItem");
-  const th = await getTranslations("hero");
   const tc = await getTranslations("common");
+  const te = await getTranslations("eyebrow");
 
   return (
     <main className="mx-auto flex max-w-4xl flex-col gap-5 px-4 py-6">
       <BackLink href="/accounts" />
-      <Hero eyebrow={th("browse")} title={t("efootball.title")} />
+      <Hero eyebrow={te("efootballAccounts")} title={t("efootball.title")} />
       <p className="rounded-card border border-line bg-surface p-3 text-sm text-muted">
         {ta("unique")}
       </p>

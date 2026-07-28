@@ -24,6 +24,7 @@ export default async function HelpPage({
   const { locale } = await params;
   setRequestLocale(locale);
   const t = await getTranslations("help");
+  const te = await getTranslations("eyebrow");
   const L = locale as Locale;
 
   /** قيمة القناة: حقل نصّي مباشر أو حقل متعدّد اللغات */
@@ -46,7 +47,8 @@ export default async function HelpPage({
   return (
     <main className="mx-auto flex max-w-5xl flex-col gap-8 px-4 py-6">
       <BackLink href="/" />
-      <SectionHead title={t("title")} note={t("note")} />
+      <SectionHead
+        eyebrow={te("help")} title={t("title")} note={t("note")} />
 
       {/* قنوات التواصل */}
       <section className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">

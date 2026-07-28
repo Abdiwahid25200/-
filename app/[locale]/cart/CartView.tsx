@@ -79,7 +79,7 @@ export default function CartView() {
             href={waHref}
             target="_blank"
             rel="noopener noreferrer"
-            className="flex min-h-12 items-center justify-center rounded-card bg-yellow font-bold text-white"
+            className="flex min-h-12 items-center justify-center rounded-card bg-yellow font-bold text-onaccent"
           >
             {tb("sendWa")}
           </a>
@@ -110,7 +110,7 @@ export default function CartView() {
         <p className="text-muted">{t("emptyNote")}</p>
         <Link
           href="/"
-          className="flex min-h-12 items-center rounded-card bg-orange px-6 font-bold text-white"
+          className="flex min-h-12 items-center rounded-card bg-orange px-6 font-bold text-onaccent"
         >
           {t("keepShopping")}
         </Link>
@@ -267,7 +267,7 @@ export default function CartView() {
             });
             setSaved(r.ok ? "ok" : r.reason);
           }}
-          className="min-h-12 w-full rounded-card bg-orange font-bold text-white transition-opacity enabled:hover:opacity-90 disabled:opacity-40"
+          className="min-h-12 w-full rounded-card bg-orange font-bold text-onaccent transition-opacity enabled:hover:opacity-90 disabled:opacity-40"
         >
           {tb("confirm")}
         </button>

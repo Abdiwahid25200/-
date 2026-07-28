@@ -47,7 +47,7 @@ export default function AccountPanel() {
         <button
           type="button"
           disabled
-          className="min-h-12 w-full rounded-card bg-orange font-bold text-white opacity-40"
+          className="min-h-12 w-full rounded-card bg-orange font-bold text-onaccent opacity-40"
         >
           {t("login")}
         </button>
@@ -69,7 +69,7 @@ export default function AccountPanel() {
       <Guest note={t("guestNote")}>
         <Link
           href="/login"
-          className="flex min-h-12 w-full items-center justify-center rounded-card bg-orange font-bold text-white transition-opacity hover:opacity-90"
+          className="flex min-h-12 w-full items-center justify-center rounded-card bg-orange font-bold text-onaccent transition-opacity hover:opacity-90"
         >
           {t("login")}
         </Link>
@@ -135,13 +135,13 @@ export default function AccountPanel() {
                 className="rounded-card border border-line bg-surface p-4"
               >
                 <div className="flex flex-wrap items-center gap-2">
-                  <span className="font-bold" dir="ltr">
+                  <span className="num font-bold" dir="ltr">
                     {o.code}
                   </span>
                   <Badge tone={statusTone[o.status] ?? "soft"}>
                     {t(`status.${o.status}`)}
                   </Badge>
-                  <span className="ms-auto font-bold text-yellow" dir="ltr">
+                  <span className="num ms-auto font-bold text-yellow" dir="ltr">
                     {fmt(o.total)}
                   </span>
                 </div>

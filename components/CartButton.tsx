@@ -18,7 +18,7 @@ export default function CartButton() {
     >
       <IconCart />
       {ready && count > 0 && (
-        <span className="absolute end-1.5 top-1.5 flex min-w-5 items-center justify-center rounded-full bg-orange px-1 text-[0.7rem] font-bold text-white">
+        <span className="absolute end-1.5 top-1.5 flex min-w-5 items-center justify-center rounded-full bg-orange px-1 text-[0.7rem] font-bold text-onaccent">
           {count}
         </span>
       )}

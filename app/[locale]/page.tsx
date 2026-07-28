@@ -14,12 +14,14 @@ export default async function Home({
   setRequestLocale(locale);
 
   const t = await getTranslations("home");
+  const te = await getTranslations("eyebrow");
   const tc = await getTranslations("common");
 
   return (
     <main className="mx-auto flex max-w-5xl flex-col gap-8 px-4 py-6">
       <section>
         <SectionHead
+        eyebrow={te("home")}
           title={t("elecTitle")}
           note={tc("count", { n: live(elec).length })}
         />

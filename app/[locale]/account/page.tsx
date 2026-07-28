@@ -19,11 +19,13 @@ export default async function AccountPage({
   const { locale } = await params;
   setRequestLocale(locale);
   const t = await getTranslations("accountPage");
+  const te = await getTranslations("eyebrow");
 
   return (
     <main className="mx-auto flex max-w-2xl flex-col gap-5 px-4 py-6">
       <BackLink href="/" />
-      <SectionHead title={t("title")} note={t("note")} />
+      <SectionHead
+        eyebrow={te("account")} title={t("title")} note={t("note")} />
 
       <AccountPanel />
 

@@ -1,67 +1,107 @@
 @import "tailwindcss";
 
 /* ═══════════════════════════════════════════════════════════
-   هوية Ramaan Store البصرية — لوحة Clarity
-   ملاحظة: أسماء المتغيّرات القديمة (orange / yellow) محفوظة عمداً
-   حتى لا تنكسر الأنماط، لكن قيمها من لوحة Clarity الجديدة.
+   هوية Ramaan Store البصرية — لوحة "Coast"
+
+   الفكرة: الساحل — أخضر مائي على عمق بحري، وذهب رملي للأسعار.
+   المنافسون كلهم أزرق مؤسسي، وهذا اللون يُذكَر ويُميَّز.
+
+   ⚠️ أسماء المتغيّرات القديمة محفوظة عمداً حتى لا تنكسر الأنماط:
+      orange = اللون الأساسي (أخضر مائي الآن)
+      yellow = لون المال والنجاح (ذهب رملي)
+      navy   = العمق الداكن
    ═══════════════════════════════════════════════════════════ */
 @theme {
-  --color-orange: #3d5afe; /* الأساسي — أزرق (الاسم قديم، القيمة جديدة) */
-  --color-yellow: #00b589; /* الثانوي — أخضر */
-  --color-navy: #0d1424; /* الداكن */
-  --color-danger: #e5484d; /* الخطأ */
-  --color-gold: #f5a623; /* عملة UC — لوني دلالي، لا يُغيَّر */
+  --color-orange: var(--accent);
+  --color-yellow: var(--accent-2);
+  --color-navy: var(--deep);
+  --color-danger: var(--danger);
+  --color-gold: var(--accent-2);
 
   --color-bg: var(--bg);
   --color-surface: var(--surface);
+  --color-surface2: var(--surface-2);
   --color-line: var(--line);
   --color-text: var(--text);
   --color-muted: var(--muted);
 
-  /* نصف قطر الحواف — سُمّي card تفادياً للتعارض مع rounded-r المدمجة بـ Tailwind */
+  /* لون النص فوق الأزرار الملوّنة — ينقلب مع الوضع.
+     الأخضر المائي فاتح في الوضع الليلي، فالنص الأبيض فوقه غير مقروء. */
+  --color-onaccent: var(--on-accent);
+
   --radius-card: 16px;
 
   --font-arabic: var(--font-plex-arabic);
+  /* خطّ الأرقام — أسعار وآيديات ورموز طلبات تصطفّ كإيصال */
+  --font-data: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
 }
 
 /* ── الوضع النهاري (الافتراضي) ── */
 :root {
-  --bg: #f6f7fb;
+  --bg: #eff7f7;
   --surface: #ffffff;
-  --line: #e6e9f0;
-  --text: #0d1424;
-  --muted: #5b6478;
+  --surface-2: #e6f2f2;
+  --line: #cbe2e2;
+  --text: #062730;
+  --muted: #4d7580;
+  --accent: #067a6e;
+  --accent-2: #9a5c00;
+  --accent-3: #1c7a3a;
+  --deep: #062730;
+  --danger: #c62633;
+  --on-accent: #ffffff;
   color-scheme: light;
 }
 
-/* ── الوضع التلقائي: يتبع إعدادات الجهاز ── */
+/* ── الوضع الليلي: يتبع إعدادات الجهاز ── */
 @media (prefers-color-scheme: dark) {
   :root {
-    --bg: #0d1424;
-    --surface: #161f35;
-    --line: #232c42;
-    --text: #f6f7fb;
-    --muted: #9aa3b8;
+    --bg: #04121a;
+    --surface: #0b2230;
+    --surface-2: #113044;
+    --line: #1c4457;
+    --text: #ecf6f5;
+    --muted: #8fb3be;
+    --accent: #4fe3d0;
+    --accent-2: #ffc65c;
+    --accent-3: #7be38b;
+    --deep: #02090e;
+    --danger: #ff6b73;
+    --on-accent: #01201c;
     color-scheme: dark;
   }
 }
 
 /* ── الاختيار اليدوي يتغلّب على إعدادات الجهاز ── */
 :root[data-theme="light"] {
-  --bg: #f6f7fb;
+  --bg: #eff7f7;
   --surface: #ffffff;
-  --line: #e6e9f0;
-  --text: #0d1424;
-  --muted: #5b6478;
+  --surface-2: #e6f2f2;
+  --line: #cbe2e2;
+  --text: #062730;
+  --muted: #4d7580;
+  --accent: #067a6e;
+  --accent-2: #9a5c00;
+  --accent-3: #1c7a3a;
+  --deep: #062730;
+  --danger: #c62633;
+  --on-accent: #ffffff;
   color-scheme: light;
 }
 
 :root[data-theme="dark"] {
-  --bg: #0d1424;
-  --surface: #161f35;
-  --line: #232c42;
-  --text: #f6f7fb;
-  --muted: #9aa3b8;
+  --bg: #04121a;
+  --surface: #0b2230;
+  --surface-2: #113044;
+  --line: #1c4457;
+  --text: #ecf6f5;
+  --muted: #8fb3be;
+  --accent: #4fe3d0;
+  --accent-2: #ffc65c;
+  --accent-3: #7be38b;
+  --deep: #02090e;
+  --danger: #ff6b73;
+  --on-accent: #01201c;
   color-scheme: dark;
 }
 
@@ -79,12 +119,88 @@ body {
 
 /* حالة تركيز واضحة على كل عنصر تفاعلي */
 :focus-visible {
-  outline: 3px solid var(--color-orange);
+  outline: 3px solid var(--accent);
   outline-offset: 2px;
 }
 
-/* مساحة إضافية أسفل الصفحة عندما يظهر شريط تأكيد الطلب،
-   حتى لا يغطّي الشريط آخر سطر بالفوتر */
+/* مساحة إضافية أسفل الصفحة عندما يظهر شريط تأكيد الطلب */
 body.has-buybar {
   padding-bottom: calc(9.75rem + env(safe-area-inset-bottom));
+}
+
+/* ── الأرقام تأخذ صوتاً مستقلاً ─────────────────────────────
+   الأسعار والكميّات والآيديات ورموز الطلبات بخطّ ثابت العرض
+   وأرقام متساوية، فتصطفّ الأعمدة ويقرأ الإيصال كإيصال. */
+.num {
+  font-family: var(--font-data);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.02em;
+}
+
+/* ── الوسم العلوي فوق عنوان كل صفحة ──────────────────────── */
+.eyebrow {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+
+/* العربية خطّ متّصل: تباعد الحروف يفكّك الكلمة */
+[dir="rtl"] .eyebrow {
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+/* ── لغة الشكل: القسيمة الممزّقة ──────────────────────────
+   المنتج قسيمة، فالبطاقة مقصوصة كقسيمة: حزّتان جانبيتان
+   وخط تقطيع منقّط. شكل لا يستخدمه أي منافس، ولا يحتاج صوراً. */
+.voucher-notch::before,
+.voucher-notch::after {
+  content: "";
+  position: absolute;
+  top: var(--notch-y, 60%);
+  width: 14px;
+  height: 14px;
+  border-radius: 9999px;
+  background: var(--bg);
+  border: 1px solid var(--line);
+  z-index: 2;
+}
+
+.voucher-notch::before {
+  inset-inline-start: -8px;
+}
+
+.voucher-notch::after {
+  inset-inline-end: -8px;
+}
+
+/* ── توهّج الساحل خلف رأس الصفحة ─────────────────────────── */
+.coast-glow {
+  position: relative;
+  isolation: isolate;
+}
+
+.coast-glow::before {
+  content: "";
+  position: absolute;
+  /* بلا تجاوز أفقي: التمدّد الجانبي كان يفتح تمريراً أفقياً بكل الصفحات */
+  inset: -40% 0 auto 0;
+  height: 240px;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    radial-gradient(46% 60% at 26% 40%, color-mix(in srgb, var(--accent) 26%, transparent), transparent 70%),
+    radial-gradient(40% 54% at 78% 26%, color-mix(in srgb, var(--accent-2) 20%, transparent), transparent 72%);
+  filter: blur(30px);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
 }

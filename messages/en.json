@@ -363,5 +363,19 @@
         "note": "Delivered to your account in minutes"
       }
     }
+  },
+  "eyebrow": {
+    "home": "Electronics · shipped to you",
+    "games": "Catalogue · instant top-ups",
+    "accounts": "Verified accounts · one of a kind",
+    "pubg": "Instant · seconds not minutes",
+    "efootball": "Coins · reviewed by hand",
+    "tiktok": "Ready accounts · sold once",
+    "efootballAccounts": "Full squads · sold once",
+    "cart": "Checkout · delivery details",
+    "help": "Support · every day",
+    "policy": "Terms you can actually read",
+    "account": "Your orders, in one place",
+    "soon": "On the way"
   }
 }

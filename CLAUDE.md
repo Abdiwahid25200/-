@@ -38,7 +38,7 @@
 | Next.js 16 (App Router) · TypeScript · Tailwind 4 · next-intl | |
 | اللغات | `en` (افتراضية، بلا بادئة) · `ar` (RTL) · `so` |
 | الخط | **IBM Plex Sans Arabic** — لا يُستبدل بخط لاتيني |
-| الألوان | Clarity في `app/globals.css`. الأسماء القديمة (`orange`=أزرق، `yellow`=أخضر) محفوظة عمداً |
+| الألوان | **Coast** في `app/globals.css`. الأسماء القديمة محفوظة عمداً: `orange`=أخضر مائي · `yellow`=ذهب رملي · `navy`=العمق. النص فوق الأزرار = `text-onaccent` (ينقلب مع الوضع) |
 | المعايير | لا خط < 12.5px · أهداف لمس ≥ 48px · حالة تركيز واضحة |
 | Firebase | **مؤجّل للمرحلة ٣** — البيانات تجريبية داخل الملفات حالياً |
 
@@ -99,3 +99,16 @@
 لكل قسم في `lib/content.ts`: `badge: "instant" | "manual"` و`img` (تُرفع لاحقاً).
 `components/HowItWorks.tsx` بصفحة الدعم — `howItWorks.youtubeId` في `lib/content.ts`:
 فارغ ⇒ يُخفى الفيديو وتبقى الخطوات الثلاث.
+
+## لغة التصميم — Coast
+
+| العنصر | القاعدة |
+|---|---|
+| الأرقام | صنف `.num` — خطّ ثابت العرض وأرقام متساوية، فتصطفّ كإيصال |
+| بطاقة الباقة | **قسيمة ممزّقة**: `.voucher-notch` على كتلة التفاصيل + خط تقطيع منقّط |
+| بلاطة القسم | أيقونة داخل **صفيحة سداسية** = وجه عملة |
+| ترويسة الصفحة | `SectionHead` بوسم `eyebrow` **يخصّ كل صفحة** (مفاتيحه في `messages/*.json` ← `eyebrow`) |
+| التوهّج | `.coast-glow` خلف الترويسة — بلا تجاوز أفقي |
+
+⚠️ لا تضع `text-white` فوق `bg-orange` أو `bg-yellow` — استخدم `text-onaccent`.
+⚠️ العربية خطّ متّصل: لا `tracking` عليها (`rtl:tracking-normal`).

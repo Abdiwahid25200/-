@@ -98,7 +98,7 @@ export default function LoginFlow() {
       <Card>
         <span
           aria-hidden
-          className="mx-auto flex size-16 items-center justify-center rounded-2xl bg-orange text-white"
+          className="mx-auto flex size-16 items-center justify-center rounded-2xl bg-orange text-onaccent"
         >
           <IconSparkle className="size-9" />
         </span>
@@ -126,7 +126,7 @@ export default function LoginFlow() {
             </span>
             <span
               aria-hidden
-              className="flex size-10 shrink-0 items-center justify-center rounded-full bg-orange text-white rtl:rotate-180"
+              className="flex size-10 shrink-0 items-center justify-center rounded-full bg-orange text-onaccent rtl:rotate-180"
             >
               <IconArrow className="size-5" />
             </span>
@@ -178,7 +178,7 @@ export default function LoginFlow() {
         <div className="flex items-center gap-3 rounded-card bg-bg p-3">
           <span
             aria-hidden
-            className="flex size-11 shrink-0 items-center justify-center rounded-card bg-orange text-lg font-bold text-white"
+            className="flex size-11 shrink-0 items-center justify-center rounded-card bg-orange text-lg font-bold text-onaccent"
           >
             {(user?.displayName || user?.email || "?").charAt(0).toUpperCase()}
           </span>

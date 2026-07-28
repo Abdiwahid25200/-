@@ -130,7 +130,7 @@ export default function BuyFlow({
           <p className="mt-1 text-muted">{t("doneNote")}</p>
 
           <div
-            className="mt-4 inline-block rounded-card bg-yellow/10 px-5 py-2.5 text-lg font-bold text-yellow"
+            className="num mt-4 inline-block rounded-card bg-yellow/10 px-5 py-2.5 text-lg font-bold text-yellow"
             dir="ltr"
           >
             {done.code}
@@ -182,7 +182,7 @@ export default function BuyFlow({
             href={waHref}
             target="_blank"
             rel="noopener noreferrer"
-            className="flex min-h-12 items-center justify-center rounded-card bg-yellow font-bold text-white transition-opacity hover:opacity-90"
+            className="flex min-h-12 items-center justify-center rounded-card bg-yellow font-bold text-onaccent transition-opacity hover:opacity-90"
           >
             {t("sendWa")}
           </a>
@@ -210,7 +210,7 @@ export default function BuyFlow({
 
       <section>
         <h2 className="mb-3 text-lg font-bold">{t("selectPackage")}</h2>
-        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+        <div className="grid grid-cols-2 gap-4 sm:grid-cols-3">
           {packs.map((p) => (
             <PackageCard
               key={p.id}
@@ -256,7 +256,7 @@ export default function BuyFlow({
               type="button"
               onClick={confirm}
               disabled={!canConfirm}
-              className="ms-auto min-h-12 rounded-card bg-orange px-7 font-bold text-white transition-opacity enabled:hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-40"
+              className="ms-auto min-h-12 rounded-card bg-orange px-7 font-bold text-onaccent transition-opacity enabled:hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-40"
             >
               {t("confirm")}
             </button>

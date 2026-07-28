@@ -172,7 +172,7 @@ export default function MenuDrawer({ phone }: { phone?: string }) {
                   href={`https://wa.me/${phone.replace(/\D/g, "")}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex min-h-12 items-center justify-center rounded-card bg-yellow font-bold text-white transition-opacity hover:opacity-90"
+                  className="flex min-h-12 items-center justify-center rounded-card bg-yellow font-bold text-onaccent transition-opacity hover:opacity-90"
                 >
                   💬 {t("whatsapp")}
                 </a>

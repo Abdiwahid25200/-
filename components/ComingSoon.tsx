@@ -21,7 +21,7 @@ export default async function ComingSoon({ pageKey }: { pageKey?: string }) {
       <p className="text-muted">{t("note")}</p>
       <Link
         href="/"
-        className="flex min-h-12 items-center rounded-card bg-orange px-6 font-medium text-white transition-opacity hover:opacity-90"
+        className="flex min-h-12 items-center rounded-card bg-orange px-6 font-medium text-onaccent transition-opacity hover:opacity-90"
       >
         {t("back")}
       </Link>

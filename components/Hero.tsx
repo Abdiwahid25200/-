@@ -17,7 +17,7 @@ export default function Hero({
   img?: string;
 }) {
   return (
-    <section className="relative mb-5 flex h-44 items-center justify-center overflow-hidden rounded-card bg-gradient-to-br from-navy via-[#1b2540] to-orange/60 sm:h-56">
+    <section className="relative mb-5 flex h-44 items-center justify-center overflow-hidden rounded-card bg-gradient-to-br from-navy via-[color-mix(in_srgb,var(--accent)_18%,var(--deep))] to-[color-mix(in_srgb,var(--accent)_55%,var(--deep))] sm:h-56">
       {img && (
         <>
           <Image
@@ -33,11 +33,17 @@ export default function Hero({
         </>
       )}
 
+      {/* حافة مضيئة سفلية — خطّ الساحل */}
+      <span
+        aria-hidden
+        className="absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-orange to-transparent opacity-70"
+      />
+
       <div className="relative flex flex-col items-center gap-2 px-4 text-center">
-        <span className="text-xs font-semibold tracking-[0.2em] text-white/75">
+        <span className="text-xs font-semibold uppercase tracking-[0.2em] text-white/80 rtl:tracking-normal">
           {eyebrow}
         </span>
-        <h1 className="text-3xl font-bold text-white drop-shadow-sm sm:text-4xl">
+        <h1 className="text-3xl font-bold tracking-tight text-white drop-shadow-sm sm:text-4xl rtl:tracking-normal">
           {title}
         </h1>
         {badge && <Badge tone="green">⚡ {badge}</Badge>}

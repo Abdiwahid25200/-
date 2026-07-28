@@ -43,7 +43,7 @@ export default function LocaleSwitcher({ compact = false }: { compact?: boolean 
               aria-current={isActive ? "true" : undefined}
               className={`flex min-h-12 items-center rounded-card border px-4 text-sm font-medium transition-colors ${
                 isActive
-                  ? "border-orange bg-orange text-white"
+                  ? "border-orange bg-orange text-onaccent"
                   : "border-line bg-surface text-muted hover:border-orange hover:text-orange"
               }`}
             >

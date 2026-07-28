@@ -58,7 +58,7 @@ export default async function HowItWorks() {
               </span>
               <span
                 aria-hidden
-                className="flex size-12 items-center justify-center rounded-card bg-orange text-white"
+                className="flex size-12 items-center justify-center rounded-card bg-orange text-onaccent"
               >
                 <Icon className="size-6" />
               </span>

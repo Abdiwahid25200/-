@@ -44,7 +44,7 @@ export default function ProductCard({
           </span>
         )}
         {disc ? (
-          <span className="absolute start-2 top-2 rounded-full bg-yellow px-2.5 py-1 text-xs font-bold text-white">
+          <span className="absolute start-2 top-2 rounded-full bg-yellow px-2.5 py-1 text-xs font-bold text-onaccent">
             {discLabel.replace("{n}", String(disc))}
           </span>
         ) : null}
@@ -55,11 +55,11 @@ export default function ProductCard({
         {desc && <p className="text-[0.8rem] leading-relaxed text-muted">{desc}</p>}
 
         <div className="mt-auto flex items-baseline gap-2 pb-2 pt-2">
-          <span className="text-lg font-bold text-orange" dir="ltr">
+          <span className="num text-lg font-bold text-orange" dir="ltr">
             {fmt(final)}
           </span>
           {before && before > final && (
-            <span className="text-sm text-muted line-through" dir="ltr">
+            <span className="num text-sm text-muted line-through" dir="ltr">
               {fmt(before)}
             </span>
           )}
