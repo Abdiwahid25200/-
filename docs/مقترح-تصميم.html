@@ -1,0 +1,1277 @@
+<title>Ramaan Store — Design Proposal</title>
+
+<style>
+  /* ═══════════════════════════════════════════════════════════
+     RAMAAN STORE — "Suuq Habeen" (Night Market)
+     Ground: indigo night · Accent: saffron gold · Spark: hot coral
+     Shape language: perforated vouchers + hex tokens
+     ═══════════════════════════════════════════════════════════ */
+
+  :root {
+    --ground:    #0B0A1A;
+    --surface:   #15132E;
+    --surface-2: #1E1B3D;
+    --line:      #2C2853;
+    --text:      #F6F1E7;
+    --muted:     #9A93C4;
+    --accent:    #FFB020;
+    --accent-2:  #FF4D6D;
+    --accent-3:  #35E0AE;
+    --on-accent: #1A1204;
+
+    --r-lg: 22px;
+    --r-md: 16px;
+    --r-sm: 11px;
+
+    --font-ui: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    --font-data: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+
+    --shell: 430px;
+  }
+
+  /* ── Colorway: Xeeb (Coast) ── */
+  :root[data-way="coast"] {
+    --ground:    #04121A;
+    --surface:   #0B2230;
+    --surface-2: #113044;
+    --line:      #1C4457;
+    --text:      #ECF6F5;
+    --muted:     #7FA8B4;
+    --accent:    #4FE3D0;
+    --accent-2:  #FFC65C;
+    --accent-3:  #7BE38B;
+    --on-accent: #01201C;
+  }
+
+  /* ── Colorway: Cusbo (Salt) — light ── */
+  :root[data-way="salt"] {
+    --ground:    #F7F2E9;
+    --surface:   #FFFFFF;
+    --surface-2: #FBF6EE;
+    --line:      #E4D9C6;
+    --text:      #1A1730;
+    --muted:     #6E6786;
+    --accent:    #E0620D;
+    --accent-2:  #C4174B;
+    --accent-3:  #10826A;
+    --on-accent: #FFFFFF;
+  }
+
+  /* The viewer's light preference lightens Night Market and Coast too,
+     so both colorways stay legible on a bright screen. */
+  @media (prefers-color-scheme: light) {
+    :root {
+      --ground:    #F4F1FA;
+      --surface:   #FFFFFF;
+      --surface-2: #F7F4FD;
+      --line:      #DFD9F0;
+      --text:      #16132C;
+      --muted:     #625B87;
+      --accent:    #B26A00;
+      --accent-2:  #D62B4E;
+      --accent-3:  #0E7D5E;
+      --on-accent: #FFFFFF;
+    }
+    :root[data-way="coast"] {
+      --ground:    #EFF7F7;
+      --surface:   #FFFFFF;
+      --surface-2: #E9F4F4;
+      --line:      #CDE4E4;
+      --text:      #062730;
+      --muted:     #4D7580;
+      --accent:    #067A6E;
+      --accent-2:  #A56200;
+      --accent-3:  #1C7A3A;
+      --on-accent: #FFFFFF;
+    }
+  }
+
+  :root[data-theme="light"] {
+    --ground:    #F4F1FA;
+    --surface:   #FFFFFF;
+    --surface-2: #F7F4FD;
+    --line:      #DFD9F0;
+    --text:      #16132C;
+    --muted:     #625B87;
+    --accent:    #B26A00;
+    --accent-2:  #D62B4E;
+    --accent-3:  #0E7D5E;
+    --on-accent: #FFFFFF;
+  }
+  :root[data-theme="light"][data-way="coast"] {
+    --ground: #EFF7F7; --surface: #FFFFFF; --surface-2: #E9F4F4;
+    --line: #CDE4E4; --text: #062730; --muted: #4D7580;
+    --accent: #067A6E; --accent-2: #A56200; --accent-3: #1C7A3A;
+    --on-accent: #FFFFFF;
+  }
+  :root[data-theme="light"][data-way="salt"] {
+    --ground: #F7F2E9; --surface: #FFFFFF; --surface-2: #FBF6EE;
+    --line: #E4D9C6; --text: #1A1730; --muted: #6E6786;
+    --accent: #E0620D; --accent-2: #C4174B; --accent-3: #10826A;
+    --on-accent: #FFFFFF;
+  }
+
+  :root[data-theme="dark"] {
+    --ground: #0B0A1A; --surface: #15132E; --surface-2: #1E1B3D;
+    --line: #2C2853; --text: #F6F1E7; --muted: #9A93C4;
+    --accent: #FFB020; --accent-2: #FF4D6D; --accent-3: #35E0AE;
+    --on-accent: #1A1204;
+  }
+  :root[data-theme="dark"][data-way="coast"] {
+    --ground: #04121A; --surface: #0B2230; --surface-2: #113044;
+    --line: #1C4457; --text: #ECF6F5; --muted: #7FA8B4;
+    --accent: #4FE3D0; --accent-2: #FFC65C; --accent-3: #7BE38B;
+    --on-accent: #01201C;
+  }
+  :root[data-theme="dark"][data-way="salt"] {
+    --ground: #1A160F; --surface: #241F16; --surface-2: #2E2820;
+    --line: #443B2C; --text: #F8F2E6; --muted: #A99B80;
+    --accent: #FF8A3D; --accent-2: #FF5C86; --accent-3: #38C9A2;
+    --on-accent: #231404;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background: var(--ground);
+    color: var(--text);
+    font-family: var(--font-ui);
+    line-height: 1.55;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* ── Page chrome around the mock ─────────────────────────── */
+
+  .page {
+    max-width: 1180px;
+    margin: 0 auto;
+    padding: 40px 20px 80px;
+  }
+
+  .intro { max-width: 60ch; margin: 0 auto 34px; text-align: center; }
+
+  .eyebrow {
+    font-size: .68rem;
+    font-weight: 700;
+    letter-spacing: .22em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin: 0 0 10px;
+  }
+
+  .intro h1 {
+    font-size: clamp(1.9rem, 5vw, 3rem);
+    line-height: 1.05;
+    letter-spacing: -.03em;
+    font-weight: 800;
+    text-wrap: balance;
+    margin: 0 0 12px;
+  }
+
+  .intro p { color: var(--muted); margin: 0; text-wrap: pretty; }
+
+  /* ── Controls ────────────────────────────────────────────── */
+
+  .controls {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 8px;
+    margin: 0 auto 30px;
+    padding: 9px;
+    width: fit-content;
+    max-width: 100%;
+    background: color-mix(in srgb, var(--surface) 88%, transparent);
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    backdrop-filter: blur(14px);
+  }
+
+  .chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    min-height: 38px;
+    padding: 0 14px;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    background: transparent;
+    color: var(--muted);
+    font: inherit;
+    font-size: .82rem;
+    font-weight: 650;
+    cursor: pointer;
+    transition: color .18s, border-color .18s, background .18s;
+  }
+
+  .chip:hover { color: var(--text); border-color: var(--accent); }
+
+  .chip[aria-pressed="true"] {
+    color: var(--on-accent);
+    background: var(--accent);
+    border-color: var(--accent);
+  }
+
+  .chip .dot {
+    width: 11px; height: 11px;
+    border-radius: 50%;
+    box-shadow: inset 0 0 0 1px rgba(0,0,0,.25);
+  }
+
+  :focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+
+  /* ── Device shell ────────────────────────────────────────── */
+
+  .stage { display: flex; justify-content: center; }
+
+  .device {
+    width: 100%;
+    max-width: var(--shell);
+    background: var(--ground);
+    border: 1px solid var(--line);
+    border-radius: 40px;
+    overflow: hidden;
+    box-shadow: 0 40px 90px -30px rgba(0,0,0,.65), 0 0 0 8px color-mix(in srgb, var(--surface) 60%, transparent);
+    position: relative;
+    isolation: isolate;
+  }
+
+  /* Ambient night-market glow — gold and coral, never a purple-blue wash */
+  .device::before {
+    content: "";
+    position: absolute;
+    inset: -30% -40% auto -40%;
+    height: 62%;
+    background:
+      radial-gradient(48% 60% at 28% 40%, color-mix(in srgb, var(--accent) 34%, transparent), transparent 70%),
+      radial-gradient(42% 56% at 76% 24%, color-mix(in srgb, var(--accent-2) 28%, transparent), transparent 72%);
+    filter: blur(28px);
+    z-index: 0;
+    pointer-events: none;
+  }
+
+  .screen { position: relative; z-index: 1; }
+
+  /* ── App bar ─────────────────────────────────────────────── */
+
+  .bar {
+    display: flex;
+    align-items: center;
+    gap: 11px;
+    padding: 18px 18px 12px;
+  }
+
+  .mark {
+    width: 42px; height: 42px;
+    display: grid; place-items: center;
+    background: var(--accent);
+    color: var(--on-accent);
+    border-radius: 13px;
+    flex: none;
+  }
+
+  .wordmark { line-height: 1.1; margin-inline-end: auto; }
+  .wordmark b { display: block; font-size: 1.02rem; letter-spacing: -.01em; }
+  .wordmark span {
+    display: block;
+    font-size: .58rem;
+    letter-spacing: .18em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  .icon-btn {
+    width: 40px; height: 40px;
+    display: grid; place-items: center;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    background: color-mix(in srgb, var(--surface) 70%, transparent);
+    color: var(--text);
+    cursor: pointer;
+  }
+
+  /* ── Shared bits ─────────────────────────────────────────── */
+
+  .pad { padding: 0 18px; }
+
+  .stack { display: flex; flex-direction: column; gap: 26px; padding-bottom: 96px; }
+
+  .head { display: flex; align-items: baseline; gap: 10px; }
+  .head h2 {
+    margin: 0;
+    font-size: 1.18rem;
+    font-weight: 800;
+    letter-spacing: -.02em;
+  }
+  .head .more {
+    margin-inline-start: auto;
+    font-size: .78rem;
+    font-weight: 700;
+    color: var(--accent);
+  }
+
+  .label {
+    font-size: .62rem;
+    font-weight: 700;
+    letter-spacing: .2em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  .money {
+    font-family: var(--font-data);
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -.02em;
+  }
+
+  /* ── Hero ────────────────────────────────────────────────── */
+
+  .hero { padding: 6px 18px 0; }
+
+  .hero h1 {
+    margin: 12px 0 8px;
+    font-size: 2.15rem;
+    line-height: 1.02;
+    letter-spacing: -.038em;
+    font-weight: 800;
+    text-wrap: balance;
+  }
+
+  .hero h1 em { font-style: normal; color: var(--accent); }
+
+  .hero p { margin: 0 0 16px; color: var(--muted); font-size: .93rem; }
+
+  .hero-cta { display: flex; gap: 9px; }
+
+  .btn {
+    flex: 1;
+    min-height: 50px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    border: 1px solid transparent;
+    border-radius: 15px;
+    font: inherit;
+    font-weight: 750;
+    font-size: .92rem;
+    cursor: pointer;
+    text-decoration: none;
+  }
+
+  .btn-primary { background: var(--accent); color: var(--on-accent); }
+  .btn-ghost { background: transparent; border-color: var(--line); color: var(--text); }
+
+  /* ── Live ticker: the market's pulse ─────────────────────── */
+
+  .ticker {
+    margin-top: 16px;
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    padding: 10px 13px;
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    background: color-mix(in srgb, var(--surface) 75%, transparent);
+    font-size: .8rem;
+    overflow: hidden;
+  }
+
+  .pulse {
+    width: 8px; height: 8px; flex: none;
+    border-radius: 50%;
+    background: var(--accent-3);
+    box-shadow: 0 0 0 0 color-mix(in srgb, var(--accent-3) 70%, transparent);
+    animation: pulse 2.4s infinite;
+  }
+
+  @keyframes pulse {
+    70%  { box-shadow: 0 0 0 9px transparent; }
+    100% { box-shadow: 0 0 0 0 transparent; }
+  }
+
+  .ticker span { color: var(--muted); }
+  .ticker b { color: var(--text); font-weight: 700; }
+
+  /* ── Hex token tiles ─────────────────────────────────────── */
+
+  .tiles {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 11px;
+  }
+
+  .tile {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 9px;
+    padding: 15px 7px 13px;
+    border: 1px solid var(--line);
+    border-radius: var(--r-md);
+    background: var(--surface);
+    color: inherit;
+    text-decoration: none;
+    text-align: center;
+    cursor: pointer;
+    transition: transform .2s, border-color .2s;
+  }
+
+  .tile:hover { transform: translateY(-3px); border-color: var(--accent); }
+
+  /* Hexagon = a coin facet. The product is currency, so the frame is too. */
+  .hex {
+    width: 52px; height: 52px;
+    display: grid; place-items: center;
+    clip-path: polygon(50% 0, 93% 25%, 93% 75%, 50% 100%, 7% 75%, 7% 25%);
+    background: var(--surface-2);
+    color: var(--accent);
+    flex: none;
+  }
+
+  .tile.is-hot .hex { background: color-mix(in srgb, var(--accent) 20%, var(--surface-2)); }
+
+  .tile b { font-size: .8rem; font-weight: 700; letter-spacing: -.01em; }
+
+  .tag {
+    font-family: var(--font-data);
+    font-size: .55rem;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    color: var(--accent-3);
+  }
+
+  .tag.manual { color: var(--muted); }
+
+  .tile.soon { opacity: .55; }
+  .tile.soon .tag { color: var(--accent-2); }
+
+  /* ── Voucher cards — the signature shape ─────────────────── */
+
+  .vouchers { display: grid; grid-template-columns: 1fr 1fr; gap: 11px; }
+
+  .voucher {
+    position: relative;
+    border: 1px solid var(--line);
+    border-radius: var(--r-md);
+    background: var(--surface);
+    padding: 15px 13px 13px;
+    cursor: pointer;
+    text-align: start;
+    font: inherit;
+    color: inherit;
+    transition: transform .2s, border-color .2s;
+    overflow: hidden;
+  }
+
+  .voucher:hover { transform: translateY(-3px); border-color: var(--accent); }
+
+  /* The stub notches — a top-up IS a voucher, so the card is torn like one */
+  .voucher::before,
+  .voucher::after {
+    content: "";
+    position: absolute;
+    top: 76px;
+    width: 17px; height: 17px;
+    border-radius: 50%;
+    background: var(--ground);
+    border: 1px solid var(--line);
+  }
+  .voucher::before { inset-inline-start: -9px; }
+  .voucher::after  { inset-inline-end: -9px; }
+
+  .voucher .perf {
+    position: absolute;
+    inset-inline: 12px;
+    top: 84px;
+    border-top: 1px dashed var(--line);
+  }
+
+  .amount {
+    font-family: var(--font-data);
+    font-variant-numeric: tabular-nums;
+    font-size: 1.5rem;
+    font-weight: 700;
+    letter-spacing: -.045em;
+    line-height: 1;
+    color: var(--accent);
+  }
+
+  .amount small {
+    display: block;
+    font-family: var(--font-ui);
+    font-size: .62rem;
+    font-weight: 700;
+    letter-spacing: .18em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-top: 5px;
+  }
+
+  .voucher .foot {
+    margin-top: 34px;
+    display: flex;
+    align-items: flex-end;
+    gap: 7px;
+  }
+
+  .price { font-size: 1.06rem; font-weight: 800; }
+  .was { font-size: .74rem; color: var(--muted); text-decoration: line-through; }
+
+  .flag {
+    position: absolute;
+    top: 11px;
+    inset-inline-end: 11px;
+    font-family: var(--font-data);
+    font-size: .56rem;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    padding: 3px 7px;
+    border-radius: 999px;
+    background: var(--accent-2);
+    color: #fff;
+  }
+
+  .flag.best { background: var(--accent); color: var(--on-accent); }
+
+  /* ── Steps ───────────────────────────────────────────────── */
+
+  .steps { display: flex; flex-direction: column; gap: 9px; }
+
+  .step {
+    display: flex;
+    align-items: flex-start;
+    gap: 13px;
+    padding: 14px;
+    border: 1px solid var(--line);
+    border-radius: var(--r-md);
+    background: var(--surface);
+  }
+
+  .step .n {
+    font-family: var(--font-data);
+    font-size: .95rem;
+    font-weight: 700;
+    color: var(--accent);
+    width: 30px; height: 30px;
+    display: grid; place-items: center;
+    border-radius: 9px;
+    background: color-mix(in srgb, var(--accent) 15%, transparent);
+    flex: none;
+  }
+
+  .step b { display: block; font-size: .93rem; }
+  .step p { margin: 2px 0 0; font-size: .82rem; color: var(--muted); }
+
+  /* ── Trust strip ─────────────────────────────────────────── */
+
+  .trust { display: grid; grid-template-columns: 1fr 1fr; gap: 9px; }
+
+  .trust div {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    padding: 12px;
+    border: 1px solid var(--line);
+    border-radius: var(--r-sm);
+    background: var(--surface);
+    font-size: .78rem;
+    font-weight: 650;
+  }
+
+  .trust svg { color: var(--accent); flex: none; }
+
+  /* ── Pay row ─────────────────────────────────────────────── */
+
+  .pays { display: flex; flex-wrap: wrap; gap: 7px; }
+
+  .pays span {
+    font-family: var(--font-data);
+    font-size: .68rem;
+    letter-spacing: .04em;
+    padding: 6px 10px;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    color: var(--muted);
+    background: var(--surface);
+  }
+
+  /* ── Buy screen ──────────────────────────────────────────── */
+
+  .field {
+    border: 1px solid var(--line);
+    border-radius: var(--r-md);
+    background: var(--surface);
+    padding: 15px;
+  }
+
+  .field .row { display: flex; gap: 8px; margin-top: 11px; }
+
+  .field input {
+    flex: 1;
+    min-width: 0;
+    min-height: 46px;
+    padding: 0 13px;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    background: var(--ground);
+    color: var(--text);
+    font: inherit;
+    font-family: var(--font-data);
+  }
+
+  .field input::placeholder { color: var(--muted); }
+
+  .field button {
+    min-height: 46px;
+    padding: 0 18px;
+    border: 0;
+    border-radius: 12px;
+    background: var(--accent);
+    color: var(--on-accent);
+    font: inherit;
+    font-weight: 750;
+    cursor: pointer;
+  }
+
+  .verified {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    margin-top: 11px;
+    font-size: .84rem;
+    font-weight: 650;
+    color: var(--accent-3);
+  }
+
+  .total-bar {
+    position: sticky;
+    bottom: 84px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 14px;
+    border: 1px solid var(--accent);
+    border-radius: var(--r-md);
+    background: color-mix(in srgb, var(--surface) 92%, transparent);
+    backdrop-filter: blur(10px);
+  }
+
+  .total-bar .btn { flex: none; padding: 0 22px; min-height: 44px; }
+
+  /* ── Support screen ──────────────────────────────────────── */
+
+  .channels { display: flex; flex-direction: column; gap: 9px; }
+
+  .channel {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px;
+    border: 1px solid var(--line);
+    border-radius: var(--r-md);
+    background: var(--surface);
+    text-decoration: none;
+    color: inherit;
+  }
+
+  .channel .hex { width: 42px; height: 42px; }
+  .channel b { display: block; font-size: .9rem; }
+  .channel small { color: var(--muted); font-size: .78rem; }
+  .channel .go { margin-inline-start: auto; color: var(--muted); }
+
+  /* ── Bottom nav ──────────────────────────────────────────── */
+
+  .nav {
+    position: sticky;
+    bottom: 0;
+    display: flex;
+    padding: 8px 6px calc(10px + env(safe-area-inset-bottom));
+    background: color-mix(in srgb, var(--surface) 92%, transparent);
+    border-top: 1px solid var(--line);
+    border-radius: 26px 26px 0 0;
+    backdrop-filter: blur(16px);
+    z-index: 3;
+  }
+
+  .nav button {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    padding: 7px 2px;
+    border: 0;
+    background: transparent;
+    color: var(--muted);
+    font: inherit;
+    font-size: .58rem;
+    font-weight: 700;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    cursor: pointer;
+    border-radius: 12px;
+  }
+
+  .nav button[aria-current="page"] { color: var(--accent); }
+
+  .nav .knob {
+    width: 22px; height: 3px;
+    border-radius: 999px;
+    background: transparent;
+  }
+
+  .nav button[aria-current="page"] .knob { background: var(--accent); }
+
+  /* ── Screens ─────────────────────────────────────────────── */
+
+  .view { display: none; }
+  .view.on { display: block; animation: rise .34s ease both; }
+
+  @keyframes rise {
+    from { opacity: 0; transform: translateY(10px); }
+  }
+
+  /* Load sequence — one orchestrated entrance, not scattered effects */
+  .seq > * { animation: rise .5s ease both; }
+  .seq > *:nth-child(1) { animation-delay: .04s; }
+  .seq > *:nth-child(2) { animation-delay: .10s; }
+  .seq > *:nth-child(3) { animation-delay: .16s; }
+  .seq > *:nth-child(4) { animation-delay: .22s; }
+  .seq > *:nth-child(5) { animation-delay: .28s; }
+  .seq > *:nth-child(6) { animation-delay: .34s; }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: .01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: .01ms !important;
+    }
+  }
+
+  /* ── Notes below the mock ────────────────────────────────── */
+
+  .notes {
+    max-width: 62ch;
+    margin: 54px auto 0;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  .note {
+    border: 1px solid var(--line);
+    border-radius: var(--r-md);
+    background: var(--surface);
+    padding: 20px 22px;
+  }
+
+  .note h3 {
+    margin: 0 0 8px;
+    font-size: 1rem;
+    letter-spacing: -.01em;
+  }
+
+  .note p { margin: 0; color: var(--muted); font-size: .9rem; }
+
+  .swatches { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 14px; }
+
+  .sw { text-align: center; font-size: .6rem; color: var(--muted); }
+  .sw i {
+    display: block;
+    width: 54px; height: 40px;
+    border-radius: 9px;
+    border: 1px solid var(--line);
+    margin-bottom: 5px;
+  }
+  .sw code { font-family: var(--font-data); font-size: .58rem; }
+
+  [dir="rtl"] .amount,
+  [dir="rtl"] .price,
+  [dir="rtl"] .money { direction: ltr; unicode-bidi: isolate; }
+
+  /* Arabic is a joined script: letter-spacing tears the words apart,
+     so every tracked label drops its tracking in RTL. */
+  [dir="rtl"] .label,
+  [dir="rtl"] .tag,
+  [dir="rtl"] .flag,
+  [dir="rtl"] .eyebrow,
+  [dir="rtl"] .wordmark span,
+  [dir="rtl"] .amount small,
+  [dir="rtl"] .nav button,
+  [dir="rtl"] h1,
+  [dir="rtl"] h2,
+  [dir="rtl"] .head h2 { letter-spacing: 0; }
+
+  [dir="rtl"] .amount small,
+  [dir="rtl"] .tag,
+  [dir="rtl"] .flag { text-transform: none; }
+</style>
+
+<div class="page">
+
+  <div class="intro">
+    <p class="eyebrow">Design proposal · 2026</p>
+    <h1>Ramaan Store, redrawn as a night market</h1>
+    <p>Every competitor sells game credit on corporate blue. This one sells it on indigo, lit by saffron gold — the colour of the coins themselves — and cuts every package like the voucher it actually is.</p>
+  </div>
+
+  <div class="controls">
+    <button class="chip" data-way-btn="night" aria-pressed="true"><i class="dot" style="background:#FFB020"></i>Night market</button>
+    <button class="chip" data-way-btn="coast" aria-pressed="false"><i class="dot" style="background:#4FE3D0"></i>Coast</button>
+    <button class="chip" data-way-btn="salt" aria-pressed="false"><i class="dot" style="background:#E0620D"></i>Salt</button>
+    <button class="chip" id="lang" aria-pressed="false">العربية</button>
+  </div>
+
+  <div class="stage">
+    <div class="device">
+      <div class="screen">
+
+        <div class="bar">
+          <span class="mark" aria-hidden="true">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+              <path d="M4 8h16l-1.3 11.2a2 2 0 0 1-2 1.8H7.3a2 2 0 0 1-2-1.8L4 8Z" fill="currentColor" opacity=".9"/>
+              <path d="M8.5 8V6.5a3.5 3.5 0 0 1 7 0V8" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"/>
+            </svg>
+          </span>
+          <span class="wordmark">
+            <b data-t="brand">Ramaan Store</b>
+            <span data-t="tagline">Global game top-up</span>
+          </span>
+          <button class="icon-btn" aria-label="Menu">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+              <path d="M4 7h16M4 12h16M4 17h16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+          </button>
+        </div>
+
+        <!-- ══════════ HOME ══════════ -->
+        <section class="view on" id="v-home">
+          <div class="stack seq">
+
+            <div class="hero">
+              <p class="label" data-t="heroKicker">Instant delivery · 24/7</p>
+              <h1><span data-t="heroA">Top up in</span> <em data-t="heroB">60 seconds</em><span data-t="heroC">, not 60 minutes.</span></h1>
+              <p data-t="heroNote">PUBG UC, eFootball coins and verified accounts — paid your way, delivered while you wait.</p>
+              <div class="hero-cta">
+                <button class="btn btn-primary" data-go="games" data-t="ctaBuy">Start an order</button>
+                <button class="btn btn-ghost" data-go="support" data-t="ctaHow">How it works</button>
+              </div>
+              <div class="ticker">
+                <i class="pulse" aria-hidden="true"></i>
+                <span><b>Xamdi A.</b> <span data-t="tick1">bought</span> <b>660 UC</b> · <span data-t="tick2">2 min ago</span></span>
+              </div>
+            </div>
+
+            <div class="pad">
+              <div class="head">
+                <h2 data-t="shopTitle">Shop</h2>
+                <span class="more" data-t="all">All</span>
+              </div>
+              <div class="tiles" style="margin-top:13px">
+                <button class="tile is-hot" data-go="buy">
+                  <span class="hex">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                      <circle cx="12" cy="12" r="7.2" stroke="currentColor" stroke-width="1.8"/>
+                      <path d="M9.4 15.2V8.8h2.5a2 2 0 0 1 0 4h-1.4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+                      <path d="M14 8.8v3.9a1.9 1.9 0 0 0 3.8 0V8.8" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+                    </svg>
+                  </span>
+                  <b>PUBG UC</b>
+                  <span class="tag" data-t="instant">Instant</span>
+                </button>
+                <button class="tile">
+                  <span class="hex">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                      <circle cx="12" cy="12" r="7.4" stroke="currentColor" stroke-width="1.8"/>
+                      <path d="m12 8 3.4 2.5-1.3 4h-4.2l-1.3-4L12 8Z" fill="currentColor"/>
+                    </svg>
+                  </span>
+                  <b>eFootball</b>
+                  <span class="tag manual" data-t="manual">Manual</span>
+                </button>
+                <button class="tile">
+                  <span class="hex">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                      <path d="M14 5.5c.4 2 1.7 3.2 3.7 3.4v2.6c-1.4 0-2.7-.4-3.7-1.1v4.7a4.9 4.9 0 1 1-4.9-4.9c.3 0 .5 0 .8.1v2.7a2.3 2.3 0 1 0 1.6 2.1V5.5H14Z" fill="currentColor"/>
+                    </svg>
+                  </span>
+                  <b>TikTok</b>
+                  <span class="tag manual" data-t="accounts">Accounts</span>
+                </button>
+                <button class="tile">
+                  <span class="hex">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                      <rect x="7" y="3.5" width="10" height="17" rx="2.4" stroke="currentColor" stroke-width="1.8"/>
+                      <path d="M11 17.6h2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+                    </svg>
+                  </span>
+                  <b data-t="electronics">Electronics</b>
+                  <span class="tag manual" data-t="ship">Shipped</span>
+                </button>
+                <button class="tile soon">
+                  <span class="hex">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                      <rect x="3" y="7" width="18" height="10.5" rx="3.4" stroke="currentColor" stroke-width="1.8"/>
+                      <path d="M7.6 12.2h2.4M8.8 11v2.4" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/>
+                      <circle cx="15.6" cy="11.6" r="1" fill="currentColor"/>
+                      <circle cx="17.4" cy="13.4" r="1" fill="currentColor"/>
+                    </svg>
+                  </span>
+                  <b data-t="freefire">Free Fire</b>
+                  <span class="tag" data-t="soon">Soon</span>
+                </button>
+                <button class="tile soon">
+                  <span class="hex">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                      <path d="M12 3.5 20 7v5.6c0 4.4-3.2 7.9-8 9.2-4.8-1.3-8-4.8-8-9.2V7l8-3.5Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/>
+                    </svg>
+                  </span>
+                  <b data-t="more">Your next</b>
+                  <span class="tag" data-t="soon">Soon</span>
+                </button>
+              </div>
+            </div>
+
+            <div class="pad">
+              <div class="head">
+                <h2 data-t="popular">Popular top-ups</h2>
+                <span class="more" data-t="all">All</span>
+              </div>
+              <div class="vouchers" style="margin-top:13px">
+                <button class="voucher" data-go="buy">
+                  <span class="flag best" data-t="best">Best value</span>
+                  <span class="amount">660<small>PUBG UC</small></span>
+                  <i class="perf"></i>
+                  <span class="foot"><span class="price money">$10.50</span></span>
+                </button>
+                <button class="voucher" data-go="buy">
+                  <span class="flag">−10%</span>
+                  <span class="amount">1,800<small>PUBG UC</small></span>
+                  <i class="perf"></i>
+                  <span class="foot"><span class="price money">$27.00</span><span class="was money">$30</span></span>
+                </button>
+                <button class="voucher" data-go="buy">
+                  <span class="amount">1,300<small>eFootball</small></span>
+                  <i class="perf"></i>
+                  <span class="foot"><span class="price money">$16.00</span></span>
+                </button>
+                <button class="voucher" data-go="buy">
+                  <span class="flag">−10%</span>
+                  <span class="amount">8,100<small>PUBG UC</small></span>
+                  <i class="perf"></i>
+                  <span class="foot"><span class="price money">$108.00</span><span class="was money">$120</span></span>
+                </button>
+              </div>
+            </div>
+
+            <div class="pad">
+              <div class="trust">
+                <div>
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M13 2 4 14h6l-1 8 9-12h-6l1-8Z" fill="currentColor"/></svg>
+                  <span data-t="t1">Delivered in minutes</span>
+                </div>
+                <div>
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M12 3.2 19.5 6v5.6c0 4.3-3 7.7-7.5 9-4.5-1.3-7.5-4.7-7.5-9V6L12 3.2Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="m9 12 2.2 2.2 4-4.4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+                  <span data-t="t2">Secure payment</span>
+                </div>
+                <div>
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M20 12a8 8 0 1 0-3.2 6.4L20 20l-.8-3.2A7.9 7.9 0 0 0 20 12Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>
+                  <span data-t="t3">WhatsApp support</span>
+                </div>
+                <div>
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="8.4" stroke="currentColor" stroke-width="1.8"/><path d="m8.4 12.2 2.6 2.6 4.8-5.2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+                  <span data-t="t4">Money-back promise</span>
+                </div>
+              </div>
+              <div class="pays" style="margin-top:13px">
+                <span>PayPal</span><span>Visa</span><span>USDT</span><span>Binance</span>
+                <span>EVC Plus</span><span>eDahab</span><span>ZAAD</span>
+              </div>
+            </div>
+
+          </div>
+        </section>
+
+        <!-- ══════════ GAMES ══════════ -->
+        <section class="view" id="v-games">
+          <div class="stack seq">
+            <div class="pad" style="padding-top:6px">
+              <p class="label" data-t="catalogue">Catalogue</p>
+              <div class="head" style="margin-top:6px"><h2 data-t="gamesTitle">Games &amp; accounts</h2></div>
+            </div>
+
+            <div class="pad">
+              <div class="tiles">
+                <button class="tile is-hot" data-go="buy">
+                  <span class="hex"><svg width="24" height="24" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="7.2" stroke="currentColor" stroke-width="1.8"/><path d="M9.4 15.2V8.8h2.5a2 2 0 0 1 0 4h-1.4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><path d="M14 8.8v3.9a1.9 1.9 0 0 0 3.8 0V8.8" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></span>
+                  <b>PUBG UC</b><span class="tag" data-t="instant">Instant</span>
+                </button>
+                <button class="tile">
+                  <span class="hex"><svg width="24" height="24" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="7.4" stroke="currentColor" stroke-width="1.8"/><path d="m12 8 3.4 2.5-1.3 4h-4.2l-1.3-4L12 8Z" fill="currentColor"/></svg></span>
+                  <b>eFootball</b><span class="tag manual" data-t="manual">Manual</span>
+                </button>
+                <button class="tile">
+                  <span class="hex"><svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M14 5.5c.4 2 1.7 3.2 3.7 3.4v2.6c-1.4 0-2.7-.4-3.7-1.1v4.7a4.9 4.9 0 1 1-4.9-4.9c.3 0 .5 0 .8.1v2.7a2.3 2.3 0 1 0 1.6 2.1V5.5H14Z" fill="currentColor"/></svg></span>
+                  <b>TikTok</b><span class="tag manual" data-t="accounts">Accounts</span>
+                </button>
+              </div>
+            </div>
+
+            <div class="pad">
+              <div class="head"><h2 data-t="ucPacks">PUBG UC packs</h2></div>
+              <div class="vouchers" style="margin-top:13px">
+                <button class="voucher" data-go="buy"><span class="amount">60<small>UC</small></span><i class="perf"></i><span class="foot"><span class="price money">$1.20</span></span></button>
+                <button class="voucher" data-go="buy"><span class="flag">−10%</span><span class="amount">325<small>UC</small></span><i class="perf"></i><span class="foot"><span class="price money">$5.40</span><span class="was money">$6</span></span></button>
+                <button class="voucher" data-go="buy"><span class="flag best" data-t="best">Best value</span><span class="amount">660<small>UC</small></span><i class="perf"></i><span class="foot"><span class="price money">$10.50</span></span></button>
+                <button class="voucher" data-go="buy"><span class="flag">−10%</span><span class="amount">1,800<small>UC</small></span><i class="perf"></i><span class="foot"><span class="price money">$27.00</span><span class="was money">$30</span></span></button>
+                <button class="voucher" data-go="buy"><span class="amount">3,850<small>UC</small></span><i class="perf"></i><span class="foot"><span class="price money">$54.00</span></span></button>
+                <button class="voucher" data-go="buy"><span class="flag">−10%</span><span class="amount">8,100<small>UC</small></span><i class="perf"></i><span class="foot"><span class="price money">$108.00</span><span class="was money">$120</span></span></button>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ══════════ BUY ══════════ -->
+        <section class="view" id="v-buy">
+          <div class="stack seq">
+            <div class="pad" style="padding-top:6px">
+              <p class="label" data-t="step1">Step 1 of 3</p>
+              <div class="head" style="margin-top:6px"><h2 data-t="whoTitle">Who is it for?</h2></div>
+            </div>
+
+            <div class="pad">
+              <div class="field">
+                <b data-t="playerId">Player ID</b>
+                <p style="margin:3px 0 0;color:var(--muted);font-size:.83rem" data-t="playerNote">Open PUBG Mobile → profile → copy the number under your name.</p>
+                <div class="row">
+                  <input value="5123456789" dir="ltr" aria-label="Player ID">
+                  <button data-t="verify">Verify</button>
+                </div>
+                <p class="verified">
+                  <svg width="17" height="17" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="8.4" stroke="currentColor" stroke-width="1.9"/><path d="m8.4 12.2 2.6 2.6 4.8-5.2" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"/></svg>
+                  RamaanKing_77
+                </p>
+              </div>
+            </div>
+
+            <div class="pad">
+              <p class="label" data-t="step2">Step 2 of 3</p>
+              <div class="head" style="margin-top:6px"><h2 data-t="pickPack">Pick a pack</h2></div>
+              <div class="vouchers" style="margin-top:13px">
+                <button class="voucher" style="border-color:var(--accent)">
+                  <span class="flag best" data-t="picked">Picked</span>
+                  <span class="amount">660<small>UC</small></span><i class="perf"></i>
+                  <span class="foot"><span class="price money">$10.50</span></span>
+                </button>
+                <button class="voucher"><span class="flag">−10%</span><span class="amount">1,800<small>UC</small></span><i class="perf"></i><span class="foot"><span class="price money">$27.00</span><span class="was money">$30</span></span></button>
+              </div>
+            </div>
+
+            <div class="pad">
+              <p class="label" data-t="step3">Step 3 of 3</p>
+              <div class="head" style="margin-top:6px"><h2 data-t="payTitle">Pay with</h2></div>
+              <div class="channels" style="margin-top:13px">
+                <a class="channel" href="#" style="border-color:var(--accent)">
+                  <span class="hex"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><rect x="3" y="6" width="18" height="12" rx="2.6" stroke="currentColor" stroke-width="1.8"/><path d="M3 10h18" stroke="currentColor" stroke-width="1.8"/></svg></span>
+                  <span><b data-t="card">Card / PayPal</b><small data-t="cardNote">Worldwide · instant</small></span>
+                  <span class="go">
+                    <svg width="19" height="19" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="8.4" stroke="currentColor" stroke-width="1.8"/><path d="m8.4 12.2 2.6 2.6 4.8-5.2" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"/></svg>
+                  </span>
+                </a>
+                <a class="channel" href="#">
+                  <span class="hex"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M7 4h10a1 1 0 0 1 1 1v14a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V5a1 1 0 0 1 1-1Z" stroke="currentColor" stroke-width="1.8"/><path d="M10 17h4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></span>
+                  <span><b>EVC Plus</b><small data-t="ussdNote">USSD transfer · Somalia</small></span>
+                  <span class="go">›</span>
+                </a>
+              </div>
+            </div>
+
+            <div class="pad">
+              <div class="total-bar">
+                <span>
+                  <span class="label" data-t="total">Total</span>
+                  <b class="money" style="display:block;font-size:1.3rem;letter-spacing:-.03em">$10.50</b>
+                </span>
+                <button class="btn btn-primary" data-t="confirm">Confirm order</button>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ══════════ SUPPORT ══════════ -->
+        <section class="view" id="v-support">
+          <div class="stack seq">
+            <div class="pad" style="padding-top:6px">
+              <p class="label" data-t="process">How it works</p>
+              <div class="head" style="margin-top:6px"><h2 data-t="supportTitle">Three steps, no waiting</h2></div>
+            </div>
+
+            <div class="pad">
+              <div class="steps">
+                <div class="step">
+                  <span class="n">1</span>
+                  <span><b data-t="s1">Choose</b><p data-t="s1n">Pick your game and pack. Prices are final — nothing is added later.</p></span>
+                </div>
+                <div class="step">
+                  <span class="n">2</span>
+                  <span><b data-t="s2">Pay your way</b><p data-t="s2n">Card, PayPal, USDT or a local transfer with EVC Plus.</p></span>
+                </div>
+                <div class="step">
+                  <span class="n">3</span>
+                  <span><b data-t="s3">Receive</b><p data-t="s3n">Credit lands on your account. Track it any time from your orders.</p></span>
+                </div>
+              </div>
+            </div>
+
+            <div class="pad">
+              <div class="head"><h2 data-t="reach">Reach us</h2></div>
+              <div class="channels" style="margin-top:13px">
+                <a class="channel" href="#">
+                  <span class="hex"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M20 12a8 8 0 1 0-3.2 6.4L20 20l-.8-3.2A7.9 7.9 0 0 0 20 12Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg></span>
+                  <span><b>WhatsApp</b><small data-t="waNote">Replies in minutes, every day</small></span>
+                  <span class="go">›</span>
+                </a>
+                <a class="channel" href="#">
+                  <span class="hex"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><rect x="3" y="5.5" width="18" height="13" rx="2.4" stroke="currentColor" stroke-width="1.8"/><path d="m4 7 8 6 8-6" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg></span>
+                  <span><b data-t="email">Email</b><small>support@eramaan.com</small></span>
+                  <span class="go">›</span>
+                </a>
+                <a class="channel" href="#">
+                  <span class="hex"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="8.4" stroke="currentColor" stroke-width="1.8"/><path d="M12 7.4V12l3 1.8" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></span>
+                  <span><b data-t="hours">Opening hours</b><small>Sat – Thu · 9am – 11pm</small></span>
+                  <span class="go">›</span>
+                </a>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <nav class="nav">
+          <button data-go="home" aria-current="page"><i class="knob"></i><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M4 10.5 12 4l8 6.5V19a1.5 1.5 0 0 1-1.5 1.5h-13A1.5 1.5 0 0 1 4 19v-8.5Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg><span data-t="navHome">Home</span></button>
+          <button data-go="games"><i class="knob"></i><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><rect x="3" y="7" width="18" height="10.5" rx="3.4" stroke="currentColor" stroke-width="1.8"/><path d="M7.6 12.2h2.4M8.8 11v2.4" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/><circle cx="15.6" cy="11.6" r="1" fill="currentColor"/><circle cx="17.4" cy="13.4" r="1" fill="currentColor"/></svg><span data-t="navGames">Games</span></button>
+          <button data-go="buy"><i class="knob"></i><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M4 7h16l-1.2 10.4a2 2 0 0 1-2 1.6H7.2a2 2 0 0 1-2-1.6L4 7Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg><span data-t="navBuy">Buy</span></button>
+          <button data-go="support"><i class="knob"></i><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M20 12a8 8 0 1 0-3.2 6.4L20 20l-.8-3.2A7.9 7.9 0 0 0 20 12Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg><span data-t="navHelp">Help</span></button>
+        </nav>
+
+      </div>
+    </div>
+  </div>
+
+  <div class="notes">
+    <div class="note">
+      <h3>Why gold, not blue</h3>
+      <p>Blue is what every top-up store already uses — it is the safe, invisible choice. Saffron gold is the colour of the thing being sold: coins, credit, UC. On an indigo ground it glows the way a lit stall does after dark, and it is legible on both light and dark screens.</p>
+      <div class="swatches">
+        <span class="sw"><i style="background:#0B0A1A"></i><code>#0B0A1A</code></span>
+        <span class="sw"><i style="background:#15132E"></i><code>#15132E</code></span>
+        <span class="sw"><i style="background:#FFB020"></i><code>#FFB020</code></span>
+        <span class="sw"><i style="background:#FF4D6D"></i><code>#FF4D6D</code></span>
+        <span class="sw"><i style="background:#35E0AE"></i><code>#35E0AE</code></span>
+        <span class="sw"><i style="background:#F6F1E7"></i><code>#F6F1E7</code></span>
+      </div>
+    </div>
+
+    <div class="note">
+      <h3>The voucher, torn</h3>
+      <p>A top-up is a voucher, so each package card is cut like one — notched at the sides with a dashed tear line across the middle. It is a shape nobody else in this market uses, it survives having no product photography, and it makes the price feel like something you hold.</p>
+    </div>
+
+    <div class="note">
+      <h3>Hex tokens for sections</h3>
+      <p>Section icons sit inside a hexagon — the facet of a coin. It keeps the grid tight at three across, reads clearly at small sizes, and gives the catalogue a rhythm that a plain rounded square cannot.</p>
+    </div>
+
+    <div class="note">
+      <h3>Numbers get their own voice</h3>
+      <p>Prices, quantities, order codes and player IDs are set in a monospaced face with tabular figures, so columns line up and a receipt reads like a receipt. Everything else uses the interface face. Two voices, each doing one job.</p>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  (function () {
+    var root = document.documentElement;
+
+    /* ── Colorways ── */
+    document.querySelectorAll("[data-way-btn]").forEach(function (btn) {
+      btn.addEventListener("click", function () {
+        document.querySelectorAll("[data-way-btn]").forEach(function (b) {
+          b.setAttribute("aria-pressed", String(b === btn));
+        });
+        var way = btn.getAttribute("data-way-btn");
+        if (way === "night") root.removeAttribute("data-way");
+        else root.setAttribute("data-way", way);
+      });
+    });
+
+    /* ── Screens ── */
+    function go(name) {
+      document.querySelectorAll(".view").forEach(function (v) {
+        v.classList.toggle("on", v.id === "v-" + name);
+      });
+      document.querySelectorAll(".nav button").forEach(function (b) {
+        if (b.getAttribute("data-go") === name) b.setAttribute("aria-current", "page");
+        else b.removeAttribute("aria-current");
+      });
+      var d = document.querySelector(".device");
+      if (d) d.scrollIntoView({ block: "start", behavior: "smooth" });
+    }
+
+    document.querySelectorAll("[data-go]").forEach(function (el) {
+      el.addEventListener("click", function () { go(el.getAttribute("data-go")); });
+    });
+
+    /* ── Language ── */
+    var AR = {
+      brand: "متجر رمان", tagline: "شحن ألعاب عالمي",
+      heroKicker: "تسليم فوري · على مدار الساعة",
+      heroA: "اشحن في", heroB: "٦٠ ثانية", heroC: "، لا ٦٠ دقيقة.",
+      heroNote: "شدات ببجي وكوينز eFootball وحسابات موثّقة — تدفع كما يحلو لك، ويصلك وأنت تنتظر.",
+      ctaBuy: "ابدأ طلبك", ctaHow: "كيف يعمل",
+      tick1: "اشترى", tick2: "قبل دقيقتين",
+      shopTitle: "تسوّق", all: "الكل",
+      instant: "فوري", manual: "يدوي", accounts: "حسابات", ship: "يُشحن", soon: "قريباً",
+      electronics: "إلكترونيات", freefire: "فري فاير", more: "قسمك القادم",
+      popular: "الأكثر طلباً", best: "الأفضل قيمة",
+      t1: "يصلك خلال دقائق", t2: "دفع آمن", t3: "دعم واتساب", t4: "ضمان استرداد",
+      catalogue: "الأقسام", gamesTitle: "الألعاب والحسابات", ucPacks: "باقات شدات ببجي",
+      step1: "الخطوة ١ من ٣", whoTitle: "لمن الطلب؟",
+      playerId: "آيدي اللاعب",
+      playerNote: "افتح ببجي ← الملف الشخصي ← انسخ الرقم تحت اسمك.",
+      verify: "تحقّق",
+      step2: "الخطوة ٢ من ٣", pickPack: "اختر الباقة", picked: "المختارة",
+      step3: "الخطوة ٣ من ٣", payTitle: "ادفع بـ",
+      card: "بطاقة / PayPal", cardNote: "لكل العالم · فوري", ussdNote: "تحويل USSD · الصومال",
+      total: "الإجمالي", confirm: "تأكيد الطلب",
+      process: "كيف يعمل", supportTitle: "ثلاث خطوات بلا انتظار",
+      s1: "اختر", s1n: "اختر لعبتك وباقتك. السعر نهائي — لا يُضاف شيء لاحقاً.",
+      s2: "ادفع كما تحب", s2n: "بطاقة أو PayPal أو USDT أو تحويل محلي بـ EVC Plus.",
+      s3: "استلم", s3n: "يصل الرصيد إلى حسابك، وتتابعه في أي وقت من طلباتك.",
+      reach: "تواصل معنا", waNote: "نردّ خلال دقائق، كل يوم",
+      email: "البريد", hours: "أوقات العمل",
+      navHome: "الرئيسية", navGames: "الألعاب", navBuy: "شراء", navHelp: "الدعم"
+    };
+
+    var EN = {};
+    document.querySelectorAll("[data-t]").forEach(function (el) {
+      EN[el.getAttribute("data-t")] = el.textContent;
+    });
+
+    var ar = false;
+    var langBtn = document.getElementById("lang");
+    langBtn.addEventListener("click", function () {
+      ar = !ar;
+      var dict = ar ? AR : EN;
+      document.querySelectorAll("[data-t]").forEach(function (el) {
+        var k = el.getAttribute("data-t");
+        if (dict[k]) el.textContent = dict[k];
+      });
+      document.querySelector(".device").setAttribute("dir", ar ? "rtl" : "ltr");
+      langBtn.setAttribute("aria-pressed", String(ar));
+      langBtn.textContent = ar ? "English" : "العربية";
+    });
+  })();
+</script>
