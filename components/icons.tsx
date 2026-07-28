@@ -386,3 +386,54 @@ export function IconArrow({ className = "" }: IconProps) {
     </svg>
   );
 }
+
+/* ─── أيقونات الأقسام أحادية اللون ─────────────────────────
+   داخل الصفيحة السداسية تُرسم بلون العلامة الواحد، فتبدو الشبكة
+   عائلة متجانسة بدل ستّة شعارات متنافرة. */
+
+export function IconUcMono({ className = "" }: IconProps) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" className={className} aria-hidden>
+      <circle cx="12" cy="12" r="8" stroke="currentColor" strokeWidth="1.7" />
+      <path d="M9.2 15.6V8.4h2.7a2.1 2.1 0 0 1 0 4.2h-1.5" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" />
+      <path d="M14 8.4v4.1a2 2 0 0 0 4 0V8.4" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" />
+    </svg>
+  );
+}
+
+export function IconBallMono({ className = "" }: IconProps) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" className={className} aria-hidden>
+      <circle cx="12" cy="12" r="8.2" stroke="currentColor" strokeWidth="1.7" />
+      <path d="m12 7.6 3.5 2.6-1.35 4.15h-4.3L8.5 10.2 12 7.6Z" fill="currentColor" />
+    </svg>
+  );
+}
+
+export function IconTiktokMono({ className = "" }: IconProps) {
+  return (
+    <svg viewBox="0 0 24 24" className={className} aria-hidden>
+      <path d="M14 4c.45 2.2 1.85 3.5 4.1 3.7v2.85c-1.55 0-3-.45-4.1-1.2v5.2A5.4 5.4 0 1 1 8.6 9.15c.3 0 .6.02.9.07v2.95a2.5 2.5 0 1 0 1.75 2.38V4H14Z" fill="currentColor" />
+    </svg>
+  );
+}
+
+export function IconPhoneMono({ className = "" }: IconProps) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" className={className} aria-hidden>
+      <rect x="7" y="3" width="10" height="18" rx="2.4" stroke="currentColor" strokeWidth="1.7" />
+      <path d="M10.8 17.8h2.4" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" />
+    </svg>
+  );
+}
+
+export function IconPadMono({ className = "" }: IconProps) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" className={className} aria-hidden>
+      <rect x="2.6" y="6.8" width="18.8" height="10.4" rx="3.4" stroke="currentColor" strokeWidth="1.7" />
+      <path d="M7.4 12h2.5M8.65 10.75v2.5" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
+      <circle cx="15.5" cy="11.4" r="1" fill="currentColor" />
+      <circle cx="17.4" cy="13.3" r="1" fill="currentColor" />
+    </svg>
+  );
+}

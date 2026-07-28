@@ -1,8 +1,6 @@
 "use client";
 
-import Image from "next/image";
 import Badge from "./Badge";
-import { IconBolt } from "./icons";
 import { fin, fmt } from "@/lib/format";
 
 type Props = {
@@ -29,24 +27,35 @@ type Props = {
   soon?: boolean;
 };
 
-/** بطاقة باقة — صورة كبيرة + سعر أخضر + زر شراء، وتتحدّد بإطار ملوّن عند الاختيار */
+/**
+ * بطاقة الباقة = **قسيمة ممزّقة**.
+ *
+ * الكمّية كبيرة بالأعلى ثم وحدتها، وخطّ تقطيع منقّط بين حزّتين جانبيتين،
+ * ثم السعر أسفل — كقسيمة شحن تُقصّ. بلا صورة عمداً: المنتج رقمٌ لا شيء
+ * يُصوَّر، فالرقم نفسه هو البطل.
+ */
 export default function PackageCard({
   title,
   sub,
   price,
   old,
   disc,
-  img,
-  instant,
   popular,
   selected,
   onSelect,
   labels,
-  Icon,
   soon,
 }: Props) {
   const final = fin({ price, disc });
   const before = old ?? (disc ? price : undefined);
+
+  // "660 UC" ⇒ الرقم بطلاً والوحدة تحته.
+  // أما الحسابات فعناوينها نصّية طويلة ("حساب eFootball — ٥ نجوم")،
+  // فتُعرض بحجم عادي وتلتفّ، وإلا تمدّدت البطاقة خارج الشاشة.
+  const m = title.match(/^([\d,.٠-٩]+)\s*(.*)$/);
+  const isNumeric = Boolean(m);
+  const amount = m ? m[1] : title;
+  const unit = m && m[2] ? m[2] : (sub ?? "");
 
   return (
     <button
@@ -54,93 +63,59 @@ export default function PackageCard({
       onClick={onSelect}
       disabled={soon}
       aria-pressed={selected}
-      className={`group relative flex flex-col rounded-card border-2 text-start transition-all ${
+      className={`group relative flex flex-col rounded-card border bg-surface p-4 text-start shadow-sm transition-all ${
         soon
-          ? "cursor-not-allowed border-line bg-surface opacity-60"
+          ? "cursor-not-allowed opacity-60"
           : selected
             ? "border-orange shadow-md"
-            : "border-line bg-surface hover:border-orange/50 hover:shadow-sm"
+            : "border-line hover:border-orange/60 hover:shadow-md"
       }`}
     >
-      {/* الصورة */}
-      <div className="relative flex aspect-[5/4] items-center justify-center overflow-hidden rounded-t-[calc(var(--radius-card)-2px)] bg-gradient-to-br from-navy to-[color-mix(in_srgb,var(--accent)_22%,var(--deep))]">
-        {img ? (
-          <Image
-            src={img}
-            alt={title}
-            fill
-            sizes="(max-width: 640px) 45vw, 200px"
-            className="object-cover transition-transform group-hover:scale-105"
-          />
-        ) : (
-          <Icon className="size-12 text-white/85" />
-        )}
-
-        <span className="absolute inset-x-1.5 top-1.5 flex flex-wrap justify-between gap-1">
-          {disc ? (
-            <Badge tone="green">{labels.disc.replace("{n}", String(disc))}</Badge>
-          ) : (
-            <span />
+      <span className="flex items-start gap-2">
+        <span className="min-w-0 flex-1">
+          <span
+            className={
+              isNumeric
+                ? "num block text-[1.75rem] font-bold leading-none text-orange"
+                : "block text-base font-bold leading-snug text-balance break-words text-orange"
+            }
+          >
+            {amount}
+          </span>
+          {unit && (
+            <span className="mt-1.5 block text-[0.68rem] font-bold uppercase tracking-[0.16em] text-muted rtl:tracking-normal">
+              {unit}
+            </span>
           )}
-          {popular && <Badge tone="blue">★ {labels.popular}</Badge>}
         </span>
 
-        {instant && !soon && (
-          <span className="absolute bottom-1.5 start-1.5">
-            <Badge tone="soft">
-              {/* أيقونة حقيقية بدل الإيموجي — ثابتة على كل جهاز */}
-              <IconBolt className="me-1 inline-block size-3.5 align-[-2px]" />
-              {labels.instant}
-            </Badge>
-          </span>
-        )}
+        {disc ? (
+          <Badge tone="gold">−{disc}%</Badge>
+        ) : popular ? (
+          <Badge tone="green">{labels.popular}</Badge>
+        ) : null}
+      </span>
 
+      {/* خطّ التقطيع بين الحزّتين — هنا تُقصّ القسيمة */}
+      <span
+        className="voucher-notch relative mt-5 block border-t border-dashed border-line"
+        style={{ "--notch-y": "-7px" } as React.CSSProperties}
+      />
+
+      <span className="mt-3 flex flex-wrap items-baseline gap-2">
+        <span className="num text-lg font-bold">{fmt(final)}</span>
+        {before && before > final && (
+          <span className="num text-sm text-muted line-through">{fmt(before)}</span>
+        )}
         {soon && (
-          <span className="absolute inset-0 flex items-center justify-center bg-navy/65 text-sm font-bold text-white">
-            {labels.soon}
+          <span className="ms-auto text-xs font-bold text-muted">{labels.soon}</span>
+        )}
+        {selected && !soon && (
+          <span className="ms-auto text-xs font-bold text-orange">
+            ✓ {labels.selected}
           </span>
         )}
-      </div>
-
-      {/* التفاصيل — الحزّتان وخطّ التقطيع على حدّها العلوي تماماً،
-          فتُقصّ البطاقة كقسيمة بين الصورة والسعر */}
-      <div className="voucher-notch relative flex flex-1 flex-col gap-1 p-3" style={{ "--notch-y": "-7px" } as React.CSSProperties}>
-        <span
-          aria-hidden
-          className="absolute inset-x-2 top-0 border-t border-dashed border-line"
-        />
-        <span className="num text-[1.05rem] font-bold leading-tight">{title}</span>
-        {sub && <span className="text-xs text-muted">{sub}</span>}
-
-        <div className="mt-auto flex items-center justify-between gap-2 pt-2">
-          <span className="flex flex-col leading-tight">
-            <span className="num text-lg font-bold text-yellow" dir="ltr">
-              {fmt(final)}
-            </span>
-            {before && before > final && (
-              <span className="num text-xs text-muted line-through" dir="ltr">
-                {fmt(before)}
-              </span>
-            )}
-          </span>
-
-          <span
-            className={`rounded-card px-3 py-1.5 text-xs font-bold transition-colors ${
-              soon
-                ? "bg-line text-muted"
-                : selected
-                  ? "bg-orange text-onaccent"
-                  : "bg-yellow/12 text-yellow group-hover:bg-yellow group-hover:text-onaccent"
-            }`}
-          >
-            {soon
-              ? labels.soon
-              : selected
-                ? "✓ " + labels.selected
-                : labels.buy}
-          </span>
-        </div>
-      </div>
+      </span>
     </button>
   );
 }

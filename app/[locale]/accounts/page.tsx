@@ -14,7 +14,7 @@ export default async function AccountsPage({
   setRequestLocale(locale);
   const t = await getTranslations("accountsPage");
   const te = await getTranslations("eyebrow");
-  const tp = await getTranslations("pages");
+  const tp = await getTranslations("short");
   const tc = await getTranslations("common");
 
   return (

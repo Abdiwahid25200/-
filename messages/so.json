@@ -59,7 +59,8 @@
     "help": "Caawimaad & taageero",
     "policy": "Siyaasadaha",
     "account": "Akoonkayga",
-    "cart": "Dambiisha wax-iibsiga"
+    "cart": "Dambiisha wax-iibsiga",
+    "freefire": "Free Fire"
   },
   "notFound": {
     "title": "Bogga lama helin",
@@ -79,7 +80,8 @@
     "back": "Dib u noqo",
     "soon": "Dhawaan",
     "googleSignIn": "Ku sii wad Google",
-    "manual": "Gacanta"
+    "manual": "Gacanta",
+    "shipped": "La diray"
   },
   "games": {
     "title": "Ciyaaraha",
@@ -377,5 +379,28 @@
     "policy": "Shuruudo la akhriyi karo",
     "account": "Dalabkaaga hal meel",
     "soon": "Waa soo socotaa"
+  },
+  "hero2": {
+    "kicker": "Gaarsiin degdeg ah · 24/7",
+    "a": "Ku buuxi",
+    "b": "60 ilbiriqsi",
+    "c": ", ma 60 daqiiqo.",
+    "note": "PUBG UC, qadaadiicda eFootball iyo akoonno la xaqiijiyay — sidaad rabto ku bixi, sugitaan yar.",
+    "ctaBuy": "Bilow dalab",
+    "ctaHow": "Sida ay u shaqeyso",
+    "tickerWho": "Xamdi A.",
+    "tickerVerb": "wuxuu iibsaday",
+    "tickerWhen": "2 daqiiqo ka hor",
+    "shop": "Dukaan",
+    "popular": "Kuwa ugu caansan",
+    "all": "Dhammaan"
+  },
+  "short": {
+    "pubg": "PUBG UC",
+    "efootball": "eFootball",
+    "tiktok": "TikTok",
+    "efootballAccounts": "eFootball ID",
+    "electronics": "Elektaroonig",
+    "freefire": "Free Fire"
   }
 }

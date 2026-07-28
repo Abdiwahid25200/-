@@ -1,13 +1,5 @@
 import { getTranslations } from "next-intl/server";
 import { howItWorks } from "@/lib/content";
-import { IconBolt, IconCart, IconShieldCheck } from "@/components/icons";
-
-const STEP_ICONS = {
-  choose: IconCart,
-  pay: IconShieldCheck,
-  receive: IconBolt,
-} as const;
-
 /**
  * "كيف يعمل المتجر" — شارة علوية، عنوان، شرح، فيديو اختياري، ثم ثلاث خطوات.
  * الفيديو يظهر فقط عند وضع `youtubeId` في lib/content.ts، فلا تبقى فجوة فارغة.
@@ -17,13 +9,10 @@ export default async function HowItWorks() {
   const { youtubeId, steps } = howItWorks;
 
   return (
-    <section className="flex flex-col items-center gap-4 text-center">
-      <span className="rounded-full border border-orange/40 bg-orange/8 px-4 py-1.5 text-xs font-bold uppercase tracking-widest text-orange">
-        {t("badge")}
-      </span>
-
+    <section className="coast-glow flex flex-col gap-4">
+      <p className="eyebrow">{t("badge")}</p>
       <h2 className="text-2xl font-bold leading-tight">{t("title")}</h2>
-      <p className="max-w-xl text-muted">{t("note")}</p>
+      <p className="max-w-prose text-muted">{t("note")}</p>
 
       {youtubeId && (
         <div className="w-full overflow-hidden rounded-card border border-line bg-navy shadow-sm">
@@ -41,32 +30,27 @@ export default async function HowItWorks() {
         </div>
       )}
 
-      <ol className="mt-2 grid w-full gap-3 sm:grid-cols-3">
-        {steps.map((k, i) => {
-          const Icon = STEP_ICONS[k];
-          return (
-            <li
-              key={k}
-              className="relative flex flex-col items-center gap-2 rounded-card border border-line bg-surface p-5"
+      {/* خطوات مرقّمة — الترقيم هنا يعني تسلسلاً حقيقياً لا زينة */}
+      <ol className="flex flex-col gap-2.5">
+        {steps.map((k, i) => (
+          <li
+            key={k}
+            className="flex items-start gap-3.5 rounded-card border border-line bg-surface p-4"
+          >
+            <span
+              aria-hidden
+              className="num flex size-9 shrink-0 items-center justify-center rounded-[11px] bg-surface2 font-bold text-orange"
             >
-              <span
-                aria-hidden
-                className="absolute end-3 top-2 text-3xl font-black text-line"
-                dir="ltr"
-              >
-                {i + 1}
+              {i + 1}
+            </span>
+            <span className="min-w-0">
+              <span className="block font-bold">{t(`steps.${k}.title`)}</span>
+              <span className="mt-0.5 block text-sm text-muted">
+                {t(`steps.${k}.note`)}
               </span>
-              <span
-                aria-hidden
-                className="flex size-12 items-center justify-center rounded-card bg-orange text-onaccent"
-              >
-                <Icon className="size-6" />
-              </span>
-              <span className="font-bold">{t(`steps.${k}.title`)}</span>
-              <span className="text-sm text-muted">{t(`steps.${k}.note`)}</span>
-            </li>
-          );
-        })}
+            </span>
+          </li>
+        ))}
       </ol>
     </section>
   );

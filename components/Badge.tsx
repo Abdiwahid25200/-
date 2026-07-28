@@ -1,6 +1,7 @@
 const tones = {
-  green: "bg-yellow text-onaccent",
+  green: "bg-orange text-onaccent",
   blue: "bg-orange text-onaccent",
+  gold: "bg-yellow text-onaccent",
   soft: "bg-navy/85 text-white",
   outline: "border border-line bg-surface text-muted",
 } as const;

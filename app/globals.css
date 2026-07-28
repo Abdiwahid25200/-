@@ -40,12 +40,12 @@
 :root {
   --bg: #eff7f7;
   --surface: #ffffff;
-  --surface-2: #e6f2f2;
-  --line: #cbe2e2;
+  --surface-2: #e9f4f4;
+  --line: #cde4e4;
   --text: #062730;
   --muted: #4d7580;
   --accent: #067a6e;
-  --accent-2: #9a5c00;
+  --accent-2: #a56200;
   --accent-3: #1c7a3a;
   --deep: #062730;
   --danger: #c62633;
@@ -53,35 +53,21 @@
   color-scheme: light;
 }
 
-/* ── الوضع الليلي: يتبع إعدادات الجهاز ── */
-@media (prefers-color-scheme: dark) {
-  :root {
-    --bg: #04121a;
-    --surface: #0b2230;
-    --surface-2: #113044;
-    --line: #1c4457;
-    --text: #ecf6f5;
-    --muted: #8fb3be;
-    --accent: #4fe3d0;
-    --accent-2: #ffc65c;
-    --accent-3: #7be38b;
-    --deep: #02090e;
-    --danger: #ff6b73;
-    --on-accent: #01201c;
-    color-scheme: dark;
-  }
-}
+/* ── الفاتح هو الافتراضي عمداً ──
+   صاحبة المشروع اعتمدت المظهر الفاتح بعد أن رأته، فلا نتبع إعداد الجهاز
+   لئلا يرى زوّارها شيئاً غير الذي وافقت عليه. الوضع الليلي يبقى متاحاً
+   بزرّ المظهر ويُحفظ اختيارهم. للعودة لاتّباع الجهاز: أعد @media هنا. */
 
 /* ── الاختيار اليدوي يتغلّب على إعدادات الجهاز ── */
 :root[data-theme="light"] {
   --bg: #eff7f7;
   --surface: #ffffff;
-  --surface-2: #e6f2f2;
-  --line: #cbe2e2;
+  --surface-2: #e9f4f4;
+  --line: #cde4e4;
   --text: #062730;
   --muted: #4d7580;
   --accent: #067a6e;
-  --accent-2: #9a5c00;
+  --accent-2: #a56200;
   --accent-3: #1c7a3a;
   --deep: #062730;
   --danger: #c62633;
@@ -203,4 +189,20 @@ body.has-buybar {
     animation-duration: 0.01ms !important;
     transition-duration: 0.01ms !important;
   }
+}
+
+/* ── نبضة "المتجر حيّ الآن" ─────────────────────────────── */
+.pulse-dot {
+  width: 9px;
+  height: 9px;
+  flex: none;
+  border-radius: 9999px;
+  background: var(--accent-3);
+  box-shadow: 0 0 0 0 color-mix(in srgb, var(--accent-3) 70%, transparent);
+  animation: pulse-ring 2.4s infinite;
+}
+
+@keyframes pulse-ring {
+  70% { box-shadow: 0 0 0 9px transparent; }
+  100% { box-shadow: 0 0 0 0 transparent; }
 }

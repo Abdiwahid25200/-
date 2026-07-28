@@ -86,8 +86,8 @@ export type Section = {
   /** الصفحة التي يظهر بها: الألعاب أم الحسابات */
   group: "games" | "accounts";
   status: SectionStatus;
-  /** وسم على البطاقة: فوري (يُشحن تلقائياً) أم يدوي (بمراجعة) */
-  badge?: "instant" | "manual";
+  /** وسم على البطاقة: فوري · يدوي · يُشحن (سلعة تُرسل) */
+  badge?: "instant" | "manual" | "shipped";
   /** صورة القسم — تُرفع لاحقاً من لوحة الإدارة إلى public/images/sections/ */
   img?: string;
 };
@@ -101,6 +101,8 @@ export const sections: Section[] = [
   { key: "efootball", href: "/efootball", icon: "efoot", group: "games", status: "on", badge: "manual" },
   { key: "efootballAccounts", href: "/efootball-accounts", icon: "efoot", group: "accounts", status: "on", badge: "manual" },
   { key: "tiktok", href: "/tiktok", icon: "tiktok", group: "accounts", status: "on", badge: "manual" },
+  { key: "electronics", href: "/", icon: "device", group: "games", status: "on", badge: "shipped" },
+  { key: "freefire", href: "/soon", icon: "games", group: "games", status: "soon" },
 ];
 
 /** أقسام المجموعة الظاهرة فقط (تستبعد off) */

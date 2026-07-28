@@ -59,7 +59,8 @@
     "help": "Help & support",
     "policy": "Policies",
     "account": "My account",
-    "cart": "Shopping cart"
+    "cart": "Shopping cart",
+    "freefire": "Free Fire"
   },
   "notFound": {
     "title": "Page not found",
@@ -79,7 +80,8 @@
     "back": "Back",
     "soon": "Coming soon",
     "googleSignIn": "Continue with Google",
-    "manual": "Manual"
+    "manual": "Manual",
+    "shipped": "Shipped"
   },
   "games": {
     "title": "Games",
@@ -377,5 +379,28 @@
     "policy": "Terms you can actually read",
     "account": "Your orders, in one place",
     "soon": "On the way"
+  },
+  "hero2": {
+    "kicker": "Instant delivery · 24/7",
+    "a": "Top up in",
+    "b": "60 seconds",
+    "c": ", not 60 minutes.",
+    "note": "PUBG UC, eFootball coins and verified accounts — paid your way, delivered while you wait.",
+    "ctaBuy": "Start an order",
+    "ctaHow": "How it works",
+    "tickerWho": "Xamdi A.",
+    "tickerVerb": "bought",
+    "tickerWhen": "2 min ago",
+    "shop": "Shop",
+    "popular": "Popular top-ups",
+    "all": "All"
+  },
+  "short": {
+    "pubg": "PUBG UC",
+    "efootball": "eFootball",
+    "tiktok": "TikTok",
+    "efootballAccounts": "eFootball ID",
+    "electronics": "Electronics",
+    "freefire": "Free Fire"
   }
 }

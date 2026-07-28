@@ -9,7 +9,7 @@ type Props = {
   /** صورة القسم — تُرفع لاحقاً من لوحة الإدارة، وحتى ذلك تظهر الأيقونة */
   img?: string;
   /** وسم أعلى الصورة: فوري أم يدوي */
-  badge?: "instant" | "manual";
+  badge?: "instant" | "manual" | "shipped";
   badgeLabel?: string;
   soon?: boolean;
   soonLabel?: string;
@@ -31,7 +31,7 @@ export default function GameTile({
 }: Props) {
   const tile = (
     <>
-      <span className="relative block aspect-square overflow-hidden rounded-[18px] border border-line bg-gradient-to-br from-navy to-[color-mix(in_srgb,var(--accent)_22%,var(--deep))] shadow-sm">
+      <span className="relative flex aspect-[4/5] flex-col items-center justify-center gap-2.5 overflow-hidden rounded-[18px] border border-line bg-surface px-2 py-4 shadow-sm transition-shadow group-hover:shadow-md">
         {img ? (
           <Image
             src={img}
@@ -41,35 +41,26 @@ export default function GameTile({
             className="object-cover transition-transform group-hover:scale-105"
           />
         ) : (
-          <span className="flex size-full items-center justify-center pb-6">
-            {/* سداسي = وجه عملة. صفيحة خلف الأيقونة لا إطار يبتلعها */}
-            <span
-              className="flex aspect-square w-[62%] items-center justify-center bg-surface2/80"
-              style={{ clipPath: "polygon(50% 0, 93% 25%, 93% 75%, 50% 100%, 7% 75%, 7% 25%)" }}
-            >
-              <SectionIcon name={icon} className="w-[52%]" />
-            </span>
+          /* سداسي = وجه عملة — صفيحة هادئة والأيقونة بلون العلامة */
+          <span
+            className="flex aspect-square w-[56%] items-center justify-center bg-surface2 text-orange"
+            style={{ clipPath: "polygon(50% 0, 93% 25%, 93% 75%, 50% 100%, 7% 75%, 7% 25%)" }}
+          >
+            <SectionIcon name={icon} mono className="w-[46%]" />
           </span>
         )}
 
-        {badge && !soon && (
-          <span className="absolute inset-x-1.5 bottom-1.5 flex items-center justify-center gap-1 rounded-full border border-line bg-surface/92 px-2 py-1 text-[0.68rem] font-bold uppercase tracking-wide text-orange backdrop-blur rtl:tracking-normal">
-            <svg viewBox="0 0 24 24" className="size-3 shrink-0" aria-hidden>
-              <path d="M13 2 4 14h6l-1 8 9-12h-6l1-8Z" fill="currentColor" />
-            </svg>
-            {badgeLabel}
-          </span>
-        )}
+        <span className="block text-center text-sm font-bold leading-tight">
+          {title}
+        </span>
 
-        {soon && (
-          <span className="absolute inset-0 flex items-center justify-center bg-navy/70 px-1 text-center text-xs font-bold text-white">
-            {soonLabel}
-          </span>
-        )}
-      </span>
-
-      <span className="mt-2 block text-center text-sm font-bold leading-tight">
-        {title}
+        <span
+          className={`block text-center text-[0.62rem] font-bold uppercase tracking-[0.14em] rtl:tracking-normal ${
+            soon ? "text-yellow" : "text-orange"
+          }`}
+        >
+          {soon ? soonLabel : badgeLabel}
+        </span>
       </span>
     </>
   );

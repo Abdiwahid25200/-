@@ -1,10 +1,17 @@
 import { getTranslations, setRequestLocale } from "next-intl/server";
-import SectionHead from "@/components/SectionHead";
+import { Link } from "@/i18n/navigation";
+import HomeHero from "@/components/HomeHero";
+import GameTile from "@/components/GameTile";
+import VoucherLink from "@/components/VoucherLink";
 import TrustRow from "@/components/TrustRow";
-import ProductCard from "@/components/ProductCard";
-import { IconDevice } from "@/components/icons";
-import { elec, isBuyable, live } from "@/lib/data";
+import PayChips from "@/components/PayChips";
+import { sections } from "@/lib/content";
+import { icons, live, pubg } from "@/lib/data";
 
+/**
+ * الرئيسية بترتيب المعاينة التي اعتمدتها صاحبة المشروع:
+ * ① الوعد وزرّان ونبض المتجر  ② شبكة المتجر  ③ الأكثر طلباً  ④ الضمانات والدفع
+ */
 export default async function Home({
   params,
 }: {
@@ -13,41 +20,84 @@ export default async function Home({
   const { locale } = await params;
   setRequestLocale(locale);
 
-  const t = await getTranslations("home");
-  const te = await getTranslations("eyebrow");
+  const t = await getTranslations("hero2");
+  const tp = await getTranslations("short");
   const tc = await getTranslations("common");
 
+  // شبكة المتجر: كل الأقسام الظاهرة — ألعاب وحسابات معاً كما بالمعاينة
+  const shop = sections.filter((s) => s.status !== "off");
+
+  // الأكثر طلباً: أبرز الباقات لا القائمة كاملة
+  const uc = live(pubg);
+  const coins = live(icons);
+  const top = [
+    ...uc.filter((p) => p.popular),
+    ...uc.filter((p) => p.disc && !p.popular),
+    ...coins.filter((c) => c.popular),
+  ].slice(0, 4);
+
   return (
-    <main className="mx-auto flex max-w-5xl flex-col gap-8 px-4 py-6">
+    <main className="mx-auto flex max-w-5xl flex-col gap-9 px-4 py-6">
+      <HomeHero />
+
       <section>
-        <SectionHead
-        eyebrow={te("home")}
-          title={t("elecTitle")}
-          note={tc("count", { n: live(elec).length })}
-        />
-        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
-          {live(elec).map((p) => (
-            <ProductCard
-              key={p.id}
-              id={p.id}
-              name={p.name}
-              price={p.price}
-              old={p.old}
-              disc={p.disc}
-              desc={p.desc}
-              img={p.img}
-              Icon={IconDevice}
-              discLabel={tc("discount")}
-              soon={!isBuyable(p)}
+        <div className="mb-3.5 flex items-baseline gap-3">
+          <h2 className="text-xl font-bold">{t("shop")}</h2>
+          <Link
+            href="/games"
+            className="ms-auto text-sm font-bold text-orange hover:underline"
+          >
+            {t("all")}
+          </Link>
+        </div>
+        <div className="grid grid-cols-3 gap-3 sm:grid-cols-4 lg:grid-cols-6">
+          {shop.map((s) => (
+            <GameTile
+              key={s.key}
+              href={s.href}
+              icon={s.icon}
+              img={s.img}
+              title={tp(s.key)}
+              badge={s.badge}
+              badgeLabel={s.badge ? tc(s.badge) : undefined}
+              soon={s.status === "soon"}
               soonLabel={tc("soon")}
             />
           ))}
         </div>
       </section>
 
-      <TrustRow />
+      {top.length > 0 && (
+        <section>
+          <div className="mb-3.5 flex items-baseline gap-3">
+            <h2 className="text-xl font-bold">{t("popular")}</h2>
+            <Link
+              href="/games"
+              className="ms-auto text-sm font-bold text-orange hover:underline"
+            >
+              {t("all")}
+            </Link>
+          </div>
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
+            {top.map((p) => (
+              <VoucherLink
+                key={p.id}
+                href={"name" in p ? "/efootball" : "/pubg"}
+                amount={p.amount.toLocaleString("en")}
+                unit={"name" in p ? "eFootball" : "PUBG UC"}
+                price={p.price}
+                old={p.old}
+                disc={"disc" in p ? p.disc : undefined}
+                popular={p.popular}
+                popularLabel={tc("popular")}
+              />
+            ))}
+          </div>
+        </section>
+      )}
 
-      <p className="text-center text-sm text-muted">{tc("sampleData")}</p>
+      <TrustRow />
+      <PayChips />
     </main>
   );
 }

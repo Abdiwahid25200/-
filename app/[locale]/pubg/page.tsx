@@ -1,5 +1,5 @@
 import { getTranslations, setRequestLocale } from "next-intl/server";
-import Hero from "@/components/Hero";
+import SectionHead from "@/components/SectionHead";
 import BackLink from "@/components/BackLink";
 import PubgFlow from "@/components/flows/PubgFlow";
 import TrustRow from "@/components/TrustRow";
@@ -18,11 +18,10 @@ export default async function PubgPage({
   return (
     <main className="mx-auto flex max-w-4xl flex-col gap-5 px-4 py-6">
       <BackLink href="/games" />
-      <Hero
+      <SectionHead
         eyebrow={te("pubg")}
         title={t("pubg.title")}
-        badge={tc("instant")}
-        img="/images/pubg/hero.jpg"
+        note={t("pubg.note")}
       />
       <PubgFlow />
       <TrustRow />
