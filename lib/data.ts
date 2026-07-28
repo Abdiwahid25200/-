@@ -79,14 +79,13 @@ export const icons: CoinPack[] = [
   { id: "c6", name: "الباقة الكبرى", amount: 12000, price: 130, old: 145 },
 ];
 
-/** خدمات تيك توك */
-export const tiktok: Product[] = [
-  { id: "t1", name: "١٠٠٠ متابع", price: 8, disc: 25, desc: "متابعون حقيقيون · تسليم تدريجي" },
-  { id: "t2", name: "٥٠٠٠ متابع", price: 25, desc: "تسليم خلال ٢٤ ساعة" },
-  { id: "t3", name: "١٠٬٠٠٠ مشاهدة", price: 3, desc: "مشاهدات سريعة لأي فيديو" },
-  { id: "t4", name: "١٠٠٠ لايك", price: 5, disc: 20, desc: "تفاعل حقيقي" },
-  { id: "t5", name: "عملات تيك توك ٧٠٠", price: 9, desc: "شحن مباشر للحساب" },
-  { id: "t6", name: "عملات تيك توك ١٤٠٠", price: 20, disc: 15, desc: "شحن مباشر للحساب" },
+/** حسابات تيك توك الجاهزة — كل حساب فريد ويُباع مرة واحدة */
+export const tiktok: GameAccount[] = [
+  { id: "t1", title: "حساب تيك توك — ١٠ آلاف متابع", price: 35, note: "متابعون حقيقيون · تفاعل نشط" },
+  { id: "t2", title: "حساب تيك توك — ٢٥ ألف متابع", price: 75, note: "محتوى ترفيهي · جمهور عربي" },
+  { id: "t3", title: "حساب تيك توك — ٥٠ ألف متابع", price: 140, note: "مؤهّل للربح · إحصائيات ممتازة" },
+  { id: "t4", title: "حساب تيك توك — ١٠٠ ألف متابع", price: 260, note: "حساب مميّز · نمو مستقر" },
+  { id: "t5", title: "حساب موثّق ✓", price: 420, note: "علامة التوثيق الزرقاء" },
 ];
 
 /** حسابات eFootball الجاهزة — كل حساب فريد ويُباع مرة واحدة */
@@ -96,20 +95,28 @@ export const accounts: GameAccount[] = [
   { id: "a3", title: "حساب مبتدئ + ٢٠٠٠ كوينز", price: 15, note: "مناسب للبداية" },
 ];
 
-/** طرق الدفع — نفس شكل DB.pay في الموقع القديم */
+/** طرق الدفع — نفس شكل DB.pay في الموقع القديم، مع تجميع عالمي/محلي */
 export type PayMethod = {
   id: string;
   nameAr: string;
   nameEn: string;
   numbers: string[];
   ussd: string;
+  /** global = متاحة لأي زبون في العالم · local = تحويل محلي بكود USSD */
+  scope: "global" | "local";
   on: boolean;
 };
 
 export const pay: PayMethod[] = [
-  { id: "p1", nameAr: "EVC Plus", nameEn: "EVC Plus", numbers: ["612345678"], ussd: "*712*{num}*{amt}#", on: true },
-  { id: "p2", nameAr: "JEEB", nameEn: "JEEB", numbers: ["901234567"], ussd: "*789*{num}*{amt}#", on: true },
-  { id: "p3", nameAr: "E-Dahab", nameEn: "E-Dahab", numbers: ["651234567"], ussd: "*770*{num}*{amt}#", on: true },
+  // 🌍 عالمية — لأي زبون في أي بلد
+  { id: "g1", nameAr: "PayPal", nameEn: "PayPal", numbers: [], ussd: "", scope: "global", on: true },
+  { id: "g2", nameAr: "بطاقة ائتمان", nameEn: "Credit / Debit card", numbers: [], ussd: "", scope: "global", on: true },
+  { id: "g3", nameAr: "USDT (TRC20)", nameEn: "USDT (TRC20)", numbers: [], ussd: "", scope: "global", on: true },
+  { id: "g4", nameAr: "Binance Pay", nameEn: "Binance Pay", numbers: [], ussd: "", scope: "global", on: true },
+  // 🇸🇴 محلية — تحويل بكود USSD
+  { id: "p1", nameAr: "EVC Plus", nameEn: "EVC Plus", numbers: ["612345678"], ussd: "*712*{num}*{amt}#", scope: "local", on: true },
+  { id: "p2", nameAr: "JEEB", nameEn: "JEEB", numbers: ["901234567"], ussd: "*789*{num}*{amt}#", scope: "local", on: true },
+  { id: "p3", nameAr: "E-Dahab", nameEn: "E-Dahab", numbers: ["651234567"], ussd: "*770*{num}*{amt}#", scope: "local", on: true },
 ];
 
 /**
@@ -134,5 +141,6 @@ export const store = {
 
 /** شركاء الدفع — تُعرض بالفوتر وصفحة الدفع لبناء الثقة */
 export const partners = [
-  "EVC Plus", "JEEB", "E-Dahab", "ZAAD", "SAHAL", "WAAFI", "Premier Wallet",
+  "PayPal", "Visa", "Mastercard", "USDT", "Binance Pay",
+  "EVC Plus", "JEEB", "E-Dahab", "ZAAD", "SAHAL", "WAAFI",
 ];

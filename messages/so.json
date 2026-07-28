@@ -47,7 +47,7 @@
     "efootball": "eFootball Icons",
     "accounts": "Akoonnada",
     "efootballAccounts": "Akoonnada eFootball",
-    "tiktok": "TikTok",
+    "tiktok": "Akoonnada TikTok",
     "games": "Fiiri ciyaaraha",
     "game": "Bogga ciyaarta",
     "help": "Caawimaad & taageero",
@@ -91,8 +91,8 @@
       "note": "Akoonno buuxa — mid walba gaar ah"
     },
     "tiktok": {
-      "title": "TikTok",
-      "note": "Raacayaal, daawasho iyo lacag"
+      "title": "Akoonnada TikTok",
+      "note": "Akoonno diyaar ah oo raacayaal dhab ah leh"
     }
   },
   "buy": {
@@ -115,7 +115,12 @@
     "doneNote": "Kaydso koodhka dalabka si aad ula socoto",
     "sendWa": "Ku dir dalabka WhatsApp",
     "notSavedYet": "⚠️ Dalabkan halkan ayuu ku muuqdaa oo weli lama kaydin — kaydinta tooska ah waxay bilaabmaysaa marka xogta la isku xiro (Wajiga 3)",
-    "newOrder": "Dalab cusub"
+    "newOrder": "Dalab cusub",
+    "payGlobal": "🌍 Caalami",
+    "payGlobalNote": "Waa laga heli karaa dal kasta",
+    "payLocal": "🇸🇴 Wareejin maxalli ah",
+    "payLocalNote": "USSD taleefankaaga",
+    "globalNote": "Ka dib xaqiijinta waxaan kuu soo dirnaa faahfaahinta {method} lambarka aad gelisay."
   },
   "pubgFlow": {
     "title": "Faahfaahinta ciyaartoyga",
@@ -220,7 +225,7 @@
       },
       "payment": {
         "q": "Habab kee ah lacag-bixinta aad aqbashaan?",
-        "a": "Waxaan aqbalnaa EVC Plus, JEEB, E-Dahab, ZAAD, SAHAL, WAAFI iyo Premier Wallet."
+        "a": "Caalami: PayPal, kaararka bangiga, USDT iyo Binance Pay.\nSoomaaliya: EVC Plus, JEEB, E-Dahab, ZAAD, SAHAL iyo WAAFI."
       },
       "track": {
         "q": "Sidee ula socdaa dalabkayga?",
@@ -250,7 +255,7 @@
     },
     "delivery": {
       "title": "Siyaasadda gaarsiinta",
-      "body": "Alaabta dhijitaalka: gaarsiin degdeg ah marka lacagta la xaqiijiyo.\nElektaroonig: 1–2 maalmood Muqdisho gudaha, 2–4 maalmood magaalooyinka kale."
+      "body": "Alaabta dhijitaalka (buuxin, lacag ciyaareed, akoonno): gaarsiin degdeg ah adduunka oo dhan marka lacagta la xaqiijiyo.\nElektaroonig: gaarsiin Soomaaliya gudaheeda — 1–2 maalmood Muqdisho."
     }
   },
   "accountPage": {
@@ -268,10 +273,11 @@
     }
   },
   "tiktokFlow": {
-    "title": "Akoonka TikTok",
-    "note": "Geli magaca isticmaalaha si dalabku kuu soo gaaro",
+    "title": "Faahfaahinta xiriirka",
+    "note": "Waxaan xogta akoonka ku soo dirnaa lambarkan marka dalabka la aqbalo",
     "username": "Magaca isticmaalaha (@)",
-    "hint": "Geli magaca isticmaalaha si aad u sii wadato"
+    "hint": "Geli lambar WhatsApp si aad u sii wadato",
+    "contact": "Lambarka WhatsApp"
   },
   "accountsFlow": {
     "title": "Faahfaahinta xiriirka",

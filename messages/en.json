@@ -47,7 +47,7 @@
     "efootball": "eFootball Icons",
     "accounts": "Accounts",
     "efootballAccounts": "eFootball accounts",
-    "tiktok": "TikTok",
+    "tiktok": "TikTok accounts",
     "games": "Browse games",
     "game": "Game page",
     "help": "Help & support",
@@ -91,8 +91,8 @@
       "note": "Full accounts — each one unique"
     },
     "tiktok": {
-      "title": "TikTok",
-      "note": "Followers, views and coins"
+      "title": "TikTok accounts",
+      "note": "Ready accounts with real followers"
     }
   },
   "buy": {
@@ -115,7 +115,12 @@
     "doneNote": "Save the order code to track it",
     "sendWa": "Send order via WhatsApp",
     "notSavedYet": "⚠️ This order is shown here only and is not saved yet — automatic saving starts once the database is connected (Phase 3)",
-    "newOrder": "New order"
+    "newOrder": "New order",
+    "payGlobal": "🌍 International",
+    "payGlobalNote": "Available from any country",
+    "payLocal": "🇸🇴 Local transfer",
+    "payLocalNote": "Via USSD from your phone",
+    "globalNote": "After you confirm, we send the {method} payment details to the contact you entered."
   },
   "pubgFlow": {
     "title": "Player details",
@@ -220,7 +225,7 @@
       },
       "payment": {
         "q": "Which payment methods do you accept?",
-        "a": "We accept EVC Plus, JEEB, E-Dahab, ZAAD, SAHAL, WAAFI and Premier Wallet."
+        "a": "Worldwide: PayPal, credit cards, USDT and Binance Pay.\nInside Somalia: EVC Plus, JEEB, E-Dahab, ZAAD, SAHAL and WAAFI."
       },
       "track": {
         "q": "How do I track my order?",
@@ -250,7 +255,7 @@
     },
     "delivery": {
       "title": "Delivery policy",
-      "body": "Digital products: instant delivery once payment is confirmed.\nElectronics: 1–2 days within Mogadishu, 2–4 days for other cities."
+      "body": "Digital products (top-ups, coins, accounts): instant delivery worldwide once payment is confirmed.\nElectronics: delivery within Somalia — 1–2 days in Mogadishu, 2–4 days elsewhere."
     }
   },
   "accountPage": {
@@ -268,10 +273,11 @@
     }
   },
   "tiktokFlow": {
-    "title": "TikTok account",
-    "note": "Enter your username so the order reaches your account",
+    "title": "Contact details",
+    "note": "We send the account details to this number once the order is accepted",
     "username": "Username (@)",
-    "hint": "Enter your username to continue"
+    "hint": "Enter a WhatsApp number to continue",
+    "contact": "WhatsApp number"
   },
   "accountsFlow": {
     "title": "Contact details",

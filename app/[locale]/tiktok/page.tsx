@@ -12,12 +12,16 @@ export default async function TiktokPage({
   const { locale } = await params;
   setRequestLocale(locale);
   const t = await getTranslations("accountsPage");
+  const ta = await getTranslations("accountItem");
   const th = await getTranslations("hero");
   const tc = await getTranslations("common");
 
   return (
     <main className="mx-auto flex max-w-4xl flex-col gap-5 px-4 py-6">
       <Hero eyebrow={th("browse")} title={t("tiktok.title")} />
+      <p className="rounded-card border border-line bg-surface p-3 text-sm text-muted">
+        {ta("unique")}
+      </p>
       <TiktokFlow />
       <TrustRow />
       <PayPartners />
