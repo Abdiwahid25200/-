@@ -14,13 +14,28 @@ import { getAuth, type Auth } from "firebase/auth";
 import { getFirestore, type Firestore } from "firebase/firestore";
 import { getStorage, type FirebaseStorage } from "firebase/storage";
 
+/**
+ * إعدادات مشروع ramaa-store.
+ *
+ * موضوعة هنا عمداً لا في متغيّرات البيئة، لأنها **تُرسل للمتصفح على أي حال**:
+ * أي زائر يفتح "عرض المصدر" يراها. إخفاؤها وهمٌ لا أمان، وقد وثّقت Firebase ذلك.
+ * الحماية الحقيقية في `firestore.rules` و`storage.rules` المنشورَين.
+ *
+ * ومع ذلك تبقى متغيّرات البيئة أولوية، فيمكن تبديل المشروع من Vercel دون لمس الكود.
+ */
 const cfg = {
-  apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
-  authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
-  projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
-  storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
-  messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_SENDER_ID,
-  appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
+  apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY
+    ?? "AIzaSyDuw9sVohgx7r54b5zHJiI5HROVCsseSwY",
+  authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN
+    ?? "ramaa-store.firebaseapp.com",
+  projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID
+    ?? "ramaa-store",
+  storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET
+    ?? "ramaa-store.firebasestorage.app",
+  messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_SENDER_ID
+    ?? "59748368720",
+  appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID
+    ?? "1:59748368720:web:8aedca2bea1167380fec55",
 };
 
 /** هل ضُبطت الإعدادات؟ يُستخدم في الواجهة لإظهار الوضع اليدوي بدل التعطّل */
