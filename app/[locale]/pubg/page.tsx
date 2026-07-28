@@ -23,7 +23,6 @@ export default async function PubgPage({
         note={t("pubg.note")}
       />
       <PubgFlow />
-      <p className="text-center text-sm text-muted">{tc("sampleData")}</p>
     </main>
   );
 }

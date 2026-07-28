@@ -23,11 +23,7 @@ export default async function EfootAccountsPage({
         title={t("efootball.title")}
         note={t("efootball.note")}
       />
-      <p className="rounded-card border border-line bg-surface p-3 text-sm text-muted">
-        {ta("unique")}
-      </p>
       <AccountsFlow />
-      <p className="text-center text-sm text-muted">{tc("sampleData")}</p>
     </main>
   );
 }

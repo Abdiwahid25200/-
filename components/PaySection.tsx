@@ -166,11 +166,6 @@ export default function PaySection({
           );
         })}
       </div>
-
-      <div className="mt-4 rounded-card border border-dashed border-line p-4 text-center">
-        <p className="font-medium">{t("receipt")}</p>
-        <p className="mt-1 text-sm text-muted">{t("receiptSoon")}</p>
-      </div>
     </section>
   );
 }

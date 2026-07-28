@@ -23,11 +23,7 @@ export default async function TiktokPage({
         title={t("tiktok.title")}
         note={t("tiktok.note")}
       />
-      <p className="rounded-card border border-line bg-surface p-3 text-sm text-muted">
-        {ta("unique")}
-      </p>
       <TiktokFlow />
-      <p className="text-center text-sm text-muted">{tc("sampleData")}</p>
     </main>
   );
 }

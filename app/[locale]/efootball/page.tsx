@@ -23,7 +23,6 @@ export default async function EfootballPage({
         note={t("efootball.note")}
       />
       <EfootFlow />
-      <p className="text-center text-sm text-muted">{tc("sampleData")}</p>
     </main>
   );
 }
