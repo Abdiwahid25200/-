@@ -7,6 +7,7 @@ import PaySection from "./PaySection";
 import { fin, fmt } from "@/lib/format";
 import { pay, wa } from "@/lib/data";
 import { useAuth } from "@/lib/auth";
+import { Link } from "@/i18n/navigation";
 import { saveOrder } from "@/lib/orders";
 
 export type Pack = {
@@ -59,7 +60,7 @@ export default function BuyFlow({
   /** نتيجة حفظ الطلب في قاعدة البيانات — تُعرض للزبون بصراحة */
   const [saved, setSaved] = useState<"idle" | "saving" | "ok" | "auth" | "local" | "error">("idle");
 
-  const { user, enabled: authOn, signIn } = useAuth();
+  const { user, enabled: authOn } = useAuth();
 
   const found = packs.find((p) => p.id === packId) ?? null;
   // حارس: لو أُغلقت باقة مختارة سابقاً تُهمل بدل أن تُشترى
@@ -145,13 +146,12 @@ export default function BuyFlow({
           {saved === "auth" && authOn && (
             <div className="mt-3">
               <p className="text-sm text-muted">{t("savePrompt")}</p>
-              <button
-                type="button"
-                onClick={() => signIn().catch(() => {})}
-                className="mt-2 min-h-12 rounded-card border border-line px-5 text-sm font-bold transition-colors hover:border-orange"
+              <Link
+                href="/login"
+                className="mt-2 inline-flex min-h-12 items-center rounded-card border border-line px-5 text-sm font-bold transition-colors hover:border-orange"
               >
                 {tc("googleSignIn")}
-              </button>
+              </Link>
             </div>
           )}
           {(saved === "local" || saved === "error") && (

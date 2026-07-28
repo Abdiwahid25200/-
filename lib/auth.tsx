@@ -42,10 +42,21 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     const auth = fbAuth();
     if (!auth) return;
-    return onAuthStateChanged(auth, (u) => {
+
+    // مهلة أمان: لو تعذّر الوصول لجوجل (شبكة ضعيفة أو حجب) لا نترك الزبون
+    // أمام شاشة انتظار أبدية — نعتبره زائراً فيبقى قادراً على التصفّح والشراء.
+    const timer = setTimeout(() => setReady(true), 6000);
+
+    const stop = onAuthStateChanged(auth, (u) => {
+      clearTimeout(timer);
       setUser(u);
       setReady(true);
     });
+
+    return () => {
+      clearTimeout(timer);
+      stop();
+    };
   }, []);
 
   async function signIn() {

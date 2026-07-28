@@ -344,3 +344,45 @@ export function IconGoogle({ className = "" }: IconProps) {
     </svg>
   );
 }
+
+/* ─── أيقونات صفحة الدخول ───────────────────────────────── */
+
+/** نجمة الترحيب — أعلى بطاقة تسجيل الدخول */
+export function IconSparkle({ className = "" }: IconProps) {
+  return (
+    <svg viewBox="0 0 48 48" className={className} aria-hidden>
+      <path d="M24 8.5c1.4 6.6 4.9 10.1 11.5 11.5C28.9 21.4 25.4 24.9 24 31.5c-1.4-6.6-4.9-10.1-11.5-11.5C19.1 18.6 22.6 15.1 24 8.5Z" fill="currentColor" />
+      <path d="M34.5 27c.7 3.2 2.3 4.8 5.5 5.5-3.2.7-4.8 2.3-5.5 5.5-.7-3.2-2.3-4.8-5.5-5.5 3.2-.7 4.8-2.3 5.5-5.5Z" fill="currentColor" opacity=".85" />
+      <path d="M14 30c.5 2.2 1.6 3.3 3.8 3.8-2.2.5-3.3 1.6-3.8 3.8-.5-2.2-1.6-3.3-3.8-3.8 2.2-.5 3.3-1.6 3.8-3.8Z" fill="currentColor" opacity=".7" />
+    </svg>
+  );
+}
+
+/** درع بعلامة صح — لسطر الطمأنة "بياناتك آمنة" */
+export function IconShieldCheck({ className = "" }: IconProps) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" className={className} aria-hidden>
+      <path d="M12 3 20 6v6c0 4.7-3.2 8.4-8 9.8C7.2 20.4 4 16.7 4 12V6l8-3Z" stroke="currentColor" strokeWidth="1.6" strokeLinejoin="round" />
+      <path d="m9 12 2.2 2.2L15.5 10" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
+/** دائرة بعلامة صح — لرأس بطاقة إكمال التسجيل */
+export function IconCheckCircle({ className = "" }: IconProps) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" className={className} aria-hidden>
+      <circle cx="12" cy="12" r="9" stroke="currentColor" strokeWidth="1.6" />
+      <path d="m8.2 12.2 2.6 2.6 5-5.2" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
+/** سهم المتابعة — داخل زر الدخول الدائري */
+export function IconArrow({ className = "" }: IconProps) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" className={className} aria-hidden>
+      <path d="M5 12h13M13 6.5 18.5 12 13 17.5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}

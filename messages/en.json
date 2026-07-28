@@ -295,7 +295,8 @@
       "paid": "Paid",
       "done": "Delivered",
       "cancelled": "Cancelled"
-    }
+    },
+    "completeProfile": "Complete your registration →"
   },
   "tiktokFlow": {
     "title": "Contact details",
@@ -322,5 +323,25 @@
     "sentTitle": "Message ready",
     "sentNote": "We will reply on the contact you provided.",
     "again": "Send another"
+  },
+  "login": {
+    "welcome": "Welcome",
+    "subtitle": "Ramaan Store login",
+    "googleTitle": "Sign in with Google",
+    "googleNote": "Use your Google account",
+    "trust": "Google secured · No payment · Instant",
+    "safe": "Your data is safe",
+    "completeTitle": "Complete registration",
+    "completeNote": "Add your number so we can deliver your order",
+    "phoneLabel": "Phone number",
+    "country": "Country code",
+    "completeBtn": "Complete registration",
+    "terms": "By signing in you agree to our Terms & Conditions",
+    "noName": "Customer",
+    "errSignin": "Sign-in did not complete. Please try again.",
+    "errSave": "Could not save your number. Please try again.",
+    "disabled": "Sign-in is not available yet.",
+    "signIn": "Sign in",
+    "phone": "Phone"
   }
 }

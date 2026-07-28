@@ -295,7 +295,8 @@
       "paid": "La bixiyay",
       "done": "La gaarsiiyay",
       "cancelled": "La joojiyay"
-    }
+    },
+    "completeProfile": "Dhameystir is-diiwaangelintaada →"
   },
   "tiktokFlow": {
     "title": "Faahfaahinta xiriirka",
@@ -322,5 +323,25 @@
     "sentTitle": "Farriintu diyaar bay tahay",
     "sentNote": "Waan kugu soo jawaabaynaa.",
     "again": "Dir mid kale"
+  },
+  "login": {
+    "welcome": "Ku soo dhawaada",
+    "subtitle": "Gelitaanka Ramaan Store",
+    "googleTitle": "Ku gal Google",
+    "googleNote": "Isticmaal akoonkaaga Google",
+    "trust": "Google ammaan ah · Lacag lama bixiyo · Degdeg ah",
+    "safe": "Xogtaadu waa ammaan",
+    "completeTitle": "Dhameystir is-diiwaangelinta",
+    "completeNote": "Ku dar lambarkaaga si aan dalabkaaga kuugu gaarsiinno",
+    "phoneLabel": "Lambarka taleefanka",
+    "country": "Koodka dalka",
+    "completeBtn": "Dhameystir is-diiwaangelinta",
+    "terms": "Adigoo galaya waxaad aqbashay Shuruudaha",
+    "noName": "Macmiil",
+    "errSignin": "Gelitaanku ma dhammaan. Fadlan isku day mar kale.",
+    "errSave": "Lambarkaaga lama kaydin. Fadlan isku day mar kale.",
+    "disabled": "Gelitaanku weli lama heli karo.",
+    "signIn": "Gal",
+    "phone": "Taleefan"
   }
 }

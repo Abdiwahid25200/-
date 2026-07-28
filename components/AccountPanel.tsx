@@ -5,7 +5,9 @@ import { useLocale, useTranslations } from "next-intl";
 import { useAuth } from "@/lib/auth";
 import { myOrders, type SavedOrder } from "@/lib/orders";
 import { fmt } from "@/lib/format";
-import { IconGoogle, IconUser } from "@/components/icons";
+import { IconUser } from "@/components/icons";
+import { Link } from "@/i18n/navigation";
+import { getProfile, isComplete, type Profile } from "@/lib/profile";
 import Badge from "@/components/Badge";
 
 const statusTone = {
@@ -19,32 +21,24 @@ const statusTone = {
 export default function AccountPanel() {
   const t = useTranslations("accountPage");
   const locale = useLocale();
-  const { user, ready, enabled, signIn, signOut } = useAuth();
+  const { user, ready, enabled, signOut } = useAuth();
 
   const [orders, setOrders] = useState<SavedOrder[] | null>(null);
-  const [busy, setBusy] = useState(false);
-  const [err, setErr] = useState(false);
+  const [profile, setProfile] = useState<Profile | null>(null);
 
   useEffect(() => {
-    if (!user) return setOrders(null);
+    if (!user) {
+      setOrders(null);
+      setProfile(null);
+      return;
+    }
     let live = true;
     myOrders(user).then((o) => live && setOrders(o));
+    getProfile(user).then((p) => live && setProfile(p));
     return () => {
       live = false;
     };
   }, [user]);
-
-  async function login() {
-    setBusy(true);
-    setErr(false);
-    try {
-      await signIn();
-    } catch {
-      setErr(true);
-    } finally {
-      setBusy(false);
-    }
-  }
 
   /* ── لم تُضبط إعدادات Firebase بعد ── */
   if (!enabled) {
@@ -72,16 +66,13 @@ export default function AccountPanel() {
   /* ── زائر ── */
   if (!user) {
     return (
-      <Guest note={err ? t("loginError") : t("guestNote")}>
-        <button
-          type="button"
-          onClick={login}
-          disabled={busy}
-          className="flex min-h-12 w-full items-center justify-center gap-3 rounded-card border border-line bg-bg font-bold transition-colors hover:border-orange disabled:opacity-50"
+      <Guest note={t("guestNote")}>
+        <Link
+          href="/login"
+          className="flex min-h-12 w-full items-center justify-center rounded-card bg-orange font-bold text-white transition-opacity hover:opacity-90"
         >
-          <IconGoogle className="size-5" />
-          {t("google")}
-        </button>
+          {t("login")}
+        </Link>
       </Guest>
     );
   }
@@ -103,6 +94,11 @@ export default function AccountPanel() {
           <span className="block truncate text-sm text-muted" dir="ltr">
             {user.email}
           </span>
+          {profile?.phone && (
+            <span className="block truncate text-sm text-muted" dir="ltr">
+              +{profile.phone}
+            </span>
+          )}
         </span>
         <button
           type="button"
@@ -112,6 +108,15 @@ export default function AccountPanel() {
           {t("signOut")}
         </button>
       </section>
+
+      {!isComplete(profile) && (
+        <Link
+          href="/login"
+          className="flex min-h-12 items-center justify-center rounded-card border border-dashed border-orange px-4 text-sm font-bold text-orange"
+        >
+          {t("completeProfile")}
+        </Link>
+      )}
 
       <section>
         <h2 className="mb-3 text-lg font-bold">{t("myOrders")}</h2>

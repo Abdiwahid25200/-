@@ -33,6 +33,19 @@ service cloud.firestore {
       allow write: if false;   // من Firebase Console فقط
     }
 
+    /* ── ملفّات الزبائن ──
+       رقم الهاتف الذي يُدخله الزبون بعد الدخول بجوجل (للتسليم عبر واتساب).
+       كل زبون يقرأ ويكتب وثيقته وحده — ولا يرى أرقام غيره أبداً. */
+    match /users/{uid} {
+      allow read: if isAdmin() || (isSignedIn() && request.auth.uid == uid);
+      allow create, update: if isSignedIn()
+        && request.auth.uid == uid
+        && request.resource.data.phone is string
+        && request.resource.data.phone.size() >= 7
+        && request.resource.data.phone.size() <= 20;
+      allow delete: if isAdmin();
+    }
+
     /* ── الطلبات ── */
     match /orders/{orderId} {
 
