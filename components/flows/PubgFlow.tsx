@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useTranslations } from "next-intl";
 import BuyFlow, { type Pack } from "@/components/BuyFlow";
 import { IconBolt } from "@/components/icons";
-import { pubg } from "@/lib/data";
+import { isBuyable, live, pubg } from "@/lib/data";
 
 type Vrf =
   | { kind: "idle" }
@@ -17,8 +17,9 @@ export default function PubgFlow() {
   const [pid, setPid] = useState("");
   const [vrf, setVrf] = useState<Vrf>({ kind: "idle" });
 
-  const packs: Pack[] = pubg.map((p) => ({
+  const packs: Pack[] = live(pubg).map((p) => ({
     id: p.id,
+    soon: !isBuyable(p),
     title: `${p.amount.toLocaleString("en")} UC`,
     price: p.price,
     old: p.old,

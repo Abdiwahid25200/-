@@ -5,7 +5,24 @@
  * لاحقاً مجرد تغيير مصدر البيانات دون لمس أي صفحة.
  */
 
-export type Product = {
+/* ═══════════════════════════════════════════════════════════
+   التحكّم بكل منتج وباقة — تُدار من: الإدارة ← المنتجات
+   ═══════════════════════════════════════════════════════════ */
+
+export type ItemStatus =
+  | "on"    // معروض ويُشترى        (الافتراضي إن لم يُذكر)
+  | "soon"  // معروض بشارة "قريباً" ولا يُشترى
+  | "off";  // مخفي تماماً
+
+/** الحقول المشتركة التي تُتيح التحكّم بأي عنصر معروض */
+type Controllable = {
+  /** الحالة — بحذفها يُعتبر العنصر "on" */
+  status?: ItemStatus;
+  /** ترتيب العرض — الأصغر أولاً. بلا رقم يبقى بترتيبه في المصفوفة */
+  order?: number;
+};
+
+export type Product = Controllable & {
   id: string;
   name: string;
   /** مسار الصورة داخل public/ — مثال: "/images/elec/headset.jpg" */
@@ -16,7 +33,7 @@ export type Product = {
   desc?: string;
 };
 
-export type UcPack = {
+export type UcPack = Controllable & {
   id: string;
   amount: number;
   img?: string;
@@ -28,7 +45,7 @@ export type UcPack = {
   disc?: number;
 };
 
-export type CoinPack = {
+export type CoinPack = Controllable & {
   id: string;
   name: string;
   amount: number;
@@ -39,13 +56,32 @@ export type CoinPack = {
   old?: number;
 };
 
-export type GameAccount = {
+export type GameAccount = Controllable & {
   id: string;
   title: string;
   img?: string;
   price: number;
   note?: string;
 };
+
+/**
+ * يستبعد المخفي (`off`) ويرتّب حسب `order`.
+ * **كل صفحة أو تدفّق شراء يمرّ بياناته من هنا** — فتغيير حالة عنصر واحد
+ * في هذا الملف يسري فوراً على الموقع كله دون تعديل أي صفحة.
+ */
+export const live = <T extends Controllable>(items: T[]): T[] =>
+  items
+    .filter((i) => i.status !== "off")
+    .map((i, idx) => ({ i, idx }))
+    // الترتيب مستقرّ: العناصر بلا order تبقى بترتيبها الأصلي
+    .sort((a, b) => (a.i.order ?? a.idx) - (b.i.order ?? b.idx) || a.idx - b.idx)
+    .map(({ i }) => i);
+
+/** هل العنصر قابل للشراء فعلاً؟ (`soon` يُعرض لكن لا يُشترى) */
+export const isBuyable = (i: Controllable) => (i.status ?? "on") === "on";
+
+/** عدد العناصر المعروضة — للعدّادات في بطاقات الأقسام */
+export const liveCount = (items: Controllable[]) => live(items).length;
 
 /** الإلكترونيات — تظهر بالصفحة الرئيسية */
 export const elec: Product[] = [

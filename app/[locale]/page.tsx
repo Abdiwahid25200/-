@@ -3,7 +3,7 @@ import SectionHead from "@/components/SectionHead";
 import TrustRow from "@/components/TrustRow";
 import ProductCard from "@/components/ProductCard";
 import { IconDevice } from "@/components/icons";
-import { elec } from "@/lib/data";
+import { elec, isBuyable, live } from "@/lib/data";
 
 export default async function Home({
   params,
@@ -21,10 +21,10 @@ export default async function Home({
       <section>
         <SectionHead
           title={t("elecTitle")}
-          note={tc("count", { n: elec.length })}
+          note={tc("count", { n: live(elec).length })}
         />
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
-          {elec.map((p) => (
+          {live(elec).map((p) => (
             <ProductCard
               key={p.id}
               id={p.id}
@@ -36,6 +36,8 @@ export default async function Home({
               img={p.img}
               Icon={IconDevice}
               discLabel={tc("discount")}
+              soon={!isBuyable(p)}
+              soonLabel={tc("soon")}
             />
           ))}
         </div>

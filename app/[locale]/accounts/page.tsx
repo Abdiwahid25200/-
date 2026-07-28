@@ -3,11 +3,11 @@ import SectionHead from "@/components/SectionHead";
 import CategoryCard from "@/components/CategoryCard";
 import BackLink from "@/components/BackLink";
 import { visibleSections } from "@/lib/content";
-import { accounts, tiktok } from "@/lib/data";
+import { accounts, live, tiktok } from "@/lib/data";
 
 const COUNTS: Record<string, number> = {
-  efootballAccounts: accounts.length,
-  tiktok: tiktok.length,
+  efootballAccounts: live(accounts).length,
+  tiktok: live(tiktok).length,
 };
 
 export default async function AccountsPage({

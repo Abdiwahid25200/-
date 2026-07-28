@@ -17,6 +17,8 @@ export type Pack = {
   img?: string;
   instant?: boolean;
   popular?: boolean;
+  /** "قريباً" — تُعرض الباقة معطّلة ولا تُختار */
+  soon?: boolean;
 };
 
 /** رمز الطلب بنفس صيغة الموقع القديم: M-123456 */
@@ -50,7 +52,9 @@ export default function BuyFlow({
   const [payId, setPayId] = useState<string | null>(null);
   const [done, setDone] = useState<null | { code: string; at: string }>(null);
 
-  const pack = packs.find((p) => p.id === packId) ?? null;
+  const found = packs.find((p) => p.id === packId) ?? null;
+  // حارس: لو أُغلقت باقة مختارة سابقاً تُهمل بدل أن تُشترى
+  const pack = found && !found.soon ? found : null;
   const total = pack ? fin(pack) : 0;
   const canConfirm = !!pack && accountReady;
 
@@ -173,14 +177,16 @@ export default function BuyFlow({
               img={p.img}
               instant={p.instant}
               popular={p.popular}
+              soon={p.soon}
               selected={p.id === packId}
-              onSelect={() => setPackId(p.id)}
+              onSelect={() => !p.soon && setPackId(p.id)}
               labels={{
                 disc: tc("discount"),
                 instant: tc("instant"),
                 popular: tc("popular"),
                 buy: tc("buy"),
                 selected: tc("selected"),
+                soon: tc("soon"),
               }}
               Icon={Icon}
             />

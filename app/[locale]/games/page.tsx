@@ -3,11 +3,11 @@ import SectionHead from "@/components/SectionHead";
 import CategoryCard from "@/components/CategoryCard";
 import BackLink from "@/components/BackLink";
 import { visibleSections } from "@/lib/content";
-import { icons, pubg } from "@/lib/data";
+import { icons, live, pubg } from "@/lib/data";
 
 const COUNTS: Record<string, number> = {
-  pubg: pubg.length,
-  efootball: icons.length,
+  pubg: live(pubg).length,
+  efootball: live(icons).length,
 };
 
 export default async function GamesPage({

@@ -4,15 +4,16 @@ import { useState } from "react";
 import { useTranslations } from "next-intl";
 import BuyFlow, { type Pack } from "@/components/BuyFlow";
 import { IconMusic } from "@/components/icons";
-import { tiktok } from "@/lib/data";
+import { isBuyable, live, tiktok } from "@/lib/data";
 
 /** حسابات تيك توك — كل حساب فريد، فالزبون يعطي رقم تواصل لاستلام البيانات */
 export default function TiktokFlow() {
   const t = useTranslations("tiktokFlow");
   const [contact, setContact] = useState("");
 
-  const packs: Pack[] = tiktok.map((a) => ({
+  const packs: Pack[] = live(tiktok).map((a) => ({
     id: a.id,
+    soon: !isBuyable(a),
     title: a.title,
     sub: a.note,
     price: a.price,

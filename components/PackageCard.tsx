@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import Badge from "./Badge";
+import { IconBolt } from "./icons";
 import { fin, fmt } from "@/lib/format";
 
 type Props = {
@@ -21,8 +22,11 @@ type Props = {
     popular: string;
     buy: string;
     selected: string;
+    soon: string;
   };
   Icon: (p: { className?: string }) => React.ReactElement;
+  /** حالة "قريباً" — تُعرض الباقة معطّلة ولا تُختار */
+  soon?: boolean;
 };
 
 /** بطاقة باقة — صورة كبيرة + سعر أخضر + زر شراء، وتتحدّد بإطار ملوّن عند الاختيار */
@@ -39,6 +43,7 @@ export default function PackageCard({
   onSelect,
   labels,
   Icon,
+  soon,
 }: Props) {
   const final = fin({ price, disc });
   const before = old ?? (disc ? price : undefined);
@@ -47,11 +52,14 @@ export default function PackageCard({
     <button
       type="button"
       onClick={onSelect}
+      disabled={soon}
       aria-pressed={selected}
       className={`group flex flex-col overflow-hidden rounded-card border-2 text-start transition-all ${
-        selected
-          ? "border-orange shadow-md"
-          : "border-line bg-surface hover:border-orange/50 hover:shadow-sm"
+        soon
+          ? "cursor-not-allowed border-line bg-surface opacity-60"
+          : selected
+            ? "border-orange shadow-md"
+            : "border-line bg-surface hover:border-orange/50 hover:shadow-sm"
       }`}
     >
       {/* الصورة */}
@@ -77,9 +85,19 @@ export default function PackageCard({
           {popular && <Badge tone="blue">★ {labels.popular}</Badge>}
         </span>
 
-        {instant && (
+        {instant && !soon && (
           <span className="absolute bottom-1.5 start-1.5">
-            <Badge tone="soft">⚡ {labels.instant}</Badge>
+            <Badge tone="soft">
+              {/* أيقونة حقيقية بدل الإيموجي — ثابتة على كل جهاز */}
+              <IconBolt className="me-1 inline-block size-3.5 align-[-2px]" />
+              {labels.instant}
+            </Badge>
+          </span>
+        )}
+
+        {soon && (
+          <span className="absolute inset-0 flex items-center justify-center bg-navy/65 text-sm font-bold text-white">
+            {labels.soon}
           </span>
         )}
       </div>
@@ -103,12 +121,18 @@ export default function PackageCard({
 
           <span
             className={`rounded-card px-3 py-1.5 text-xs font-bold transition-colors ${
-              selected
-                ? "bg-orange text-white"
-                : "bg-yellow/12 text-yellow group-hover:bg-yellow group-hover:text-white"
+              soon
+                ? "bg-line text-muted"
+                : selected
+                  ? "bg-orange text-white"
+                  : "bg-yellow/12 text-yellow group-hover:bg-yellow group-hover:text-white"
             }`}
           >
-            {selected ? "✓ " + labels.selected : labels.buy}
+            {soon
+              ? labels.soon
+              : selected
+                ? "✓ " + labels.selected
+                : labels.buy}
           </span>
         </div>
       </div>

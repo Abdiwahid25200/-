@@ -281,3 +281,54 @@ export function IconBack({ className = "" }: IconProps) {
     </svg>
   );
 }
+
+/* ─── أيقونات الضمانات (صف الثقة) — بدل الإيموجي ─────────────
+   الإيموجي يختلف شكله بين آيفون وأندرويد وويندوز، وهذه ثابتة على كل جهاز. */
+
+/** تسليم فوري — صاعقة على خلفية كهرمانية */
+export function IconTrustInstant({ className = "" }: IconProps) {
+  return (
+    <svg viewBox="0 0 48 48" className={className} aria-hidden>
+      <rect width="48" height="48" rx="12" fill="#F2A900" />
+      <path d="M26.5 10 15 26h7.5L21 38l12-16.5h-7.6L26.5 10Z" fill="#fff" />
+    </svg>
+  );
+}
+
+/** دفع آمن — درع بقفل على خلفية زرقاء */
+export function IconTrustSecure({ className = "" }: IconProps) {
+  return (
+    <svg viewBox="0 0 48 48" className={className} aria-hidden>
+      <rect width="48" height="48" rx="12" fill="#3D5AFE" />
+      <path d="M24 10.5 34 14.5v8.2c0 6.6-4.2 11.6-10 14-5.8-2.4-10-7.4-10-14V14.5l10-4Z" fill="#fff" />
+      <path d="M20.6 23.4v-2.6a3.4 3.4 0 0 1 6.8 0v2.6" fill="none" stroke="#3D5AFE" strokeWidth="2.2" strokeLinecap="round" />
+      <rect x="19" y="23.2" width="10" height="8" rx="2" fill="#3D5AFE" />
+    </svg>
+  );
+}
+
+/** دعم مباشر — فقاعة محادثة على خلفية واتساب خضراء */
+export function IconTrustSupport({ className = "" }: IconProps) {
+  return (
+    <svg viewBox="0 0 48 48" className={className} aria-hidden>
+      <rect width="48" height="48" rx="12" fill="#25D366" />
+      <path d="M24 12c-7.2 0-13 4.6-13 10.4 0 3.3 1.9 6.2 4.8 8.1L15 38l6.9-3.6c.7.1 1.4.2 2.1.2 7.2 0 13-4.6 13-10.2S31.2 12 24 12Z" fill="#fff" />
+      <g fill="#25D366">
+        <circle cx="18.6" cy="23.4" r="1.9" />
+        <circle cx="24" cy="23.4" r="1.9" />
+        <circle cx="29.4" cy="23.4" r="1.9" />
+      </g>
+    </svg>
+  );
+}
+
+/** طلبات مضمونة — وسام بعلامة صح على خلفية خضراء */
+export function IconTrustGuarantee({ className = "" }: IconProps) {
+  return (
+    <svg viewBox="0 0 48 48" className={className} aria-hidden>
+      <rect width="48" height="48" rx="12" fill="#00B589" />
+      <path d="m24 10 3.1 2.6 4-.5 1.4 3.8 3.6 1.9-1 3.9 2.4 3.3-2.9 2.8.3 4-4 .9-2 3.5-3.9-1.4-3.9 1.4-2-3.5-4-.9.3-4L8.5 25l2.4-3.3-1-3.9 3.6-1.9 1.4-3.8 4 .5L24 10Z" fill="#fff" />
+      <path d="m19 24.2 3.6 3.6 7-7.2" fill="none" stroke="#00B589" strokeWidth="3.2" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
