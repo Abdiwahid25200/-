@@ -156,7 +156,8 @@
     "wait": "Waa la xaqiijinayaa…",
     "manual": "Gacan ayaan ku xaqiijin doonnaa markaan dalabkaaga eegno",
     "notFound": "Ciyaartoyga lama helin — hubi ID-ga",
-    "player": "Magaca ciyaaryahanka"
+    "player": "Magaca ciyaaryahanka",
+    "busy": "Isku dayo badan hadda — sug daqiiqad oo mar kale isku day."
   },
   "efootFlow": {
     "title": "Faahfaahinta akoonka eFootball",

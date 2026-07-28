@@ -10,7 +10,7 @@ type Vrf =
   | { kind: "idle" }
   | { kind: "wait" }
   | { kind: "ok"; name: string }
-  | { kind: "bad" | "notFound" | "manual" };
+  | { kind: "bad" | "notFound" | "manual" | "busy" };
 
 export default function PubgFlow() {
   const t = useTranslations("pubgFlow");
@@ -38,7 +38,16 @@ export default function PubgFlow() {
       const res = await fetch(`/api/verify-pubg?id=${clean}`, { cache: "no-store" });
       const d = await res.json();
       if (d.ok) return setVrf({ kind: "ok", name: d.name });
-      setVrf({ kind: d.reason === "not-found" ? "notFound" : d.reason === "bad-id" ? "bad" : "manual" });
+      setVrf({
+        kind:
+          d.reason === "not-found"
+            ? "notFound"
+            : d.reason === "bad-id"
+              ? "bad"
+              : d.reason === "busy"
+                ? "busy"
+                : "manual",
+      });
     } catch {
       setVrf({ kind: "manual" });
     }
@@ -53,6 +62,7 @@ export default function PubgFlow() {
     bad: "✕ " + t("badId"),
     notFound: "✕ " + t("notFound"),
     manual: t("manual"),
+    busy: t("busy"),
   };
   const tone =
     vrf.kind === "ok"

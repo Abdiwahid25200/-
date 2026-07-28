@@ -156,7 +156,8 @@
     "wait": "Verifying…",
     "manual": "We will verify manually when reviewing your order",
     "notFound": "Player not found — check the ID",
-    "player": "Character name"
+    "player": "Character name",
+    "busy": "Too many checks right now — wait a moment and try again."
   },
   "efootFlow": {
     "title": "eFootball account details",
