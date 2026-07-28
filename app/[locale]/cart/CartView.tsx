@@ -160,9 +160,16 @@ export default function CartView() {
 
             <div className="min-w-0 flex-1">
               <h3 className="truncate font-semibold">{l.name}</h3>
-              <p className="text-sm font-bold text-yellow" dir="ltr">
-                {fmt(l.price)}
+              {/* مجموع السطر لا سعر الحبّة: الزبون يرفع الكمّية فيتوقّع أن
+                  يرى المبلغ يرتفع. عرض سعر الحبّة وحده يوهمه أن الزيادة لم تُحسب. */}
+              <p className="num text-sm font-bold text-yellow" dir="ltr">
+                {fmt(l.price * l.qty)}
               </p>
+              {l.qty > 1 && (
+                <p className="num text-xs text-muted" dir="ltr">
+                  {fmt(l.price)} × {l.qty}
+                </p>
+              )}
             </div>
 
             <div className="flex shrink-0 items-center gap-1">
