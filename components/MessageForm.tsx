@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useTranslations } from "next-intl";
 import { site } from "@/lib/content";
+import { IconCheckCircle } from "./icons";
 
 /**
  * نموذج مراسلة الدعم.
@@ -37,8 +38,11 @@ export default function MessageForm() {
   if (sent) {
     return (
       <section className="rounded-card border-2 border-yellow bg-surface p-6 text-center">
-        <span aria-hidden className="text-3xl">
-          ✅
+        <span
+          aria-hidden
+          className="mx-auto flex size-12 items-center justify-center rounded-full bg-yellow/15 text-yellow"
+        >
+          <IconCheckCircle className="size-7" />
         </span>
         <h2 className="mt-2 text-lg font-bold">{t("sentTitle")}</h2>
         <p className="mt-1 text-sm text-muted">{t("sentNote")}</p>

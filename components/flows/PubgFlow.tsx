@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useTranslations } from "next-intl";
 import BuyFlow, { type Pack } from "@/components/BuyFlow";
-import { IconBolt, IconCheckCircle } from "@/components/icons";
+import { IconBolt, IconCheckCircle, IconSpinner } from "@/components/icons";
 import { isBuyable, live, pubg } from "@/lib/data";
 
 type Vrf =
@@ -57,7 +57,7 @@ export default function PubgFlow() {
 
   const MSG: Record<Vrf["kind"], string> = {
     idle: "",
-    wait: "⏳ " + t("wait"),
+    wait: t("wait"),
     ok: "",
     bad: "✕ " + t("badId"),
     notFound: "✕ " + t("notFound"),
@@ -132,7 +132,10 @@ export default function PubgFlow() {
               <IconCheckCircle className="size-6 shrink-0 text-orange" />
             </div>
           ) : vrf.kind !== "idle" ? (
-            <p className={`mt-2 text-sm ${tone}`}>{MSG[vrf.kind]}</p>
+            <p className={`mt-2 flex items-center gap-2 text-sm ${tone}`}>
+              {vrf.kind === "wait" && <IconSpinner className="size-4" />}
+              {MSG[vrf.kind]}
+            </p>
           ) : null}
         </section>
       }

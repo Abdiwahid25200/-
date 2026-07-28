@@ -528,3 +528,46 @@ export function IconCall({ className = "" }: IconProps) {
     </svg>
   );
 }
+
+/** سلّة مهملات — حذف صنف من السلة */
+export function IconTrash({ className = "" }: IconProps) {
+  return (
+    <svg viewBox="0 0 24 24" strokeWidth="1.8" className={`${base} ${className}`} aria-hidden>
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        d="M4.5 7h15M9.5 7V5.6c0-.6.5-1.1 1.1-1.1h2.8c.6 0 1.1.5 1.1 1.1V7M6.5 7l.8 11.4c.05.7.6 1.1 1.3 1.1h6.8c.7 0 1.25-.4 1.3-1.1L17.5 7M10.5 11v5M13.5 11v5"
+      />
+    </svg>
+  );
+}
+
+/** حلقة دوّارة — أثناء الحفظ. تتوقّف لمن فعّل "تقليل الحركة" */
+export function IconSpinner({ className = "" }: IconProps) {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      strokeWidth="2.2"
+      className={`${base} animate-spin ${className}`}
+      aria-hidden
+    >
+      <circle cx="12" cy="12" r="8.5" className="opacity-25" />
+      <path strokeLinecap="round" d="M20.5 12a8.5 8.5 0 0 0-8.5-8.5" />
+    </svg>
+  );
+}
+
+/** سلّة تسوّق فارغة — كبيرة، لشاشة "سلّتك فارغة" */
+export function IconCartEmpty({ className = "" }: IconProps) {
+  return (
+    <svg viewBox="0 0 24 24" strokeWidth="1.5" className={`${base} ${className}`} aria-hidden>
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        d="M3 4.5h2.2l2.1 10.4c.15.7.75 1.2 1.5 1.2h8.1c.7 0 1.3-.45 1.47-1.13L20.2 8H6.3"
+      />
+      <circle cx="10" cy="19.5" r="1.4" />
+      <circle cx="17" cy="19.5" r="1.4" />
+    </svg>
+  );
+}

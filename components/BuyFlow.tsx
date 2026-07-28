@@ -8,6 +8,7 @@ import { fin, fmt } from "@/lib/format";
 import { isBuyable, live, pay, wa } from "@/lib/data";
 import { useAuth } from "@/lib/auth";
 import { Link } from "@/i18n/navigation";
+import { IconCheckCircle, IconSpinner } from "./icons";
 import { saveOrder } from "@/lib/orders";
 
 export type Pack = {
@@ -153,8 +154,11 @@ export default function BuyFlow({
     return (
       <div className="flex flex-col gap-5">
         <section className="rounded-card border-2 border-yellow bg-surface p-5 text-center">
-          <span aria-hidden className="text-4xl">
-            ✅
+          <span
+            aria-hidden
+            className="mx-auto flex size-14 items-center justify-center rounded-full bg-yellow/15 text-yellow"
+          >
+            <IconCheckCircle className="size-8" />
           </span>
           <h2 className="mt-3 text-xl font-bold">{t("doneTitle")}</h2>
           <p className="mt-1 text-muted">{t("doneNote")}</p>
@@ -168,10 +172,14 @@ export default function BuyFlow({
 
           {/* حالة الحفظ — نصارح الزبون بدل أن نوهمه أن الطلب محفوظ */}
           {saved === "saving" && (
-            <p className="mt-3 text-sm text-muted">⏳ {t("saving")}</p>
+            <p className="mt-3 flex items-center justify-center gap-2 text-sm text-muted">
+              <IconSpinner className="size-4" /> {t("saving")}
+            </p>
           )}
           {saved === "ok" && (
-            <p className="mt-3 text-sm font-medium text-yellow">✓ {t("savedOk")}</p>
+            <p className="mt-3 flex items-center justify-center gap-2 text-sm font-medium text-yellow">
+              <IconCheckCircle className="size-4" /> {t("savedOk")}
+            </p>
           )}
           {saved === "auth" && authOn && (
             <div className="mt-3">
@@ -218,9 +226,12 @@ export default function BuyFlow({
           </a>
         )}
 
-        <p className="rounded-card border border-dashed border-line p-4 text-center text-sm text-muted">
-          {t("notSavedYet")}
-        </p>
+        {/* لا تُعرض إلا حين يتعذّر الحفظ فعلاً — كانت تناقض "حُفظ في حسابك" فوقها */}
+        {saved !== "ok" && saved !== "saving" && (
+          <p className="rounded-card border border-dashed border-line p-4 text-center text-sm text-muted">
+            {t("notSavedYet")}
+          </p>
+        )}
 
         <button
           type="button"

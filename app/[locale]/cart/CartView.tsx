@@ -9,7 +9,14 @@ import { fmt } from "@/lib/format";
 import { isBuyable, live, pay, wa } from "@/lib/data";
 import { useAuth } from "@/lib/auth";
 import { saveOrder } from "@/lib/orders";
-import { IconDevice } from "@/components/icons";
+import {
+  IconCartEmpty,
+  IconCheckCircle,
+  IconDevice,
+  IconSpinner,
+  IconTrash,
+} from "@/components/icons";
+import PaySection from "@/components/PaySection";
 
 const newCode = () => "M-" + Math.floor(100000 + Math.random() * 900000);
 
@@ -53,8 +60,11 @@ export default function CartView() {
     return (
       <div className="flex flex-col gap-5">
         <section className="rounded-card border-2 border-yellow bg-surface p-6 text-center">
-          <span aria-hidden className="text-4xl">
-            ✅
+          <span
+            aria-hidden
+            className="mx-auto flex size-14 items-center justify-center rounded-full bg-yellow/15 text-yellow"
+          >
+            <IconCheckCircle className="size-8" />
           </span>
           <h2 className="mt-3 text-xl font-bold">{tb("doneTitle")}</h2>
           <p className="mt-1 text-muted">{tb("doneNote")}</p>
@@ -66,8 +76,16 @@ export default function CartView() {
           </div>
 
           <div className="mt-3 text-sm">
-            {saved === "saving" && <span className="text-muted">⏳ {tb("saving")}</span>}
-            {saved === "ok" && <span className="font-medium text-yellow">✓ {tb("savedOk")}</span>}
+            {saved === "saving" && (
+              <span className="flex items-center justify-center gap-2 text-muted">
+                <IconSpinner className="size-4" /> {tb("saving")}
+              </span>
+            )}
+            {saved === "ok" && (
+              <span className="flex items-center justify-center gap-2 font-medium text-yellow">
+                <IconCheckCircle className="size-4" /> {tb("savedOk")}
+              </span>
+            )}
             {(saved === "auth" || saved === "local" || saved === "error") && (
               <span className="text-muted">{tb("saveManual")}</span>
             )}
@@ -85,9 +103,12 @@ export default function CartView() {
           </a>
         )}
 
-        <p className="rounded-card border border-dashed border-line p-4 text-center text-sm text-muted">
-          {tb("notSavedYet")}
-        </p>
+        {/* لا تُعرض إلا حين يتعذّر الحفظ فعلاً — كانت تظهر فوق "حُفظ في حسابك" فتناقضه */}
+        {saved !== "ok" && saved !== "saving" && (
+          <p className="rounded-card border border-dashed border-line p-4 text-center text-sm text-muted">
+            {tb("notSavedYet")}
+          </p>
+        )}
 
         <Link
           href="/"
@@ -103,9 +124,7 @@ export default function CartView() {
   if (count === 0) {
     return (
       <div className="flex flex-col items-center gap-4 py-16 text-center">
-        <span aria-hidden className="text-5xl">
-          🛒
-        </span>
+        <IconCartEmpty className="size-16 text-muted" />
         <h2 className="text-xl font-bold">{t("empty")}</h2>
         <p className="text-muted">{t("emptyNote")}</p>
         <Link
@@ -171,7 +190,7 @@ export default function CartView() {
               aria-label={t("remove")}
               className="flex size-10 shrink-0 items-center justify-center rounded-card text-muted hover:text-danger"
             >
-              🗑
+              <IconTrash className="size-5" />
             </button>
           </article>
         ))}
@@ -214,28 +233,9 @@ export default function CartView() {
         </div>
       </section>
 
-      {/* طريقة الدفع */}
-      <section className="rounded-card border border-line bg-surface p-4">
-        <h2 className="mb-3 text-lg font-bold">{tb("payTitle")}</h2>
-        <div className="flex flex-wrap gap-2">
-          {methods.map((m) => {
-            const on = m.id === method?.id;
-            return (
-              <button
-                key={m.id}
-                type="button"
-                onClick={() => setPayId(m.id)}
-                aria-pressed={on}
-                className={`flex min-h-12 items-center rounded-card border-2 px-4 font-medium transition-colors ${
-                  on ? "border-orange bg-orange/5 text-orange" : "border-line text-muted"
-                }`}
-              >
-                {locale === "ar" ? m.nameAr : m.nameEn}
-              </button>
-            );
-          })}
-        </div>
-      </section>
+      {/* طريقة الدفع — نفس القسم المستعمل في صفحات الألعاب بالضبط،
+          فلا يتعلّم الزبون شكلين لشيء واحد، ويصله كود التحويل هنا أيضاً */}
+      <PaySection amount={total} selected={payId} onSelect={setPayId} />
 
       {/* الإجمالي والتأكيد */}
       <section className="rounded-card border border-line bg-surface p-4">
