@@ -11,12 +11,21 @@ import { IconCart, IconDoc, IconMenu, IconSupport, IconUser } from "./icons";
 import SectionIcon, { type SectionIconKey } from "./SectionIcon";
 import { sections } from "@/lib/content";
 
-/** الأقسام تُقرأ من الإعدادات — القسم الموقوف (off) لا يظهر بالقائمة */
+/**
+ * الأقسام تُقرأ من الإعدادات — القسم الموقوف (off) لا يظهر بالقائمة.
+ *
+ * ولا يُضاف "الإلكترونيات" يدوياً هنا: هو قسمٌ في `sections` أصلاً، وإضافته
+ * كانت تُظهره **مرّتين** في القائمة الجانبية.
+ */
 const shop = [
-  { key: "electronics", href: "/", icon: "device" as SectionIconKey },
   ...sections
     .filter((s) => s.status === "on")
-    .map((s) => ({ key: s.key, href: s.href, icon: s.icon as SectionIconKey })),
+    .map((s) => ({
+      key: s.key,
+      href: s.href,
+      icon: s.icon as SectionIconKey,
+      img: s.img,
+    })),
   { key: "games", href: "/games", icon: "games" as SectionIconKey },
 ];
 
@@ -68,6 +77,8 @@ export default function MenuDrawer({ phone }: { phone?: string }) {
       href: string;
       Icon?: (p: { className?: string }) => React.ReactElement;
       icon?: SectionIconKey;
+      /** صورة القسم متى رُفعت — تحلّ محلّ الأيقونة المرسومة */
+      img?: string;
     }[];
   }) {
     return (
@@ -76,10 +87,17 @@ export default function MenuDrawer({ phone }: { phone?: string }) {
           {title}
         </h3>
         <ul>
-          {items.map(({ key, href, Icon, icon }) => (
+          {items.map(({ key, href, Icon, icon, img }) => (
             <li key={key}>
               <Link href={href} onClick={() => setOpen(false)} className={row}>
-                {icon ? (
+                {img ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    src={img}
+                    alt=""
+                    className="size-7 shrink-0 rounded-[9px] border border-line object-cover"
+                  />
+                ) : icon ? (
                   <SectionIcon name={icon} className="size-7 shrink-0" />
                 ) : Icon ? (
                   <Icon className="size-5 shrink-0 text-muted" />
