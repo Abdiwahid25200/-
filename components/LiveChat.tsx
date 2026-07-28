@@ -102,6 +102,20 @@ export default function LiveChat() {
 
   return (
     <>
+      {/* ── لافتة الترحيب فوق الزرّ ─────────────────────
+          الزرّ وحده أيقونة صامتة قد لا يفهمها الزبون؛ سطرٌ فوقه يدعوه
+          للكلام. تختفي فور فتح الدردشة فلا تزاحم المحادثة. */}
+      {!open && (
+        <button
+          type="button"
+          onClick={toggle}
+          style={{ bottom: `calc(${ABOVE_NAV} + 3.9rem)` }}
+          className="chat-in fixed right-3 z-40 max-w-[min(15rem,calc(100vw-1.5rem))] rounded-[16px] rounded-br-[4px] border border-line bg-surface px-3.5 py-2 text-start text-sm font-medium shadow-[0_8px_22px_rgba(0,0,0,0.14)]"
+        >
+          {t("teaser")}
+        </button>
+      )}
+
       {/* ── الزرّ العائم ───────────────────────────────── */}
       <button
         type="button"

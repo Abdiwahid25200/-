@@ -6,6 +6,8 @@
  * فأي نص أو رقم يظهر للزبون يجب أن يعيش هنا — لا داخل المكوّنات.
  */
 
+import { isBuyable, live, pay } from "./data";
+
 export type Multilang = { en: string; ar: string; so: string };
 
 /** بيانات المتجر — تُعدَّل من: الإدارة ← عام ← الإعدادات */
@@ -54,19 +56,18 @@ export const footerLinks = {
 } as const;
 
 /** وسائل الدفع المعروضة بالفوتر — تُعدَّل من: الإدارة ← الطلبات ← طرق الدفع */
-export const acceptedPayments = [
-  "PayPal",
-  "Visa",
-  "Mastercard",
-  "USDT",
-  "Binance Pay",
-  "EVC Plus",
-  "JEEB",
-  "E-Dahab",
-  "ZAAD",
-  "SAHAL",
-  "WAAFI",
-];
+/**
+ * وسائل الدفع المعروضة بالفوتر وصفحة الدعم.
+ *
+ * ⚠️ تُشتقّ من `pay` في `lib/data.ts` ولا تُكتب يدوياً: القائمة اليدوية
+ * كانت تَعِد الزبون بوسائل لا تعمل، فيصل لخطوة الدفع فلا يجدها. الآن
+ * مصدر واحد للحقيقة — تشغيل وسيلة أو إيقافها يسري على الموقع كلّه.
+ */
+export const acceptedPayments = () =>
+  live(pay).map((m) => ({
+    name: m.nameEn,
+    soon: !isBuyable(m),
+  }));
 
 /* ═══════════════════════════════════════════════════════════
    أقسام المتجر — تُدار من: الإدارة ← الموقع ← الأقسام

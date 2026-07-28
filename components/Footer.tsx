@@ -112,15 +112,18 @@ export default async function Footer({ locale }: { locale: string }) {
         {/* وسائل الدفع — تُعرض هنا فقط، لا تتكرر في الصفحات */}
         <div className="mt-8 flex flex-wrap items-center justify-center gap-2 border-t border-line pt-6">
           <span className="text-sm font-medium">{t("weAccept")}</span>
-          {acceptedPayments.map((p) => (
-            <span
-              key={p}
-              dir="ltr"
-              className="rounded-card border border-line bg-bg px-3 py-1.5 text-xs font-semibold text-muted"
-            >
-              {p}
-            </span>
-          ))}
+          {acceptedPayments()
+            // الفوتر يقول "نقبل" — فلا يُذكر فيه إلا ما يُقبل فعلاً اليوم
+            .filter((p) => !p.soon)
+            .map((p) => (
+              <span
+                key={p.name}
+                dir="ltr"
+                className="rounded-card border border-line bg-bg px-3 py-1.5 text-xs font-semibold text-muted"
+              >
+                {p.name}
+              </span>
+            ))}
         </div>
 
         <p className="mt-6 text-center text-sm text-muted">

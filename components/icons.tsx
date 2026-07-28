@@ -196,7 +196,7 @@ export function IconTelegram({ className = "" }: IconProps) {
 export function IconClock({ className = "" }: IconProps) {
   return (
     <svg viewBox="0 0 48 48" className={className} aria-hidden>
-      <rect width="48" height="48" rx="12" fill="#F5A623" />
+      <rect width="48" height="48" rx="12" fill="var(--accent-2)" />
       <circle cx="24" cy="24" r="11" fill="none" stroke="#fff" strokeWidth="2.6" />
       <path d="M24 17.5V24l4.5 3" fill="none" stroke="#fff" strokeWidth="2.6" strokeLinecap="round" />
     </svg>
@@ -206,7 +206,7 @@ export function IconClock({ className = "" }: IconProps) {
 export function IconChat({ className = "" }: IconProps) {
   return (
     <svg viewBox="0 0 48 48" className={className} aria-hidden>
-      <rect width="48" height="48" rx="12" fill="#3D5AFE" />
+      <rect width="48" height="48" rx="12" fill="var(--accent)" />
       <path
         d="M14 17.5A2.5 2.5 0 0 1 16.5 15h15a2.5 2.5 0 0 1 2.5 2.5v10a2.5 2.5 0 0 1-2.5 2.5H23l-6 5v-5h-.5a2.5 2.5 0 0 1-2.5-2.5v-10Z"
         fill="none" stroke="#fff" strokeWidth="2.4" strokeLinejoin="round"
@@ -254,7 +254,7 @@ export function IconTiktokColor({ className = "" }: IconProps) {
 export function IconDeviceColor({ className = "" }: IconProps) {
   return (
     <svg viewBox="0 0 48 48" className={className} aria-hidden>
-      <rect width="48" height="48" rx="12" fill="#3D5AFE" />
+      <rect width="48" height="48" rx="12" fill="var(--accent)" />
       <rect x="16" y="10" width="16" height="28" rx="3.5" fill="#fff" />
       <rect x="18" y="14" width="12" height="18" rx="1.5" fill="#0D1424" opacity=".85" />
       <circle cx="24" cy="35" r="1.6" fill="#0D1424" opacity=".55" />
@@ -265,11 +265,11 @@ export function IconDeviceColor({ className = "" }: IconProps) {
 export function IconGamesColor({ className = "" }: IconProps) {
   return (
     <svg viewBox="0 0 48 48" className={className} aria-hidden>
-      <rect width="48" height="48" rx="12" fill="#6B3DFE" />
+      <rect width="48" height="48" rx="12" fill="var(--accent)" />
       <path d="M16 18h16a6 6 0 0 1 6 6.2l-.5 5.4a3.8 3.8 0 0 1-6.8 2l-1.9-2.6h-7.6l-1.9 2.6a3.8 3.8 0 0 1-6.8-2l-.5-5.4A6 6 0 0 1 16 18Z" fill="#fff" />
-      <path d="M18.5 24h4M20.5 22v4" stroke="#6B3DFE" strokeWidth="2.2" strokeLinecap="round" />
-      <circle cx="29" cy="23.5" r="1.7" fill="#6B3DFE" />
-      <circle cx="32.5" cy="26.5" r="1.7" fill="#6B3DFE" />
+      <path d="M18.5 24h4M20.5 22v4" stroke="var(--accent)" strokeWidth="2.2" strokeLinecap="round" />
+      <circle cx="29" cy="23.5" r="1.7" fill="var(--accent)" />
+      <circle cx="32.5" cy="26.5" r="1.7" fill="var(--accent)" />
     </svg>
   );
 }
@@ -289,8 +289,8 @@ export function IconBack({ className = "" }: IconProps) {
 export function IconTrustInstant({ className = "" }: IconProps) {
   return (
     <svg viewBox="0 0 48 48" className={className} aria-hidden>
-      <rect width="48" height="48" rx="12" fill="#F2A900" />
-      <path d="M26.5 10 15 26h7.5L21 38l12-16.5h-7.6L26.5 10Z" fill="#fff" />
+      <rect width="48" height="48" rx="12" fill="var(--accent-2)" />
+      <path d="M26.5 10 15 26h7.5L21 38l12-16.5h-7.6L26.5 10Z" fill="var(--on-accent)" />
     </svg>
   );
 }
@@ -299,10 +299,10 @@ export function IconTrustInstant({ className = "" }: IconProps) {
 export function IconTrustSecure({ className = "" }: IconProps) {
   return (
     <svg viewBox="0 0 48 48" className={className} aria-hidden>
-      <rect width="48" height="48" rx="12" fill="#3D5AFE" />
-      <path d="M24 10.5 34 14.5v8.2c0 6.6-4.2 11.6-10 14-5.8-2.4-10-7.4-10-14V14.5l10-4Z" fill="#fff" />
-      <path d="M20.6 23.4v-2.6a3.4 3.4 0 0 1 6.8 0v2.6" fill="none" stroke="#3D5AFE" strokeWidth="2.2" strokeLinecap="round" />
-      <rect x="19" y="23.2" width="10" height="8" rx="2" fill="#3D5AFE" />
+      <rect width="48" height="48" rx="12" fill="var(--accent)" />
+      <path d="M24 10.5 34 14.5v8.2c0 6.6-4.2 11.6-10 14-5.8-2.4-10-7.4-10-14V14.5l10-4Z" fill="var(--on-accent)" />
+      <path d="M20.6 23.4v-2.6a3.4 3.4 0 0 1 6.8 0v2.6" fill="none" stroke="var(--accent)" strokeWidth="2.2" strokeLinecap="round" />
+      <rect x="19" y="23.2" width="10" height="8" rx="2" fill="var(--accent)" />
     </svg>
   );
 }
@@ -326,9 +326,9 @@ export function IconTrustSupport({ className = "" }: IconProps) {
 export function IconTrustGuarantee({ className = "" }: IconProps) {
   return (
     <svg viewBox="0 0 48 48" className={className} aria-hidden>
-      <rect width="48" height="48" rx="12" fill="#00B589" />
+      <rect width="48" height="48" rx="12" fill="var(--accent)" />
       <path d="m24 10 3.1 2.6 4-.5 1.4 3.8 3.6 1.9-1 3.9 2.4 3.3-2.9 2.8.3 4-4 .9-2 3.5-3.9-1.4-3.9 1.4-2-3.5-4-.9.3-4L8.5 25l2.4-3.3-1-3.9 3.6-1.9 1.4-3.8 4 .5L24 10Z" fill="#fff" />
-      <path d="m19 24.2 3.6 3.6 7-7.2" fill="none" stroke="#00B589" strokeWidth="3.2" strokeLinecap="round" strokeLinejoin="round" />
+      <path d="m19 24.2 3.6 3.6 7-7.2" fill="none" stroke="var(--accent)" strokeWidth="3.2" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
   );
 }

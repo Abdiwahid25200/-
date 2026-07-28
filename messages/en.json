@@ -155,7 +155,8 @@
     "badId": "Invalid ID",
     "wait": "Verifying…",
     "manual": "We will verify manually when reviewing your order",
-    "notFound": "Player not found — check the ID"
+    "notFound": "Player not found — check the ID",
+    "player": "Character name"
   },
   "efootFlow": {
     "title": "eFootball account details",
@@ -452,6 +453,7 @@
       "order": "How do I place an order?",
       "delivery": "How long does delivery take?",
       "payment": "Which payment methods do you accept?"
-    }
+    },
+    "teaser": "Welcome! Maxaan Kaacawina"
   }
 }

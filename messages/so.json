@@ -155,7 +155,8 @@
     "badId": "ID khaldan",
     "wait": "Waa la xaqiijinayaa…",
     "manual": "Gacan ayaan ku xaqiijin doonnaa markaan dalabkaaga eegno",
-    "notFound": "Ciyaartoyga lama helin — hubi ID-ga"
+    "notFound": "Ciyaartoyga lama helin — hubi ID-ga",
+    "player": "Magaca ciyaaryahanka"
   },
   "efootFlow": {
     "title": "Faahfaahinta akoonka eFootball",
@@ -452,6 +453,7 @@
       "order": "Sidee ayaan wax u dalbadaa?",
       "delivery": "Muddo intee le’eg ayay gaarsiintu qaadataa?",
       "payment": "Habka lacag-bixinta ee la aqbalo waa kuwee?"
-    }
+    },
+    "teaser": "Welcome! Maxaan Kaacawina"
   }
 }

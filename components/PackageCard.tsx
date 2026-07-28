@@ -1,6 +1,7 @@
 "use client";
 
 import Badge from "./Badge";
+import Thumb from "./Thumb";
 import { fin, fmt } from "@/lib/format";
 
 type Props = {
@@ -31,8 +32,10 @@ type Props = {
  * بطاقة الباقة = **قسيمة ممزّقة**.
  *
  * الكمّية كبيرة بالأعلى ثم وحدتها، وخطّ تقطيع منقّط بين حزّتين جانبيتين،
- * ثم السعر أسفل — كقسيمة شحن تُقصّ. بلا صورة عمداً: المنتج رقمٌ لا شيء
- * يُصوَّر، فالرقم نفسه هو البطل.
+ * ثم السعر أسفل — كقسيمة شحن تُقصّ.
+ *
+ * والصورة اختيارية: حين تُرفع صورة للباقة أو الحساب تتصدّر البطاقة بحجم
+ * وافٍ، وحين لا توجد يبقى الرقم هو البطل — فلا تفرغ البطاقة قبل رفع الصور.
  */
 export default function PackageCard({
   title,
@@ -40,11 +43,13 @@ export default function PackageCard({
   price,
   old,
   disc,
+  img,
   popular,
   selected,
   onSelect,
   labels,
   soon,
+  Icon,
 }: Props) {
   const final = fin({ price, disc });
   const before = old ?? (disc ? price : undefined);
@@ -71,6 +76,18 @@ export default function PackageCard({
             : "border-line hover:border-orange/60 hover:shadow-md"
       }`}
     >
+      {img && (
+        <span className="relative mb-3 block aspect-[5/4] overflow-hidden rounded-[14px] bg-surface2 text-orange">
+          <Thumb
+            img={img}
+            alt={title}
+            Icon={Icon}
+            iconClass="size-12"
+            sizes="(max-width: 640px) 45vw, 30vw"
+          />
+        </span>
+      )}
+
       <span className="flex items-start gap-2">
         <span className="min-w-0 flex-1">
           <span

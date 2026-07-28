@@ -17,7 +17,7 @@ export default function Thumb({
   img,
   alt,
   Icon,
-  iconClass = "size-14",
+  iconClass = "size-20",
   sizes = "(max-width: 640px) 50vw, 25vw",
 }: Props) {
   if (img) {
@@ -31,5 +31,10 @@ export default function Thumb({
       />
     );
   }
-  return <Icon className={iconClass} />;
+  return (
+    // التوسيط هنا لا في المستدعي: البديل يقع مكان الصورة نفسه مهما كانت البطاقة
+    <span className="flex size-full items-center justify-center">
+      <Icon className={iconClass} />
+    </span>
+  );
 }

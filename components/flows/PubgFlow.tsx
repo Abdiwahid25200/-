@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useTranslations } from "next-intl";
 import BuyFlow, { type Pack } from "@/components/BuyFlow";
-import { IconBolt } from "@/components/icons";
+import { IconBolt, IconCheckCircle } from "@/components/icons";
 import { isBuyable, live, pubg } from "@/lib/data";
 
 type Vrf =
@@ -65,7 +65,11 @@ export default function PubgFlow() {
     <BuyFlow
       packs={packs}
       accountReady={ready}
-      accountSummary={`${t("placeholder")}: ${pid.replace(/\D/g, "")}`}
+      // اسم اللاعب يُحفظ مع الطلب: به تتأكّد صاحبة المتجر أنها تشحن للحساب الصحيح
+      accountSummary={
+        `${t("placeholder")}: ${pid.replace(/\D/g, "")}` +
+        (vrf.kind === "ok" ? ` · ${vrf.name}` : "")
+      }
       kind="pubg"
       Icon={IconBolt}
       accountForm={
@@ -98,10 +102,25 @@ export default function PubgFlow() {
             </button>
           </div>
 
+          {/* بطاقة تأكيد اللاعب — كما في Midasbuy: الاسم يظهر صريحاً
+              قبل الدفع، فلا يشحن الزبون لحسابٍ ليس حسابه ثم يتّهم المتجر */}
           {vrf.kind === "ok" ? (
-            <p className="mt-2 flex items-center gap-2 text-sm font-medium text-yellow">
-              ✓ {vrf.name}
-            </p>
+            <div className="mt-3 flex items-center gap-3 rounded-card border-2 border-orange bg-orange/5 p-3">
+              <span
+                aria-hidden
+                className="flex size-11 shrink-0 items-center justify-center rounded-full bg-orange text-lg font-bold text-onaccent"
+              >
+                {vrf.name.trim().charAt(0).toUpperCase()}
+              </span>
+              <span className="min-w-0 flex-1 leading-tight">
+                <span className="block text-xs text-muted">{t("player")}</span>
+                <span className="block truncate font-bold">{vrf.name}</span>
+                <span className="num block truncate text-xs text-muted" dir="ltr">
+                  {pid.replace(/\D/g, "")}
+                </span>
+              </span>
+              <IconCheckCircle className="size-6 shrink-0 text-orange" />
+            </div>
           ) : vrf.kind !== "idle" ? (
             <p className={`mt-2 text-sm ${tone}`}>{MSG[vrf.kind]}</p>
           ) : null}
