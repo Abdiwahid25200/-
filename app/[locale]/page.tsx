@@ -1,8 +1,6 @@
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import HeroSlider from "@/components/HeroSlider";
 import ProductCard from "@/components/ProductCard";
-import TrustRow from "@/components/TrustRow";
-import PayChips from "@/components/PayChips";
 import { IconDevice } from "@/components/icons";
 import { slides } from "@/lib/content";
 import { elec, isBuyable, live } from "@/lib/data";
@@ -59,9 +57,6 @@ export default async function Home({
           ))}
         </div>
       </section>
-
-      <TrustRow />
-      <PayChips />
     </main>
   );
 }

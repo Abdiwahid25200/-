@@ -424,5 +424,26 @@
       "note": "Akoon kastaa hal mar ayaa la iibiyaa.",
       "cta": "Fiiri akoonnada"
     }
+  },
+  "chat": {
+    "open": "Fur sheekada tooska ah",
+    "close": "Xir sheekada",
+    "title": "Ramaan Store",
+    "status": "Waan joognaa — badanaa daqiiqado gudahood ayaan kuu jawaabnaa",
+    "welcome": "Salaan {name}! 👋 Wax kasta na weydii — dalabka, gaarsiinta ama lacag-bixinta. Halkan ayaan kaaga jawaabnaa.",
+    "placeholder": "Qor fariintaada…",
+    "send": "Dir",
+    "loading": "Waa la furayaa sheekada…",
+    "guestTitle": "Hal taabasho oo aan kuu jawaabno",
+    "guestNote": "Soo gal si jawaabahayagu kuugu soo gaaraan, fariimahaaguna adiga keliya kuu ahaadaan.",
+    "guestCta": "Ku sii wad Google",
+    "failed": "Fariinta lama dirin. Hubi xiriirka oo mar kale isku day.",
+    "offline": "Sheekada tooska ah hadda ma shaqaynayso. Halkan naga soo hel:",
+    "whatsapp": "Nagala soo xiriir WhatsApp",
+    "quick": {
+      "order": "Sidee ayaan wax u dalbadaa?",
+      "delivery": "Muddo intee le’eg ayay gaarsiintu qaadataa?",
+      "payment": "Habka lacag-bixinta ee la aqbalo waa kuwee?"
+    }
   }
 }

@@ -424,5 +424,26 @@
       "note": "Each account is sold once and handed over safely.",
       "cta": "Browse accounts"
     }
+  },
+  "chat": {
+    "open": "Open live chat",
+    "close": "Close chat",
+    "title": "Ramaan Store",
+    "status": "Online — we usually reply in minutes",
+    "welcome": "Hi {name}! 👋 Ask us anything — order, delivery or payment. We reply here directly.",
+    "placeholder": "Write your message…",
+    "send": "Send",
+    "loading": "Opening chat…",
+    "guestTitle": "One tap and we can reply",
+    "guestNote": "Sign in so our replies reach you — and your messages stay yours alone.",
+    "guestCta": "Continue with Google",
+    "failed": "Message not sent. Check your connection and try again.",
+    "offline": "Live chat is not available right now. Reach us here:",
+    "whatsapp": "Message us on WhatsApp",
+    "quick": {
+      "order": "How do I place an order?",
+      "delivery": "How long does delivery take?",
+      "payment": "Which payment methods do you accept?"
+    }
   }
 }

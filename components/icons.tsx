@@ -477,3 +477,41 @@ export function IconNavHelp({ className = "" }: IconProps) {
     </svg>
   );
 }
+
+/* ── أيقونات الدردشة المباشرة ── */
+
+/** فقاعة حوار خطّية — زرّ فتح الدردشة */
+export function IconChatLine({ className = "" }: IconProps) {
+  return (
+    <svg viewBox="0 0 24 24" strokeWidth="1.8" className={`${base} ${className}`} aria-hidden>
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        d="M20 12.4c0 3.9-3.6 7-8 7-.9 0-1.8-.1-2.6-.4L4 20.5l1.3-3.6C4.2 15.7 3.5 14.1 3.5 12.4c0-3.9 3.6-7 8-7s8.5 3.1 8.5 7Z"
+      />
+      <path strokeLinecap="round" d="M8.5 11.5h7M8.5 14.5h4" />
+    </svg>
+  );
+}
+
+/** إغلاق — يحلّ محلّ الفقاعة عند فتح النافذة */
+export function IconClose({ className = "" }: IconProps) {
+  return (
+    <svg viewBox="0 0 24 24" strokeWidth="2" className={`${base} ${className}`} aria-hidden>
+      <path strokeLinecap="round" d="M6 6l12 12M18 6 6 18" />
+    </svg>
+  );
+}
+
+/** إرسال — سهم ورقي، يقلب اتجاهه في العربية عبر rtl:-scale-x-100 */
+export function IconSend({ className = "" }: IconProps) {
+  return (
+    <svg viewBox="0 0 24 24" strokeWidth="1.8" className={`${base} ${className}`} aria-hidden>
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        d="M4.5 12 20 4.5 16 20l-4.5-5.5L4.5 12Zm7 2.5L20 4.5"
+      />
+    </svg>
+  );
+}

@@ -75,6 +75,49 @@ service cloud.firestore {
       }
     }
 
+    /* ── الدردشة المباشرة ──
+       لكل زبون محادثة واحدة باسم الـuid، فلا يصل أحد لمحادثة غيره.
+       الخطر الحقيقي هنا انتحال صفة المتجر: زبونٌ يكتب رسالة بتوقيع
+       `admin` فيقنع غيره… لذلك الزبون لا يكتب إلا `from == 'user'`. */
+    match /chats/{uid} {
+
+      function ownerOrAdmin() {
+        return isAdmin() || (isSignedIn() && request.auth.uid == uid);
+      }
+
+      allow read: if ownerOrAdmin();
+
+      // وثيقة المحادثة: آخر سطر ووقته، لترتيب المحادثات بلوحة الإدارة
+      allow create, update: if ownerOrAdmin()
+        && request.resource.data.uid == uid
+        && request.resource.data.updatedAt == request.time;
+
+      allow delete: if isAdmin();
+
+      match /messages/{msgId} {
+
+        function validMsg() {
+          let d = request.resource.data;
+          return d.text is string
+            && d.text.size() > 0
+            && d.text.size() <= 2000
+            && d.createdAt == request.time;      // لا يزوّر وقت الرسالة
+        }
+
+        allow read: if ownerOrAdmin();
+
+        allow create: if validMsg() && (
+          (isAdmin() && request.resource.data.from == 'admin')
+          // الزبون يكتب باسمه هو فقط — لا ينتحل صفة المتجر
+          || (isSignedIn() && request.auth.uid == uid
+              && request.resource.data.from == 'user')
+        );
+
+        // لا تعديل ولا حذف للرسائل بعد إرسالها إلا للأدمن
+        allow update, delete: if isAdmin();
+      }
+    }
+
     /* ── المنتجات والأقسام والإعدادات ──
        يقرأها الجميع (متجر عام) · لا يكتبها إلا الأدمن من لوحة الإدارة */
     match /products/{id}  { allow read: if true; allow write: if isAdmin(); }

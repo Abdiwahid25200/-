@@ -2,7 +2,6 @@ import { getTranslations, setRequestLocale } from "next-intl/server";
 import SectionHead from "@/components/SectionHead";
 import BackLink from "@/components/BackLink";
 import AccountsFlow from "@/components/flows/AccountsFlow";
-import TrustRow from "@/components/TrustRow";
 
 export default async function EfootAccountsPage({
   params,
@@ -28,7 +27,6 @@ export default async function EfootAccountsPage({
         {ta("unique")}
       </p>
       <AccountsFlow />
-      <TrustRow />
       <p className="text-center text-sm text-muted">{tc("sampleData")}</p>
     </main>
   );

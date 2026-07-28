@@ -9,6 +9,7 @@ import { AuthProvider } from "@/lib/auth";
 import TopBar from "@/components/TopBar";
 import Header from "@/components/Header";
 import BottomNav from "@/components/BottomNav";
+import LiveChat from "@/components/LiveChat";
 import Footer from "@/components/Footer";
 import { themeInitScript } from "@/components/ThemeToggle";
 import "../globals.css";
@@ -97,6 +98,8 @@ export default async function LocaleLayout({
                 <Footer locale={locale} />
               </div>
               <BottomNav />
+              {/* الدردشة المباشرة — على كل صفحة، فوق القائمة السفلية */}
+              <LiveChat />
             </CartProvider>
           </AuthProvider>
         </NextIntlClientProvider>

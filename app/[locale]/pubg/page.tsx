@@ -2,7 +2,6 @@ import { getTranslations, setRequestLocale } from "next-intl/server";
 import SectionHead from "@/components/SectionHead";
 import BackLink from "@/components/BackLink";
 import PubgFlow from "@/components/flows/PubgFlow";
-import TrustRow from "@/components/TrustRow";
 
 export default async function PubgPage({
   params,
@@ -24,7 +23,6 @@ export default async function PubgPage({
         note={t("pubg.note")}
       />
       <PubgFlow />
-      <TrustRow />
       <p className="text-center text-sm text-muted">{tc("sampleData")}</p>
     </main>
   );

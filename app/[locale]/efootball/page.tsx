@@ -2,7 +2,6 @@ import { getTranslations, setRequestLocale } from "next-intl/server";
 import SectionHead from "@/components/SectionHead";
 import BackLink from "@/components/BackLink";
 import EfootFlow from "@/components/flows/EfootFlow";
-import TrustRow from "@/components/TrustRow";
 
 export default async function EfootballPage({
   params,
@@ -24,7 +23,6 @@ export default async function EfootballPage({
         note={t("efootball.note")}
       />
       <EfootFlow />
-      <TrustRow />
       <p className="text-center text-sm text-muted">{tc("sampleData")}</p>
     </main>
   );

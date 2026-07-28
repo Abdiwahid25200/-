@@ -3,6 +3,7 @@ import SectionHead from "@/components/SectionHead";
 import BackLink from "@/components/BackLink";
 import Faq from "@/components/Faq";
 import TrustRow from "@/components/TrustRow";
+import PayChips from "@/components/PayChips";
 import HowItWorks from "@/components/HowItWorks";
 import MessageForm from "@/components/MessageForm";
 import { IconChat, IconClock, IconEmail, IconWhatsApp } from "@/components/icons";
@@ -105,7 +106,10 @@ export default async function HelpPage({
         </div>
       </section>
 
+      {/* صف الضمانات ووسائل الدفع — هنا وحدهما بقرار صاحبة المشروع،
+          فلا يتكرّران في كل صفحة ويزاحمان المنتجات */}
       <TrustRow />
+      <PayChips />
 
       <MessageForm />
 
