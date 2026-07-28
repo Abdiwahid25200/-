@@ -235,6 +235,10 @@
         "q": "Lacagta ma laga celin karaa?",
         "a": "Haa — haddii aan awoodi weyno inaan dalabkaaga fulino waxaan celinaynaa lacagta oo dhan. Alaabta dhijitaalka ah ee la gaarsiiyay lama celin karo."
       }
+    },
+    "inquiries": {
+      "title": "Su'aalo guud",
+      "action": "Dir iimayl"
     }
   },
   "policy": {
@@ -284,5 +288,18 @@
     "note": "Waxaan xogta akoonka ku soo dirnaa lambarkan marka dalabka la aqbalo",
     "contact": "Lambarka WhatsApp",
     "hint": "Geli lambar WhatsApp si aad u sii wadato"
+  },
+  "contactForm": {
+    "title": "Noo soo dir farriin",
+    "note": "Buuxi foomka waanan kugu soo jawaabaynaa",
+    "name": "Magacaaga",
+    "contact": "WhatsApp ama iimayl",
+    "message": "Sharax dhibaatada ama su'aashaada",
+    "send": "Dir farriinta",
+    "goesWa": "Farriintaadu waxay ka furmaysaa WhatsApp oo diyaar ah.",
+    "goesAdmin": "Farriintaadu waxay toos u tagtaa maamulka — waan kugu soo jawaabaynaa.",
+    "sentTitle": "Farriintu diyaar bay tahay",
+    "sentNote": "Waan kugu soo jawaabaynaa.",
+    "again": "Dir mid kale"
   }
 }

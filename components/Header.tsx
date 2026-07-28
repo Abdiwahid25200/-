@@ -4,19 +4,19 @@ import Logo from "./Logo";
 import MenuDrawer from "./MenuDrawer";
 import CartButton from "./CartButton";
 import { IconSearch, IconUser } from "./icons";
-import { store } from "@/lib/data";
+import { site as store } from "@/lib/content";
 
 export default async function Header() {
   const t = await getTranslations("header");
 
   return (
     <header className="sticky top-0 z-40 border-b border-line bg-surface/95 backdrop-blur">
-      <div className="mx-auto flex max-w-5xl items-center gap-3 px-4 py-2.5">
+      <div className="mx-auto flex max-w-5xl items-center gap-2 px-3 py-2.5 sm:gap-3 sm:px-4">
         {/* الشعار */}
-        <Link href="/" className="flex shrink-0 items-center gap-2.5">
+        <Link href="/" className="flex min-w-0 items-center gap-2.5">
           <Logo className="size-10 rounded-xl shadow-sm" />
-          <span className="leading-tight">
-            <span className="block font-bold">{t("brand")}</span>
+          <span className="hidden min-w-0 leading-tight min-[380px]:block">
+            <span className="block truncate font-bold">{t("brand")}</span>
             <span className="hidden text-xs text-muted sm:block">
               {t("tagline")}
             </span>
@@ -48,7 +48,7 @@ export default async function Header() {
 
           <CartButton />
 
-          <MenuDrawer phone={store.phone} />
+          <MenuDrawer phone={store.whatsapp} />
         </div>
       </div>
     </header>

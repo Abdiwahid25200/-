@@ -1,13 +1,12 @@
 import { defineRouting } from "next-intl/routing";
 
 export const routing = defineRouting({
-  // العربية أولاً — هي الافتراضية
-  locales: ["ar", "en", "so"],
-  defaultLocale: "ar",
-  // العربية على الرابط الأساسي بدون إضافة · الإنجليزية /en · الصومالية /so
+  // الإنجليزية افتراضية — المتجر يخدم زبائن من كل العالم
+  locales: ["en", "ar", "so"],
+  defaultLocale: "en",
+  // الإنجليزية على الرابط الأساسي بدون إضافة · العربية /ar · الصومالية /so
   localePrefix: "as-needed",
-  // لا نوجّه الزائر تلقائياً حسب لغة جهازه — العربية هي الافتراضية دائماً،
-  // والزائر يبدّل بنفسه ويُحفظ اختياره. (نفس سلوك الموقع القديم)
+  // لا نوجّه الزائر تلقائياً حسب لغة جهازه — يبدّل بنفسه ويُحفظ اختياره
   localeDetection: false,
 });
 
@@ -22,7 +21,7 @@ export const localeDir: Record<Locale, "rtl" | "ltr"> = {
 
 /** اسم كل لغة بلغتها هي — يُعرض بمبدّل اللغة */
 export const localeNames: Record<Locale, string> = {
-  ar: "العربية",
   en: "English",
+  ar: "العربية",
   so: "Soomaali",
 };

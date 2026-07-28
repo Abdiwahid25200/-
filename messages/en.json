@@ -235,6 +235,10 @@
         "q": "Can I get a refund?",
         "a": "Yes — if we cannot fulfil your order we refund the full amount. Delivered digital goods are non-refundable."
       }
+    },
+    "inquiries": {
+      "title": "General inquiries",
+      "action": "Send email"
     }
   },
   "policy": {
@@ -284,5 +288,18 @@
     "note": "We send the account details to this number once the order is accepted",
     "contact": "WhatsApp number",
     "hint": "Enter a WhatsApp number to continue"
+  },
+  "contactForm": {
+    "title": "Send us a message",
+    "note": "Fill in the form and we will get back to you on the contact you provide",
+    "name": "Your name",
+    "contact": "WhatsApp or email",
+    "message": "Describe your issue or question",
+    "send": "Send message",
+    "goesWa": "Your message opens in WhatsApp, ready to send.",
+    "goesAdmin": "Your message goes straight to our admin panel — we will reply via the contact you provided.",
+    "sentTitle": "Message ready",
+    "sentNote": "We will reply on the contact you provided.",
+    "again": "Send another"
   }
 }
