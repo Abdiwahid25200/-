@@ -32,11 +32,30 @@ export async function generateMetadata({
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: "meta" });
 
-  return { title: t("title"), description: t("description") };
+  const title = t("title");
+  const description = t("description");
+
+  return {
+    title,
+    description,
+    // الدومين الأساسي — منه تُبنى الروابط المطلقة لبطاقات المشاركة
+    metadataBase: new URL("https://eramaan.com"),
+    icons: { icon: "/icon.svg", apple: "/apple-icon.png" },
+    // بطاقة المشاركة: ما يظهر عند إرسال الرابط بواتساب أو نشره
+    openGraph: {
+      title,
+      description,
+      url: "https://eramaan.com",
+      siteName: "Ramaan Store",
+      images: [{ url: "/og.png", width: 1200, height: 630, alt: title }],
+      type: "website",
+    },
+    twitter: { card: "summary_large_image", title, description, images: ["/og.png"] },
+  };
 }
 
 export const viewport: Viewport = {
-  themeColor: "#3D5AFE",
+  themeColor: "#067A6E",
   width: "device-width",
   initialScale: 1,
 };
