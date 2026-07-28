@@ -119,6 +119,29 @@ export const isSectionOpen = (key: string) =>
  */
 export const pubgIdApi = process.env.PUBG_ID_API ?? "";
 
+/* ═══════════════════════════════════════════════════════════
+   شرائح البانر المتحرّك — تُدار من: الإدارة ← الموقع ← البانر
+   ═══════════════════════════════════════════════════════════ */
+
+export type Slide = {
+  /** مفتاح النصوص في messages/*.json ← slides.<key> */
+  key: string;
+  /** صورة الشريحة داخل public/images/slides/ — بلا صورة يظهر تدرّج أنيق */
+  img?: string;
+  /** وجهة زرّ الشريحة */
+  href: string;
+};
+
+/**
+ * لإضافة شريحة: أضيفي عنصراً هنا وضعي نصوصها في `messages/*.json` تحت `slides`.
+ * الترتيب هنا هو ترتيب العرض، والدوران تلقائي كل ٥ ثوانٍ.
+ */
+export const slides: Slide[] = [
+  { key: "promise", href: "/games" },
+  { key: "pubg", href: "/pubg" },
+  { key: "accounts", href: "/accounts" },
+];
+
 /**
  * قسم "كيف يعمل المتجر" بصفحة الدعم — تُدار من: الإدارة ← الموقع ← النصوص
  * `youtubeId` فارغ ⇒ يُخفى الفيديو وتبقى الخطوات الثلاث ظاهرة.

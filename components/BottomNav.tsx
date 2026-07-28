@@ -8,7 +8,7 @@ const tabs = [
   { key: "home", href: "/", Icon: IconHome },
   { key: "games", href: "/games", Icon: IconGames },
   { key: "accounts", href: "/accounts", Icon: IconUser },
-  { key: "support", href: "/help", Icon: IconSupport },
+  { key: "help", href: "/help", Icon: IconSupport },
 ] as const;
 
 export default function BottomNav() {
@@ -18,8 +18,8 @@ export default function BottomNav() {
   return (
     <nav
       aria-label={t("label")}
-      // ملتصقة بحافة الشاشة، وزواياها العليا دائرية كما طلبت صاحبة المشروع
-      className="fixed inset-x-0 bottom-0 z-40 rounded-t-[28px] border-t border-line bg-surface/95 pb-[env(safe-area-inset-bottom)] shadow-[0_-4px_24px_rgba(0,0,0,0.08)] backdrop-blur"
+      // ترتفع قليلاً عن الحافة وتُدوَّر من كل جوانبها — كما طلبت صاحبة المشروع
+      className="fixed inset-x-3 bottom-[calc(0.6rem+env(safe-area-inset-bottom))] z-40 rounded-[26px] border border-line bg-surface/95 shadow-[0_6px_28px_rgba(0,0,0,0.12)] backdrop-blur"
     >
       <div className="mx-auto flex max-w-5xl">
         {tabs.map(({ key, href, Icon }) => {
@@ -38,7 +38,7 @@ export default function BottomNav() {
               {isActive && (
                 <span
                   aria-hidden
-                  className="absolute top-1.5 h-[3px] w-7 rounded-full bg-orange"
+                  className="absolute top-2 h-[3px] w-7 rounded-full bg-orange"
                 />
               )}
               <Icon className="size-6" />

@@ -1,11 +1,11 @@
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
-import HomeHero from "@/components/HomeHero";
+import HeroSlider from "@/components/HeroSlider";
 import GameTile from "@/components/GameTile";
 import VoucherLink from "@/components/VoucherLink";
 import TrustRow from "@/components/TrustRow";
 import PayChips from "@/components/PayChips";
-import { sections } from "@/lib/content";
+import { sections, slides } from "@/lib/content";
 import { icons, live, pubg } from "@/lib/data";
 
 /**
@@ -38,7 +38,7 @@ export default async function Home({
 
   return (
     <main className="mx-auto flex max-w-5xl flex-col gap-9 px-4 py-6">
-      <HomeHero />
+      <HeroSlider slides={slides} />
 
       <section>
         <div className="mb-3.5 flex items-baseline gap-3">

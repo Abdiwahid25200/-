@@ -50,44 +50,62 @@ export default async function HelpPage({
       <SectionHead
         eyebrow={te("help")} title={t("title")} note={t("note")} />
 
-      {/* قنوات التواصل */}
-      <section className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-        {supportChannels.map(({ key, icon }) => {
-          const Icon = ICONS[icon];
-          const field = key === "hours" ? "hours" : key === "inquiries" ? "email" : key;
-          const value = valueOf(field);
-          const href = hrefOf(key);
-          return (
-            <article
-              key={key}
-              className="flex flex-col items-center gap-2 rounded-card border border-line bg-surface p-5 text-center"
-            >
-              <Icon className="size-12 rounded-xl shadow-sm" />
-              <h3 className="mt-1 font-bold">{t(`${key}.title`)}</h3>
-              <p
-                className="text-sm text-muted"
-                dir={key === "hours" ? undefined : "ltr"}
-              >
-                {value || t("soon")}
-              </p>
-              {href && (
-                <a
-                  href={href}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="mt-auto flex min-h-11 w-full items-center justify-center rounded-card bg-navy px-4 text-sm font-bold text-white transition-opacity hover:opacity-90"
+      <HowItWorks />
+
+      {/* تواصل معنا — صفوف بأيقونة داخل صفيحة سداسية، كما اعتمدت المعاينة */}
+      <section>
+        <h2 className="mb-3.5 text-xl font-bold">{t("reach")}</h2>
+        <div className="flex flex-col gap-2.5">
+          {supportChannels.map(({ key, icon }) => {
+            const Icon = ICONS[icon];
+            const field = key === "hours" ? "hours" : key === "inquiries" ? "email" : key;
+            const value = valueOf(field);
+            const href = hrefOf(key);
+            const Row = (
+              <>
+                <span
+                  aria-hidden
+                  className="flex aspect-square w-11 shrink-0 items-center justify-center bg-surface2 text-orange"
+                  style={{ clipPath: "polygon(50% 0, 93% 25%, 93% 75%, 50% 100%, 7% 75%, 7% 25%)" }}
                 >
-                  {t(`${key}.action`)}
-                </a>
-              )}
-            </article>
-          );
-        })}
+                  <Icon className="size-5" />
+                </span>
+                <span className="min-w-0 flex-1">
+                  <span className="block font-bold">{t(`${key}.title`)}</span>
+                  <span
+                    className="block truncate text-sm text-muted"
+                    dir={key === "hours" ? undefined : "ltr"}
+                  >
+                    {value || t("soon")}
+                  </span>
+                </span>
+                <span aria-hidden className="shrink-0 text-muted rtl:rotate-180">
+                  ›
+                </span>
+              </>
+            );
+            const cls =
+              "flex items-center gap-3.5 rounded-card border border-line bg-surface p-4";
+            return href ? (
+              <a
+                key={key}
+                href={href}
+                target="_blank"
+                rel="noopener noreferrer"
+                className={`${cls} transition-colors hover:border-orange`}
+              >
+                {Row}
+              </a>
+            ) : (
+              <div key={key} className={cls}>
+                {Row}
+              </div>
+            );
+          })}
+        </div>
       </section>
 
       <TrustRow />
-
-      <HowItWorks />
 
       <MessageForm />
 

@@ -15,7 +15,8 @@
     "home": "Home",
     "games": "Games",
     "accounts": "Accounts",
-    "support": "Support"
+    "support": "Support",
+    "help": "Help"
   },
   "footer": {
     "quick": "Quick links",
@@ -252,7 +253,8 @@
     "inquiries": {
       "title": "General inquiries",
       "action": "Send email"
-    }
+    },
+    "reach": "Reach us"
   },
   "policy": {
     "title": "Policies",
@@ -402,5 +404,25 @@
     "efootballAccounts": "eFootball ID",
     "electronics": "Electronics",
     "freefire": "Free Fire"
+  },
+  "slides": {
+    "promise": {
+      "kicker": "Instant delivery · 24/7",
+      "title": "Top up in 60 seconds, not 60 minutes.",
+      "note": "Paid your way, delivered while you wait.",
+      "cta": "Start an order"
+    },
+    "pubg": {
+      "kicker": "PUBG Mobile",
+      "title": "UC that lands in seconds",
+      "note": "Verified player ID, no waiting, no middlemen.",
+      "cta": "Buy UC"
+    },
+    "accounts": {
+      "kicker": "Ready accounts",
+      "title": "Verified, one of a kind",
+      "note": "Each account is sold once and handed over safely.",
+      "cta": "Browse accounts"
+    }
   }
 }

@@ -15,7 +15,8 @@
     "home": "Bogga hore",
     "games": "Ciyaaraha",
     "accounts": "Akoonnada",
-    "support": "Caawimaad"
+    "support": "Caawimaad",
+    "help": "Caawin"
   },
   "footer": {
     "quick": "Xiriirro degdeg ah",
@@ -252,7 +253,8 @@
     "inquiries": {
       "title": "Su'aalo guud",
       "action": "Dir iimayl"
-    }
+    },
+    "reach": "Nala soo xiriir"
   },
   "policy": {
     "title": "Siyaasadaha",
@@ -402,5 +404,25 @@
     "efootballAccounts": "eFootball ID",
     "electronics": "Elektaroonig",
     "freefire": "Free Fire"
+  },
+  "slides": {
+    "promise": {
+      "kicker": "Gaarsiin degdeg ah · 24/7",
+      "title": "Ku buuxi 60 ilbiriqsi, ma 60 daqiiqo.",
+      "note": "Sidaad rabto ku bixi, sugitaan yar.",
+      "cta": "Bilow dalab"
+    },
+    "pubg": {
+      "kicker": "PUBG Mobile",
+      "title": "UC ilbiriqsiyo gudahood",
+      "note": "Aqoonsi la xaqiijiyay, sugitaan la'aan.",
+      "cta": "Iibso UC"
+    },
+    "accounts": {
+      "kicker": "Akoonno diyaar ah",
+      "title": "La xaqiijiyay, mid kasta hal mar",
+      "note": "Akoon kastaa hal mar ayaa la iibiyaa.",
+      "cta": "Fiiri akoonnada"
+    }
   }
 }

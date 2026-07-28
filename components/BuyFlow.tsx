@@ -244,7 +244,7 @@ export default function BuyFlow({
 
       {/* الشريط السفلي الثابت — فوق قائمة التنقّل مباشرة */}
       {barVisible && (
-        <div className="fixed inset-x-0 bottom-[calc(4.25rem+env(safe-area-inset-bottom))] z-30 border-t border-line bg-surface/95 backdrop-blur">
+        <div className="fixed inset-x-0 bottom-[calc(5.4rem+env(safe-area-inset-bottom))] z-30 border-y border-line bg-surface/95 backdrop-blur">
           <div className="mx-auto flex max-w-5xl items-center gap-3 px-4 py-3">
             <div className="leading-tight">
               <div className="text-xs text-muted">{t("total")}</div>
