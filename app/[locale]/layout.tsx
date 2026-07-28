@@ -66,7 +66,7 @@ export default async function LocaleLayout({
         <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
       </head>
       {/* الحشو السفلي يمنع القائمة الثابتة من تغطية الفوتر — كما بالموقع القديم */}
-      <body className="flex min-h-dvh flex-col pb-[calc(6.5rem+env(safe-area-inset-bottom))] font-arabic">
+      <body className="flex min-h-dvh flex-col pb-[calc(6.5rem+env(safe-area-inset-bottom))]">
         <NextIntlClientProvider>
           <AuthProvider>
             <CartProvider>

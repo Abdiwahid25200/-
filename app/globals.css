@@ -32,6 +32,10 @@
   --radius-card: 16px;
 
   --font-arabic: var(--font-plex-arabic);
+  /* خطّ الواجهة — نفس خطّ المعاينة: خطّ النظام، فيبدو الموقع أصيلاً
+     على كل جهاز (SF على آيفون، Roboto على أندرويد). */
+  --font-ui: -apple-system, BlinkMacSystemFont, system-ui, "Segoe UI", Roboto,
+    "Helvetica Neue", Arial, sans-serif;
   /* خطّ الأرقام — أسعار وآيديات ورموز طلبات تصطفّ كإيصال */
   --font-data: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
 }
@@ -93,6 +97,13 @@
 
 html {
   background: var(--bg);
+  font-family: var(--font-ui);
+}
+
+/* العربية تبقى بخطّها الخاص — قاعدة ثابتة في المشروع.
+   العناصر اللاتينية داخلها (الأسعار والأسماء) ترث خطّها من .num وغيره. */
+html[dir="rtl"] {
+  font-family: var(--font-plex-arabic), var(--font-ui);
 }
 
 body {
