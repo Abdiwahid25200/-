@@ -37,7 +37,6 @@ export default function AdminGate({ children }: { children: React.ReactNode }) {
   const [password, setPassword] = useState("");
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState("");
-  const [copied, setCopied] = useState(false);
   const [show, setShow] = useState(false);
 
   useEffect(() => {
@@ -170,46 +169,30 @@ export default function AdminGate({ children }: { children: React.ReactNode }) {
       </>,
     );
 
+  /**
+   * 🔒 حسابٌ ليس أدمن ⇒ **صفحة غير موجودة**، لا شرحاً ولا معرّفاً.
+   *
+   * كانت هذه الشاشة تقول كيف تُمنَح الصلاحية بالضبط (مجموعة `admins`
+   * ووثيقة باسم الـuid) وتعرض المعرّف وزرّ نسخه. لم تكن ثغرة — المعرّف
+   * معرّف صاحبه هو، والكتابة في `admins` ممنوعة على الجميع — لكنها
+   * كانت **خريطةً مجّانية** لمن يتحسّس الطريق. الآن لا يرى شيئاً.
+   *
+   * وزرّ الخروج وحده بلا وسم، لتخرج صاحبة المتجر لو دخلت بحسابٍ خطأ.
+   */
   if (!admin)
-    return shell(
-      <>
-        <h1 className="text-xl font-bold">This account has no access</h1>
-        <p className="text-sm text-muted">
-          Access is granted from the Firebase Console only — collection{" "}
-          <code className="num">admins</code>, document named after the uid below.
-        </p>
-        <p
-          className="num w-full break-all rounded-card border border-line bg-surface p-3 text-xs"
-          dir="ltr"
-        >
-          {user.uid}
-        </p>
-
-        {/* تحديد نصّ طويل باللمس على الآيباد متعب — زرّ واحد أضمن */}
-        <button
-          type="button"
-          onClick={async () => {
-            try {
-              await navigator.clipboard.writeText(user.uid);
-              setCopied(true);
-              setTimeout(() => setCopied(false), 2000);
-            } catch {
-              /* المتصفّح رفض النسخ — الرقم ظاهر أعلاه ويمكن تحديده يدوياً */
-            }
-          }}
-          className="min-h-12 w-full rounded-card bg-orange font-bold text-onaccent"
-        >
-          {copied ? "✓ Copied" : "Copy uid"}
-        </button>
-
+    return (
+      <main className="mx-auto flex min-h-dvh max-w-sm flex-col items-center justify-center gap-2 px-4 text-center">
+        <h1 className="text-2xl font-bold">404</h1>
+        <p className="text-sm text-muted">This page could not be found.</p>
         <button
           type="button"
           onClick={() => signOut()}
-          className="min-h-11 text-sm text-muted underline"
+          aria-label="Reset"
+          className="mt-6 min-h-11 px-4 text-xs text-muted/60"
         >
-          Use another account
+          ·
         </button>
-      </>,
+      </main>
     );
 
   return <>{children}</>;
