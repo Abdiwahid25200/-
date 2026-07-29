@@ -34,14 +34,14 @@ export default function ImagePicker({
     if (r.ok) return onChange(r.url);
     setErr(
       r.reason === "size"
-        ? "الصورة أكبر من ٦ ميجابايت"
+        ? "Image is larger than 6 MB"
         : r.reason === "type"
-          ? "الملف ليس صورة"
+          ? "This file is not an image"
           : r.reason === "auth"
-            ? "انتهت الجلسة — أعيدي الدخول"
+            ? "Session expired — sign in again"
             : r.reason === "off"
-              ? "خدمة الصور غير مضبوطة بعد في Vercel"
-              : "تعذّر الرفع. جرّبي «لصق رابط صورة» بدلاً منه.",
+              ? "Image service is not configured in Vercel yet"
+              : "Upload failed. Try “paste image link” instead.",
     );
   }
 
@@ -59,7 +59,7 @@ export default function ImagePicker({
           // eslint-disable-next-line @next/next/no-img-element
           <img src={value} alt="" className="size-full object-cover" />
         ) : (
-          "بلا صورة"
+          "No image"
         )}
       </button>
 
@@ -71,7 +71,7 @@ export default function ImagePicker({
             disabled={busy}
             className="min-h-11 rounded-card border border-line px-3.5 text-sm font-medium disabled:opacity-50"
           >
-            {value ? "تغيير الصورة" : "رفع صورة"}
+            {value ? "Change image" : "Upload image"}
           </button>
           {value && (
             <button
@@ -80,7 +80,7 @@ export default function ImagePicker({
               className="flex min-h-11 items-center gap-1.5 rounded-card border border-line px-3 text-sm text-muted hover:border-danger hover:text-danger"
             >
               <IconTrash className="size-4" />
-              حذف
+              Remove
             </button>
           )}
         </div>
@@ -92,7 +92,7 @@ export default function ImagePicker({
           onClick={() => setLink((v) => !v)}
           className="mt-1 text-xs text-muted underline"
         >
-          {link ? "إخفاء" : "أو لصق رابط صورة"}
+          {link ? "Hide" : "or paste image link"}
         </button>
 
         {link && (

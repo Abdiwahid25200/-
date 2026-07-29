@@ -12,9 +12,9 @@ import { IconCheckCircle, IconSpinner } from "@/components/icons";
 
 /** حالات القسم كما تفهمها صاحبة المتجر لا كما يكتبها المبرمج */
 const STATUSES = [
-  { v: "on", label: "ظاهر ويعمل" },
-  { v: "soon", label: "قريباً" },
-  { v: "off", label: "مخفي" },
+  { v: "on", label: "Live" },
+  { v: "soon", label: "Coming soon" },
+  { v: "off", label: "Hidden" },
 ] as const;
 
 const LOCALES = [
@@ -64,13 +64,13 @@ export default function SectionsEditor() {
     const ok = await saveOverride("sections", key, (over[key] ?? {}) as Record<string, unknown>);
     setSaving(null);
     setSaved(ok ? key : null);
-    if (!ok) alert("تعذّر الحفظ — تأكّدي أنك أدمن وأن الاتصال يعمل.");
+    if (!ok) alert("Could not save — check your access and connection.");
   }
 
   if (loading)
     return (
       <p className="flex items-center gap-2 text-sm text-muted">
-        <IconSpinner className="size-4" /> جارٍ التحميل…
+        <IconSpinner className="size-4" /> Loading…
       </p>
     );
 
@@ -135,7 +135,7 @@ export default function SectionsEditor() {
                 />
 
                 <label className="flex flex-col gap-1.5 text-sm">
-                  <span className="font-medium">الحالة</span>
+                  <span className="font-medium">Status</span>
                   <select
                     value={d.status ?? s.status}
                     onChange={(e) => edit(s.key, { status: e.target.value })}
@@ -150,31 +150,31 @@ export default function SectionsEditor() {
                 </label>
 
                 <label className="flex flex-col gap-1.5 text-sm">
-                  <span className="font-medium">الوسم الصغير فوق الاسم</span>
+                  <span className="font-medium">Eyebrow above the title</span>
                   <input
                     value={d.eyebrow?.[lang] ?? ""}
                     onChange={(e) => editText(s.key, "eyebrow", e.target.value)}
-                    placeholder="اتركيه فارغاً ليبقى الأصل"
+                    placeholder="Leave empty to keep the default"
                     className={field}
                   />
                 </label>
 
                 <label className="flex flex-col gap-1.5 text-sm">
-                  <span className="font-medium">الاسم المكتوب على الخلفية</span>
+                  <span className="font-medium">Title over the banner</span>
                   <input
                     value={d.title?.[lang] ?? ""}
                     onChange={(e) => editText(s.key, "title", e.target.value)}
-                    placeholder="اتركيه فارغاً ليبقى الأصل"
+                    placeholder="Leave empty to keep the default"
                     className={field}
                   />
                 </label>
 
                 <label className="flex flex-col gap-1.5 text-sm">
-                  <span className="font-medium">السطر تحت الاسم</span>
+                  <span className="font-medium">Line under the title</span>
                   <input
                     value={d.note?.[lang] ?? ""}
                     onChange={(e) => editText(s.key, "note", e.target.value)}
-                    placeholder="اتركيه فارغاً ليبقى الأصل"
+                    placeholder="Leave empty to keep the default"
                     className={field}
                   />
                 </label>
@@ -186,7 +186,7 @@ export default function SectionsEditor() {
                   className="flex min-h-12 items-center justify-center gap-2 rounded-card bg-orange font-bold text-onaccent disabled:opacity-50"
                 >
                   {saving === s.key && <IconSpinner className="size-4" />}
-                  حفظ
+                  Save
                 </button>
               </div>
             )}

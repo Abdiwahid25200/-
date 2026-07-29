@@ -5,8 +5,8 @@ import SectionsEditor from "./SectionsEditor";
 import ItemsEditor from "./ItemsEditor";
 
 const TABS = [
-  { v: "items", label: "الباقات والمنتجات" },
-  { v: "sections", label: "الأقسام" },
+  { v: "items", label: "Products" },
+  { v: "sections", label: "Sections" },
 ] as const;
 
 /** تبويبات اللوحة — الباقات أولاً لأنها ما يُعدَّل يومياً */

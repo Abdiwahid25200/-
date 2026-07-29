@@ -269,7 +269,6 @@
   "policy": {
     "title": "Policies",
     "note": "Terms of dealing with the store",
-    "editable": "⚠️ Draft text — editable from the admin panel later",
     "terms": {
       "title": "Terms of use",
       "body": "By using Ramaan Store you agree to provide accurate details when ordering.\nPrices may change without prior notice.\nWe reserve the right to refuse any suspicious order."
@@ -347,7 +346,7 @@
     "message": "Describe your issue or question",
     "send": "Send message",
     "goesWa": "Your message opens in WhatsApp, ready to send.",
-    "goesAdmin": "Your message goes straight to our admin panel — we will reply via the contact you provided.",
+    "goesAdmin": "Your message reaches us directly — we will reply via the contact you provided.",
     "sentTitle": "Message ready",
     "sentNote": "We will reply on the contact you provided.",
     "again": "Send another"

@@ -269,7 +269,6 @@
   "policy": {
     "title": "Siyaasadaha",
     "note": "Shuruudaha macaamilka dukaanka",
-    "editable": "⚠️ Qoraal bilow ah — waa laga bedeli karaa maamulka",
     "terms": {
       "title": "Shuruudaha isticmaalka",
       "body": "Adigoo isticmaalaya Ramaan Store waxaad ogolaanaysaa inaad bixiso xog sax ah.\nQiimayaasha waa la beddeli karaa iyada oo aan ogeysiis hore la bixin.\nWaxaan xaq u leenahay inaan diidno dalab kasta oo shaki leh."
@@ -347,7 +346,7 @@
     "message": "Sharax dhibaatada ama su'aashaada",
     "send": "Dir farriinta",
     "goesWa": "Farriintaadu waxay ka furmaysaa WhatsApp oo diyaar ah.",
-    "goesAdmin": "Farriintaadu waxay toos u tagtaa maamulka — waan kugu soo jawaabaynaa.",
+    "goesAdmin": "Farriintaadu si toos ah ayay noo soo gaadhaa — waan kugu soo jawaabaynaa.",
     "sentTitle": "Farriintu diyaar bay tahay",
     "sentNote": "Waan kugu soo jawaabaynaa.",
     "again": "Dir mid kale"

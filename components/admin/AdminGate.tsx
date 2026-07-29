@@ -78,10 +78,10 @@ export default function AdminGate({ children }: { children: React.ReactNode }) {
         code === "auth/invalid-credential" ||
           code === "auth/wrong-password" ||
           code === "auth/user-not-found"
-          ? "اسم المستخدم أو كلمة السرّ غير صحيحة."
+          ? "Wrong username or password."
           : code === "auth/too-many-requests"
-            ? "محاولات كثيرة — انتظري قليلاً ثم أعيدي المحاولة."
-            : "تعذّر الدخول. تحقّقي من الاتصال.",
+            ? "Too many attempts — wait a moment and try again."
+            : "Sign-in failed. Check your connection.",
       );
     }
     setBusy(false);
@@ -94,27 +94,27 @@ export default function AdminGate({ children }: { children: React.ReactNode }) {
     </main>
   );
 
-  if (!enabled) return shell(<p className="text-muted">Firebase غير مضبوط.</p>);
+  if (!enabled) return shell(<p className="text-muted">Firebase is not configured.</p>);
 
   if (!ready || (user && admin === null))
     return shell(
       <p className="flex items-center gap-2 text-muted">
-        <IconSpinner className="size-4" /> جارٍ الفحص…
+        <IconSpinner className="size-4" /> Checking…
       </p>,
     );
 
   if (!user)
     return shell(
       <>
-        <h1 className="text-xl font-bold">لوحة إدارة رمان</h1>
-        <p className="text-sm text-muted">هذه الصفحة لصاحبة المتجر وحدها.</p>
+        <h1 className="text-xl font-bold">Ramaan Admin</h1>
+        <p className="text-sm text-muted">Store owner access only.</p>
 
         <form onSubmit={submit} className="mt-2 flex w-full flex-col gap-3">
           <input
             value={username}
             onChange={(e) => setUsername(e.target.value)}
-            placeholder="اسم المستخدم"
-            aria-label="اسم المستخدم"
+            placeholder="Username"
+            aria-label="Username"
             autoComplete="username"
             // آيباد يرفع أول حرف تلقائياً ويقترح تصحيحاً — كلاهما يفسد الاسم
             autoCapitalize="none"
@@ -130,8 +130,8 @@ export default function AdminGate({ children }: { children: React.ReactNode }) {
               type={show ? "text" : "password"}
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              placeholder="كلمة السرّ"
-              aria-label="كلمة السرّ"
+              placeholder="Password"
+              aria-label="Password"
               autoComplete="current-password"
               autoCapitalize="none"
               autoCorrect="off"
@@ -142,7 +142,7 @@ export default function AdminGate({ children }: { children: React.ReactNode }) {
             <button
               type="button"
               onClick={() => setShow((v) => !v)}
-              aria-label={show ? "إخفاء كلمة السرّ" : "إظهار كلمة السرّ"}
+              aria-label={show ? "Hide password" : "Show password"}
               aria-pressed={show}
               className={`absolute inset-y-0 right-1.5 my-auto flex size-10 items-center justify-center rounded-card transition-colors ${
                 show ? "bg-orange/10 text-orange" : "text-muted hover:text-text"
@@ -164,7 +164,7 @@ export default function AdminGate({ children }: { children: React.ReactNode }) {
             className="flex min-h-12 items-center justify-center gap-2 rounded-card bg-orange font-bold text-onaccent disabled:opacity-40"
           >
             {busy && <IconSpinner className="size-4" />}
-            دخول
+            Sign in
           </button>
         </form>
       </>,
@@ -173,10 +173,10 @@ export default function AdminGate({ children }: { children: React.ReactNode }) {
   if (!admin)
     return shell(
       <>
-        <h1 className="text-xl font-bold">هذا الحساب ليس أدمن</h1>
+        <h1 className="text-xl font-bold">This account has no access</h1>
         <p className="text-sm text-muted">
-          تُضاف صلاحية الإدارة من Firebase Console فقط — مجموعة{" "}
-          <code className="num">admins</code> ووثيقة باسم الـuid أدناه.
+          Access is granted from the Firebase Console only — collection{" "}
+          <code className="num">admins</code>, document named after the uid below.
         </p>
         <p
           className="num w-full break-all rounded-card border border-line bg-surface p-3 text-xs"
@@ -199,7 +199,7 @@ export default function AdminGate({ children }: { children: React.ReactNode }) {
           }}
           className="min-h-12 w-full rounded-card bg-orange font-bold text-onaccent"
         >
-          {copied ? "✓ نُسخ" : "نسخ الرقم"}
+          {copied ? "✓ Copied" : "Copy uid"}
         </button>
 
         <button
@@ -207,7 +207,7 @@ export default function AdminGate({ children }: { children: React.ReactNode }) {
           onClick={() => signOut()}
           className="min-h-11 text-sm text-muted underline"
         >
-          الدخول بحساب آخر
+          Use another account
         </button>
       </>,
     );

@@ -11,14 +11,14 @@ const plexArabic = IBM_Plex_Sans_Arabic({
 });
 
 export const metadata: Metadata = {
-  title: "إدارة رمان",
+  title: "Ramaan Admin",
   // لا تُفهرَس لوحة الإدارة في محرّكات البحث
   robots: { index: false, follow: false },
 };
 
 /**
- * لوحة الإدارة خارج `[locale]` عمداً: بالعربية دائماً لأن صاحبة المتجر
- * تعمل بها، وبلا هيدر ولا قائمة سفلية ولا دردشة — تلك للزبون لا لها.
+ * لوحة الإدارة خارج `[locale]` عمداً: بالإنجليزية دائماً بطلب صاحبة
+ * المتجر، وبلا هيدر ولا قائمة سفلية ولا دردشة — تلك للزبون لا لها.
  */
 export default function AdminLayout({
   children,
@@ -26,11 +26,11 @@ export default function AdminLayout({
   children: React.ReactNode;
 }) {
   return (
-    // data-theme="dark" ثابت: اللوحة سوداء دائماً بطلب صاحبة المشروع،
-    // ولا تتبع إعداد الجهاز — فلا يتغيّر شكلها بين جهاز وآخر
+    // اللوحة بالإنجليزية واتجاهها ltr بطلب صاحبة المشروع،
+    // وسوداء دائماً لا تتبع إعداد الجهاز فلا يتغيّر شكلها بين جهاز وآخر
     <html
-      lang="ar"
-      dir="rtl"
+      lang="en"
+      dir="ltr"
       data-theme="dark"
       className={plexArabic.variable}
       suppressHydrationWarning

@@ -10,21 +10,21 @@ export default function AdminPage() {
         <header className="flex items-center gap-3">
           <Logo solid className="size-11 shrink-0 rounded-[13px] shadow-sm" />
           <div className="min-w-0 flex-1 leading-tight">
-            <h1 className="text-xl font-bold">إدارة رمان</h1>
-            <p className="text-sm text-muted">الأقسام · الصور · النصوص</p>
+            <h1 className="text-xl font-bold">Ramaan Admin</h1>
+            <p className="text-sm text-muted">Sections · Images · Text</p>
           </div>
           <a
             href="https://eramaan.com"
             className="min-h-11 shrink-0 rounded-card border border-line px-3.5 text-sm font-medium leading-[2.75rem] text-muted"
           >
-            المتجر ←
+            Store →
           </a>
           <AdminSignOut />
         </header>
 
         <p className="rounded-card border border-dashed border-line p-3 text-sm text-muted">
-          ما تحفظينه هنا <strong>يعلو</strong> الإعدادات الأصلية ولا يمحوها.
-          امسحي أي حقل ليعود الأصل كما كان.
+          What you save here <strong>overrides</strong> the defaults without
+          erasing them. Clear any field to restore the original.
         </p>
 
         <AdminTabs />

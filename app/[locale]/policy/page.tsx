@@ -33,7 +33,6 @@ export default async function PolicyPage({
         </section>
       ))}
 
-      <p className="text-center text-sm text-muted">{t("editable")}</p>
     </main>
   );
 }

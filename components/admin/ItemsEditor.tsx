@@ -13,17 +13,17 @@ import ImagePicker from "./ImagePicker";
 import { IconCheckCircle, IconSpinner, IconTrash } from "@/components/icons";
 
 const KINDS: { v: ItemKind; label: string; titleLabel: string }[] = [
-  { v: "pubg", label: "شدات ببجي", titleLabel: "الكمّية (مثال: 660 UC)" },
-  { v: "efootball", label: "كوينز eFootball", titleLabel: "اسم الباقة" },
-  { v: "tiktok", label: "حسابات تيك توك", titleLabel: "اسم الحساب" },
-  { v: "accounts", label: "حسابات eFootball", titleLabel: "اسم الحساب" },
-  { v: "elec", label: "إلكترونيات", titleLabel: "اسم المنتج" },
+  { v: "pubg", label: "PUBG UC", titleLabel: "Amount (e.g. 660 UC)" },
+  { v: "efootball", label: "eFootball", titleLabel: "Pack name" },
+  { v: "tiktok", label: "TikTok", titleLabel: "Account name" },
+  { v: "accounts", label: "eFootball accounts", titleLabel: "Account name" },
+  { v: "elec", label: "Electronics", titleLabel: "Product name" },
 ];
 
 const STATUSES = [
-  { v: "on", label: "معروض ويُشترى" },
-  { v: "soon", label: "قريباً" },
-  { v: "off", label: "مخفي" },
+  { v: "on", label: "Live" },
+  { v: "soon", label: "Coming soon" },
+  { v: "off", label: "Hidden" },
 ] as const;
 
 /**
@@ -68,16 +68,16 @@ export default function ItemsEditor() {
     });
     setBusy(null);
     setSaved(ok ? it.id : null);
-    if (!ok) alert("تعذّر الحفظ — تأكّدي من الاتصال.");
+    if (!ok) alert("Could not save — check your connection.");
   }
 
   async function del(it: ShopItem) {
-    if (!confirm(`حذف "${it.title}"؟`)) return;
+    if (!confirm(`Delete "${it.title}"?`)) return;
     setBusy(it.id);
     const ok = await removeItem(it);
     setBusy(null);
     if (ok) load(kind);
-    else alert("تعذّر الحذف.");
+    else alert("Could not delete.");
   }
 
   function add() {
@@ -113,7 +113,7 @@ export default function ItemsEditor() {
 
       {items === null ? (
         <p className="flex items-center gap-2 text-sm text-muted">
-          <IconSpinner className="size-4" /> جارٍ التحميل…
+          <IconSpinner className="size-4" /> Loading…
         </p>
       ) : (
         <>
@@ -134,7 +134,7 @@ export default function ItemsEditor() {
                   </span>
                   <span className="min-w-0 flex-1 leading-tight">
                     <span className="block truncate font-bold">
-                      {it.title || "بلا اسم"}
+                      {it.title || "Untitled"}
                     </span>
                     <span className="num block text-xs text-muted" dir="ltr">
                       ${Number(it.price).toFixed(2)}
@@ -166,7 +166,7 @@ export default function ItemsEditor() {
                     </label>
 
                     <label className="flex flex-col gap-1.5 text-sm">
-                      <span className="font-medium">سطر صغير تحته</span>
+                      <span className="font-medium">Small line below</span>
                       <input
                         value={it.sub ?? ""}
                         onChange={(e) => patch(it.id, { sub: e.target.value })}
@@ -176,7 +176,7 @@ export default function ItemsEditor() {
 
                     <div className="grid grid-cols-2 gap-3">
                       <label className="flex flex-col gap-1.5 text-sm">
-                        <span className="font-medium">السعر بالدولار</span>
+                        <span className="font-medium">Price (USD)</span>
                         <input
                           type="number"
                           inputMode="decimal"
@@ -191,12 +191,12 @@ export default function ItemsEditor() {
                       </label>
 
                       <label className="flex flex-col gap-1.5 text-sm">
-                        <span className="font-medium">الترتيب</span>
+                        <span className="font-medium">Order</span>
                         <input
                           type="number"
                           inputMode="numeric"
                           value={it.order ?? ""}
-                          placeholder="الأصغر أولاً"
+                          placeholder="Lowest first"
                           onChange={(e) =>
                             patch(it.id, {
                               order: e.target.value === "" ? undefined : Number(e.target.value),
@@ -209,7 +209,7 @@ export default function ItemsEditor() {
                     </div>
 
                     <label className="flex flex-col gap-1.5 text-sm">
-                      <span className="font-medium">الحالة</span>
+                      <span className="font-medium">Status</span>
                       <select
                         value={it.status}
                         onChange={(e) =>
@@ -233,7 +233,7 @@ export default function ItemsEditor() {
                         className="flex min-h-12 flex-1 items-center justify-center gap-2 rounded-card bg-orange font-bold text-onaccent disabled:opacity-50"
                       >
                         {busy === it.id && <IconSpinner className="size-4" />}
-                        حفظ
+                        Save
                       </button>
                       <button
                         type="button"
@@ -242,7 +242,7 @@ export default function ItemsEditor() {
                         className="flex min-h-12 items-center gap-2 rounded-card border border-line px-4 text-sm text-muted hover:border-danger hover:text-danger"
                       >
                         <IconTrash className="size-4" />
-                        حذف
+                        Delete
                       </button>
                     </div>
                   </div>
@@ -256,7 +256,7 @@ export default function ItemsEditor() {
             onClick={add}
             className="min-h-12 rounded-card border border-dashed border-orange font-bold text-orange"
           >
-            + إضافة صنف جديد
+            + Add new item
           </button>
         </>
       )}
