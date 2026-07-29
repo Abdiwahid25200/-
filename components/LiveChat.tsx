@@ -17,7 +17,11 @@ import Logo from "./Logo";
 import { IconChatLine, IconClose, IconGoogle, IconSend } from "./icons";
 
 /** ارتفاع القائمة السفلية العائمة — نجلس فوقها فلا يتغطّى شيء */
-const ABOVE_NAV = "calc(5.2rem + env(safe-area-inset-bottom))";
+/**
+ * ارتفاع الزرّ العائم — قيمته في `globals.css` لا هنا، لأنه يرتفع تلقائياً
+ * فوق شريط تأكيد الطلب متى ظهر (`body.has-buybar`) فلا يغطّي أحدهما الآخر.
+ */
+const ABOVE_NAV = "var(--chat-bottom)";
 
 /**
  * الدردشة المباشرة — نافذة تنزلق من الجانب الأيمن.

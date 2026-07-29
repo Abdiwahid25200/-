@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import Image from "next/image";
 import { Link } from "@/i18n/navigation";
@@ -11,6 +11,7 @@ import { isBuyable, live, pay, wa } from "@/lib/data";
 import { useAuth } from "@/lib/auth";
 import { saveOrder } from "@/lib/orders";
 import {
+  IconArrow,
   IconCartEmpty,
   IconCheckCircle,
   IconSuccess,
@@ -40,6 +41,56 @@ export default function CartView() {
   const method = methods.find((m) => m.id === payId) ?? methods[0];
   const methodName = method ? (locale === "ar" ? method.nameAr : method.nameEn) : "";
   const canOrder = count > 0 && name.trim() && contact.trim() && addr.trim();
+
+  /* حقول التوصيل: الشريط العائم ينقل الزبون إلى أوّل حقل ناقص */
+  const nameRef = useRef<HTMLInputElement>(null);
+  const contactRef = useRef<HTMLInputElement>(null);
+  const addrRef = useRef<HTMLInputElement>(null);
+
+  /**
+   * الشريط يعلو أرضية الصفحة، فلولا مساحة أسفلها لغطّى آخر قسم.
+   * الصنف نفسه الذي تستعمله صفحات الألعاب — مسافته في `globals.css`.
+   */
+  const barVisible = ready && count > 0 && !done;
+  useEffect(() => {
+    document.body.classList.toggle("has-buybar", barVisible);
+    return () => document.body.classList.remove("has-buybar");
+  }, [barVisible]);
+
+  async function placeOrder() {
+    const code = newCode();
+    // نلتقط الأصناف قبل تفريغ السلة
+    const items = lines.map((l) => ({
+      id: l.id, title: l.name, qty: l.qty, price: l.price,
+    }));
+    const sum = total;
+    setDone({ code });
+    clear();
+    window.scrollTo({ top: 0, behavior: "smooth" });
+
+    setSaved("saving");
+    const r = await saveOrder(user, {
+      code, kind: "elec", items, total: sum,
+      payMethod: methodName,
+      account: `${name.trim()} · ${contact.trim()} · ${addr.trim()}`,
+    });
+    setSaved(r.ok ? "ok" : r.reason);
+  }
+
+  /**
+   * زرٌّ معطّل لا يقول شيئاً: الزبون يضغطه فلا يحدث شيء ولا يدري لماذا.
+   * فبدل التعطيل ينقله الزرّ إلى أوّل حقل ناقص ويفتح لوحة المفاتيح عليه.
+   */
+  function goToMissing() {
+    const next =
+      (!name.trim() && nameRef.current) ||
+      (!contact.trim() && contactRef.current) ||
+      (!addr.trim() && addrRef.current) ||
+      null;
+    if (!next) return;
+    next.scrollIntoView({ behavior: "smooth", block: "center" });
+    next.focus({ preventScroll: true });
+  }
 
   if (!ready) return null;
 
@@ -224,6 +275,7 @@ export default function CartView() {
         <h2 className="mb-3 text-lg font-bold">{t("delivery")}</h2>
         <div className="flex flex-col gap-2">
           <input
+            ref={nameRef}
             value={name}
             onChange={(e) => setName(e.target.value)}
             placeholder={t("name")}
@@ -231,6 +283,7 @@ export default function CartView() {
             className={field}
           />
           <input
+            ref={contactRef}
             value={contact}
             onChange={(e) => setContact(e.target.value)}
             placeholder={t("contact")}
@@ -239,6 +292,7 @@ export default function CartView() {
             className={`${field} text-start`}
           />
           <input
+            ref={addrRef}
             value={addr}
             onChange={(e) => setAddr(e.target.value)}
             placeholder={t("address")}
@@ -252,44 +306,53 @@ export default function CartView() {
           فلا يتعلّم الزبون شكلين لشيء واحد، ويصله كود التحويل هنا أيضاً */}
       <PaySection amount={total} selected={payId} onSelect={setPayId} />
 
-      {/* الإجمالي والتأكيد */}
-      <section className="rounded-card border border-line bg-surface p-4">
-        <div className="mb-3 flex items-center justify-between text-lg">
-          <span className="font-bold">{tb("total")}</span>
-          <span className="text-2xl font-bold text-yellow" dir="ltr">
-            {fmt(total)}
-          </span>
-        </div>
-        <button
-          type="button"
-          disabled={!canOrder}
-          onClick={async () => {
-            const code = newCode();
-            // نلتقط الأصناف قبل تفريغ السلة
-            const items = lines.map((l) => ({
-              id: l.id, title: l.name, qty: l.qty, price: l.price,
-            }));
-            const sum = total;
-            setDone({ code });
-            clear();
-            window.scrollTo({ top: 0, behavior: "smooth" });
-
-            setSaved("saving");
-            const r = await saveOrder(user, {
-              code, kind: "elec", items, total: sum,
-              payMethod: methodName,
-              account: `${name.trim()} · ${contact.trim()} · ${addr.trim()}`,
-            });
-            setSaved(r.ok ? "ok" : r.reason);
-          }}
-          className="min-h-12 w-full rounded-card bg-orange font-bold text-onaccent transition-opacity enabled:hover:opacity-90 disabled:opacity-40"
-        >
-          {tb("confirm")}
-        </button>
-        {!canOrder && (
-          <p className="mt-2 text-center text-xs text-muted">{t("fillFirst")}</p>
-        )}
+      {/* الإجمالي — للمراجعة وحدها، والتأكيد في الشريط العائم أسفل الشاشة */}
+      <section className="flex items-center justify-between rounded-card border border-line bg-surface p-4 text-lg">
+        <span className="font-bold">{tb("total")}</span>
+        <span className="num text-2xl font-bold text-yellow" dir="ltr">
+          {fmt(total)}
+        </span>
       </section>
+
+      {/* ── شريط التأكيد العائم ────────────────────────────
+          الزرّ كان في قاع الصفحة تحت المنتجات وبيانات التوصيل وطرق
+          الدفع، فيمرّ الزبون بثلاثة أقسام قبل أن يراه. الآن يرافقه
+          أينما نزل — وهو نفس ما تفعله صفحات الألعاب، فلا يتعلّم شكلين. */}
+      <div className="buybar fixed inset-x-3 bottom-[calc(5.4rem+env(safe-area-inset-bottom))] z-30 mx-auto max-w-2xl">
+        <div className="flex items-center gap-3 rounded-[26px] border border-line bg-surface/95 py-2.5 pe-2.5 ps-4 shadow-[0_10px_34px_rgba(0,0,0,0.16)] backdrop-blur">
+          <span className="leading-tight">
+            <span className="flex items-center gap-1.5 text-xs text-muted">
+              {tb("total")}
+              <span className="num rounded-full bg-orange/12 px-1.5 py-0.5 text-[0.65rem] font-bold text-orange">
+                {count}
+              </span>
+            </span>
+            <span className="num block text-xl font-bold text-orange" dir="ltr">
+              {fmt(total)}
+            </span>
+          </span>
+
+          <button
+            type="button"
+            onClick={canOrder ? placeOrder : goToMissing}
+            className="lift ms-auto flex min-h-12 items-center gap-2 rounded-[20px] bg-orange px-5 font-bold text-onaccent"
+          >
+            {canOrder ? (
+              <>
+                {tb("confirm")}
+                <IconCheckCircle className="size-5" />
+              </>
+            ) : (
+              <>
+                {t("goDelivery")}
+                <span aria-hidden className="flex rtl:rotate-180">
+                  <IconArrow className="size-5" />
+                </span>
+              </>
+            )}
+          </button>
+        </div>
+      </div>
     </div>
   );
 }

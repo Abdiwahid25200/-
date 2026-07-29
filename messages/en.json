@@ -218,7 +218,8 @@
     "name": "Full name",
     "contact": "WhatsApp number",
     "address": "Address",
-    "fillFirst": "Complete your delivery details first"
+    "fillFirst": "Complete your delivery details first",
+    "goDelivery": "Delivery details"
   },
   "help": {
     "title": "Help & support",
