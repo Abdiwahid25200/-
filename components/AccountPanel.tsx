@@ -17,7 +17,10 @@ export default function AccountPanel() {
   const { user, ready, enabled, signOut } = useAuth();
 
   const [orders, setOrders] = useState<SavedOrder[] | null>(null);
+  const [failed, setFailed] = useState(false);
   const [profile, setProfile] = useState<Profile | null>(null);
+  /** رقم يتغيّر فيُعاد التحميل — زرّ "أعيدي المحاولة" */
+  const [tick, setTick] = useState(0);
 
   useEffect(() => {
     if (!user) {
@@ -26,12 +29,17 @@ export default function AccountPanel() {
       return;
     }
     let live = true;
-    myOrders(user).then((o) => live && setOrders(o));
+    setFailed(false);
+    setOrders(null);
+    // تعذّرت القراءة؟ تُقال صراحةً — حسابٌ يبدو فارغاً وطلبُه محفوظ أسوأ
+    myOrders(user)
+      .then((o) => live && setOrders(o))
+      .catch(() => live && setFailed(true));
     getProfile(user).then((p) => live && setProfile(p));
     return () => {
       live = false;
     };
-  }, [user]);
+  }, [user, tick]);
 
   /* ── لم تُضبط إعدادات Firebase بعد ── */
   if (!enabled) {
@@ -114,7 +122,18 @@ export default function AccountPanel() {
       <section>
         <h2 className="mb-3 text-lg font-bold">{t("myOrders")}</h2>
 
-        {orders === null ? (
+        {failed ? (
+          <div className="rounded-card border border-dashed border-danger/60 p-6 text-center text-sm">
+            <p className="text-danger">{t("ordersError")}</p>
+            <button
+              type="button"
+              onClick={() => setTick((n) => n + 1)}
+              className="mt-3 min-h-12 rounded-card border border-line px-4 font-medium"
+            >
+              {t("retry")}
+            </button>
+          </div>
+        ) : orders === null ? (
           <p className="text-sm text-muted">…</p>
         ) : orders.length === 0 ? (
           <p className="rounded-card border border-dashed border-line p-6 text-center text-sm text-muted">

@@ -13,7 +13,6 @@ import {
   collection,
   getDocs,
   limit,
-  orderBy,
   query,
   serverTimestamp,
   where,
@@ -107,29 +106,34 @@ export async function saveOrder(
   }
 }
 
-/** طلبات الزبون الحالي — القواعد تمنع رؤية طلبات غيره */
+/**
+ * طلبات الزبون الحالي — القواعد تمنع رؤية طلبات غيره.
+ *
+ * ⚠️ **لا `orderBy` هنا عمداً.** Firestore يشترط فهرساً مركّباً يُنشأ يدوياً
+ *    لأي استعلام يجمع تصفيةً بحقل وترتيباً بحقلٍ آخر، وبدونه يرمي خطأً —
+ *    فكان الزبون يرى "لا طلبات بعد" وطلبه محفوظ فعلاً. التصفية بالـuid
+ *    وحدها تكفيها الفهارس التلقائية، والترتيب يتمّ هنا في المتصفّح:
+ *    خمسون طلباً لا تُرتّب في وقت يُحسّ به أحد.
+ *
+ * ويرمي الخطأ ولا يبتلعه: صمتٌ يُظهر حساباً فارغاً أسوأ من رسالة صريحة.
+ */
 export async function myOrders(user: User | null): Promise<SavedOrder[]> {
   const db = fbDb();
   if (!db || !user) return [];
 
-  try {
-    const snap = await getDocs(
-      query(
-        collection(db, "orders"),
-        where("uid", "==", user.uid),
-        orderBy("createdAt", "desc"),
-        limit(50),
-      ),
-    );
-    return snap.docs.map((d) => {
+  const snap = await getDocs(
+    query(collection(db, "orders"), where("uid", "==", user.uid), limit(200)),
+  );
+
+  return snap.docs
+    .map((d) => {
       const v = d.data();
       return {
         id: d.id,
         ...v,
         createdAt: v.createdAt?.toDate?.() ?? null,
       } as SavedOrder;
-    });
-  } catch {
-    return [];
-  }
+    })
+    // الأحدث أولاً · والطلب الذي لم يصله وقت الخادم بعد هو أحدثها جميعاً
+    .sort((a, b) => (b.createdAt?.getTime() ?? Infinity) - (a.createdAt?.getTime() ?? Infinity));
 }

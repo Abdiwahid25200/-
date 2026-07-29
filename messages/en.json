@@ -303,6 +303,8 @@
     "signOut": "Sign out",
     "myOrders": "My orders",
     "noOrders": "No orders yet — your orders will appear here after you buy.",
+    "ordersError": "Could not load your orders — your orders are safe, this is a display problem.",
+    "retry": "Try again",
     "loginError": "Sign-in did not complete. Please try again.",
     "status": {
       "pending": "Pending",

@@ -303,6 +303,8 @@
     "signOut": "Ka bax",
     "myOrders": "Dalabkayga",
     "noOrders": "Wax dalab ah ma jiro — dalabkaagu halkan ayuu ka soo muuqan doonaa.",
+    "ordersError": "Dalabyadaada lama soo bandhigi karin — way badbaadeen, arrintu waa muujin.",
+    "retry": "Isku day mar kale",
     "loginError": "Gelitaanku ma dhammaan. Fadlan isku day mar kale.",
     "status": {
       "pending": "La eegayo",
