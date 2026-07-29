@@ -488,6 +488,9 @@
         "q": "Lacagta ma la celin karaa?",
         "a": "Haddii aadan helin waxaad dalbatay, koodhka dalabka noo soo dir waanan hagaajinaynaa. Buuxinta horey loogu gaarsiiyay ID-ga saxda ah lama celin karo."
       }
-    }
+    },
+    "needPerson": "Waxaan u baahanahay qof",
+    "needPersonMsg": "Waxaan rabaa inaan la hadlo qof ka tirsan kooxda, fadlan.",
+    "needPersonDone": "Codsigaagu wuxuu gaaray kooxda — jawaab ayaad halkan ka heli doontaa."
   }
 }

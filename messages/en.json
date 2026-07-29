@@ -488,6 +488,9 @@
         "q": "Can I get a refund?",
         "a": "If you did not receive what you ordered, message us with the order code and we fix it right away. Top-ups already delivered to the correct ID cannot be refunded."
       }
-    }
+    },
+    "needPerson": "I need a person",
+    "needPersonMsg": "I need to talk to a person, please.",
+    "needPersonDone": "Your request reached the team — you'll get a reply here."
   }
 }

@@ -5,6 +5,7 @@ import { useLocale, useTranslations } from "next-intl";
 import { useAuth } from "@/lib/auth";
 import {
   listenChat,
+  markNeedsHuman,
   lastSeen,
   markSeen,
   sendChatMessage,
@@ -15,7 +16,13 @@ import {
 import { site } from "@/lib/content";
 import { faqSlots, pick, readFaq, type FaqDoc, type FaqKey } from "@/lib/faq";
 import Logo from "./Logo";
-import { IconChatLine, IconClose, IconGoogle, IconSend } from "./icons";
+import {
+  IconChatLine,
+  IconClose,
+  IconGoogle,
+  IconSend,
+  IconUser as IconUserLine,
+} from "./icons";
 
 /** ارتفاع القائمة السفلية العائمة — نجلس فوقها فلا يتغطّى شيء */
 /**
@@ -53,6 +60,8 @@ export default function LiveChat() {
   const [faq, setFaq] = useState<FaqDoc>({});
   /** الأسئلة التي فتحها الزبون في هذه الجلسة — تُعرض محلياً بلا كتابة */
   const [opened, setOpened] = useState<FaqKey[]>([]);
+  /** ضغط "أريد التحدّث مع شخص" — فلا يُعاد الزرّ ولا يُكرَّر الطلب */
+  const [asked, setAsked] = useState(false);
 
   const boxRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
@@ -141,6 +150,26 @@ export default function LiveChat() {
     }
     setSending(false);
     inputRef.current?.focus();
+  }
+
+  /**
+   * "أريد التحدّث مع شخص".
+   *
+   * الزائر يُدعى للدخول أولاً: الردّ يحتاج معرفة صاحب السؤال، وبلا حساب
+   * لا سبيل لإيصال الجواب إليه.
+   */
+  async function needPerson() {
+    if (!user) return signIn();
+    if (asked) return;
+    setAsked(true);
+    const res = await sendChatMessage(user, t("needPersonMsg"));
+    if (!res.ok) {
+      setAsked(false);
+      setFailed(true);
+      return;
+    }
+    // العلامة إضافة فوق الرسالة — فشلُها لا يضيّع الطلب
+    void markNeedsHuman(user);
   }
 
   const unread = unreadCount(msgs, seen);
@@ -235,6 +264,8 @@ export default function LiveChat() {
                 t={t}
                 opened={opened}
                 onOpen={(k) => setOpened((p) => [...p, k])}
+                onNeedPerson={needPerson}
+                asked={asked}
               />
               <p className="mt-2 text-center font-bold">{t("guestTitle")}</p>
               <p className="text-center text-sm text-muted">{t("guestNote")}</p>
@@ -267,6 +298,8 @@ export default function LiveChat() {
                   t={t}
                   opened={opened}
                   onOpen={(k) => setOpened((p) => [...p, k])}
+                  onNeedPerson={needPerson}
+                  asked={asked}
                 />
 
                 {failed && (
@@ -323,12 +356,17 @@ function FaqBlock({
   t,
   opened,
   onOpen,
+  onNeedPerson,
+  asked,
 }: {
   faq: FaqDoc;
   locale: string;
   t: (k: string) => string;
   opened: FaqKey[];
   onOpen: (k: FaqKey) => void;
+  /** "أريد التحدّث مع شخص" */
+  onNeedPerson: () => void;
+  asked: boolean;
 }) {
   const rest = faqSlots.filter((k) => !opened.includes(k));
 
@@ -354,6 +392,25 @@ function FaqBlock({
             </button>
           ))}
         </div>
+      )}
+
+      {/* ── "أريد التحدّث مع شخص" ─────────────────────────
+          الأسئلة الجاهزة لا تكفي كل زبون، ومن لم يجد جوابه لا ينبغي أن
+          يبحث عن طريقة. زرٌّ صريح بلون العلامة: يصل طلبه فوراً، وتُعلَّم
+          محادثته فتراها صاحبة المتجر قبل غيرها. */}
+      {asked ? (
+        <p className="mt-1 rounded-card border border-dashed border-orange/50 bg-orange/5 p-2.5 text-center text-xs font-medium text-orange">
+          {t("needPersonDone")}
+        </p>
+      ) : (
+        <button
+          type="button"
+          onClick={onNeedPerson}
+          className="lift mt-1 flex min-h-11 items-center justify-center gap-2 self-start rounded-full border border-orange px-4 text-sm font-bold text-orange"
+        >
+          <IconUserLine className="size-4" />
+          {t("needPerson")}
+        </button>
       )}
     </>
   );

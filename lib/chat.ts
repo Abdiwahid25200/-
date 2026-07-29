@@ -118,6 +118,34 @@ export async function sendChatMessage(
   }
 }
 
+/**
+ * "أريد التحدّث مع شخص" — تُرفع علامة على المحادثة لا رسالةً وحدها.
+ *
+ * الرسالة تصل صاحبة المتجر مع عشرات غيرها، أمّا `needsHuman` فتُميّز
+ * المحادثة التي **تنتظر إنساناً** فتُرى أولاً في لوحة الإدارة.
+ * وفشلُها لا يضرّ: الرسالة نفسها وصلت على كل حال.
+ */
+export async function markNeedsHuman(user: User): Promise<boolean> {
+  const db = fbDb();
+  if (!db) return false;
+  try {
+    await setDoc(
+      doc(db, "chats", user.uid),
+      {
+        uid: user.uid,
+        name: user.displayName ?? "",
+        email: user.email ?? "",
+        needsHuman: true,
+        updatedAt: serverTimestamp(),
+      },
+      { merge: true },
+    );
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 /* ── شارة "رسالة جديدة" ──
    نحفظ وقت آخر رسالة قرأها الزبون في متصفّحه، فلا نحتاج كتابة في
    قاعدة البيانات عند كل فتح للنافذة. */
