@@ -23,6 +23,7 @@ export default function ImagePicker({
   const input = useRef<HTMLInputElement>(null);
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState("");
+  const [link, setLink] = useState(false);
 
   async function pick(file?: File) {
     if (!file) return;
@@ -36,7 +37,8 @@ export default function ImagePicker({
         ? "الصورة أكبر من ٥ ميجابايت"
         : r.reason === "type"
           ? "الملف ليس صورة"
-          : "تعذّر الرفع — تحقّقي من الاتصال",
+          // الرفع يحتاج تفعيل Storage في Firebase (خطة Blaze) — نقترح البديل
+          : "تعذّر الرفع. جرّبي «لصق رابط صورة» بدلاً منه.",
     );
   }
 
@@ -80,6 +82,28 @@ export default function ImagePicker({
           )}
         </div>
         {err && <p className="mt-1 text-xs text-danger">{err}</p>}
+
+        {/* بديل الرفع: رابط صورة جاهزة — يعمل بلا تفعيل Storage */}
+        <button
+          type="button"
+          onClick={() => setLink((v) => !v)}
+          className="mt-1 text-xs text-muted underline"
+        >
+          {link ? "إخفاء" : "أو لصق رابط صورة"}
+        </button>
+
+        {link && (
+          <input
+            value={value ?? ""}
+            onChange={(e) => onChange(e.target.value.trim() || null)}
+            placeholder="https://…"
+            dir="ltr"
+            autoCapitalize="none"
+            autoCorrect="off"
+            spellCheck={false}
+            className="mt-1.5 min-h-11 w-full rounded-card border border-line bg-bg px-3 text-start text-sm outline-none focus:border-orange"
+          />
+        )}
       </div>
 
       <input

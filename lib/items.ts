@@ -87,9 +87,27 @@ export type ItemDoc = Partial<Omit<ShopItem, "id">> & { hidden?: boolean };
 
 const READ_MS = 2500;
 
+/**
+ * ذاكرة قصيرة **في المتصفّح وحده**.
+ * لوحة الإدارة كانت تقرأ المجموعة كاملة عند كل تبديل قسم، فيشعر
+ * بالتأخير عند كل ضغطة. ثلاثون ثانية تكفي جلسة تحرير وتُلغى عند كل حفظ.
+ * ولا تُستعمل على السيرفر: الذاكرة هناك تعيش عبر الطلبات فتُقدّم بيانات قديمة.
+ */
+let cache: { at: number; data: Record<string, ItemDoc> } | null = null;
+const CACHE_MS = 30_000;
+
+/** يُستدعى بعد كل حفظ أو حذف فتُقرأ البيانات من جديد */
+export function clearItemsCache() {
+  cache = null;
+}
+
 async function readItems(): Promise<Record<string, ItemDoc>> {
   const db = fbDb();
   if (!db) return {};
+
+  const onClient = typeof window !== "undefined";
+  if (onClient && cache && Date.now() - cache.at < CACHE_MS) return cache.data;
+
   try {
     const snap = await Promise.race([
       getDocs(collection(db, "packages")),
@@ -97,6 +115,7 @@ async function readItems(): Promise<Record<string, ItemDoc>> {
     ]);
     const out: Record<string, ItemDoc> = {};
     snap.docs.forEach((d) => (out[d.id] = d.data() as ItemDoc));
+    if (onClient) cache = { at: Date.now(), data: out };
     return out;
   } catch {
     // بطء أو انقطاع ⇒ الموقع يعمل بالأصل الثابت بلا أن يشعر الزبون
@@ -167,11 +186,25 @@ function strip(o: ItemDoc): Partial<ShopItem> {
   return out as Partial<ShopItem>;
 }
 
+/**
+ * ⚠️ Firestore **يرمي خطأ** على أي حقل قيمته `undefined` — لا يتجاهله.
+ * حقلٌ تركته صاحبة المتجر فارغاً (الترتيب مثلاً) كان يُفشل الحفظ كلّه
+ * برسالة "تعذّر الحفظ" لا تقول أين الخطأ. فنحذف غير المعرّف قبل الكتابة.
+ */
+function clean(data: Record<string, unknown>) {
+  const out: Record<string, unknown> = {};
+  for (const [k, v] of Object.entries(data)) if (v !== undefined) out[k] = v;
+  return out;
+}
+
 export async function saveItem(id: string, data: ItemDoc): Promise<boolean> {
   const db = fbDb();
   if (!db) return false;
   try {
-    await setDoc(doc(db, "packages", id), data, { merge: true });
+    await setDoc(doc(db, "packages", id), clean(data as Record<string, unknown>), {
+      merge: true,
+    });
+    clearItemsCache();
     return true;
   } catch {
     return false;
@@ -189,6 +222,7 @@ export async function removeItem(item: ShopItem): Promise<boolean> {
   try {
     if (item.custom) await deleteDoc(doc(db, "packages", item.id));
     else await setDoc(doc(db, "packages", item.id), { hidden: true }, { merge: true });
+    clearItemsCache();
     return true;
   } catch {
     return false;

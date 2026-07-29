@@ -83,7 +83,10 @@ export async function saveOverride(
   const db = fbDb();
   if (!db) return false;
   try {
-    await setDoc(doc(db, col, id), data, { merge: true });
+    // Firestore يرمي خطأ على أي حقل undefined — نحذفه قبل الكتابة
+    const clean: Record<string, unknown> = {};
+    for (const [k, v] of Object.entries(data)) if (v !== undefined) clean[k] = v;
+    await setDoc(doc(db, col, id), clean, { merge: true });
     return true;
   } catch {
     return false;

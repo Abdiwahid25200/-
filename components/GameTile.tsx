@@ -33,13 +33,22 @@ export default function GameTile({
     <span className="lift relative flex aspect-[4/5] flex-col items-center justify-center gap-2.5 overflow-hidden rounded-[18px] border border-line bg-surface px-2 py-4 shadow-sm">
       {img ? (
         <>
-          <Image
-            src={img}
-            alt={title}
-            fill
-            sizes="(max-width: 640px) 30vw, 180px"
-            className="object-cover transition-transform group-hover:scale-105"
-          />
+          {img.startsWith("/") ? (
+            <Image
+              src={img}
+              alt={title}
+              fill
+              sizes="(max-width: 640px) 30vw, 180px"
+              className="object-cover transition-transform group-hover:scale-105"
+            />
+          ) : (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={img}
+              alt={title}
+              className="absolute inset-0 size-full object-cover transition-transform group-hover:scale-105"
+            />
+          )}
           {/* تدرّج داكن أسفل الصورة: بدونه يقع الاسم على صورة فاتحة فلا يُقرأ */}
           <span
             aria-hidden
