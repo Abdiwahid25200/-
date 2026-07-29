@@ -26,14 +26,33 @@ export default function BottomNav() {
   const t = useTranslations("nav");
 
   return (
-    <nav
-      aria-label={t("label")}
-      /* ⚠️ إنزال القائمة يستلزم إنزال ما يجلس فوقها بالمقدار نفسه:
-         `--chat-bottom` في `globals.css` و`FixedBar` — وإلا اتّسعت الفجوة
-         أو تراكبا. القائمة `fixed` فلا تتحرّك مع التمرير أصلاً. */
-      className="fixed inset-x-3 bottom-[calc(0.25rem+env(safe-area-inset-bottom))] z-40 rounded-[26px] border border-line bg-surface/95 shadow-[0_6px_28px_rgba(0,0,0,0.12)] backdrop-blur"
-    >
-      <div className="mx-auto flex max-w-5xl px-1.5 py-1">
+    /**
+     * 🚫 **لا يمرّ تحتها شيء** — قرار صاحبة المتجر.
+     *
+     * كانت شريطاً عائماً شفّافاً بحوافّ مفتوحة، فيمرّ المحتوى من خلفه ومن
+     * جانبيه عند التمرير فيبدو مزدحماً. الآن تجلس على **ستارة مصمتة**
+     * تمتدّ من طرف الشاشة إلى طرفها حتى أسفلها: يختفي المحتوى خلفها بلا
+     * أن يُرى. ويبقى الشريط نفسه عائماً مدوّراً كما اعتمدت.
+     *
+     * وفوق الستارة تلاشٍ ناعم بارتفاع ٢٤ بكسل، فلا يُقطع المحتوى بخطٍّ
+     * حادّ بل يذوب.
+     *
+     * ⚠️ إنزال القائمة يستلزم إنزال ما يجلس فوقها بالمقدار نفسه:
+     * `--chat-bottom` في `globals.css` و`FixedBar` — وإلا اتّسعت الفجوة
+     * أو تراكبا. وهي `fixed` فلا تتحرّك مع التمرير أصلاً.
+     */
+    <div className="fixed inset-x-0 bottom-0 z-40 pb-[calc(0.25rem+env(safe-area-inset-bottom))]">
+      <span
+        aria-hidden
+        className="pointer-events-none absolute inset-x-0 bottom-full h-6 bg-gradient-to-t from-bg to-transparent"
+      />
+      <span aria-hidden className="absolute inset-0 bg-bg" />
+
+      <nav
+        aria-label={t("label")}
+        className="relative mx-3 rounded-[26px] border border-line bg-surface shadow-[0_6px_28px_rgba(0,0,0,0.12)]"
+      >
+        <div className="mx-auto flex max-w-5xl px-1.5 py-1">
         {tabs.map(({ key, href, Icon }) => {
           const isActive =
             href === "/" ? pathname === "/" : pathname.startsWith(href);
@@ -61,7 +80,8 @@ export default function BottomNav() {
             </Link>
           );
         })}
-      </div>
-    </nav>
+        </div>
+      </nav>
+    </div>
   );
 }
