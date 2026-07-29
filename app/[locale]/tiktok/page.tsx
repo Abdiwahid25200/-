@@ -1,7 +1,14 @@
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import SectionHero from "@/components/SectionHero";
+import { pick, sectionOverride } from "@/lib/overrides";
 import BackLink from "@/components/BackLink";
 import TiktokFlow from "@/components/flows/TiktokFlow";
+
+/**
+ * تتجدّد كل دقيقة: الصفحة مبنيّة مسبقاً فتفتح فوراً، وما تعدّله صاحبة
+ * المتجر في لوحة الإدارة يظهر خلال دقيقة بلا إعادة نشر.
+ */
+export const revalidate = 60;
 
 export default async function TiktokPage({
   params,
@@ -13,15 +20,18 @@ export default async function TiktokPage({
   const t = await getTranslations("accountsPage");
   const te = await getTranslations("eyebrow");
 
+  const over = await sectionOverride("tiktok");
+
   return (
     <main className="mx-auto flex max-w-4xl flex-col gap-5 px-4 py-6">
       <BackLink href="/accounts" />
       <SectionHero
         icon="tiktok"
         variant={2}
-        eyebrow={te("tiktok")}
-        title={t("tiktok.title")}
-        note={t("tiktok.note")}
+        eyebrow={pick(over.eyebrow, locale, te("tiktok"))}
+        title={pick(over.title, locale, t("tiktok.title"))}
+        img={over.img}
+        note={pick(over.note, locale, t("tiktok.note"))}
       />
       <TiktokFlow />
     </main>

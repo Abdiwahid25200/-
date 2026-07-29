@@ -1,7 +1,14 @@
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import SectionHero from "@/components/SectionHero";
+import { pick, sectionOverride } from "@/lib/overrides";
 import BackLink from "@/components/BackLink";
 import PubgFlow from "@/components/flows/PubgFlow";
+
+/**
+ * تتجدّد كل دقيقة: الصفحة مبنيّة مسبقاً فتفتح فوراً، وما تعدّله صاحبة
+ * المتجر في لوحة الإدارة يظهر خلال دقيقة بلا إعادة نشر.
+ */
+export const revalidate = 60;
 
 export default async function PubgPage({
   params,
@@ -13,15 +20,18 @@ export default async function PubgPage({
   const t = await getTranslations("games");
   const te = await getTranslations("eyebrow");
 
+  const over = await sectionOverride("pubg");
+
   return (
     <main className="seq mx-auto flex max-w-4xl flex-col gap-5 px-4 py-6">
       <BackLink href="/games" />
       <SectionHero
         icon="pubg"
         variant={0}
-        eyebrow={te("pubg")}
-        title={t("pubg.title")}
-        note={t("pubg.note")}
+        eyebrow={pick(over.eyebrow, locale, te("pubg"))}
+        title={pick(over.title, locale, t("pubg.title"))}
+        img={over.img}
+        note={pick(over.note, locale, t("pubg.note"))}
       />
       <PubgFlow />
     </main>

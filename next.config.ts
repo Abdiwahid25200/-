@@ -4,6 +4,16 @@ import createNextIntlPlugin from "next-intl/plugin";
 const nextConfig: NextConfig = {
   reactStrictMode: true,
 
+  // صور لوحة الإدارة تُرفع إلى Firebase Storage، وnext/image يرفض أي
+  // مضيف غير مأذون له صراحةً — بلا هذا تظهر الصور المرفوعة مكسورة
+  images: {
+    remotePatterns: [
+      { protocol: "https", hostname: "firebasestorage.googleapis.com" },
+      { protocol: "https", hostname: "*.firebasestorage.app" },
+      { protocol: "https", hostname: "storage.googleapis.com" },
+    ],
+  },
+
   /**
    * تمرير مسارات مصادقة Firebase على نطاقنا نفسه.
    *
