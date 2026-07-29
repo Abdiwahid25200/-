@@ -9,6 +9,7 @@ import MessageForm from "@/components/MessageForm";
 import { IconChat, IconClock, IconEmail, IconWhatsApp } from "@/components/icons";
 import { site, supportChannels } from "@/lib/content";
 import { faqSlots, pick as pickFaq, readFaq } from "@/lib/faq";
+import Footer from "@/components/Footer";
 import type { Locale } from "@/i18n/routing";
 
 const ICONS = {
@@ -130,6 +131,8 @@ export default async function HelpPage({
         />
       </section>
 
+      {/* ختام الموقع — هنا وحده */}
+      <Footer locale={locale} />
     </main>
   );
 }

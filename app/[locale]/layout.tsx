@@ -10,7 +10,6 @@ import TopBar from "@/components/TopBar";
 import Header from "@/components/Header";
 import BottomNav from "@/components/BottomNav";
 import LiveChat from "@/components/LiveChat";
-import Footer from "@/components/Footer";
 import { themeInitScript } from "@/components/ThemeToggle";
 import "../globals.css";
 
@@ -94,8 +93,9 @@ export default async function LocaleLayout({
               {/* الإطار المدوّر — الانحناءات التي طلبتها صاحبة المشروع */}
               <div className="app-shell flex flex-1 flex-col">
                 <Header />
+                {/* الفوتر ليس هنا: مكانه صفحة الدعم وحدها — قرارها.
+                    راجعي `components/Footer.tsx` للسبب. */}
                 <div className="flex-1">{children}</div>
-                <Footer locale={locale} />
               </div>
               <BottomNav />
               {/* الدردشة المباشرة — على كل صفحة، فوق القائمة السفلية */}

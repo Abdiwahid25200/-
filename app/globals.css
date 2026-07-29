@@ -148,11 +148,11 @@ body.has-buybar {
    الزرّ عائم على اليمين وشريط التأكيد يمرّ تحته، فكان يغطّي طرفه.
    المتغيّر هنا لا في المكوّن، فيرتفع الزرّ وحده متى ظهر الشريط. */
 :root {
-  --chat-bottom: calc(5.2rem + env(safe-area-inset-bottom));
+  --chat-bottom: calc(4.85rem + env(safe-area-inset-bottom));
 }
 
 body.has-buybar {
-  --chat-bottom: calc(9.9rem + env(safe-area-inset-bottom));
+  --chat-bottom: calc(9.55rem + env(safe-area-inset-bottom));
 }
 
 /* ── دخول شريط التأكيد ─────────────────────────────────────

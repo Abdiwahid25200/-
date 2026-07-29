@@ -28,7 +28,10 @@ export default function BottomNav() {
   return (
     <nav
       aria-label={t("label")}
-      className="fixed inset-x-3 bottom-[calc(0.6rem+env(safe-area-inset-bottom))] z-40 rounded-[26px] border border-line bg-surface/95 shadow-[0_6px_28px_rgba(0,0,0,0.12)] backdrop-blur"
+      /* ⚠️ إنزال القائمة يستلزم إنزال ما يجلس فوقها بالمقدار نفسه:
+         `--chat-bottom` في `globals.css` و`FixedBar` — وإلا اتّسعت الفجوة
+         أو تراكبا. القائمة `fixed` فلا تتحرّك مع التمرير أصلاً. */
+      className="fixed inset-x-3 bottom-[calc(0.25rem+env(safe-area-inset-bottom))] z-40 rounded-[26px] border border-line bg-surface/95 shadow-[0_6px_28px_rgba(0,0,0,0.12)] backdrop-blur"
     >
       <div className="mx-auto flex max-w-5xl px-1.5 py-1">
         {tabs.map(({ key, href, Icon }) => {

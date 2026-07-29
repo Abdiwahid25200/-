@@ -1,149 +1,111 @@
 import { getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
 import Logo from "./Logo";
-import {
-  IconCall,
-  IconClockLine,
-  IconEmailLine,
-  IconPin,
-  IconTelegram,
-  IconWhatsApp,
-} from "./icons";
-import { acceptedPayments, footerLinks, site } from "@/lib/content";
+import { IconTelegram, IconWhatsApp } from "./icons";
+import { footerLinks, site } from "@/lib/content";
 import type { Locale } from "@/i18n/routing";
 
+/**
+ * ختام الصفحة — في **صفحة الدعم وحدها**، قرار صاحبة المتجر.
+ *
+ * كان فوتراً بأربعة أعمدة أسفل كل صفحة، فتكرّرت روابطه في القائمة السفلية
+ * والجانبية، ومرّ الشريط العائم فوقها فظهرت مقصوصة. الآن يُختم به موضعٌ
+ * واحد يليق به: صفحة المساعدة، حيث يبحث الزبون عن هذه الروابط أصلاً.
+ *
+ * ولا يكرّر ما فوقه في تلك الصفحة: التواصل وساعات العمل ووسائل الدفع
+ * معروضة هناك بالفعل — فبقي هنا **ما لا مكان له غيره**: العلامة، والسياسات،
+ * وسطر الحقوق.
+ *
+ * ولغة التصميم كما هي: خطّ تقطيع منقّط كقسيمة، وصفيحة سداسية كوجه عملة،
+ * وأرقام `.num` المتساوية.
+ */
 export default async function Footer({ locale }: { locale: string }) {
   const t = await getTranslations("footer");
-  const tp = await getTranslations("pages");
   const L = locale as Locale;
-
-  const accepted = acceptedPayments().filter((p) => !p.soon);
-
-  // أيقونات خطّية لا إيموجي: الإيموجي يختلف شكله بين الأجهزة ولا يأخذ لون الهوية
-  const contact = [
-    { key: "addr", Icon: IconPin, value: site.address[L], href: null },
-    { key: "tel", Icon: IconCall, value: site.whatsapp, href: site.whatsapp ? `tel:${site.whatsapp}` : null, ltr: true },
-    { key: "mail", Icon: IconEmailLine, value: site.email, href: site.email ? `mailto:${site.email}` : null, ltr: true },
-    { key: "hours", Icon: IconClockLine, value: site.hours[L], href: null },
-  ].filter((c) => c.value);
 
   const socials = [
     site.whatsapp && {
       key: "wa",
+      label: "WhatsApp",
       href: `https://wa.me/${site.whatsapp.replace(/\D/g, "")}`,
       Icon: IconWhatsApp,
     },
     site.telegram && {
       key: "tg",
+      label: "Telegram",
       href: `https://t.me/${site.telegram.replace(/^@/, "")}`,
       Icon: IconTelegram,
     },
-  ].filter(Boolean) as { key: string; href: string; Icon: (p: { className?: string }) => React.ReactElement }[];
-
-  const col = "flex flex-col gap-2";
-  const head = "text-sm font-bold";
-  const link =
-    "flex min-h-10 items-center text-sm text-muted transition-colors hover:text-orange";
+  ].filter(Boolean) as {
+    key: string;
+    label: string;
+    href: string;
+    Icon: (p: { className?: string }) => React.ReactElement;
+  }[];
 
   return (
-    /**
-     * 🚫 لا فوتر على الجوّال — قرار صاحبة المتجر.
-     *
-     * روابطه تكرّر القائمة السفلية والقائمة الجانبية معاً، والشريط العائم
-     * يمرّ فوقها فتظهر مقصوصة. فصار الفوتر عبئاً على شاشة صغيرة لا خدمة.
-     * ولا يضيع شيء: السياسات والدعم في القائمة الجانبية، والتواصل في
-     * صفحة المساعدة. ويبقى الفوتر كاملاً على الشاشات الكبيرة (‏640px+).
-     */
-    <footer className="mt-10 hidden border-t border-line bg-surface sm:block">
-      <div className="mx-auto max-w-5xl px-4 py-10">
-        <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
-          {/* العلامة */}
-          <div className={col}>
-            <div className="flex items-center gap-3">
-              <Logo className="size-11 shrink-0 rounded-xl shadow-sm" />
-              <span className="font-bold">{site.brand}</span>
-            </div>
-            <p className="text-sm leading-relaxed text-muted">
-              {site.description[L]}
-            </p>
-            {socials.length > 0 && (
-              <div className="mt-1 flex gap-2">
-                {socials.map(({ key, href, Icon }) => (
-                  <a
-                    key={key}
-                    href={href}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    aria-label={key === "wa" ? "WhatsApp" : "Telegram"}
-                  >
-                    <Icon className="size-10 rounded-xl shadow-sm transition-opacity hover:opacity-80" />
-                  </a>
-                ))}
-              </div>
-            )}
-          </div>
+    <footer className="mt-12">
+      {/* خطّ التقطيع — نفس خطّ القسيمة، فيُقرأ الختام كجزء من العائلة */}
+      <span
+        aria-hidden
+        className="block border-t border-dashed border-line"
+      />
 
-          {/* روابط سريعة */}
-          <nav className={col} aria-label={t("quick")}>
-            <h3 className={head}>{t("quick")}</h3>
-            {footerLinks.quick.map(({ key, href }) => (
-              <Link key={key} href={href} className={link}>
-                {tp(key === "home" ? "electronics" : key)}
-              </Link>
-            ))}
-          </nav>
+      <div className="flex flex-col items-center gap-4 px-4 pt-8 text-center">
+        {/* صفيحة سداسية = وجه عملة، كبلاطات الأقسام */}
+        <span
+          aria-hidden
+          className="flex aspect-square w-16 items-center justify-center bg-surface2"
+          style={{
+            clipPath: "polygon(50% 0, 93% 25%, 93% 75%, 50% 100%, 7% 75%, 7% 25%)",
+          }}
+        >
+          <Logo className="size-9" />
+        </span>
 
-          {/* السياسات */}
-          <nav className={col} aria-label={t("policies")}>
-            <h3 className={head}>{t("policies")}</h3>
-            {footerLinks.policies.map(({ key, href }) => (
-              <Link key={key} href={href} className={link}>
-                {t(`policy.${key}`)}
-              </Link>
-            ))}
-          </nav>
+        <span className="leading-tight">
+          <span className="block font-bold">{site.brand}</span>
+          <span className="mt-0.5 block text-sm text-muted">
+            {site.tagline[L]}
+          </span>
+        </span>
 
-          {/* التواصل */}
-          <div className={col}>
-            <h3 className={head}>{t("contact")}</h3>
-            {contact.length ? (
-              contact.map((c) => (
-                <div key={c.key} className="flex items-start gap-2 text-sm text-muted">
-                  <c.Icon className="mt-0.5 size-4 shrink-0 text-orange" />
-                  {c.href ? (
-                    <a href={c.href} dir={c.ltr ? "ltr" : undefined} className="hover:text-orange">
-                      {c.value}
-                    </a>
-                  ) : (
-                    <span dir={c.ltr ? "ltr" : undefined}>{c.value}</span>
-                  )}
-                </div>
-              ))
-            ) : (
-              <p className="text-sm text-muted">{t("contactSoon")}</p>
-            )}
-          </div>
-        </div>
+        {/* السياسات — أقراص صغيرة تلتفّ بلا عمود طويل */}
+        <nav
+          aria-label={t("policies")}
+          className="flex flex-wrap items-center justify-center gap-2"
+        >
+          {footerLinks.policies.map(({ key, href }) => (
+            <Link
+              key={key}
+              href={href}
+              className="lift min-h-11 rounded-full border border-line bg-surface px-4 py-2.5 text-sm text-muted transition-colors hover:border-orange hover:text-orange"
+            >
+              {t(`policy.${key}`)}
+            </Link>
+          ))}
+        </nav>
 
-        {/* وسائل الدفع — الفوتر يقول "نقبل"، فلا يُذكر فيه إلا ما يُقبل
-            فعلاً اليوم. وبلا وسيلة واحدة يختفي الصفّ كلّه بعنوانه. */}
-        {accepted.length > 0 && (
-        <div className="mt-8 flex flex-wrap items-center justify-center gap-2 border-t border-line pt-6">
-          <span className="text-sm font-medium">{t("weAccept")}</span>
-          {accepted.map((p) => (
-              <span
-                key={p.name}
-                dir="ltr"
-                className="rounded-card border border-line bg-bg px-3 py-1.5 text-xs font-semibold text-muted"
+        {socials.length > 0 && (
+          <div className="flex gap-2">
+            {socials.map(({ key, label, href, Icon }) => (
+              <a
+                key={key}
+                href={href}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label={label}
+                className="lift"
               >
-                {p.name}
-              </span>
+                <Icon className="size-11 rounded-2xl shadow-sm" />
+              </a>
             ))}
-        </div>
+          </div>
         )}
 
-        <p className="mt-6 text-center text-sm text-muted">
-          © {new Date().getFullYear()} {site.brand} — {t("rights")}
+        <p className="pt-2 text-xs text-muted">
+          <span className="num">{new Date().getFullYear()}</span> © {site.brand}{" "}
+          — {t("rights")}
         </p>
       </div>
     </footer>
