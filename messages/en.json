@@ -319,6 +319,11 @@
       "tiktok": "We message you on WhatsApp to hand over the account details.",
       "accounts": "We message you on WhatsApp to hand over the account details.",
       "elec": "Your order ships to the address you entered."
+    },
+    "done": {
+      "toppedUp": "Topped up",
+      "handedOver": "Handed over",
+      "shipped": "Delivered"
     }
   },
   "tiktokFlow": {

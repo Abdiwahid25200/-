@@ -319,6 +319,11 @@
       "tiktok": "WhatsApp ayaan kugula soo xiriiraynaa si aan kuu siino xogta akoonka.",
       "accounts": "WhatsApp ayaan kugula soo xiriiraynaa si aan kuu siino xogta akoonka.",
       "elec": "Dalabkaaga waxaa loo dirayaa cinwaanka aad qortay."
+    },
+    "done": {
+      "toppedUp": "La buuxiyay",
+      "handedOver": "La gudbiyay",
+      "shipped": "La gaarsiiyay"
     }
   },
   "tiktokFlow": {

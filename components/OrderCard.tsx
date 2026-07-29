@@ -27,12 +27,17 @@ import {
  * ومسار الطلب الثلاثي، وزرّ متابعة يحمل رمز الطلب جاهزاً.
  */
 
+/**
+ * لكل قسم أيقونته واسمه — و**كلمة نهايته**.
+ * "تم التسليم" لا تصف شحن شدات: الألعاب تُشحن، والحسابات تُسلَّم،
+ * والإلكترونيات تُوصَّل. كلمة واحدة لكل الأقسام تجعل الجملة غريبة.
+ */
 const kinds = {
-  pubg: { Icon: IconBolt, page: "pubg" },
-  efootball: { Icon: IconBall, page: "efootball" },
-  tiktok: { Icon: IconMusic, page: "tiktok" },
-  accounts: { Icon: IconBall, page: "efootballAccounts" },
-  elec: { Icon: IconDevice, page: "electronics" },
+  pubg: { Icon: IconBolt, page: "pubg", done: "toppedUp" },
+  efootball: { Icon: IconBall, page: "efootball", done: "toppedUp" },
+  tiktok: { Icon: IconMusic, page: "tiktok", done: "handedOver" },
+  accounts: { Icon: IconBall, page: "efootballAccounts", done: "handedOver" },
+  elec: { Icon: IconDevice, page: "electronics", done: "shipped" },
 } as const;
 
 type KindKey = keyof typeof kinds;
@@ -46,7 +51,7 @@ export default function OrderCard({ order }: { order: SavedOrder }) {
   const locale = useLocale();
 
   const kind = (order.kind in kinds ? order.kind : "elec") as KindKey;
-  const { Icon, page } = kinds[kind];
+  const { Icon, page, done: doneKey } = kinds[kind];
 
   const cancelled = order.status === "cancelled";
   const at = STEPS.indexOf(order.status as (typeof STEPS)[number]);
@@ -114,7 +119,7 @@ export default function OrderCard({ order }: { order: SavedOrder }) {
                       reached ? "font-bold text-text" : "text-muted"
                     }`}
                   >
-                    {t(`status.${s}`)}
+                    {s === "done" ? t(`done.${doneKey}`) : t(`status.${s}`)}
                   </span>
                 </span>
                 {i < STEPS.length - 1 && (
