@@ -4,7 +4,14 @@ import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import { useAuth } from "@/lib/auth";
 import Logo from "@/components/Logo";
-import { IconClose, IconDevice, IconDoc, IconMenu, IconUser } from "@/components/icons";
+import {
+  IconChat,
+  IconClose,
+  IconDevice,
+  IconDoc,
+  IconMenu,
+  IconUser,
+} from "@/components/icons";
 
 /**
  * قائمة اللوحة الجانبية.
@@ -16,8 +23,8 @@ export default function AdminMenu({
   tab,
   onTab,
 }: {
-  tab: "items" | "sections";
-  onTab: (t: "items" | "sections") => void;
+  tab: "items" | "sections" | "faq";
+  onTab: (t: "items" | "sections" | "faq") => void;
 }) {
   const [open, setOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
@@ -86,6 +93,17 @@ export default function AdminMenu({
         >
           <IconDoc className="size-5 shrink-0" />
           Sections
+        </button>
+        <button
+          type="button"
+          onClick={() => {
+            onTab("faq");
+            setOpen(false);
+          }}
+          className={`${row} ${tab === "faq" ? "text-orange" : ""}`}
+        >
+          <IconChat className="size-5 shrink-0" />
+          Q&A
         </button>
 
         <p className="mt-3 px-3 pb-1 text-xs font-bold uppercase tracking-wide text-muted">

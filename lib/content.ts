@@ -170,15 +170,8 @@ export const supportChannels = [
   { key: "inquiries", icon: "chat" },
 ] as const;
 
-/**
- * أسئلة جاهزة تظهر داخل الدردشة المباشرة قبل أن يكتب الزبون شيئاً.
- * نصوصها في `messages/*.json` تحت `chat.quick.<key>`.
- * لإضافة سؤال: مفتاح هنا + نصّه بالترجمات الثلاث.
- */
-export const chatQuickKeys = ["order", "delivery", "payment"] as const;
 
 /** الأسئلة الشائعة — تُعدَّل من: الإدارة ← الموقع ← الأسئلة */
-export const faqKeys = ["delivery", "efootball", "payment", "track", "refund"] as const;
 
 /** بنود السياسات — تُعدَّل من: الإدارة ← الموقع ← السياسات */
 export const policyKeys = ["terms", "privacy", "refund", "delivery"] as const;

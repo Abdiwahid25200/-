@@ -1,11 +1,9 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { useAuth } from "@/lib/auth";
 import {
-  aiReply,
-  askForHuman,
   listenChat,
   lastSeen,
   markSeen,
@@ -14,15 +12,10 @@ import {
   MAX_LEN,
   type ChatMessage,
 } from "@/lib/chat";
-import { chatQuickKeys, site } from "@/lib/content";
+import { site } from "@/lib/content";
+import { faqSlots, pick, readFaq, type FaqDoc, type FaqKey } from "@/lib/faq";
 import Logo from "./Logo";
-import {
-  IconChatLine,
-  IconClose,
-  IconGoogle,
-  IconSend,
-  IconSparkle,
-} from "./icons";
+import { IconChatLine, IconClose, IconGoogle, IconSend } from "./icons";
 
 /** ارتفاع القائمة السفلية العائمة — نجلس فوقها فلا يتغطّى شيء */
 /**
@@ -47,6 +40,7 @@ const TEASER_KEY = "rs-chat-teaser";
  */
 export default function LiveChat() {
   const t = useTranslations("chat");
+  const locale = useLocale();
   const { user, ready, enabled, signIn } = useAuth();
 
   const [open, setOpen] = useState(false);
@@ -54,16 +48,21 @@ export default function LiveChat() {
   const [text, setText] = useState("");
   const [sending, setSending] = useState(false);
   const [failed, setFailed] = useState(false);
-  /** المساعد يكتب الآن */
-  const [thinking, setThinking] = useState(false);
-  /** طلب الزبون إنساناً ⇒ يصمت المساعد */
-  const [human, setHuman] = useState(false);
   const [seen, setSeen] = useState(0);
+  /** ما حفظته صاحبة المتجر من أسئلة وأجوبة — يعلو نصوص الترجمة */
+  const [faq, setFaq] = useState<FaqDoc>({});
+  /** الأسئلة التي فتحها الزبون في هذه الجلسة — تُعرض محلياً بلا كتابة */
+  const [opened, setOpened] = useState<FaqKey[]>([]);
 
   const boxRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
 
   useEffect(() => setSeen(lastSeen()), []);
+
+  // تُقرأ مرّة عند فتح النافذة — لا حاجة لقراءتها لمن لم يفتحها
+  useEffect(() => {
+    if (open) readFaq().then(setFaq);
+  }, [open]);
 
   /**
    * اللافتة: تظهر بعد ثانيتين ونصف وتنسحب بعد ثمانٍ، ومرّةً واحدة في
@@ -139,29 +138,9 @@ export default function LiveChat() {
     if (!res.ok) {
       setFailed(true);
       setText(value); // لا نضيّع ما كتبه الزبون
-      setSending(false);
-      inputRef.current?.focus();
-      return;
     }
     setSending(false);
     inputRef.current?.focus();
-
-    /* ردّ المساعد الآلي — إلا إن كان الزبون قد طلب إنساناً، فلا نُقحم
-       آلةً على من طلب بشراً. وبلا مفتاح Anthropic لا يحدث شيء. */
-    if (human) return;
-    setThinking(true);
-    const r = await aiReply(user, [...msgs, {
-      id: "pending", from: "user", text: value, createdAt: new Date(),
-    }]);
-    setThinking(false);
-    if (r.human) setHuman(true);
-  }
-
-  /** الزبون يطلب إنساناً — يتوقّف المساعد وتُعلَّم المحادثة لصاحبة المتجر */
-  async function wantHuman() {
-    if (!user) return;
-    setHuman(true);
-    await askForHuman(user);
   }
 
   const unread = unreadCount(msgs, seen);
@@ -248,10 +227,17 @@ export default function LiveChat() {
               {t("loading")}
             </p>
           ) : !user ? (
-            /* ② زائر — الردّ يحتاج معرفة صاحب السؤال */
-            <div className="flex flex-1 flex-col justify-center gap-3 p-5 text-center">
-              <p className="font-bold">{t("guestTitle")}</p>
-              <p className="text-sm text-muted">{t("guestNote")}</p>
+            /* ② زائر — يجيبه سؤالُه الشائع بلا حساب، والدخول لِما سواه */
+            <div className="flex flex-1 flex-col gap-3 overflow-y-auto p-3.5">
+              <FaqBlock
+                faq={faq}
+                locale={locale}
+                t={t}
+                opened={opened}
+                onOpen={(k) => setOpened((p) => [...p, k])}
+              />
+              <p className="mt-2 text-center font-bold">{t("guestTitle")}</p>
+              <p className="text-center text-sm text-muted">{t("guestNote")}</p>
               <button
                 type="button"
                 onClick={() => signIn()}
@@ -272,54 +258,16 @@ export default function LiveChat() {
                 <Bubble from="admin" text={t("welcome", { name: firstName(user.displayName) })} />
 
                 {msgs.map((m) => (
-                  <Bubble
-                    key={m.id}
-                    from={m.from}
-                    text={m.text}
-                    at={m.createdAt}
-                    aiLabel={t("aiName")}
-                  />
+                  <Bubble key={m.id} from={m.from} text={m.text} at={m.createdAt} />
                 ))}
 
-                {thinking && (
-                  <span className="flex items-center gap-1.5 px-1 text-xs text-muted">
-                    <IconSparkle className="size-3.5" />
-                    {t("aiTyping")}
-                  </span>
-                )}
-
-                {/* التحويل إلى إنسان — حقّ الزبون، بضغطة وبلا شرح */}
-                {msgs.length > 0 && !human && (
-                  <button
-                    type="button"
-                    onClick={wantHuman}
-                    className="self-start px-1 text-xs text-muted underline"
-                  >
-                    {t("askHuman")}
-                  </button>
-                )}
-
-                {human && (
-                  <p className="rounded-card border border-dashed border-line p-2.5 text-center text-xs text-muted">
-                    {t("humanSoon")}
-                  </p>
-                )}
-
-                {/* أسئلة جاهزة — تختصر على الزبون الكتابة أول مرة */}
-                {msgs.length === 0 && (
-                  <div className="mt-1 flex flex-wrap gap-2">
-                    {chatQuickKeys.map((k) => (
-                      <button
-                        key={k}
-                        type="button"
-                        onClick={() => send(t(`quick.${k}`))}
-                        className="lift rounded-full border border-line bg-bg px-3.5 py-2 text-start text-sm"
-                      >
-                        {t(`quick.${k}`)}
-                      </button>
-                    ))}
-                  </div>
-                )}
+                <FaqBlock
+                  faq={faq}
+                  locale={locale}
+                  t={t}
+                  opened={opened}
+                  onOpen={(k) => setOpened((p) => [...p, k])}
+                />
 
                 {failed && (
                   <p className="rounded-card border border-danger/40 bg-danger/5 p-2.5 text-center text-xs text-danger">
@@ -363,6 +311,54 @@ export default function LiveChat() {
   );
 }
 
+/**
+ * الأسئلة الشائعة داخل النافذة.
+ *
+ * تظهر للزائر أيضاً لا للمسجَّل وحده: من يسأل "كم يستغرق التسليم؟" لا
+ * ينبغي أن يُطالَب بحساب ليعرف الجواب.
+ */
+function FaqBlock({
+  faq,
+  locale,
+  t,
+  opened,
+  onOpen,
+}: {
+  faq: FaqDoc;
+  locale: string;
+  t: (k: string) => string;
+  opened: FaqKey[];
+  onOpen: (k: FaqKey) => void;
+}) {
+  const rest = faqSlots.filter((k) => !opened.includes(k));
+
+  return (
+    <>
+      {opened.map((k) => (
+        <div key={`faq-${k}`} className="flex flex-col gap-2.5">
+          <Bubble from="user" text={pick(faq, k, locale, "q", t(`faq.${k}.q`))} />
+          <Bubble from="admin" text={pick(faq, k, locale, "a", t(`faq.${k}.a`))} />
+        </div>
+      ))}
+
+      {rest.length > 0 && (
+        <div className="mt-1 flex flex-wrap gap-2">
+          {rest.map((k) => (
+            <button
+              key={k}
+              type="button"
+              onClick={() => onOpen(k)}
+              className="lift rounded-full border border-line bg-bg px-3.5 py-2 text-start text-sm"
+            >
+              {pick(faq, k, locale, "q", t(`faq.${k}.q`))}
+            </button>
+          ))}
+        </div>
+      )}
+    </>
+  );
+}
+
 /** الاسم الأول فقط — "أهلاً محمد" أدفأ من الاسم الثلاثي */
 function firstName(full: string | null) {
   return (full ?? "").trim().split(/\s+/)[0] ?? "";
@@ -372,23 +368,14 @@ function Bubble({
   from,
   text,
   at,
-  aiLabel,
 }: {
-  from: "user" | "admin" | "ai";
+  from: "user" | "admin";
   text: string;
   at?: Date | null;
-  /** وسم "مساعد آلي" — فلا يظنّ الزبون أنه يكلّم صاحبة المتجر */
-  aiLabel?: string;
 }) {
   const mine = from === "user";
   return (
     <div className={`flex flex-col ${mine ? "items-end" : "items-start"}`}>
-      {from === "ai" && aiLabel && (
-        <span className="mb-0.5 flex items-center gap-1 px-1 text-[0.65rem] font-bold uppercase tracking-wide text-muted rtl:tracking-normal">
-          <IconSparkle className="size-3" />
-          {aiLabel}
-        </span>
-      )}
       <p
         className={`max-w-[85%] whitespace-pre-wrap break-words px-3.5 py-2.5 text-sm ${
           mine

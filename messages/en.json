@@ -470,15 +470,24 @@
     "failed": "Message not sent. Check your connection and try again.",
     "offline": "Live chat is not available right now. Reach us here:",
     "whatsapp": "Message us on WhatsApp",
-    "quick": {
-      "order": "How do I place an order?",
-      "delivery": "How long does delivery take?",
-      "payment": "Which payment methods do you accept?"
-    },
     "teaser": "Hi! Need any help?",
-    "aiName": "Store assistant",
-    "aiTyping": "Assistant is typing…",
-    "askHuman": "Talk to a person",
-    "humanSoon": "We've passed this to the team — you'll get a reply here soon."
+    "faq": {
+      "delivery": {
+        "q": "How long does delivery take?",
+        "a": "PUBG UC and eFootball coins are instant after payment is confirmed. Accounts and electronics: we message you on WhatsApp shortly to complete delivery."
+      },
+      "payment": {
+        "q": "Which payment methods?",
+        "a": "Available methods appear on the order page once you pick a package. Choose one and we send you the details."
+      },
+      "track": {
+        "q": "How do I track my order?",
+        "a": "Open “My account → My orders”. Every order has a code starting with M- and a path showing where it is: under review → paid → delivered."
+      },
+      "refund": {
+        "q": "Can I get a refund?",
+        "a": "If you did not receive what you ordered, message us with the order code and we fix it right away. Top-ups already delivered to the correct ID cannot be refunded."
+      }
+    }
   }
 }

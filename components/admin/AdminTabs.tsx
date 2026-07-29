@@ -4,10 +4,12 @@ import { useState } from "react";
 import AdminMenu from "./AdminMenu";
 import SectionsEditor from "./SectionsEditor";
 import ItemsEditor from "./ItemsEditor";
+import FaqEditor from "./FaqEditor";
 
 const TABS = [
   { v: "items", label: "Products" },
   { v: "sections", label: "Sections" },
+  { v: "faq", label: "Q&A" },
 ] as const;
 
 /** تبويبات اللوحة — الباقات أولاً لأنها ما يُعدَّل يومياً */
@@ -37,7 +39,13 @@ export default function AdminTabs() {
         </span>
       </div>
 
-      {tab === "items" ? <ItemsEditor /> : <SectionsEditor />}
+      {tab === "items" ? (
+        <ItemsEditor />
+      ) : tab === "sections" ? (
+        <SectionsEditor />
+      ) : (
+        <FaqEditor />
+      )}
     </div>
   );
 }

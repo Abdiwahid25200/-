@@ -470,15 +470,24 @@
     "failed": "Fariinta lama dirin. Hubi xiriirka oo mar kale isku day.",
     "offline": "Sheekada tooska ah hadda ma shaqaynayso. Halkan naga soo hel:",
     "whatsapp": "Nagala soo xiriir WhatsApp",
-    "quick": {
-      "order": "Sidee ayaan wax u dalbadaa?",
-      "delivery": "Muddo intee le’eg ayay gaarsiintu qaadataa?",
-      "payment": "Habka lacag-bixinta ee la aqbalo waa kuwee?"
-    },
     "teaser": "Salaan! Ma caawimaad u baahan tahay?",
-    "aiName": "Kaaliyaha dukaanka",
-    "aiTyping": "Kaaliyuhu wuu qorayaa…",
-    "askHuman": "La hadal qof",
-    "humanSoon": "Waxaan u gudbinay kooxda — jawaab ayaad halkan ka heli doontaa."
+    "faq": {
+      "delivery": {
+        "q": "Intee in le'eg ayay qaadanaysaa gaarsiintu?",
+        "a": "UC-ga PUBG iyo qadaadiicda eFootball waa degdeg marka lacagta la xaqiijiyo. Akoonnada iyo elektaroonigga: WhatsApp ayaan kugu soo diri doonaa si aan u dhammaystirno."
+      },
+      "payment": {
+        "q": "Waa maxay habka lacag-bixinta?",
+        "a": "Hababka jira waxay ka muuqdaan bogga dalabka marka aad xulato xirmada. Mid dooro, faahfaahinta ayaan kuu dirnaa."
+      },
+      "track": {
+        "q": "Sidee ayaan ula socon karaa dalabkayga?",
+        "a": "Fur “Akoonkayga → Dalabkayga”. Dalab kastaa wuxuu leeyahay koodh ku bilaabma M- iyo waddo muujinaysa halka uu marayo."
+      },
+      "refund": {
+        "q": "Lacagta ma la celin karaa?",
+        "a": "Haddii aadan helin waxaad dalbatay, koodhka dalabka noo soo dir waanan hagaajinaynaa. Buuxinta horey loogu gaarsiiyay ID-ga saxda ah lama celin karo."
+      }
+    }
   }
 }

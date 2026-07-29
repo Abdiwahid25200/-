@@ -7,7 +7,8 @@ import PayChips from "@/components/PayChips";
 import HowItWorks from "@/components/HowItWorks";
 import MessageForm from "@/components/MessageForm";
 import { IconChat, IconClock, IconEmail, IconWhatsApp } from "@/components/icons";
-import { faqKeys, site, supportChannels } from "@/lib/content";
+import { site, supportChannels } from "@/lib/content";
+import { faqSlots, pick as pickFaq, readFaq } from "@/lib/faq";
 import type { Locale } from "@/i18n/routing";
 
 const ICONS = {
@@ -17,6 +18,9 @@ const ICONS = {
   chat: IconChat,
 } as const;
 
+/** الأسئلة تُقرأ من Firestore — دقيقة تكفي ليظهر تعديل اللوحة للزبون */
+export const revalidate = 60;
+
 export default async function HelpPage({
   params,
 }: {
@@ -25,6 +29,9 @@ export default async function HelpPage({
   const { locale } = await params;
   setRequestLocale(locale);
   const t = await getTranslations("help");
+  // نفس الأسئلة التي تراها الدردشة — تُعدَّل من اللوحة مرّة وتظهر هنا وهناك
+  const tc = await getTranslations("chat");
+  const faq = await readFaq();
   const te = await getTranslations("eyebrow");
   const L = locale as Locale;
 
@@ -115,7 +122,12 @@ export default async function HelpPage({
 
       <section>
         <h2 className="mb-4 text-xl font-bold">{t("faqTitle")}</h2>
-        <Faq items={faqKeys.map((k) => ({ q: t(`faq.${k}.q`), a: t(`faq.${k}.a`) }))} />
+        <Faq
+          items={faqSlots.map((k) => ({
+            q: pickFaq(faq, k, locale, "q", tc(`faq.${k}.q`)),
+            a: pickFaq(faq, k, locale, "a", tc(`faq.${k}.a`)),
+          }))}
+        />
       </section>
 
     </main>

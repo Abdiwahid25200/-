@@ -15,7 +15,7 @@ export type ItemStatus =
   | "off";  // مخفي تماماً
 
 /** الحقول المشتركة التي تُتيح التحكّم بأي عنصر معروض */
-export type Controllable = {
+type Controllable = {
   /** الحالة — بحذفها يُعتبر العنصر "on" */
   status?: ItemStatus;
   /** ترتيب العرض — الأصغر أولاً. بلا رقم يبقى بترتيبه في المصفوفة */
