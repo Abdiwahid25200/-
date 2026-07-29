@@ -6,7 +6,7 @@ import { doc, getDoc } from "firebase/firestore";
 import { useAuth } from "@/lib/auth";
 import { fbAuth, fbDb } from "@/lib/firebase";
 import Logo from "@/components/Logo";
-import { IconSpinner } from "@/components/icons";
+import { IconEye, IconEyeOff, IconSpinner } from "@/components/icons";
 
 /**
  * بوّابة لوحة الإدارة — باسم مستخدم وكلمة سرّ، لا بحساب جوجل.
@@ -64,6 +64,13 @@ export default function AdminGate({ children }: { children: React.ReactNode }) {
     setBusy(true);
     setErr("");
     try {
+      /**
+       * 🔒 نُخرج الجلسة القائمة أولاً.
+       * بدونها كان المتصفّح يجد جلسة محفوظة من مرّة سابقة فيفتح اللوحة
+       * مهما كُتب في خانة كلمة السرّ — فتبدو البوّابة وكأنها لا تتحقّق.
+       * الآن كل محاولة تُفحص عند Firebase من جديد.
+       */
+      if (auth.currentUser) await auth.signOut();
       await signInWithEmailAndPassword(auth, toEmail(username), password);
     } catch (e) {
       const code = (e as { code?: string })?.code ?? "";
@@ -130,14 +137,18 @@ export default function AdminGate({ children }: { children: React.ReactNode }) {
               autoCorrect="off"
               spellCheck={false}
               dir="ltr"
-              className="min-h-12 w-full rounded-card border border-line bg-surface px-3 pe-20 text-start outline-none focus:border-orange"
+              className="min-h-12 w-full rounded-card border border-line bg-surface px-3 pr-14 text-start outline-none focus:border-orange"
             />
             <button
               type="button"
               onClick={() => setShow((v) => !v)}
-              className="absolute inset-y-0 end-2 my-auto h-9 rounded-card px-3 text-xs font-bold text-muted"
+              aria-label={show ? "إخفاء كلمة السرّ" : "إظهار كلمة السرّ"}
+              aria-pressed={show}
+              className={`absolute inset-y-0 right-1.5 my-auto flex size-10 items-center justify-center rounded-card transition-colors ${
+                show ? "bg-orange/10 text-orange" : "text-muted hover:text-text"
+              }`}
             >
-              {show ? "إخفاء" : "إظهار"}
+              {show ? <IconEyeOff className="size-5" /> : <IconEye className="size-5" />}
             </button>
           </div>
 

@@ -624,3 +624,24 @@ export function IconClockLine({ className = "" }: IconProps) {
     </svg>
   );
 }
+
+/* ── إظهار كلمة السرّ وإخفاؤها ── */
+
+export function IconEye({ className = "" }: IconProps) {
+  return (
+    <svg viewBox="0 0 24 24" strokeWidth="1.8" className={`${base} ${className}`} aria-hidden>
+      <path strokeLinecap="round" strokeLinejoin="round" d="M2.5 12S6 5.5 12 5.5 21.5 12 21.5 12 18 18.5 12 18.5 2.5 12 2.5 12Z" />
+      <circle cx="12" cy="12" r="3.2" />
+    </svg>
+  );
+}
+
+export function IconEyeOff({ className = "" }: IconProps) {
+  return (
+    <svg viewBox="0 0 24 24" strokeWidth="1.8" className={`${base} ${className}`} aria-hidden>
+      <path strokeLinecap="round" strokeLinejoin="round" d="M9.9 5.9A9.7 9.7 0 0 1 12 5.7c6 0 9.5 6.3 9.5 6.3a17 17 0 0 1-2.9 3.7M6.4 7.6A17 17 0 0 0 2.5 12S6 18.3 12 18.3c1.4 0 2.6-.25 3.7-.66" />
+      <path strokeLinecap="round" d="M10 10a2.8 2.8 0 0 0 4 4" />
+      <path strokeLinecap="round" d="m3.5 3.5 17 17" />
+    </svg>
+  );
+}
