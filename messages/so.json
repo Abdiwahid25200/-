@@ -294,7 +294,7 @@
     "guestNote": "Gal si aad ula socoto dalabyadaada",
     "login": "Gal",
     "register": "Samee akoon",
-    "soon": "⚠️ Waxaa la furi doonaa marka xogta la isku xiro (Wajiga 3)",
+    "soon": "Soo-gelintu hadda ma diyaar aha.",
     "links": {
       "orders": "Dalabyadayda",
       "cart": "Dambiisha",
@@ -311,7 +311,15 @@
       "done": "La gaarsiiyay",
       "cancelled": "La joojiyay"
     },
-    "completeProfile": "Dhameystir is-diiwaangelintaada →"
+    "completeProfile": "Dhameystir is-diiwaangelintaada →",
+    "askAbout": "Wax ka weydii dalabkan",
+    "next": {
+      "pubg": "UC-gaagu wuxuu ku soo degayaa aqoonsiga kore — inta badan daqiiqado gudahood.",
+      "efootball": "Waan eegaynaa dalabkaaga, kadibna gacanta ayaan kuugu buuxinaynaa.",
+      "tiktok": "WhatsApp ayaan kugula soo xiriiraynaa si aan kuu siino xogta akoonka.",
+      "accounts": "WhatsApp ayaan kugula soo xiriiraynaa si aan kuu siino xogta akoonka.",
+      "elec": "Dalabkaaga waxaa loo dirayaa cinwaanka aad qortay."
+    }
   },
   "tiktokFlow": {
     "title": "Faahfaahinta xiriirka",

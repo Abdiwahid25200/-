@@ -56,6 +56,31 @@ export type SaveResult =
   | { ok: false; reason: "auth" }
   | { ok: false; reason: "error" };
 
+/**
+ * إشعار صاحبة المتجر بالطلب الجديد — **بلا انتظار ولا تعطيل**.
+ *
+ * لا `await` عمداً: لو تأخّر الإشعار أو فشل، يجب ألّا يتأخّر الزبون لحظة
+ * ولا يرى خطأً. الطلب محفوظ في Firestore على كل حال، والإشعار إضافة فوقه.
+ */
+function notifyOwner(order: NewOrder, user: User) {
+  const items = order.items
+    .map((i) => `${i.title}${i.qty > 1 ? ` ×${i.qty}` : ""}`)
+    .join(" · ");
+
+  void fetch("/api/notify-order", {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify({
+      code: order.code,
+      kind: order.kind,
+      items,
+      total: `$${order.total.toFixed(2)}`,
+      account: order.account,
+      buyer: user.displayName ?? user.email ?? "",
+    }),
+  }).catch(() => {});
+}
+
 export async function saveOrder(
   user: User | null,
   order: NewOrder,
@@ -74,6 +99,8 @@ export async function saveOrder(
       // serverTimestamp لا يقبل التزوير — القواعد تشترط أنه وقت الخادم
       createdAt: serverTimestamp(),
     });
+
+    notifyOwner(order, user);
     return { ok: true, id: ref.id };
   } catch {
     return { ok: false, reason: "error" };

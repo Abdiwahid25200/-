@@ -294,7 +294,7 @@
     "guestNote": "Sign in to track your orders and save your details",
     "login": "Sign in",
     "register": "Create account",
-    "soon": "⚠️ Enabled once the database is connected (Phase 3)",
+    "soon": "Sign-in is not available right now.",
     "links": {
       "orders": "My orders",
       "cart": "Shopping cart",
@@ -311,7 +311,15 @@
       "done": "Delivered",
       "cancelled": "Cancelled"
     },
-    "completeProfile": "Complete your registration →"
+    "completeProfile": "Complete your registration →",
+    "askAbout": "Ask about this order",
+    "next": {
+      "pubg": "Your UC lands on the player ID above — usually within minutes.",
+      "efootball": "We review your order, then top up your account manually.",
+      "tiktok": "We message you on WhatsApp to hand over the account details.",
+      "accounts": "We message you on WhatsApp to hand over the account details.",
+      "elec": "Your order ships to the address you entered."
+    }
   },
   "tiktokFlow": {
     "title": "Contact details",

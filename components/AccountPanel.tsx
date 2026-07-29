@@ -8,14 +8,7 @@ import { fmt } from "@/lib/format";
 import { IconUser } from "@/components/icons";
 import { Link } from "@/i18n/navigation";
 import { getProfile, isComplete, type Profile } from "@/lib/profile";
-import Badge from "@/components/Badge";
-
-const statusTone = {
-  pending: "soft",
-  paid: "blue",
-  done: "green",
-  cancelled: "outline",
-} as const;
+import OrderCard from "@/components/OrderCard";
 
 /** بطاقة الحساب — دخول بجوجل، ثم عرض طلبات هذا الزبون وحده */
 export default function AccountPanel() {
@@ -128,32 +121,9 @@ export default function AccountPanel() {
             {t("noOrders")}
           </p>
         ) : (
-          <ul className="flex flex-col gap-2">
+          <ul className="flex flex-col gap-3">
             {orders.map((o) => (
-              <li
-                key={o.id}
-                className="rounded-card border border-line bg-surface p-4"
-              >
-                <div className="flex flex-wrap items-center gap-2">
-                  <span className="num font-bold" dir="ltr">
-                    {o.code}
-                  </span>
-                  <Badge tone={statusTone[o.status] ?? "soft"}>
-                    {t(`status.${o.status}`)}
-                  </Badge>
-                  <span className="num ms-auto font-bold text-yellow" dir="ltr">
-                    {fmt(o.total)}
-                  </span>
-                </div>
-                <p className="mt-1 text-sm text-muted">
-                  {o.items.map((i) => i.title).join(" · ")}
-                </p>
-                {o.createdAt && (
-                  <p className="mt-1 text-xs text-muted">
-                    {o.createdAt.toLocaleString(locale === "ar" ? "ar" : "en")}
-                  </p>
-                )}
-              </li>
+              <OrderCard key={o.id} order={o} />
             ))}
           </ul>
         )}
