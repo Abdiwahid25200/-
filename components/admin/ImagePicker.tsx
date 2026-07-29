@@ -34,11 +34,14 @@ export default function ImagePicker({
     if (r.ok) return onChange(r.url);
     setErr(
       r.reason === "size"
-        ? "الصورة أكبر من ٥ ميجابايت"
+        ? "الصورة أكبر من ٦ ميجابايت"
         : r.reason === "type"
           ? "الملف ليس صورة"
-          // الرفع يحتاج تفعيل Storage في Firebase (خطة Blaze) — نقترح البديل
-          : "تعذّر الرفع. جرّبي «لصق رابط صورة» بدلاً منه.",
+          : r.reason === "auth"
+            ? "انتهت الجلسة — أعيدي الدخول"
+            : r.reason === "off"
+              ? "خدمة الصور غير مضبوطة بعد في Vercel"
+              : "تعذّر الرفع. جرّبي «لصق رابط صورة» بدلاً منه.",
     );
   }
 

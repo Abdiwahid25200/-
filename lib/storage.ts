@@ -1,50 +1,51 @@
 /**
- * رفع صور الموقع إلى Firebase Storage.
+ * رفع صور لوحة الإدارة.
  *
- * ⚠️ درسٌ من الموقع القديم: كانت الصور تُحوَّل base64 وتُحشر داخل وثيقة
- *    Firestore، فتضرب حدّ المليون بايت ويتعطّل الحفظ. هنا الصورة **ملف**
- *    في Storage، وفي Firestore رابطها فقط.
- *
- * والرفع لا يقبله إلا الأدمن — الشرط في `storage.rules` لا في هذا الملف،
- * فلا ينفع تجاوزه من المتصفّح.
+ * الرفع يمرّ بخادم الموقع (`/api/upload`) لا بالمتصفّح مباشرة، ليبقى مفتاح
+ * خدمة الصور سرّاً وليُتحقَّق أن الرافع أدمن قبل قبول أي ملف.
+ * راجعي `app/api/upload/route.ts` للتفصيل.
  */
 
-import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
-import { fbStorage } from "./firebase";
+import { fbAuth } from "./firebase";
 
-/** ٥ ميجابايت — نفس الحدّ في `storage.rules` */
-export const MAX_IMAGE_BYTES = 5 * 1024 * 1024;
+/** ٦ ميجابايت — نفس الحدّ في الخادم */
+export const MAX_IMAGE_BYTES = 6 * 1024 * 1024;
 
 export type UploadResult =
   | { ok: true; url: string }
-  | { ok: false; reason: "off" | "type" | "size" | "error" };
+  | { ok: false; reason: "off" | "type" | "size" | "auth" | "error" };
 
-/** اسم آمن: بلا مسافات ولا حروف تكسر الرابط، مع بصمة وقت تمنع التصادم */
-function safeName(name: string) {
-  const dot = name.lastIndexOf(".");
-  const ext = (dot > -1 ? name.slice(dot + 1) : "jpg").toLowerCase().replace(/[^a-z0-9]/g, "");
-  return `${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext || "jpg"}`;
-}
-
-/**
- * يرفع صورة ويرجع رابطها الدائم.
- * `folder` يحدّد مكانها: `sections` · `packages` · `products` · `slides` · `pay`
- */
 export async function uploadImage(
   file: File,
   folder: string,
 ): Promise<UploadResult> {
-  const storage = fbStorage();
-  if (!storage) return { ok: false, reason: "off" };
   if (!file.type.startsWith("image/")) return { ok: false, reason: "type" };
   if (file.size > MAX_IMAGE_BYTES) return { ok: false, reason: "size" };
 
+  const auth = fbAuth();
+  const user = auth?.currentUser;
+  if (!user) return { ok: false, reason: "auth" };
+
   try {
-    // كل الصور تحت products/ لأن قواعد Storage تسمح بالقراءة العامة هناك
-    const path = `products/${folder}/${safeName(file.name)}`;
-    const r = ref(storage, path);
-    await uploadBytes(r, file, { contentType: file.type });
-    return { ok: true, url: await getDownloadURL(r) };
+    // رمز دخول طازج: المنتهي يُرفض عند جوجل فيفشل الرفع بلا سبب ظاهر
+    const idToken = await user.getIdToken();
+
+    const body = new FormData();
+    body.append("file", file);
+    body.append("folder", folder);
+    body.append("idToken", idToken);
+
+    const res = await fetch("/api/upload", { method: "POST", body });
+    const d = await res.json().catch(() => null);
+
+    if (res.ok && d?.ok && d.url) return { ok: true, url: d.url as string };
+
+    const reason = d?.reason;
+    if (reason === "off") return { ok: false, reason: "off" };
+    if (reason === "auth") return { ok: false, reason: "auth" };
+    if (reason === "size") return { ok: false, reason: "size" };
+    if (reason === "type") return { ok: false, reason: "type" };
+    return { ok: false, reason: "error" };
   } catch {
     return { ok: false, reason: "error" };
   }
