@@ -285,50 +285,88 @@ export function IconBack({ className = "" }: IconProps) {
 /* ─── أيقونات الضمانات (صف الثقة) — بدل الإيموجي ─────────────
    الإيموجي يختلف شكله بين آيفون وأندرويد وويندوز، وهذه ثابتة على كل جهاز. */
 
-/** تسليم فوري — صاعقة على خلفية كهرمانية */
+/* ─── أيقونات الضمانات ──────────────────────────────────────
+   ليست مربّعات مصمتة: **صفيحة شفّافة** بلون الهوية وحافة رفيعة، والرمز
+   خطّ لا كتلة. الكتلة الصلبة تصرخ في صفّ هادئ، والصفيحة تنتمي إليه —
+   وهي نفس لغة "وجه العملة" في بلاطات الأقسام.
+   وألوانها من متغيّرات الهوية فتتبدّل مع الوضع الليلي وحدها. */
+
+function Plate({
+  tone,
+  children,
+}: {
+  /** لون الهوية المستعمل — الأخضر المائي أو الذهب */
+  tone: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <>
+      <rect
+        width="48"
+        height="48"
+        rx="14"
+        fill={tone}
+        fillOpacity="0.14"
+        stroke={tone}
+        strokeOpacity="0.3"
+      />
+      <g
+        fill="none"
+        stroke={tone}
+        strokeWidth="2.4"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      >
+        {children}
+      </g>
+    </>
+  );
+}
+
+/** تسليم فوري — صاعقة وخطّا سرعة */
 export function IconTrustInstant({ className = "" }: IconProps) {
   return (
     <svg viewBox="0 0 48 48" className={className} aria-hidden>
-      <rect width="48" height="48" rx="12" fill="var(--accent-2)" />
-      <path d="M26.5 10 15 26h7.5L21 38l12-16.5h-7.6L26.5 10Z" fill="var(--on-accent)" />
+      <Plate tone="var(--accent-2)">
+        <path d="M27 11 17.5 25.5h6.2L21 37l9.8-14.6h-6.3L27 11Z" />
+        <path d="M12.5 16h4M11 24h3.5" strokeWidth="2" strokeOpacity="0.55" />
+      </Plate>
     </svg>
   );
 }
 
-/** دفع آمن — درع بقفل على خلفية زرقاء */
+/** دفع آمن — درع وعلامة صحّ */
 export function IconTrustSecure({ className = "" }: IconProps) {
   return (
     <svg viewBox="0 0 48 48" className={className} aria-hidden>
-      <rect width="48" height="48" rx="12" fill="var(--accent)" />
-      <path d="M24 10.5 34 14.5v8.2c0 6.6-4.2 11.6-10 14-5.8-2.4-10-7.4-10-14V14.5l10-4Z" fill="var(--on-accent)" />
-      <path d="M20.6 23.4v-2.6a3.4 3.4 0 0 1 6.8 0v2.6" fill="none" stroke="var(--accent)" strokeWidth="2.2" strokeLinecap="round" />
-      <rect x="19" y="23.2" width="10" height="8" rx="2" fill="var(--accent)" />
+      <Plate tone="var(--accent)">
+        <path d="M24 11.5 33.5 15v7.8c0 6.1-3.9 10.7-9.5 12.7-5.6-2-9.5-6.6-9.5-12.7V15L24 11.5Z" />
+        <path d="m19.8 23.6 3.1 3.1 5.4-5.7" />
+      </Plate>
     </svg>
   );
 }
 
-/** دعم مباشر — فقاعة محادثة على خلفية واتساب خضراء */
+/** دعم مباشر — فقاعة محادثة وثلاث نقاط */
 export function IconTrustSupport({ className = "" }: IconProps) {
   return (
     <svg viewBox="0 0 48 48" className={className} aria-hidden>
-      <rect width="48" height="48" rx="12" fill="#25D366" />
-      <path d="M24 12c-7.2 0-13 4.6-13 10.4 0 3.3 1.9 6.2 4.8 8.1L15 38l6.9-3.6c.7.1 1.4.2 2.1.2 7.2 0 13-4.6 13-10.2S31.2 12 24 12Z" fill="#fff" />
-      <g fill="#25D366">
-        <circle cx="18.6" cy="23.4" r="1.9" />
-        <circle cx="24" cy="23.4" r="1.9" />
-        <circle cx="29.4" cy="23.4" r="1.9" />
-      </g>
+      <Plate tone="var(--accent)">
+        <path d="M35.5 23.4c0 5.6-5.1 10.1-11.5 10.1-1.2 0-2.4-.15-3.5-.45L13.5 36l2-5.3c-1.9-1.9-3-4.4-3-7.3 0-5.6 5.1-10.1 11.5-10.1s11.5 4.5 11.5 10.1Z" />
+        <path d="M19.4 23.4h.02M24 23.4h.02M28.6 23.4h.02" strokeWidth="3.4" />
+      </Plate>
     </svg>
   );
 }
 
-/** طلبات مضمونة — وسام بعلامة صح على خلفية خضراء */
+/** طلبات مضمونة — وسام بعلامة صحّ */
 export function IconTrustGuarantee({ className = "" }: IconProps) {
   return (
     <svg viewBox="0 0 48 48" className={className} aria-hidden>
-      <rect width="48" height="48" rx="12" fill="var(--accent)" />
-      <path d="m24 10 3.1 2.6 4-.5 1.4 3.8 3.6 1.9-1 3.9 2.4 3.3-2.9 2.8.3 4-4 .9-2 3.5-3.9-1.4-3.9 1.4-2-3.5-4-.9.3-4L8.5 25l2.4-3.3-1-3.9 3.6-1.9 1.4-3.8 4 .5L24 10Z" fill="#fff" />
-      <path d="m19 24.2 3.6 3.6 7-7.2" fill="none" stroke="var(--accent)" strokeWidth="3.2" strokeLinecap="round" strokeLinejoin="round" />
+      <Plate tone="var(--accent-2)">
+        <path d="M24 11.5 26.6 14l3.5-.3 1 3.4 3.2 1.6-.9 3.4 2.1 2.9-2.5 2.4.3 3.5-3.5.8-1.7 3-3.4-1.2-3.4 1.2-1.7-3-3.5-.8.3-3.5-2.5-2.4 2.1-2.9-.9-3.4 3.2-1.6 1-3.4 3.5.3L24 11.5Z" />
+        <path d="m20.4 24.2 2.7 2.7 4.9-5.1" />
+      </Plate>
     </svg>
   );
 }
