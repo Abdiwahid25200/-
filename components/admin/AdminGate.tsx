@@ -38,6 +38,7 @@ export default function AdminGate({ children }: { children: React.ReactNode }) {
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState("");
   const [copied, setCopied] = useState(false);
+  const [show, setShow] = useState(false);
 
   useEffect(() => {
     if (!user) {
@@ -108,19 +109,37 @@ export default function AdminGate({ children }: { children: React.ReactNode }) {
             placeholder="اسم المستخدم"
             aria-label="اسم المستخدم"
             autoComplete="username"
+            // آيباد يرفع أول حرف تلقائياً ويقترح تصحيحاً — كلاهما يفسد الاسم
+            autoCapitalize="none"
+            autoCorrect="off"
+            spellCheck={false}
             dir="ltr"
             className="min-h-12 w-full rounded-card border border-line bg-surface px-3 text-start outline-none focus:border-orange"
           />
-          <input
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            placeholder="كلمة السرّ"
-            aria-label="كلمة السرّ"
-            autoComplete="current-password"
-            dir="ltr"
-            className="min-h-12 w-full rounded-card border border-line bg-surface px-3 text-start outline-none focus:border-orange"
-          />
+          {/* إظهار كلمة السرّ: على الآيباد قد تُدسّ مسافة أو حرف كبير بلا
+              أن يُرى، فتفشل المحاولة بلا سبب ظاهر. الرؤية تحسم الشكّ. */}
+          <div className="relative">
+            <input
+              type={show ? "text" : "password"}
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder="كلمة السرّ"
+              aria-label="كلمة السرّ"
+              autoComplete="current-password"
+              autoCapitalize="none"
+              autoCorrect="off"
+              spellCheck={false}
+              dir="ltr"
+              className="min-h-12 w-full rounded-card border border-line bg-surface px-3 pe-20 text-start outline-none focus:border-orange"
+            />
+            <button
+              type="button"
+              onClick={() => setShow((v) => !v)}
+              className="absolute inset-y-0 end-2 my-auto h-9 rounded-card px-3 text-xs font-bold text-muted"
+            >
+              {show ? "إخفاء" : "إظهار"}
+            </button>
+          </div>
 
           {err && (
             <p className="rounded-card border border-danger/40 bg-danger/5 p-2.5 text-sm text-danger">
