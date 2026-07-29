@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import AdminMenu from "./AdminMenu";
 import SectionsEditor from "./SectionsEditor";
 import ItemsEditor from "./ItemsEditor";
 
@@ -15,7 +16,7 @@ export default function AdminTabs() {
 
   return (
     <div className="flex flex-col gap-4">
-      <div className="flex gap-2 border-b border-line">
+      <div className="flex items-center gap-2 border-b border-line">
         {TABS.map((t) => (
           <button
             key={t.v}
@@ -30,6 +31,10 @@ export default function AdminTabs() {
             {t.label}
           </button>
         ))}
+
+        <span className="ms-auto pb-2">
+          <AdminMenu tab={tab} onTab={setTab} />
+        </span>
       </div>
 
       {tab === "items" ? <ItemsEditor /> : <SectionsEditor />}

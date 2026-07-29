@@ -20,7 +20,9 @@ function apply(theme: Theme) {
 /** ثلاثة أزرار صريحة لاختيار المظهر — تُعرض داخل القائمة الجانبية */
 export function ThemeChoice() {
   const t = useTranslations("theme");
-  const [theme, setTheme] = useState<Theme>("auto");
+  // الافتراضي "فاتح" لا "تلقائي": الزائر الجديد يرى ما اعتمدته صاحبة
+  // المشروع، وزرّ "تلقائي" يبقى اختياراً صريحاً يتبع جهازه
+  const [theme, setTheme] = useState<Theme>("light");
 
   useEffect(() => {
     const saved = localStorage.getItem(THEME_KEY) as Theme | null;
@@ -60,4 +62,4 @@ export function ThemeChoice() {
 }
 
 /** يُحقن قبل الرسم لمنع وميض الأبيض عند فتح الصفحة بالوضع الليلي */
-export const themeInitScript = `try{var t=localStorage.getItem('${THEME_KEY}');if(t==='light'||t==='dark')document.documentElement.setAttribute('data-theme',t)}catch(e){}`;
+export const themeInitScript = `try{var t=localStorage.getItem('${THEME_KEY}');var r=document.documentElement;if(t==='light'||t==='dark'){r.setAttribute('data-theme',t)}else if(t==='auto'){r.removeAttribute('data-theme')}else{r.setAttribute('data-theme','light')}}catch(e){r.setAttribute('data-theme','light')}`;
