@@ -1,6 +1,7 @@
 import AdminGate from "@/components/admin/AdminGate";
 import SectionsEditor from "@/components/admin/SectionsEditor";
 import Logo from "@/components/Logo";
+import AdminSignOut from "@/components/admin/AdminSignOut";
 
 export default function AdminPage() {
   return (
@@ -14,10 +15,11 @@ export default function AdminPage() {
           </div>
           <a
             href="https://eramaan.com"
-            className="min-h-11 rounded-card border border-line px-3.5 text-sm font-medium text-muted"
+            className="min-h-11 shrink-0 rounded-card border border-line px-3.5 text-sm font-medium leading-[2.75rem] text-muted"
           >
             المتجر ←
           </a>
+          <AdminSignOut />
         </header>
 
         <p className="rounded-card border border-dashed border-line p-3 text-sm text-muted">

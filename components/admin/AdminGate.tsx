@@ -1,22 +1,42 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { signInWithEmailAndPassword } from "firebase/auth";
 import { doc, getDoc } from "firebase/firestore";
 import { useAuth } from "@/lib/auth";
-import { fbDb } from "@/lib/firebase";
+import { fbAuth, fbDb } from "@/lib/firebase";
 import Logo from "@/components/Logo";
-import { IconGoogle, IconSpinner } from "@/components/icons";
+import { IconSpinner } from "@/components/icons";
 
 /**
- * بوّابة لوحة الإدارة.
+ * بوّابة لوحة الإدارة — باسم مستخدم وكلمة سرّ، لا بحساب جوجل.
  *
- * الفحص هنا **للواجهة فقط** — لإخفاء ما لا يعني الزبون. الحماية الحقيقية
- * في `firestore.rules` و`storage.rules`: حتى لو تجاوز أحدهم هذه الشاشة
- * بأدوات المطوّر، لن تقبل قاعدة البيانات منه كتابةً واحدة.
+ * 🔒 اسم المستخدم يصير بريداً داخلياً: `raman02500` ⇐ `raman02500@eramaan.com`.
+ *    لأن Firebase لا يعرف "أسماء المستخدمين" بل البريد وكلمة السرّ، وهذه
+ *    الحيلة تعطي صاحبة المتجر اسماً تحفظه، ويبقى التحقق **عند Firebase**
+ *    لا في المتصفّح. لو كتبتُ كلمة السرّ في الكود لقرأها أي زائر من
+ *    "عرض المصدر" — فهذا حارسٌ من ورق لا حماية.
+ *
+ * والحماية الحقيقية طبقتان فوق ذلك:
+ *   ① الحساب لا يفيد شيئاً ما لم يكن له وثيقة في `admins`
+ *   ② `firestore.rules` و`storage.rules` ترفضان أي كتابة من غير الأدمن،
+ *     فحتى من تجاوز هذه الشاشة بأدوات المطوّر لا يكتب حرفاً واحداً
  */
+
+/** النطاق الذي يُلحَق باسم المستخدم — انظري تعليمات الإعداد في الردّ */
+const DOMAIN = "eramaan.com";
+
+const toEmail = (u: string) =>
+  u.includes("@") ? u.trim() : `${u.trim().toLowerCase()}@${DOMAIN}`;
+
 export default function AdminGate({ children }: { children: React.ReactNode }) {
-  const { user, ready, enabled, signIn } = useAuth();
+  const { user, ready, enabled } = useAuth();
   const [admin, setAdmin] = useState<boolean | null>(null);
+
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [err, setErr] = useState("");
 
   useEffect(() => {
     if (!user) {
@@ -34,10 +54,34 @@ export default function AdminGate({ children }: { children: React.ReactNode }) {
     };
   }, [user]);
 
-  const shell = (children: React.ReactNode) => (
-    <main className="mx-auto flex min-h-dvh max-w-md flex-col items-center justify-center gap-4 px-4 py-10 text-center">
+  async function submit(e: React.FormEvent) {
+    e.preventDefault();
+    const auth = fbAuth();
+    if (!auth || busy) return;
+
+    setBusy(true);
+    setErr("");
+    try {
+      await signInWithEmailAndPassword(auth, toEmail(username), password);
+    } catch (e) {
+      const code = (e as { code?: string })?.code ?? "";
+      setErr(
+        code === "auth/invalid-credential" ||
+          code === "auth/wrong-password" ||
+          code === "auth/user-not-found"
+          ? "اسم المستخدم أو كلمة السرّ غير صحيحة."
+          : code === "auth/too-many-requests"
+            ? "محاولات كثيرة — انتظري قليلاً ثم أعيدي المحاولة."
+            : "تعذّر الدخول. تحقّقي من الاتصال.",
+      );
+    }
+    setBusy(false);
+  }
+
+  const shell = (inner: React.ReactNode) => (
+    <main className="mx-auto flex min-h-dvh max-w-sm flex-col items-center justify-center gap-4 px-4 py-10 text-center">
       <Logo solid className="size-16 rounded-2xl shadow-sm" />
-      {children}
+      {inner}
     </main>
   );
 
@@ -54,27 +98,59 @@ export default function AdminGate({ children }: { children: React.ReactNode }) {
     return shell(
       <>
         <h1 className="text-xl font-bold">لوحة إدارة رمان</h1>
-        <p className="text-sm text-muted">سجّلي دخولك بحسابك الإداري.</p>
-        <button
-          type="button"
-          onClick={() => signIn()}
-          className="lift flex min-h-12 items-center gap-2.5 rounded-card border border-line bg-surface px-5 font-bold"
-        >
-          <IconGoogle className="size-5" />
-          المتابعة بحساب جوجل
-        </button>
+        <p className="text-sm text-muted">هذه الصفحة لصاحبة المتجر وحدها.</p>
+
+        <form onSubmit={submit} className="mt-2 flex w-full flex-col gap-3">
+          <input
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
+            placeholder="اسم المستخدم"
+            aria-label="اسم المستخدم"
+            autoComplete="username"
+            dir="ltr"
+            className="min-h-12 w-full rounded-card border border-line bg-surface px-3 text-start outline-none focus:border-orange"
+          />
+          <input
+            type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            placeholder="كلمة السرّ"
+            aria-label="كلمة السرّ"
+            autoComplete="current-password"
+            dir="ltr"
+            className="min-h-12 w-full rounded-card border border-line bg-surface px-3 text-start outline-none focus:border-orange"
+          />
+
+          {err && (
+            <p className="rounded-card border border-danger/40 bg-danger/5 p-2.5 text-sm text-danger">
+              {err}
+            </p>
+          )}
+
+          <button
+            type="submit"
+            disabled={busy || !username.trim() || !password}
+            className="flex min-h-12 items-center justify-center gap-2 rounded-card bg-orange font-bold text-onaccent disabled:opacity-40"
+          >
+            {busy && <IconSpinner className="size-4" />}
+            دخول
+          </button>
+        </form>
       </>,
     );
 
   if (!admin)
     return shell(
       <>
-        <h1 className="text-xl font-bold">هذه الصفحة للإدارة</h1>
+        <h1 className="text-xl font-bold">هذا الحساب ليس أدمن</h1>
         <p className="text-sm text-muted">
-          حسابك ليس أدمن. تُضاف صلاحية الإدارة من Firebase Console فقط —
-          مجموعة <code className="num">admins</code> ووثيقة باسم الـuid.
+          تُضاف صلاحية الإدارة من Firebase Console فقط — مجموعة{" "}
+          <code className="num">admins</code> ووثيقة باسم الـuid أدناه.
         </p>
-        <p className="num break-all rounded-card border border-line bg-surface p-3 text-xs" dir="ltr">
+        <p
+          className="num w-full break-all rounded-card border border-line bg-surface p-3 text-xs"
+          dir="ltr"
+        >
           {user.uid}
         </p>
       </>,

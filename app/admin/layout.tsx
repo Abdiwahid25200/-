@@ -26,7 +26,15 @@ export default function AdminLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="ar" dir="rtl" className={plexArabic.variable} suppressHydrationWarning>
+    // data-theme="dark" ثابت: اللوحة سوداء دائماً بطلب صاحبة المشروع،
+    // ولا تتبع إعداد الجهاز — فلا يتغيّر شكلها بين جهاز وآخر
+    <html
+      lang="ar"
+      dir="rtl"
+      data-theme="dark"
+      className={plexArabic.variable}
+      suppressHydrationWarning
+    >
       <body className="min-h-dvh bg-bg">
         <AuthProvider>{children}</AuthProvider>
       </body>
