@@ -51,6 +51,17 @@ export async function generateMetadata({
      */
     alternates: { canonical: `${SITE}${pathFor(locale, "/")}`, languages: languages("/") },
     robots: { index: true, follow: true },
+    /**
+     * إثبات ملكية الموقع لـGoogle Search Console.
+     *
+     * جوجل لا يفهرس موقعاً جديداً بمجرّد نشره: عليه أن يكتشفه أولاً.
+     * وأسرع طريق أن تُثبت صاحبة المتجر ملكيته وتُرسل له `sitemap.xml`.
+     * تضع الرمز في Vercel باسم `NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION`،
+     * وبلاه لا يُطبع الوسم أصلاً — فلا وسم فارغ في الصفحة.
+     */
+    verification: process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION
+      ? { google: process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION }
+      : undefined,
     icons: { icon: "/icon.svg", apple: "/apple-icon.png" },
     // بطاقة المشاركة: ما يظهر عند إرسال الرابط بواتساب أو نشره
     openGraph: {
