@@ -1,4 +1,5 @@
 import { getTranslations, setRequestLocale } from "next-intl/server";
+import { pageMeta } from "@/lib/seo";
 import SectionHero from "@/components/SectionHero";
 import { pick, sectionOverride } from "@/lib/overrides";
 import { mergedItems } from "@/lib/items";
@@ -10,6 +11,15 @@ import TiktokFlow from "@/components/flows/TiktokFlow";
  * المتجر في لوحة الإدارة يظهر خلال دقيقة بلا إعادة نشر.
  */
 export const revalidate = 60;
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}) {
+  const { locale } = await params;
+  return pageMeta(locale, "tiktok", "/tiktok");
+}
 
 export default async function TiktokPage({
   params,

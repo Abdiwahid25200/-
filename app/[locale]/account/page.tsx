@@ -4,12 +4,16 @@ import BackLink from "@/components/BackLink";
 import { Link } from "@/i18n/navigation";
 import { IconCart, IconDoc, IconSupport } from "@/components/icons";
 import AccountPanel from "@/components/AccountPanel";
+import { privateMeta } from "@/lib/seo";
 
 const links = [
   { key: "orders", href: "/account", Icon: IconDoc },
   { key: "cart", href: "/cart", Icon: IconCart },
   { key: "help", href: "/help", Icon: IconSupport },
 ] as const;
+
+/** صفحة الزبون الخاصّة — لا تُفهرَس */
+export const metadata = privateMeta;
 
 export default async function AccountPage({
   params,

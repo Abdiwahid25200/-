@@ -1,8 +1,18 @@
 import { getTranslations, setRequestLocale } from "next-intl/server";
+import { pageMeta } from "@/lib/seo";
 import SectionHead from "@/components/SectionHead";
 import BackLink from "@/components/BackLink";
 
 const sections = ["terms", "privacy", "refund", "delivery"] as const;
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}) {
+  const { locale } = await params;
+  return pageMeta(locale, "policy", "/policy");
+}
 
 export default async function PolicyPage({
   params,

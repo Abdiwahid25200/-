@@ -11,6 +11,8 @@ import Header from "@/components/Header";
 import BottomNav from "@/components/BottomNav";
 import LiveChat from "@/components/LiveChat";
 import { themeInitScript } from "@/components/ThemeToggle";
+import { site } from "@/lib/content";
+import { SITE, languages, pathFor } from "@/lib/seo";
 import "../globals.css";
 
 const plexArabic = IBM_Plex_Sans_Arabic({
@@ -38,8 +40,17 @@ export async function generateMetadata({
   return {
     title,
     description,
+    /** الكلمات المفتاحية — ما يكتبه الزبون في جوجل ليصل إلى متجر مثل هذا */
+    keywords: t("keywords"),
     // الدومين الأساسي — منه تُبنى الروابط المطلقة لبطاقات المشاركة
-    metadataBase: new URL("https://eramaan.com"),
+    metadataBase: new URL(SITE),
+    /**
+     * ⚠️ روابط اللغات الثلاث لهذه الصفحة.
+     * بدونها يرى جوجل ثلاث صفحات متشابهة فيعدّها تكراراً ويخفض ترتيبها
+     * جميعاً — وهذه أكثر أخطاء المواقع متعدّدة اللغات شيوعاً.
+     */
+    alternates: { canonical: `${SITE}${pathFor(locale, "/")}`, languages: languages("/") },
+    robots: { index: true, follow: true },
     icons: { icon: "/icon.svg", apple: "/apple-icon.png" },
     // بطاقة المشاركة: ما يظهر عند إرسال الرابط بواتساب أو نشره
     openGraph: {
@@ -83,6 +94,35 @@ export default async function LocaleLayout({
       <head>
         {/* يُنفَّذ قبل الرسم لمنع وميض الأبيض عند فتح الصفحة بالوضع الليلي */}
         <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
+
+        {/**
+         * بطاقة المتجر لمحرّكات البحث (JSON-LD).
+         *
+         * جوجل لا يقرأ التصميم؛ هذه البطاقة تقول له نصّاً: هذا **متجر**
+         * اسمه كذا، شعاره كذا، ويبيع بالدولار، ويخدم هذه البلاد. وبها
+         * قد يعرض اسم المتجر وشعاره في النتيجة بدل سطر عادي.
+         * `wa` فارغ اليوم، فيُحذف الحقل بدل أن يُرسَل فارغاً.
+         */}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "OnlineStore",
+              name: site.brand,
+              url: `${SITE}${pathFor(locale, "/")}`,
+              logo: `${SITE}/icon.svg`,
+              image: `${SITE}/og.png`,
+              description: site.description[locale as Locale],
+              currenciesAccepted: "USD",
+              areaServed: "Worldwide",
+              ...(site.whatsapp
+                ? { telephone: `+${site.whatsapp.replace(/\D/g, "")}` }
+                : {}),
+              ...(site.email ? { email: site.email } : {}),
+            }),
+          }}
+        />
       </head>
       {/* الحشو السفلي يمنع القائمة الثابتة من تغطية الفوتر — كما بالموقع القديم */}
       <body className="flex min-h-dvh flex-col pb-[calc(6.5rem+env(safe-area-inset-bottom))]">

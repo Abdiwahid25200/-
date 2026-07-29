@@ -1,4 +1,5 @@
 import { getTranslations, setRequestLocale } from "next-intl/server";
+import { pageMeta } from "@/lib/seo";
 import SectionHead from "@/components/SectionHead";
 import GameTile from "@/components/GameTile";
 import BackLink from "@/components/BackLink";
@@ -11,6 +12,15 @@ import { pick } from "@/lib/overrides";
  * المتجر في لوحة الإدارة يظهر خلال دقيقة بلا إعادة نشر.
  */
 export const revalidate = 60;
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}) {
+  const { locale } = await params;
+  return pageMeta(locale, "games", "/games");
+}
 
 export default async function GamesPage({
   params,

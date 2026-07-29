@@ -1,7 +1,9 @@
 {
   "meta": {
     "title": "KU SOO DHAWOW eramaan",
-    "description": "waxaad kaheli karta wax walbo oo gaming ah"
+    "description": "waxaad kaheli karta wax walbo oo gaming ah",
+    "brand": "Ramaan Store",
+    "keywords": "PUBG UC, PUBG Mobile top up, eFootball coins, eFootball accounts, TikTok accounts, game top up Somalia, buy UC online, electronics Mogadishu, Ramaan Store, instant top up"
   },
   "header": {
     "brand": "Ramaan Store",
@@ -492,5 +494,14 @@
     "needPerson": "I need a person",
     "needPersonMsg": "I need to talk to a person, please.",
     "needPersonDone": "Your request reached the team — you'll get a reply here."
+  },
+  "search": {
+    "open": "Search the store",
+    "close": "Close search",
+    "placeholder": "Search products and packages…",
+    "hint": "Type a product name, a package, or a price.",
+    "none": "Nothing matches “{q}”.",
+    "section": "Section",
+    "loading": "Searching…"
   }
 }

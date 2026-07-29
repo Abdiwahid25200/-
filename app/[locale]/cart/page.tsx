@@ -2,6 +2,10 @@ import { getTranslations, setRequestLocale } from "next-intl/server";
 import SectionHead from "@/components/SectionHead";
 import BackLink from "@/components/BackLink";
 import CartView from "./CartView";
+import { privateMeta } from "@/lib/seo";
+
+/** صفحة الزبون الخاصّة — لا تُفهرَس */
+export const metadata = privateMeta;
 
 export default async function CartPage({
   params,

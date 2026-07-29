@@ -1,7 +1,9 @@
 {
   "meta": {
     "title": "KU SOO DHAWOW eramaan",
-    "description": "waxaad kaheli karta wax walbo oo gaming ah"
+    "description": "waxaad kaheli karta wax walbo oo gaming ah",
+    "brand": "Ramaan Store",
+    "keywords": "شدات ببجي, شحن ببجي موبايل, شراء شدات UC, كوينز eFootball, حسابات eFootball, حسابات تيك توك, شحن العاب, شحن ببجي الصومال, متجر شدات, إلكترونيات مقديشو, رمان ستور, شحن فوري"
   },
   "header": {
     "brand": "Ramaan Store",
@@ -492,5 +494,14 @@
     "needPerson": "أريد التحدّث مع شخص",
     "needPersonMsg": "أريد التحدّث مع شخص من فريق المتجر، لو سمحت.",
     "needPersonDone": "وصل طلبك للفريق — سيصلك الردّ هنا."
+  },
+  "search": {
+    "open": "ابحث في المتجر",
+    "close": "إغلاق البحث",
+    "placeholder": "ابحث عن منتج أو باقة…",
+    "hint": "اكتب اسم منتج أو باقة أو سعراً.",
+    "none": "لا نتائج لـ«{q}».",
+    "section": "قسم",
+    "loading": "جارٍ البحث…"
   }
 }

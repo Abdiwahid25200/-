@@ -1,4 +1,5 @@
 import { getTranslations, setRequestLocale } from "next-intl/server";
+import { pageMeta } from "@/lib/seo";
 import SectionHead from "@/components/SectionHead";
 import BackLink from "@/components/BackLink";
 import Faq from "@/components/Faq";
@@ -21,6 +22,15 @@ const ICONS = {
 
 /** الأسئلة تُقرأ من Firestore — دقيقة تكفي ليظهر تعديل اللوحة للزبون */
 export const revalidate = 60;
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}) {
+  const { locale } = await params;
+  return pageMeta(locale, "help", "/help");
+}
 
 export default async function HelpPage({
   params,

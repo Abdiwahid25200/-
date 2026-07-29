@@ -1,7 +1,9 @@
 {
   "meta": {
     "title": "KU SOO DHAWOW eramaan",
-    "description": "waxaad kaheli karta wax walbo oo gaming ah"
+    "description": "waxaad kaheli karta wax walbo oo gaming ah",
+    "brand": "Ramaan Store",
+    "keywords": "PUBG UC, buuxinta PUBG, lacagta eFootball, akoonnada eFootball, akoonnada TikTok, buuxinta ciyaaraha Soomaaliya, iibso UC, elektaroonig Muqdisho, Ramaan Store, buuxin degdeg ah"
   },
   "header": {
     "brand": "Ramaan Store",
@@ -492,5 +494,14 @@
     "needPerson": "Waxaan u baahanahay qof",
     "needPersonMsg": "Waxaan rabaa inaan la hadlo qof ka tirsan kooxda, fadlan.",
     "needPersonDone": "Codsigaagu wuxuu gaaray kooxda — jawaab ayaad halkan ka heli doontaa."
+  },
+  "search": {
+    "open": "Raadi dukaanka",
+    "close": "Xir raadinta",
+    "placeholder": "Raadi alaab ama xirmo…",
+    "hint": "Qor magaca alaabta, xirmada, ama qiimaha.",
+    "none": "Waxba lama helin “{q}”.",
+    "section": "Qaybta",
+    "loading": "Raadinaya…"
   }
 }
