@@ -1,4 +1,5 @@
 import { createHash } from "node:crypto";
+import { put } from "@vercel/blob";
 import { NextResponse } from "next/server";
 
 /**
@@ -13,9 +14,15 @@ import { NextResponse } from "next/server";
  * صاحبه، ثم يسأل Firestore هل له وثيقة في `admins`. رمزٌ مزوّر يسقط عند
  * جوجل، وحسابٌ ليس أدمن يسقط عند القاعدة.
  *
- * إعدادات Vercel ← Environment Variables:
- *   CLOUDINARY_CLOUD_NAME · CLOUDINARY_API_KEY · 🔒 CLOUDINARY_API_SECRET
+ * وجهة الحفظ تُختار تلقائياً:
+ *   ① **Vercel Blob** إن وُجد `BLOB_READ_WRITE_TOKEN` — وهو ما تضيفه Vercel
+ *     وحدها حين تُنشئ صاحبة المتجر مخزناً، بلا مفاتيح تُنسخ ولا خدمة ثالثة.
+ *   ② Cloudinary إن ضُبطت مفاتيحه — بديلٌ محفوظ لمن يفضّله.
+ *   ③ بلا الاثنين: 503 وتبقى خانة "لصق رابط صورة".
  */
+
+/** تضيفه Vercel تلقائياً عند ربط مخزن Blob بالمشروع — لا يُكتب يدوياً */
+const BLOB = process.env.BLOB_READ_WRITE_TOKEN ?? "";
 
 const CLOUD = process.env.CLOUDINARY_CLOUD_NAME ?? "";
 const KEY = process.env.CLOUDINARY_API_KEY ?? "";
@@ -71,7 +78,7 @@ async function isAdmin(uid: string, idToken: string): Promise<boolean> {
 }
 
 export async function POST(request: Request) {
-  if (!CLOUD || !KEY || !SECRET) {
+  if (!BLOB && !(CLOUD && KEY && SECRET)) {
     return NextResponse.json({ ok: false, reason: "off" }, { status: 503 });
   }
 
@@ -104,6 +111,24 @@ export async function POST(request: Request) {
     return NextResponse.json({ ok: false, reason: "auth" }, { status: 403 });
   }
 
+  /* ── ① Vercel Blob ──
+     `addRandomSuffix` يمنع أن تدهس صورةٌ أخرى بنفس الاسم، و`public`
+     لأن صور المتجر يراها الزبون. الرابط الراجع دائم. */
+  if (BLOB) {
+    try {
+      const blob = await put(`ramaan/${folder}/${file.name}`, file, {
+        access: "public",
+        addRandomSuffix: true,
+        contentType: file.type,
+        token: BLOB,
+      });
+      return NextResponse.json({ ok: true, url: blob.url });
+    } catch {
+      return NextResponse.json({ ok: false, reason: "upstream" }, { status: 502 });
+    }
+  }
+
+  // ── ② Cloudinary ──
   // توقيع Cloudinary: نفس الوسائط مرتّبة أبجدياً، ثم السرّ في آخرها
   const timestamp = Math.floor(Date.now() / 1000);
   const dir = `ramaan/${folder}`;
