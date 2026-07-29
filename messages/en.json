@@ -119,6 +119,8 @@
     "total": "Total",
     "confirm": "Confirm order",
     "accountFirst": "Complete your account details above first",
+    "goAccount": "Player details",
+    "goWa": "WhatsApp number",
     "orderCode": "Order code",
     "item": "Package",
     "summary": "Order summary",
@@ -470,6 +472,6 @@
       "delivery": "How long does delivery take?",
       "payment": "Which payment methods do you accept?"
     },
-    "teaser": "Welcome! Maxaan Kaacawina"
+    "teaser": "Hi! Need any help?"
   }
 }

@@ -20,6 +20,7 @@ import {
   IconTrash,
 } from "@/components/icons";
 import PaySection from "@/components/PaySection";
+import FixedBar from "@/components/FixedBar";
 
 const newCode = () => "M-" + Math.floor(100000 + Math.random() * 900000);
 
@@ -318,8 +319,8 @@ export default function CartView() {
           الزرّ كان في قاع الصفحة تحت المنتجات وبيانات التوصيل وطرق
           الدفع، فيمرّ الزبون بثلاثة أقسام قبل أن يراه. الآن يرافقه
           أينما نزل — وهو نفس ما تفعله صفحات الألعاب، فلا يتعلّم شكلين. */}
-      <div className="buybar fixed inset-x-3 bottom-[calc(5.4rem+env(safe-area-inset-bottom))] z-30 mx-auto max-w-2xl">
-        <div className="flex items-center gap-3 rounded-[26px] border border-line bg-surface/95 py-2.5 pe-2.5 ps-4 shadow-[0_10px_34px_rgba(0,0,0,0.16)] backdrop-blur">
+      <FixedBar>
+        <div className="flex items-center gap-3 rounded-[26px] border border-line bg-surface py-2.5 pe-2.5 ps-4 shadow-[0_10px_34px_rgba(0,0,0,0.16)]">
           <span className="leading-tight">
             <span className="flex items-center gap-1.5 text-xs text-muted">
               {tb("total")}
@@ -352,7 +353,7 @@ export default function CartView() {
             )}
           </button>
         </div>
-      </div>
+      </FixedBar>
     </div>
   );
 }

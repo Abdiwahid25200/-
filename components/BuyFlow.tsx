@@ -1,14 +1,15 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import PackageCard from "./PackageCard";
 import PaySection from "./PaySection";
+import FixedBar from "./FixedBar";
 import { fin, fmt } from "@/lib/format";
 import { isBuyable, live, pay, wa } from "@/lib/data";
 import { useAuth } from "@/lib/auth";
 import { Link } from "@/i18n/navigation";
-import { IconCheckCircle, IconSpinner, IconSuccess } from "./icons";
+import { IconArrow, IconCheckCircle, IconSpinner, IconSuccess } from "./icons";
 import { saveOrder } from "@/lib/orders";
 
 export type Pack = {
@@ -88,7 +89,33 @@ export default function BuyFlow({
         : method.nameEn
       : "";
 
-  const barVisible = !!pack && !done;
+  /**
+   * الشريط يرافق الزبون من أوّل الصفحة لا بعد اختيار الباقة.
+   *
+   * كان يظهر بعد الاختيار وحده، وزرّه معطّلاً حتى تكتمل البيانات: زبونٌ
+   * يضغط زرّاً باهتاً فلا يحدث شيء ولا يعرف ما ينقصه. الآن الشريط **مرشد
+   * خطوات**: يقول ما الخطوة التالية، ويأخذه إليها بضغطة.
+   */
+  const barVisible = !done;
+
+  const packsRef = useRef<HTMLElement>(null);
+  const accountRef = useRef<HTMLDivElement>(null);
+
+  /** خطوتان: الباقة ثم بيانات الحساب — والتقدّم يُرسم شريطاً رفيعاً */
+  const stepsDone = (pack ? 1 : 0) + (accountReady ? 1 : 0);
+
+  /** ينقله إلى ما ينقصه ويفتح لوحة المفاتيح عليه — لا زرّ معطّل */
+  function goToNext() {
+    const box = !pack ? packsRef.current : accountRef.current;
+    if (!box) return;
+    box.scrollIntoView({ behavior: "smooth", block: "center" });
+    if (box === accountRef.current) {
+      const field = box.querySelector<HTMLInputElement>(
+        "input:not([type=hidden]), textarea",
+      );
+      field?.focus({ preventScroll: true });
+    }
+  }
 
   // نضيف صنفاً على <body> ليحجز مساحة أسفل الصفحة بقدر الشريط الثابت
   useEffect(() => {
@@ -249,9 +276,9 @@ export default function BuyFlow({
     <div className="flex flex-col gap-5">
       {/* في وضع الحسابات يختار الزبون الحساب أولاً، ثم يظهر حقل الواتساب —
           بالترتيب الذي طلبته صاحبة المشروع */}
-      {!isWa && accountForm}
+      {!isWa && <div ref={accountRef}>{accountForm}</div>}
 
-      <section>
+      <section ref={packsRef}>
         <h2 className="mb-3 text-lg font-bold">{t("selectPackage")}</h2>
         <div className="grid grid-cols-2 gap-4 sm:grid-cols-3">
           {packs.map((p) => (
@@ -283,35 +310,66 @@ export default function BuyFlow({
       </section>
 
       {/* بعد الاختيار: حقل الواتساب في وضع الحسابات · قسم الدفع في غيره */}
-      {pack && (isWa ? accountForm : (
-        <PaySection amount={total} selected={payId} onSelect={setPayId} />
-      ))}
+      {pack &&
+        (isWa ? (
+          <div ref={accountRef}>{accountForm}</div>
+        ) : (
+          <PaySection amount={total} selected={payId} onSelect={setPayId} />
+        ))}
 
-      {/* الشريط السفلي الثابت — فوق قائمة التنقّل مباشرة */}
+      {/* ── شريط الخطوات العائم — فوق قائمة التنقّل مباشرة ──
+          خطّ التقدّم أعلاه يقول للزبون أين هو من الطريق بلا كلمة واحدة،
+          فيصلح للغات الثلاث معاً. والزرّ يقول الخطوة التالية ويأخذه إليها. */}
       {barVisible && (
-        <div className="fixed inset-x-0 bottom-[calc(5.4rem+env(safe-area-inset-bottom))] z-30 border-y border-line bg-surface/95 backdrop-blur">
-          <div className="mx-auto flex max-w-5xl items-center gap-3 px-4 py-3">
-            <div className="leading-tight">
-              <div className="text-xs text-muted">{t("total")}</div>
-              <div className="text-xl font-bold text-orange" dir="ltr">
-                {fmt(total)}
-              </div>
+        <FixedBar>
+          <div className="relative overflow-hidden rounded-[26px] border border-line bg-surface py-2.5 pe-2.5 ps-4 shadow-[0_10px_34px_rgba(0,0,0,0.16)]">
+            <span aria-hidden className="absolute inset-x-0 top-0 h-1 bg-line/60">
+              <span
+                className="block h-full bg-orange transition-[width] duration-500"
+                style={{ width: `${(stepsDone / 2) * 100}%` }}
+              />
+            </span>
+
+            <div className="flex items-center gap-3">
+              {/* قبل اختيار الباقة لا مبلغ يُعرض — والزرّ يأخذ العرض كلّه
+                  فيصير هو الخطوة الوحيدة الظاهرة، ولا يحتار الزبون */}
+              {pack && (
+                <span className="leading-tight">
+                  <span className="block text-xs text-muted">{t("total")}</span>
+                  <span className="num block text-xl font-bold text-orange" dir="ltr">
+                    {fmt(total)}
+                  </span>
+                </span>
+              )}
+
+              <button
+                type="button"
+                onClick={canConfirm ? confirm : goToNext}
+                className={`lift flex min-h-12 items-center gap-2 rounded-[20px] bg-orange px-5 font-bold text-onaccent ${
+                  pack ? "ms-auto" : "w-full justify-center"
+                }`}
+              >
+                {canConfirm ? (
+                  <>
+                    {isWa ? t("continueWa") : t("confirm")}
+                    <IconCheckCircle className="size-5" />
+                  </>
+                ) : (
+                  <>
+                    {!pack
+                      ? t("selectPackage")
+                      : isWa
+                        ? t("goWa")
+                        : t("goAccount")}
+                    <span aria-hidden className="flex rtl:rotate-180">
+                      <IconArrow className="size-5" />
+                    </span>
+                  </>
+                )}
+              </button>
             </div>
-            <button
-              type="button"
-              onClick={confirm}
-              disabled={!canConfirm}
-              className="ms-auto min-h-12 rounded-card bg-orange px-7 font-bold text-onaccent transition-opacity enabled:hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-40"
-            >
-              {isWa ? t("continueWa") : t("confirm")}
-            </button>
           </div>
-          {!accountReady && (
-            <p className="pb-2 text-center text-xs text-muted">
-              {isWa ? t("waFirst") : t("accountFirst")}
-            </p>
-          )}
-        </div>
+        </FixedBar>
       )}
     </div>
   );

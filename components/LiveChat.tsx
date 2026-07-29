@@ -23,6 +23,9 @@ import { IconChatLine, IconClose, IconGoogle, IconSend } from "./icons";
  */
 const ABOVE_NAV = "var(--chat-bottom)";
 
+/** لافتة الترحيب تُقال مرّة في الزيارة — لا في كل صفحة */
+const TEASER_KEY = "rs-chat-teaser";
+
 /**
  * الدردشة المباشرة — نافذة تنزلق من الجانب الأيمن.
  *
@@ -49,6 +52,31 @@ export default function LiveChat() {
   const inputRef = useRef<HTMLTextAreaElement>(null);
 
   useEffect(() => setSeen(lastSeen()), []);
+
+  /**
+   * اللافتة: تظهر بعد ثانيتين ونصف وتنسحب بعد ثمانٍ، ومرّةً واحدة في
+   * الزيارة كلّها (`sessionStorage`). دعوةٌ تتكرّر في كل صفحة تصير إزعاجاً.
+   */
+  const [teaser, setTeaser] = useState(false);
+  useEffect(() => {
+    if (open) return;
+    try {
+      if (sessionStorage.getItem(TEASER_KEY)) return;
+    } catch {
+      // متصفّح يمنع التخزين — تظهر اللافتة وتنسحب كالمعتاد
+    }
+    const show = setTimeout(() => setTeaser(true), 2500);
+    const hide = setTimeout(() => {
+      setTeaser(false);
+      try {
+        sessionStorage.setItem(TEASER_KEY, "1");
+      } catch {}
+    }, 10500);
+    return () => {
+      clearTimeout(show);
+      clearTimeout(hide);
+    };
+  }, [open]);
 
   // نستمع حتى والنافذة مغلقة، ليظهر عدّاد الردود الجديدة على الزرّ
   useEffect(() => {
@@ -80,6 +108,11 @@ export default function LiveChat() {
     if (next) {
       markSeen();
       setSeen(Date.now());
+      // فتحها مرّة ⇒ فهم الدعوة، فلا تُعاد عليه
+      setTeaser(false);
+      try {
+        sessionStorage.setItem(TEASER_KEY, "1");
+      } catch {}
       // مهلة قصيرة حتى تُرسم النافذة قبل نقل التركيز إليها
       setTimeout(() => inputRef.current?.focus(), 260);
     }
@@ -108,8 +141,10 @@ export default function LiveChat() {
     <>
       {/* ── لافتة الترحيب فوق الزرّ ─────────────────────
           الزرّ وحده أيقونة صامتة قد لا يفهمها الزبون؛ سطرٌ فوقه يدعوه
-          للكلام. تختفي فور فتح الدردشة فلا تزاحم المحادثة. */}
-      {!open && (
+          للكلام. لكنه دعوة تُقال **مرّة**: كانت تظهر في كل صفحة وتبقى
+          فوق الحقول فتغطّي ما يكتبه الزبون. الآن تظهر لحظة، ثم تنسحب
+          وتترك الزرّ وحده — ولا تعود في هذه الزيارة. */}
+      {!open && teaser && (
         <button
           type="button"
           onClick={toggle}

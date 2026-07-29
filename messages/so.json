@@ -119,6 +119,8 @@
     "total": "Wadarta",
     "confirm": "Xaqiiji dalabka",
     "accountFirst": "Marka hore buuxi faahfaahinta akoonka",
+    "goAccount": "Xogta ciyaartoyga",
+    "goWa": "Lambarka WhatsApp",
     "orderCode": "Koodhka dalabka",
     "item": "Xirmada",
     "summary": "Kooban dalabka",
@@ -470,6 +472,6 @@
       "delivery": "Muddo intee le’eg ayay gaarsiintu qaadataa?",
       "payment": "Habka lacag-bixinta ee la aqbalo waa kuwee?"
     },
-    "teaser": "Welcome! Maxaan Kaacawina"
+    "teaser": "Salaan! Ma caawimaad u baahan tahay?"
   }
 }
