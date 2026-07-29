@@ -1,6 +1,7 @@
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import SectionHero from "@/components/SectionHero";
 import { pick, sectionOverride } from "@/lib/overrides";
+import { mergedItems } from "@/lib/items";
 import BackLink from "@/components/BackLink";
 import TiktokFlow from "@/components/flows/TiktokFlow";
 
@@ -20,6 +21,7 @@ export default async function TiktokPage({
   const t = await getTranslations("accountsPage");
   const te = await getTranslations("eyebrow");
 
+  const items = await mergedItems("tiktok");
   const over = await sectionOverride("tiktok");
 
   return (
@@ -33,7 +35,7 @@ export default async function TiktokPage({
         img={over.img}
         note={pick(over.note, locale, t("tiktok.note"))}
       />
-      <TiktokFlow />
+      <TiktokFlow items={items} />
     </main>
   );
 }

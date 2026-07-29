@@ -1,6 +1,7 @@
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import SectionHero from "@/components/SectionHero";
 import { pick, sectionOverride } from "@/lib/overrides";
+import { mergedItems } from "@/lib/items";
 import BackLink from "@/components/BackLink";
 import EfootFlow from "@/components/flows/EfootFlow";
 
@@ -20,6 +21,7 @@ export default async function EfootballPage({
   const t = await getTranslations("games");
   const te = await getTranslations("eyebrow");
 
+  const items = await mergedItems("efootball");
   const over = await sectionOverride("efootball");
 
   return (
@@ -33,7 +35,7 @@ export default async function EfootballPage({
         img={over.img}
         note={pick(over.note, locale, t("efootball.note"))}
       />
-      <EfootFlow />
+      <EfootFlow items={items} />
     </main>
   );
 }

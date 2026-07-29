@@ -3,15 +3,19 @@
 import { useState } from "react";
 import { useTranslations } from "next-intl";
 import BuyFlow, { type Pack } from "@/components/BuyFlow";
+import { toPack, type ShopItem } from "@/lib/items";
 import { IconMusic } from "@/components/icons";
 import { isBuyable, live, tiktok } from "@/lib/data";
 
 /** حسابات تيك توك — كل حساب فريد، فالزبون يعطي رقم تواصل لاستلام البيانات */
-export default function TiktokFlow() {
+/** `items` تأتي من الصفحة بعد دمج تعديلات الإدارة — وبلاها يعمل بالأصل */
+export default function TiktokFlow({ items }: { items?: ShopItem[] }) {
   const t = useTranslations("tiktokFlow");
   const [contact, setContact] = useState("");
 
-  const packs: Pack[] = live(tiktok).map((a) => ({
+  const packs: Pack[] = items
+    ? items.map(toPack)
+    : live(tiktok).map((a) => ({
     id: a.id,
     soon: !isBuyable(a),
     title: a.title,

@@ -1,5 +1,5 @@
 import AdminGate from "@/components/admin/AdminGate";
-import SectionsEditor from "@/components/admin/SectionsEditor";
+import AdminTabs from "@/components/admin/AdminTabs";
 import Logo from "@/components/Logo";
 import AdminSignOut from "@/components/admin/AdminSignOut";
 
@@ -27,7 +27,7 @@ export default function AdminPage() {
           امسحي أي حقل ليعود الأصل كما كان.
         </p>
 
-        <SectionsEditor />
+        <AdminTabs />
       </main>
     </AdminGate>
   );

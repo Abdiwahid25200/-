@@ -1,6 +1,7 @@
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import SectionHero from "@/components/SectionHero";
 import { pick, sectionOverride } from "@/lib/overrides";
+import { mergedItems } from "@/lib/items";
 import BackLink from "@/components/BackLink";
 import PubgFlow from "@/components/flows/PubgFlow";
 
@@ -20,6 +21,7 @@ export default async function PubgPage({
   const t = await getTranslations("games");
   const te = await getTranslations("eyebrow");
 
+  const items = await mergedItems("pubg");
   const over = await sectionOverride("pubg");
 
   return (
@@ -33,7 +35,7 @@ export default async function PubgPage({
         img={over.img}
         note={pick(over.note, locale, t("pubg.note"))}
       />
-      <PubgFlow />
+      <PubgFlow items={items} />
     </main>
   );
 }

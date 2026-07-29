@@ -3,14 +3,18 @@
 import { useState } from "react";
 import { useTranslations } from "next-intl";
 import BuyFlow, { type Pack } from "@/components/BuyFlow";
+import { toPack, type ShopItem } from "@/lib/items";
 import { IconBall } from "@/components/icons";
 import { accounts, isBuyable, live } from "@/lib/data";
 
-export default function AccountsFlow() {
+/** `items` تأتي من الصفحة بعد دمج تعديلات الإدارة — وبلاها يعمل بالأصل */
+export default function AccountsFlow({ items }: { items?: ShopItem[] }) {
   const t = useTranslations("accountsFlow");
   const [contact, setContact] = useState("");
 
-  const packs: Pack[] = live(accounts).map((a) => ({
+  const packs: Pack[] = items
+    ? items.map(toPack)
+    : live(accounts).map((a) => ({
     id: a.id,
     soon: !isBuyable(a),
     title: a.title,

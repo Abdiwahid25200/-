@@ -3,15 +3,19 @@
 import { useState } from "react";
 import { useTranslations } from "next-intl";
 import BuyFlow, { type Pack } from "@/components/BuyFlow";
+import { toPack, type ShopItem } from "@/lib/items";
 import { IconBall } from "@/components/icons";
 import { icons, isBuyable, live } from "@/lib/data";
 
-export default function EfootFlow() {
+/** `items` تأتي من الصفحة بعد دمج تعديلات الإدارة — وبلاها يعمل بالأصل */
+export default function EfootFlow({ items }: { items?: ShopItem[] }) {
   const t = useTranslations("efootFlow");
   const [email, setEmail] = useState("");
   const [pass, setPass] = useState("");
 
-  const packs: Pack[] = live(icons).map((p) => ({
+  const packs: Pack[] = items
+    ? items.map(toPack)
+    : live(icons).map((p) => ({
     id: p.id,
     soon: !isBuyable(p),
     title: p.name,

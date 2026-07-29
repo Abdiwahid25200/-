@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useTranslations } from "next-intl";
 import BuyFlow, { type Pack } from "@/components/BuyFlow";
+import { toPack, type ShopItem } from "@/lib/items";
 import { IconBolt, IconCheckCircle, IconSpinner } from "@/components/icons";
 import { isBuyable, live, pubg } from "@/lib/data";
 
@@ -12,22 +13,25 @@ type Vrf =
   | { kind: "ok"; name: string }
   | { kind: "bad" | "notFound" | "manual" | "busy" };
 
-export default function PubgFlow() {
+/** `items` تأتي من الصفحة بعد دمج تعديلات الإدارة — وبلاها يعمل بالأصل */
+export default function PubgFlow({ items }: { items?: ShopItem[] }) {
   const t = useTranslations("pubgFlow");
   const [pid, setPid] = useState("");
   const [vrf, setVrf] = useState<Vrf>({ kind: "idle" });
 
-  const packs: Pack[] = live(pubg).map((p) => ({
-    id: p.id,
-    soon: !isBuyable(p),
-    title: `${p.amount.toLocaleString("en")} UC`,
-    price: p.price,
-    old: p.old,
-    disc: p.disc,
-    img: p.img,
-    instant: p.instant,
-    popular: p.popular,
-  }));
+  const packs: Pack[] = items
+    ? items.map(toPack)
+    : live(pubg).map((p) => ({
+        id: p.id,
+        soon: !isBuyable(p),
+        title: `${p.amount.toLocaleString("en")} UC`,
+        price: p.price,
+        old: p.old,
+        disc: p.disc,
+        img: p.img,
+        instant: p.instant,
+        popular: p.popular,
+      }));
 
   async function verify() {
     const clean = pid.replace(/\D/g, "");

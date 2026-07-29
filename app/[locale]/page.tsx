@@ -3,12 +3,18 @@ import HeroSlider from "@/components/HeroSlider";
 import ProductCard from "@/components/ProductCard";
 import { IconDevice } from "@/components/icons";
 import { slides } from "@/lib/content";
-import { elec, isBuyable, live } from "@/lib/data";
+import { mergedItems } from "@/lib/items";
 
 /**
  * الرئيسية = **الإلكترونيات وحدها** — بأمر صاحبة المشروع:
  * الألعاب في `/games` والحسابات في `/accounts` والدعم في `/help`.
  */
+/**
+ * تتجدّد كل دقيقة: مبنيّة مسبقاً فتفتح فوراً، وما تعدّله صاحبة المتجر
+ * في لوحة الإدارة يظهر خلال دقيقة بلا إعادة نشر.
+ */
+export const revalidate = 60;
+
 export default async function Home({
   params,
 }: {
@@ -21,7 +27,7 @@ export default async function Home({
   const te = await getTranslations("eyebrow");
   const tc = await getTranslations("common");
 
-  const items = live(elec);
+  const items = await mergedItems("elec");
 
   return (
     <main className="seq mx-auto flex max-w-5xl flex-col gap-9 px-4 py-6">
@@ -43,15 +49,15 @@ export default async function Home({
             <ProductCard
               key={p.id}
               id={p.id}
-              name={p.name}
+              name={p.title}
               price={p.price}
               old={p.old}
               disc={p.disc}
-              desc={p.desc}
+              desc={p.sub}
               img={p.img}
               Icon={IconDevice}
               discLabel={tc("discount")}
-              soon={!isBuyable(p)}
+              soon={p.status !== "on"}
               soonLabel={tc("soon")}
             />
           ))}
