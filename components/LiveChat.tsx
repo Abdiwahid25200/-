@@ -4,6 +4,8 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 import { useAuth } from "@/lib/auth";
 import {
+  aiReply,
+  askForHuman,
   listenChat,
   lastSeen,
   markSeen,
@@ -14,7 +16,13 @@ import {
 } from "@/lib/chat";
 import { chatQuickKeys, site } from "@/lib/content";
 import Logo from "./Logo";
-import { IconChatLine, IconClose, IconGoogle, IconSend } from "./icons";
+import {
+  IconChatLine,
+  IconClose,
+  IconGoogle,
+  IconSend,
+  IconSparkle,
+} from "./icons";
 
 /** ارتفاع القائمة السفلية العائمة — نجلس فوقها فلا يتغطّى شيء */
 /**
@@ -46,6 +54,10 @@ export default function LiveChat() {
   const [text, setText] = useState("");
   const [sending, setSending] = useState(false);
   const [failed, setFailed] = useState(false);
+  /** المساعد يكتب الآن */
+  const [thinking, setThinking] = useState(false);
+  /** طلب الزبون إنساناً ⇒ يصمت المساعد */
+  const [human, setHuman] = useState(false);
   const [seen, setSeen] = useState(0);
 
   const boxRef = useRef<HTMLDivElement>(null);
@@ -127,9 +139,29 @@ export default function LiveChat() {
     if (!res.ok) {
       setFailed(true);
       setText(value); // لا نضيّع ما كتبه الزبون
+      setSending(false);
+      inputRef.current?.focus();
+      return;
     }
     setSending(false);
     inputRef.current?.focus();
+
+    /* ردّ المساعد الآلي — إلا إن كان الزبون قد طلب إنساناً، فلا نُقحم
+       آلةً على من طلب بشراً. وبلا مفتاح Anthropic لا يحدث شيء. */
+    if (human) return;
+    setThinking(true);
+    const r = await aiReply(user, [...msgs, {
+      id: "pending", from: "user", text: value, createdAt: new Date(),
+    }]);
+    setThinking(false);
+    if (r.human) setHuman(true);
+  }
+
+  /** الزبون يطلب إنساناً — يتوقّف المساعد وتُعلَّم المحادثة لصاحبة المتجر */
+  async function wantHuman() {
+    if (!user) return;
+    setHuman(true);
+    await askForHuman(user);
   }
 
   const unread = unreadCount(msgs, seen);
@@ -240,8 +272,38 @@ export default function LiveChat() {
                 <Bubble from="admin" text={t("welcome", { name: firstName(user.displayName) })} />
 
                 {msgs.map((m) => (
-                  <Bubble key={m.id} from={m.from} text={m.text} at={m.createdAt} />
+                  <Bubble
+                    key={m.id}
+                    from={m.from}
+                    text={m.text}
+                    at={m.createdAt}
+                    aiLabel={t("aiName")}
+                  />
                 ))}
+
+                {thinking && (
+                  <span className="flex items-center gap-1.5 px-1 text-xs text-muted">
+                    <IconSparkle className="size-3.5" />
+                    {t("aiTyping")}
+                  </span>
+                )}
+
+                {/* التحويل إلى إنسان — حقّ الزبون، بضغطة وبلا شرح */}
+                {msgs.length > 0 && !human && (
+                  <button
+                    type="button"
+                    onClick={wantHuman}
+                    className="self-start px-1 text-xs text-muted underline"
+                  >
+                    {t("askHuman")}
+                  </button>
+                )}
+
+                {human && (
+                  <p className="rounded-card border border-dashed border-line p-2.5 text-center text-xs text-muted">
+                    {t("humanSoon")}
+                  </p>
+                )}
 
                 {/* أسئلة جاهزة — تختصر على الزبون الكتابة أول مرة */}
                 {msgs.length === 0 && (
@@ -310,14 +372,23 @@ function Bubble({
   from,
   text,
   at,
+  aiLabel,
 }: {
-  from: "user" | "admin";
+  from: "user" | "admin" | "ai";
   text: string;
   at?: Date | null;
+  /** وسم "مساعد آلي" — فلا يظنّ الزبون أنه يكلّم صاحبة المتجر */
+  aiLabel?: string;
 }) {
   const mine = from === "user";
   return (
     <div className={`flex flex-col ${mine ? "items-end" : "items-start"}`}>
+      {from === "ai" && aiLabel && (
+        <span className="mb-0.5 flex items-center gap-1 px-1 text-[0.65rem] font-bold uppercase tracking-wide text-muted rtl:tracking-normal">
+          <IconSparkle className="size-3" />
+          {aiLabel}
+        </span>
+      )}
       <p
         className={`max-w-[85%] whitespace-pre-wrap break-words px-3.5 py-2.5 text-sm ${
           mine

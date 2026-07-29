@@ -28,8 +28,11 @@ import { fbDb } from "./firebase";
 
 export type ChatMessage = {
   id: string;
-  /** `user` = الزبون · `admin` = المتجر. القواعد تمنع الزبون من انتحال `admin` */
-  from: "user" | "admin";
+  /**
+   * `user` = الزبون · `admin` = المتجر · `ai` = المساعد الآلي.
+   * القواعد تمنع الزبون من انتحال `admin`، فلا ينتحل أحد صفة المتجر.
+   */
+  from: "user" | "admin" | "ai";
   text: string;
   createdAt: Date | null;
 };
@@ -64,7 +67,8 @@ export function listenChat(
           const v = d.data();
           return {
             id: d.id,
-            from: v.from === "admin" ? "admin" : "user",
+            from:
+              v.from === "admin" ? "admin" : v.from === "ai" ? "ai" : "user",
             text: String(v.text ?? ""),
             createdAt: v.createdAt?.toDate?.() ?? null,
           } satisfies ChatMessage;
@@ -118,6 +122,89 @@ export async function sendChatMessage(
   }
 }
 
+/**
+ * ردّ المساعد الآلي — يُطلب نصّه من خادم الموقع ثم يُكتب في المحادثة.
+ *
+ * لماذا يكتبه المتصفّح لا الخادم: الكتابة في Firestore تحكمها قواعد
+ * الأمان، والخادم لا يملك هويّة تعبرها. فالخادم يصنع النصّ (ومعه المفتاح
+ * السرّي)، والمتصفّح يكتبه في محادثة صاحبه وحده.
+ *
+ * ولو لم يُضبط مفتاح Anthropic ترجع `off` ولا يحدث شيء — الدردشة كما هي.
+ */
+export type AiResult =
+  | { ok: true; text: string; human: boolean }
+  | { ok: false; human: boolean };
+
+export async function aiReply(
+  user: User,
+  history: ChatMessage[],
+): Promise<AiResult> {
+  try {
+    const idToken = await user.getIdToken();
+    const res = await fetch("/api/ai-reply", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({
+        idToken,
+        messages: history.map((m) => ({ from: m.from, text: m.text })),
+      }),
+    });
+    const d = await res.json().catch(() => null);
+
+    if (!d?.ok || !d.text) {
+      // "أحِلْه إلى إنسان" حين يقرّر المساعد ذلك، لا حين تعذّرت الخدمة
+      return { ok: false, human: d?.reason === "human" };
+    }
+
+    await writeAiMessage(user, String(d.text), Boolean(d.human));
+    return { ok: true, text: String(d.text), human: Boolean(d.human) };
+  } catch {
+    return { ok: false, human: false };
+  }
+}
+
+async function writeAiMessage(user: User, text: string, human: boolean) {
+  const db = fbDb();
+  if (!db) return;
+  const body = text.trim().slice(0, MAX_LEN);
+  if (!body) return;
+
+  await addDoc(collection(db, "chats", user.uid, "messages"), {
+    from: "ai",
+    text: body,
+    createdAt: serverTimestamp(),
+  });
+
+  await setDoc(
+    doc(db, "chats", user.uid),
+    {
+      uid: user.uid,
+      lastText: body,
+      lastFrom: "ai",
+      // تُرفع لصاحبة المتجر: هذه محادثة تنتظر إنساناً
+      needsHuman: human,
+      updatedAt: serverTimestamp(),
+    },
+    { merge: true },
+  );
+}
+
+/** الزبون يطلب إنساناً بضغطة — تُعلَّم المحادثة فتراها صاحبة المتجر */
+export async function askForHuman(user: User): Promise<boolean> {
+  const db = fbDb();
+  if (!db) return false;
+  try {
+    await setDoc(
+      doc(db, "chats", user.uid),
+      { uid: user.uid, needsHuman: true, updatedAt: serverTimestamp() },
+      { merge: true },
+    );
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 /* ── شارة "رسالة جديدة" ──
    نحفظ وقت آخر رسالة قرأها الزبون في متصفّحه، فلا نحتاج كتابة في
    قاعدة البيانات عند كل فتح للنافذة. */
@@ -137,6 +224,6 @@ export function markSeen(at: number = Date.now()) {
 /** عدد ردود المتجر التي وصلت بعد آخر مرة فتح فيها الزبون النافذة */
 export function unreadCount(msgs: ChatMessage[], seen: number): number {
   return msgs.filter(
-    (m) => m.from === "admin" && (m.createdAt?.getTime() ?? 0) > seen,
+    (m) => m.from !== "user" && (m.createdAt?.getTime() ?? 0) > seen,
   ).length;
 }

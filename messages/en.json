@@ -475,6 +475,10 @@
       "delivery": "How long does delivery take?",
       "payment": "Which payment methods do you accept?"
     },
-    "teaser": "Hi! Need any help?"
+    "teaser": "Hi! Need any help?",
+    "aiName": "Store assistant",
+    "aiTyping": "Assistant is typing…",
+    "askHuman": "Talk to a person",
+    "humanSoon": "We've passed this to the team — you'll get a reply here soon."
   }
 }

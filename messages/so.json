@@ -475,6 +475,10 @@
       "delivery": "Muddo intee le’eg ayay gaarsiintu qaadataa?",
       "payment": "Habka lacag-bixinta ee la aqbalo waa kuwee?"
     },
-    "teaser": "Salaan! Ma caawimaad u baahan tahay?"
+    "teaser": "Salaan! Ma caawimaad u baahan tahay?",
+    "aiName": "Kaaliyaha dukaanka",
+    "aiTyping": "Kaaliyuhu wuu qorayaa…",
+    "askHuman": "La hadal qof",
+    "humanSoon": "Waxaan u gudbinay kooxda — jawaab ayaad halkan ka heli doontaa."
   }
 }
