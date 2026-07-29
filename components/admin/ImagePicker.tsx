@@ -40,7 +40,7 @@ export default function ImagePicker({
           : r.reason === "auth"
             ? "Session expired — sign in again"
             : r.reason === "off"
-              ? "Image service is not configured in Vercel yet"
+              ? "Image storage is not connected in Vercel — use “paste image link” below for now"
               : "Upload failed. Try “paste image link” instead.",
     );
   }

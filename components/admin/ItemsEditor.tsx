@@ -5,6 +5,7 @@ import {
   allItems,
   newItemId,
   removeItem,
+  restoreItem,
   saveItem,
   type ItemKind,
   type ShopItem,
@@ -72,12 +73,26 @@ export default function ItemsEditor() {
   }
 
   async function del(it: ShopItem) {
-    if (!confirm(`Delete "${it.title}"?`)) return;
+    // الفرق حقيقي فيُقال: المضاف من اللوحة يُمحى، والأصلي يُخفى ويُرجَع
+    const msg = it.custom
+      ? `Delete “${it.title || "Untitled"}” for good? This cannot be undone.`
+      : `Remove “${it.title || "Untitled"}” from the store?\nCustomers stop seeing it. You can restore it here anytime.`;
+    if (!confirm(msg)) return;
     setBusy(it.id);
     const ok = await removeItem(it);
     setBusy(null);
+    if (ok) {
+      setOpen(null);
+      load(kind);
+    } else alert("Could not delete.");
+  }
+
+  async function restore(it: ShopItem) {
+    setBusy(it.id);
+    const ok = await restoreItem(it);
+    setBusy(null);
     if (ok) load(kind);
-    else alert("Could not delete.");
+    else alert("Could not restore.");
   }
 
   function add() {
@@ -120,33 +135,81 @@ export default function ItemsEditor() {
           {items.map((it) => {
             const isOpen = open === it.id;
             return (
-              <section key={it.id} className="rounded-card border border-line bg-surface">
-                <button
-                  type="button"
-                  onClick={() => setOpen(isOpen ? null : it.id)}
-                  className="flex w-full items-center gap-3 p-3.5 text-start"
-                >
-                  <span className="size-11 shrink-0 overflow-hidden rounded-card bg-bg">
-                    {it.img && (
-                      // eslint-disable-next-line @next/next/no-img-element
-                      <img src={it.img} alt="" className="size-full object-cover" />
-                    )}
-                  </span>
-                  <span className="min-w-0 flex-1 leading-tight">
-                    <span className="block truncate font-bold">
-                      {it.title || "Untitled"}
+              <section
+                key={it.id}
+                className={`rounded-card border bg-surface ${
+                  it.hidden ? "border-dashed border-line/70" : "border-line"
+                }`}
+              >
+                {/* الصفّ ليس زرّاً واحداً: الحذف والاسترجاع هنا في متناول
+                    الإصبع، بلا فتح البطاقة والنزول إلى أسفلها */}
+                <div className="flex items-center gap-1 p-3.5">
+                  <button
+                    type="button"
+                    onClick={() => setOpen(isOpen ? null : it.id)}
+                    className={`flex min-w-0 flex-1 items-center gap-3 text-start ${
+                      it.hidden ? "opacity-55" : ""
+                    }`}
+                  >
+                    <span className="size-11 shrink-0 overflow-hidden rounded-card bg-bg">
+                      {it.img && (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img src={it.img} alt="" className="size-full object-cover" />
+                      )}
                     </span>
-                    <span className="num block text-xs text-muted" dir="ltr">
-                      ${Number(it.price).toFixed(2)}
-                      {it.status !== "on" &&
-                        ` · ${STATUSES.find((s) => s.v === it.status)?.label}`}
+                    <span className="min-w-0 flex-1 leading-tight">
+                      <span
+                        className={`block truncate font-bold ${
+                          it.hidden ? "line-through" : ""
+                        }`}
+                      >
+                        {it.title || "Untitled"}
+                      </span>
+                      <span className="num block text-xs text-muted" dir="ltr">
+                        ${Number(it.price).toFixed(2)}
+                        {it.hidden
+                          ? " · Removed"
+                          : it.status !== "on" &&
+                            ` · ${STATUSES.find((s) => s.v === it.status)?.label}`}
+                      </span>
                     </span>
-                  </span>
-                  {saved === it.id && <IconCheckCircle className="size-5 text-yellow" />}
-                  <span aria-hidden className="text-muted">
-                    {isOpen ? "−" : "+"}
-                  </span>
-                </button>
+                    {saved === it.id && <IconCheckCircle className="size-5 text-yellow" />}
+                  </button>
+
+                  {it.hidden ? (
+                    <button
+                      type="button"
+                      onClick={() => restore(it)}
+                      disabled={busy === it.id}
+                      className="min-h-12 shrink-0 rounded-card border border-orange px-3 text-sm font-bold text-orange disabled:opacity-50"
+                    >
+                      Restore
+                    </button>
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={() => del(it)}
+                      disabled={busy === it.id}
+                      aria-label={`Remove ${it.title || "item"}`}
+                      className="flex size-12 shrink-0 items-center justify-center rounded-card text-muted hover:text-danger disabled:opacity-50"
+                    >
+                      {busy === it.id ? (
+                        <IconSpinner className="size-4" />
+                      ) : (
+                        <IconTrash className="size-5" />
+                      )}
+                    </button>
+                  )}
+
+                  <button
+                    type="button"
+                    onClick={() => setOpen(isOpen ? null : it.id)}
+                    aria-label={isOpen ? "Close" : "Edit"}
+                    className="flex size-12 shrink-0 items-center justify-center text-lg text-muted"
+                  >
+                    <span aria-hidden>{isOpen ? "−" : "+"}</span>
+                  </button>
+                </div>
 
                 {isOpen && (
                   <div className="flex flex-col gap-4 border-t border-line p-4">
@@ -225,26 +288,22 @@ export default function ItemsEditor() {
                       </select>
                     </label>
 
-                    <div className="flex gap-2">
-                      <button
-                        type="button"
-                        onClick={() => save(it)}
-                        disabled={busy === it.id}
-                        className="flex min-h-12 flex-1 items-center justify-center gap-2 rounded-card bg-orange font-bold text-onaccent disabled:opacity-50"
-                      >
-                        {busy === it.id && <IconSpinner className="size-4" />}
-                        Save
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => del(it)}
-                        disabled={busy === it.id}
-                        className="flex min-h-12 items-center gap-2 rounded-card border border-line px-4 text-sm text-muted hover:border-danger hover:text-danger"
-                      >
-                        <IconTrash className="size-4" />
-                        Delete
-                      </button>
-                    </div>
+                    {it.hidden && (
+                      <p className="text-xs text-muted">
+                        Removed from the store — customers do not see it. Tap
+                        “Restore” above to bring it back.
+                      </p>
+                    )}
+
+                    <button
+                      type="button"
+                      onClick={() => save(it)}
+                      disabled={busy === it.id}
+                      className="flex min-h-12 items-center justify-center gap-2 rounded-card bg-orange font-bold text-onaccent disabled:opacity-50"
+                    >
+                      {busy === it.id && <IconSpinner className="size-4" />}
+                      Save
+                    </button>
                   </div>
                 )}
               </section>

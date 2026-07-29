@@ -5,6 +5,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import type { Slide } from "@/lib/content";
+import { optimizable } from "@/lib/img";
 
 /**
  * بانر متحرّك — يدور تلقائياً كل ٥ ثوانٍ، ويُسحب بالإصبع، وتُنقّل بالنقاط.
@@ -77,14 +78,20 @@ export default function HeroSlider({ slides }: { slides: Slide[] }) {
             <div className="relative flex min-h-56 flex-col justify-end gap-2 bg-gradient-to-br from-navy via-[color-mix(in_srgb,var(--accent)_38%,var(--deep))] to-[color-mix(in_srgb,var(--accent)_78%,var(--deep))] p-5 sm:min-h-72">
               {s.img && (
                 <>
-                  <Image
-                    src={s.img}
-                    alt=""
-                    fill
-                    sizes="(max-width: 768px) 100vw, 900px"
-                    className="object-cover"
-                    priority={k === 0}
-                  />
+                  {optimizable(s.img) ? (
+                    <Image
+                      src={s.img}
+                      alt=""
+                      fill
+                      sizes="(max-width: 768px) 100vw, 900px"
+                      className="object-cover"
+                      priority={k === 0}
+                    />
+                  ) : (
+                    // رابط من مضيف لا نعرفه — يُعرض كما هو بدل إطار مكسور
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img src={s.img} alt="" className="absolute inset-0 size-full object-cover" />
+                  )}
                   {/* تعتيم متدرّج ليبقى النص مقروءاً فوق أي صورة */}
                   <span
                     aria-hidden

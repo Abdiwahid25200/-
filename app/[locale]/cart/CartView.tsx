@@ -6,6 +6,7 @@ import Image from "next/image";
 import { Link } from "@/i18n/navigation";
 import { useCart } from "@/lib/cart";
 import { fmt } from "@/lib/format";
+import { optimizable } from "@/lib/img";
 import { isBuyable, live, pay, wa } from "@/lib/data";
 import { useAuth } from "@/lib/auth";
 import { saveOrder } from "@/lib/orders";
@@ -152,7 +153,13 @@ export default function CartView() {
           >
             <span className="relative flex size-16 shrink-0 items-center justify-center overflow-hidden rounded-card bg-gradient-to-br from-navy to-[#1e2a45]">
               {l.img ? (
-                <Image src={l.img} alt={l.name} fill sizes="64px" className="object-cover" />
+                optimizable(l.img) ? (
+                  <Image src={l.img} alt={l.name} fill sizes="64px" className="object-cover" />
+                ) : (
+                  // رابط من مضيف لا نعرفه — يُعرض كما هو بدل إطار مكسور
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img src={l.img} alt={l.name} className="absolute inset-0 size-full object-cover" />
+                )
               ) : (
                 <IconDevice className="size-7 text-white/85" />
               )}

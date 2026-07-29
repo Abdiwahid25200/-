@@ -1,5 +1,6 @@
 import Image from "next/image";
 import Badge from "./Badge";
+import { optimizable } from "@/lib/img";
 
 /**
  * بانر علوي لصفحات الأقسام — صورة اللعبة/القسم مع العنوان وشارة التسليم.
@@ -20,14 +21,20 @@ export default function Hero({
     <section className="relative mb-5 flex h-44 items-center justify-center overflow-hidden rounded-card bg-gradient-to-br from-navy via-[color-mix(in_srgb,var(--accent)_18%,var(--deep))] to-[color-mix(in_srgb,var(--accent)_55%,var(--deep))] sm:h-56">
       {img && (
         <>
-          <Image
-            src={img}
-            alt=""
-            fill
-            sizes="(max-width: 768px) 100vw, 900px"
-            className="object-cover"
-            priority
-          />
+          {optimizable(img) ? (
+            <Image
+              src={img}
+              alt=""
+              fill
+              sizes="(max-width: 768px) 100vw, 900px"
+              className="object-cover"
+              priority
+            />
+          ) : (
+            // رابط من مضيف لا نعرفه — يُعرض كما هو بدل إطار مكسور
+            // eslint-disable-next-line @next/next/no-img-element
+            <img src={img} alt="" className="absolute inset-0 size-full object-cover" />
+          )}
           {/* طبقة تعتيم ليبقى النص مقروءاً فوق أي صورة */}
           <span aria-hidden className="absolute inset-0 bg-navy/55" />
         </>

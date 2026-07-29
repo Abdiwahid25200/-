@@ -4,10 +4,13 @@ import createNextIntlPlugin from "next-intl/plugin";
 const nextConfig: NextConfig = {
   reactStrictMode: true,
 
-  // صور لوحة الإدارة تُرفع إلى Firebase Storage، وnext/image يرفض أي
-  // مضيف غير مأذون له صراحةً — بلا هذا تظهر الصور المرفوعة مكسورة
+  // صور لوحة الإدارة تُرفع إلى مخزن Vercel Blob، وnext/image يرفض أي مضيف
+  // غير مأذون له صراحةً — بلا هذا تظهر الصور المرفوعة مكسورة.
+  // القائمة نفسها في `lib/img.ts`، وأي رابط من خارجها يُعرض بوسم <img> عادي.
   images: {
     remotePatterns: [
+      { protocol: "https", hostname: "*.public.blob.vercel-storage.com" },
+      { protocol: "https", hostname: "res.cloudinary.com" },
       { protocol: "https", hostname: "firebasestorage.googleapis.com" },
       { protocol: "https", hostname: "*.firebasestorage.app" },
       { protocol: "https", hostname: "storage.googleapis.com" },

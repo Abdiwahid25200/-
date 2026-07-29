@@ -1,4 +1,5 @@
 import Image from "next/image";
+import { optimizable } from "@/lib/img";
 
 type Props = {
   img?: string;
@@ -24,10 +25,9 @@ export default function Thumb({
   fit = "cover",
 }: Props) {
   if (img) {
-    // الصور المحلّية تمرّ على next/image لتُحسَّن، والخارجية على <img> عادي
-    // لأن next/image يرفض أي مضيف غير مأذون له مسبقاً — ولا نعرف أين
-    // ستستضيف صاحبة المتجر صورها
-    if (!img.startsWith("/")) {
+    // المحلّية ومضيفاتنا المعروفة تمرّ على next/image لتُحسَّن، وما عداها
+    // على <img> عادي — راجعي `lib/img.ts`
+    if (!optimizable(img)) {
       return (
         // eslint-disable-next-line @next/next/no-img-element
         <img src={img} alt={alt} className={`absolute inset-0 size-full ${fit === "contain" ? "object-contain p-2" : "object-cover"}`} />

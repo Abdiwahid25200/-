@@ -1,5 +1,6 @@
 import Image from "next/image";
 import { Link } from "@/i18n/navigation";
+import { optimizable } from "@/lib/img";
 import SectionIcon, { type SectionIconKey } from "./SectionIcon";
 
 type Props = {
@@ -33,7 +34,7 @@ export default function GameTile({
     <span className="lift relative flex aspect-[4/5] flex-col items-center justify-center gap-2.5 overflow-hidden rounded-[18px] border border-line bg-surface px-2 py-4 shadow-sm">
       {img ? (
         <>
-          {img.startsWith("/") ? (
+          {optimizable(img) ? (
             <Image
               src={img}
               alt={title}

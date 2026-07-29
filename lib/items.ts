@@ -40,6 +40,8 @@ export type ShopItem = {
   order?: number;
   /** أُضيف من اللوحة لا من الملفات — يجوز حذفه نهائياً */
   custom?: boolean;
+  /** محذوف من الموقع — تراه اللوحة وحدها ليمكن إرجاعه */
+  hidden?: boolean;
 };
 
 /* ── تحويل الأصل الثابت إلى الشكل الموحّد ── */
@@ -158,12 +160,17 @@ export async function mergedItems(kind: ItemKind): Promise<ShopItem[]> {
     .map(({ i }) => i);
 }
 
-/** كل الأصناف بلا فلترة — للوحة الإدارة، فترى المخفيّ أيضاً */
+/**
+ * كل الأصناف بلا فلترة — للوحة الإدارة.
+ *
+ * وتحمل علامة `hidden` معها: بدونها كان المحذوف يعود للقائمة بنفس شكله
+ * تماماً بعد الحذف، فتظنّ صاحبة المتجر أن الزرّ لا يعمل — وهو قد عمل.
+ */
 export async function allItems(kind: ItemKind): Promise<ShopItem[]> {
   const over = await readItems();
   const base = fromStatic[kind]().map((i) => {
     const o = over[i.id];
-    return o ? ({ ...i, ...strip(o) } as ShopItem) : i;
+    return o ? ({ ...i, ...strip(o), hidden: o.hidden === true } as ShopItem) : i;
   });
   const added: ShopItem[] = Object.entries(over)
     .filter(([id, o]) => o.kind === kind && !base.some((b) => b.id === id))
@@ -171,15 +178,23 @@ export async function allItems(kind: ItemKind): Promise<ShopItem[]> {
       id, kind, title: o.title ?? "", sub: o.sub,
       price: Number(o.price ?? 0), img: o.img,
       status: (o.status ?? "on") as ItemStatus, order: o.order, custom: true,
+      hidden: o.hidden === true,
     }));
   return [...base, ...added];
 }
 
-/** يُهمل الحقول الفارغة فلا تمحو قيمة الأصل بقيمة فارغة */
+/**
+ * يُهمل الحقول الفارغة فلا تمحو قيمة الأصل بقيمة فارغة.
+ *
+ * ⚠️ إلا **الصورة**: فراغها قرارٌ صريح — لا تُحفظ فارغة إلا حين تضغط
+ * صاحبة المتجر "Remove" ثم "Save". ولولا هذا الاستثناء لعادت الصورة
+ * الأصلية بعد كل محاولة حذف، فتظنّ أن الحذف لا يعمل.
+ */
 function strip(o: ItemDoc): Partial<ShopItem> {
   const out: Record<string, unknown> = {};
   for (const [k, v] of Object.entries(o)) {
-    if (v === undefined || v === null || v === "") continue;
+    if (v === undefined || v === null) continue;
+    if (v === "" && k !== "img") continue;
     out[k] = v;
   }
   delete out.hidden;
@@ -222,6 +237,19 @@ export async function removeItem(item: ShopItem): Promise<boolean> {
   try {
     if (item.custom) await deleteDoc(doc(db, "packages", item.id));
     else await setDoc(doc(db, "packages", item.id), { hidden: true }, { merge: true });
+    clearItemsCache();
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+/** إرجاع صنفٍ أصلي حُذف — يعود للزبون كما كان بضغطة */
+export async function restoreItem(item: ShopItem): Promise<boolean> {
+  const db = fbDb();
+  if (!db) return false;
+  try {
+    await setDoc(doc(db, "packages", item.id), { hidden: false }, { merge: true });
     clearItemsCache();
     return true;
   } catch {
