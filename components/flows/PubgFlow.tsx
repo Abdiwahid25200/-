@@ -57,7 +57,18 @@ export default function PubgFlow({ items }: { items?: ShopItem[] }) {
     }
   }
 
-  const ready = pid.replace(/\D/g, "").length >= 5;
+  const hasId = pid.replace(/\D/g, "").length >= 5;
+
+  /**
+   * **التحقّق خطوة لازمة** — قرار صاحبة المتجر: الآيدي ثم "تحقّق" ثم الباقة.
+   * فالشحن لآيدي خاطئ لا يُستردّ، والضغطة الواحدة تكشفه قبل الدفع.
+   *
+   * وإن تعذّر التحقّق نفسه (الخدمة غير مضبوطة أو مشغولة) نكتفي بأنه
+   * حاول: منعُه حينها يوقف الشراء كلّه بسببٍ لا يد له فيه.
+   */
+  const checked =
+    vrf.kind === "ok" || vrf.kind === "manual" || vrf.kind === "busy";
+  const ready = hasId && checked;
 
   const MSG: Record<Vrf["kind"], string> = {
     idle: "",
@@ -79,6 +90,8 @@ export default function PubgFlow({ items }: { items?: ShopItem[] }) {
     <BuyFlow
       packs={packs}
       accountReady={ready}
+      // الزرّ يقول الناقص بالضبط: الآيدي أوّلاً، ثم ضغطة التحقّق
+      accountLabel={hasId ? t("goVerify") : t("goId")}
       // اسم اللاعب يُحفظ مع الطلب: به تتأكّد صاحبة المتجر أنها تشحن للحساب الصحيح
       accountSummary={
         `${t("placeholder")}: ${pid.replace(/\D/g, "")}` +

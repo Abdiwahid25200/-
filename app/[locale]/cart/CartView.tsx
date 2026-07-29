@@ -41,12 +41,17 @@ export default function CartView() {
   const methods = live(pay).filter(isBuyable);
   const method = methods.find((m) => m.id === payId) ?? methods[0];
   const methodName = method ? (locale === "ar" ? method.nameAr : method.nameEn) : "";
-  const canOrder = count > 0 && name.trim() && contact.trim() && addr.trim();
+  const detailsReady = count > 0 && name.trim() && contact.trim() && addr.trim();
+  /* طريقة الدفع تُشترط إن كانت هناك طرق عاملة — وكلّها "قريباً" اليوم */
+  const payNeeded = methods.length > 0;
+  const payReady = !payNeeded || !!payId;
+  const canOrder = detailsReady && payReady;
 
   /* حقول التوصيل: الشريط العائم ينقل الزبون إلى أوّل حقل ناقص */
   const nameRef = useRef<HTMLInputElement>(null);
   const contactRef = useRef<HTMLInputElement>(null);
   const addrRef = useRef<HTMLInputElement>(null);
+  const payRef = useRef<HTMLDivElement>(null);
 
   /**
    * الشريط يعلو أرضية الصفحة، فلولا مساحة أسفلها لغطّى آخر قسم.
@@ -83,14 +88,18 @@ export default function CartView() {
    * فبدل التعطيل ينقله الزرّ إلى أوّل حقل ناقص ويفتح لوحة المفاتيح عليه.
    */
   function goToMissing() {
-    const next =
+    const field =
       (!name.trim() && nameRef.current) ||
       (!contact.trim() && contactRef.current) ||
       (!addr.trim() && addrRef.current) ||
       null;
-    if (!next) return;
-    next.scrollIntoView({ behavior: "smooth", block: "center" });
-    next.focus({ preventScroll: true });
+    if (field) {
+      field.scrollIntoView({ behavior: "smooth", block: "center" });
+      field.focus({ preventScroll: true });
+      return;
+    }
+    // البيانات تمّت ⇒ الناقص هو طريقة الدفع
+    payRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
   }
 
   if (!ready) return null;
@@ -305,7 +314,9 @@ export default function CartView() {
 
       {/* طريقة الدفع — نفس القسم المستعمل في صفحات الألعاب بالضبط،
           فلا يتعلّم الزبون شكلين لشيء واحد، ويصله كود التحويل هنا أيضاً */}
-      <PaySection amount={total} selected={payId} onSelect={setPayId} />
+      <div ref={payRef}>
+        <PaySection amount={total} selected={payId} onSelect={setPayId} />
+      </div>
 
       {/* الإجمالي — للمراجعة وحدها، والتأكيد في الشريط العائم أسفل الشاشة */}
       <section className="flex items-center justify-between rounded-card border border-line bg-surface p-4 text-lg">
@@ -345,7 +356,7 @@ export default function CartView() {
               </>
             ) : (
               <>
-                {t("goDelivery")}
+                {detailsReady ? tb("goPay") : t("goDelivery")}
                 <span aria-hidden className="flex rtl:rotate-180">
                   <IconArrow className="size-5" />
                 </span>

@@ -121,6 +121,7 @@
     "accountFirst": "Marka hore buuxi faahfaahinta akoonka",
     "goAccount": "Xogta ciyaartoyga",
     "goWa": "Lambarka WhatsApp",
+    "goPay": "Habka lacag-bixinta",
     "orderCode": "Koodhka dalabka",
     "item": "Xirmada",
     "summary": "Kooban dalabka",
@@ -159,7 +160,9 @@
     "manual": "Gacan ayaan ku xaqiijin doonnaa markaan dalabkaaga eegno",
     "notFound": "Ciyaartoyga lama helin — hubi ID-ga",
     "player": "Magaca ciyaaryahanka",
-    "busy": "Isku dayo badan hadda — sug daqiiqad oo mar kale isku day."
+    "busy": "Isku dayo badan hadda — sug daqiiqad oo mar kale isku day.",
+    "goId": "ID-ga ciyaartoyga",
+    "goVerify": "Riix Xaqiiji"
   },
   "efootFlow": {
     "title": "Faahfaahinta akoonka eFootball",

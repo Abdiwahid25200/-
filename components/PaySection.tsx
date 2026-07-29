@@ -55,7 +55,14 @@ export default function PaySection({
   const ready = methods.filter(isBuyable);
   // بلا طرق دفع لا نعرض عنواناً فوق فراغ — يختفي القسم كلّه
   if (!methods.length) return null;
-  const active = ready.find((m) => m.id === selected) ?? ready[0];
+  /**
+   * ⚠️ لا طريقة مختارة **حتى يختار الزبون**.
+   *
+   * كانت أولى الطرق تظهر مختارة تلقائياً، فيمرّ الزبون ويطلب بطريقةٍ لم
+   * يخترها، ويصل الطلب صاحبة المتجر بطريقة دفع لم يقصدها أحد. الاختيار
+   * قرارٌ يخصّه، فيبقى فارغاً حتى يقرّر.
+   */
+  const active = ready.find((m) => m.id === selected) ?? null;
   const label = (m: PayMethod) => (locale === "ar" ? m.nameAr : m.nameEn);
 
   // المحلي أولاً: هو ما يعمل اليوم. لو صدّرنا مجموعةً كلّها "قريباً"

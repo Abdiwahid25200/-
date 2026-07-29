@@ -37,6 +37,7 @@ export default function BuyFlow({
   packs,
   accountForm,
   accountReady,
+  accountLabel,
   accountSummary,
   Icon,
   kind,
@@ -47,6 +48,11 @@ export default function BuyFlow({
   accountForm: React.ReactNode;
   /** هل اكتملت بيانات الحساب؟ يمنع التأكيد قبلها */
   accountReady: boolean;
+  /**
+   * نصّ زرّ الشريط في خطوة الحساب — يختلف داخل الخطوة نفسها: "بيانات
+   * اللاعب" قبل كتابة الآيدي، و"اضغطي تحقّق" بعدها. بلاه نصٌّ افتراضي.
+   */
+  accountLabel?: string;
   /** سطر يصف بيانات الحساب، يظهر بملخّص الطلب */
   accountSummary: string;
   Icon: (p: { className?: string }) => React.ReactElement;
@@ -75,7 +81,6 @@ export default function BuyFlow({
   // حارس: لو أُغلقت باقة مختارة سابقاً تُهمل بدل أن تُشترى
   const pack = found && !found.soon ? found : null;
   const total = pack ? fin(pack) : 0;
-  const canConfirm = !!pack && accountReady;
 
   const isWa = mode === "whatsapp";
 
@@ -100,16 +105,43 @@ export default function BuyFlow({
 
   const packsRef = useRef<HTMLElement>(null);
   const accountRef = useRef<HTMLDivElement>(null);
+  const payRef = useRef<HTMLDivElement>(null);
 
-  /** خطوتان: الباقة ثم بيانات الحساب — والتقدّم يُرسم شريطاً رفيعاً */
-  const stepsDone = (pack ? 1 : 0) + (accountReady ? 1 : 0);
+  /**
+   * ترتيب الخطوات كما قرّرته صاحبة المتجر:
+   * ① بيانات الحساب والتحقّق  ② الباقة  ③ طريقة الدفع  ④ التأكيد.
+   *
+   * وطريقة الدفع تُشترط **فقط** إن كانت هناك طرق متاحة فعلاً: كلّها
+   * "قريباً" اليوم، ولو اشترطناها بلا هذا الحرس لتعطّل الشراء كلّه.
+   */
+  const payNeeded = !isWa && methods.length > 0;
+  const payReady = !payNeeded || !!payId;
+  const canConfirm = !!pack && accountReady && payReady;
+
+  const steps = payNeeded ? 3 : 2;
+  const stepsDone =
+    (accountReady ? 1 : 0) + (pack ? 1 : 0) + (payNeeded && payId ? 1 : 0);
+
+  /** الخطوة التالية — واحدة لا أكثر، فلا يحتار الزبون */
+  const next = !accountReady
+    ? "account"
+    : !pack
+      ? "pack"
+      : !payReady
+        ? "pay"
+        : "confirm";
 
   /** ينقله إلى ما ينقصه ويفتح لوحة المفاتيح عليه — لا زرّ معطّل */
   function goToNext() {
-    const box = !pack ? packsRef.current : accountRef.current;
+    const box =
+      next === "account"
+        ? accountRef.current
+        : next === "pack"
+          ? packsRef.current
+          : payRef.current;
     if (!box) return;
     box.scrollIntoView({ behavior: "smooth", block: "center" });
-    if (box === accountRef.current) {
+    if (next === "account") {
       const field = box.querySelector<HTMLInputElement>(
         "input:not([type=hidden]), textarea",
       );
@@ -314,7 +346,9 @@ export default function BuyFlow({
         (isWa ? (
           <div ref={accountRef}>{accountForm}</div>
         ) : (
-          <PaySection amount={total} selected={payId} onSelect={setPayId} />
+          <div ref={payRef}>
+            <PaySection amount={total} selected={payId} onSelect={setPayId} />
+          </div>
         ))}
 
       {/* ── شريط الخطوات العائم — فوق قائمة التنقّل مباشرة ──
@@ -326,7 +360,7 @@ export default function BuyFlow({
             <span aria-hidden className="absolute inset-x-0 top-0 h-1 bg-line/60">
               <span
                 className="block h-full bg-orange transition-[width] duration-500"
-                style={{ width: `${(stepsDone / 2) * 100}%` }}
+                style={{ width: `${(stepsDone / steps) * 100}%` }}
               />
             </span>
 
@@ -349,18 +383,20 @@ export default function BuyFlow({
                   pack ? "ms-auto" : "w-full justify-center"
                 }`}
               >
-                {canConfirm ? (
+                {next === "confirm" ? (
                   <>
                     {isWa ? t("continueWa") : t("confirm")}
                     <IconCheckCircle className="size-5" />
                   </>
                 ) : (
                   <>
-                    {!pack
-                      ? t("selectPackage")
-                      : isWa
+                    {next === "account"
+                      ? isWa
                         ? t("goWa")
-                        : t("goAccount")}
+                        : (accountLabel ?? t("goAccount"))
+                      : next === "pack"
+                        ? t("selectPackage")
+                        : t("goPay")}
                     <span aria-hidden className="flex rtl:rotate-180">
                       <IconArrow className="size-5" />
                     </span>

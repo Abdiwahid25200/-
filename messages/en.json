@@ -121,6 +121,7 @@
     "accountFirst": "Complete your account details above first",
     "goAccount": "Player details",
     "goWa": "WhatsApp number",
+    "goPay": "Payment method",
     "orderCode": "Order code",
     "item": "Package",
     "summary": "Order summary",
@@ -159,7 +160,9 @@
     "manual": "We will verify manually when reviewing your order",
     "notFound": "Player not found — check the ID",
     "player": "Character name",
-    "busy": "Too many checks right now — wait a moment and try again."
+    "busy": "Too many checks right now — wait a moment and try again.",
+    "goId": "Player ID",
+    "goVerify": "Tap Verify"
   },
   "efootFlow": {
     "title": "eFootball account details",
