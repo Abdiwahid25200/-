@@ -30,7 +30,7 @@ const toEmail = (u: string) =>
   u.includes("@") ? u.trim() : `${u.trim().toLowerCase()}@${DOMAIN}`;
 
 export default function AdminGate({ children }: { children: React.ReactNode }) {
-  const { user, ready, enabled, signOut } = useAuth();
+  const { user, ready, enabled } = useAuth();
   const [admin, setAdmin] = useState<boolean | null>(null);
 
   const [username, setUsername] = useState("");
@@ -102,11 +102,19 @@ export default function AdminGate({ children }: { children: React.ReactNode }) {
       </p>,
     );
 
-  if (!user)
-    return shell(
+  /**
+   * نموذج الدخول — يُعرض للزائر **وللحساب الذي لا صلاحية له**.
+   *
+   * ولماذا للثاني أيضاً: صاحبة المتجر تتصفّح متجرها بحساب جوجل، وهو
+   * حسابُ زبونة لا أدمن. فلو حجبنا عنها النموذج بقيت أمام ٤٠٤ ولا سبيل
+   * للدخول. والنموذج نفسه لا يكشف شيئاً — يكشفُ الشرحُ والمعرّف، وقد
+   * أُزيلا.
+   */
+  const form = (note?: string) =>
+    shell(
       <>
         <h1 className="text-xl font-bold">Ramaan Admin</h1>
-        <p className="text-sm text-muted">Store owner access only.</p>
+        <p className="text-sm text-muted">{note ?? "Store owner access only."}</p>
 
         <form onSubmit={submit} className="mt-2 flex w-full flex-col gap-3">
           <input
@@ -169,31 +177,20 @@ export default function AdminGate({ children }: { children: React.ReactNode }) {
       </>,
     );
 
+  if (!user) return form();
+
   /**
-   * 🔒 حسابٌ ليس أدمن ⇒ **صفحة غير موجودة**، لا شرحاً ولا معرّفاً.
+   * 🔒 حسابٌ ليس أدمن ⇒ نموذج الدخول وسطرٌ محايد، **بلا معرّف ولا شرح**.
    *
    * كانت هذه الشاشة تقول كيف تُمنَح الصلاحية بالضبط (مجموعة `admins`
    * ووثيقة باسم الـuid) وتعرض المعرّف وزرّ نسخه. لم تكن ثغرة — المعرّف
    * معرّف صاحبه هو، والكتابة في `admins` ممنوعة على الجميع — لكنها
-   * كانت **خريطةً مجّانية** لمن يتحسّس الطريق. الآن لا يرى شيئاً.
+   * كانت خريطةً مجّانية لمن يتحسّس الطريق، فأُزيلت.
    *
-   * وزرّ الخروج وحده بلا وسم، لتخرج صاحبة المتجر لو دخلت بحسابٍ خطأ.
+   * ويبقى النموذج ظاهراً: الدخول باسم الأدمن يُخرج الحساب القديم أولاً
+   * (انظري `submit`)، فتدخل صاحبة المتجر ولو كانت متصفّحة كزبونة.
    */
-  if (!admin)
-    return (
-      <main className="mx-auto flex min-h-dvh max-w-sm flex-col items-center justify-center gap-2 px-4 text-center">
-        <h1 className="text-2xl font-bold">404</h1>
-        <p className="text-sm text-muted">This page could not be found.</p>
-        <button
-          type="button"
-          onClick={() => signOut()}
-          aria-label="Reset"
-          className="mt-6 min-h-11 px-4 text-xs text-muted/60"
-        >
-          ·
-        </button>
-      </main>
-    );
+  if (!admin) return form("Sign in with the store owner account.");
 
   return <>{children}</>;
 }
