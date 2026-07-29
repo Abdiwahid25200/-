@@ -30,13 +30,14 @@ const toEmail = (u: string) =>
   u.includes("@") ? u.trim() : `${u.trim().toLowerCase()}@${DOMAIN}`;
 
 export default function AdminGate({ children }: { children: React.ReactNode }) {
-  const { user, ready, enabled } = useAuth();
+  const { user, ready, enabled, signOut } = useAuth();
   const [admin, setAdmin] = useState<boolean | null>(null);
 
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState("");
+  const [copied, setCopied] = useState(false);
 
   useEffect(() => {
     if (!user) {
@@ -153,6 +154,31 @@ export default function AdminGate({ children }: { children: React.ReactNode }) {
         >
           {user.uid}
         </p>
+
+        {/* تحديد نصّ طويل باللمس على الآيباد متعب — زرّ واحد أضمن */}
+        <button
+          type="button"
+          onClick={async () => {
+            try {
+              await navigator.clipboard.writeText(user.uid);
+              setCopied(true);
+              setTimeout(() => setCopied(false), 2000);
+            } catch {
+              /* المتصفّح رفض النسخ — الرقم ظاهر أعلاه ويمكن تحديده يدوياً */
+            }
+          }}
+          className="min-h-12 w-full rounded-card bg-orange font-bold text-onaccent"
+        >
+          {copied ? "✓ نُسخ" : "نسخ الرقم"}
+        </button>
+
+        <button
+          type="button"
+          onClick={() => signOut()}
+          className="min-h-11 text-sm text-muted underline"
+        >
+          الدخول بحساب آخر
+        </button>
       </>,
     );
 
