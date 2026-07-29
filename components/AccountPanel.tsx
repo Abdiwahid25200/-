@@ -19,6 +19,8 @@ export default function AccountPanel() {
   const [orders, setOrders] = useState<SavedOrder[] | null>(null);
   const [failed, setFailed] = useState(false);
   const [profile, setProfile] = useState<Profile | null>(null);
+  /** هل نجحت قراءة الملف الشخصي؟ `null` وحده لا يفرّق بين "لا وثيقة" و"فشل" */
+  const [profileRead, setProfileRead] = useState(false);
   /** رقم يتغيّر فيُعاد التحميل — زرّ "أعيدي المحاولة" */
   const [tick, setTick] = useState(0);
 
@@ -26,16 +28,24 @@ export default function AccountPanel() {
     if (!user) {
       setOrders(null);
       setProfile(null);
+      setProfileRead(false);
       return;
     }
     let live = true;
     setFailed(false);
     setOrders(null);
+    setProfileRead(false);
     // تعذّرت القراءة؟ تُقال صراحةً — حسابٌ يبدو فارغاً وطلبُه محفوظ أسوأ
     myOrders(user)
       .then((o) => live && setOrders(o))
       .catch(() => live && setFailed(true));
-    getProfile(user).then((p) => live && setProfile(p));
+    getProfile(user)
+      .then((p) => {
+        if (!live) return;
+        setProfile(p);
+        setProfileRead(true);
+      })
+      .catch(() => live && setFailed(true));
     return () => {
       live = false;
     };
@@ -110,7 +120,9 @@ export default function AccountPanel() {
         </button>
       </section>
 
-      {!isComplete(profile) && (
+      {/* الدعوة لإكمال التسجيل تحتاج قراءةً **ناجحة**: بلا وثيقة ⇒ تظهر
+          (زبونة جديدة)، وبقراءةٍ فاشلة ⇒ لا تظهر، فلا تُدعى من أكملته */}
+      {profileRead && !isComplete(profile) && (
         <Link
           href="/login"
           className="flex min-h-12 items-center justify-center rounded-card border border-dashed border-orange px-4 text-sm font-bold text-orange"

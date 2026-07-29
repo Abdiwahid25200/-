@@ -42,11 +42,15 @@ export default function LoginFlow() {
     if (!user) return setStep("google");
 
     let live = true;
-    getProfile(user).then((p) => {
-      if (!live) return;
-      if (isComplete(p)) router.replace("/account");
-      else setStep("phone");
-    });
+    getProfile(user)
+      .then((p) => {
+        if (!live) return;
+        if (isComplete(p)) router.replace("/account");
+        else setStep("phone");
+      })
+      // تعذّرت القراءة ⇒ نطلب الرقم كما لو لم يكن هناك ملف: الحفظ `merge`
+      // فلا يضرّ تكراره، والوقوف بلا خطوة تالية يوقف الزبون
+      .catch(() => live && setStep("phone"));
     return () => {
       live = false;
     };

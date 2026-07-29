@@ -10,6 +10,7 @@
 import { doc, getDoc, serverTimestamp, setDoc } from "firebase/firestore";
 import type { User } from "firebase/auth";
 import { fbDb } from "./firebase";
+import { withTimeout } from "./timeout";
 
 export type Profile = {
   /** الرقم كاملاً بالصيغة الدولية بلا رموز — مثال: 252612345678 */
@@ -44,15 +45,18 @@ export const dialCodes = [
   { code: "60", flag: "🇲🇾", name: "Malaysia" },
 ] as const;
 
+/**
+ * ⚠️ يرمي الخطأ ولا يبتلعه، ومعه مهلة (`lib/timeout.ts`).
+ *
+ * ابتلاعُ الخطأ كان يعني شيئين لا يُفرَّق بينهما: "لا وثيقة لهذا الزبون"
+ * و"تعذّرت القراءة" — فيرى زبونٌ أكمل تسجيله دعوةً لإكماله. المستدعي
+ * يقرّر ماذا يعرض في كل حالة.
+ */
 export async function getProfile(user: User | null): Promise<Profile | null> {
   const db = fbDb();
   if (!db || !user) return null;
-  try {
-    const snap = await getDoc(doc(db, "users", user.uid));
-    return snap.exists() ? (snap.data() as Profile) : null;
-  } catch {
-    return null;
-  }
+  const snap = await withTimeout(getDoc(doc(db, "users", user.uid)));
+  return snap.exists() ? (snap.data() as Profile) : null;
 }
 
 export async function saveProfile(

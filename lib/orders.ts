@@ -19,6 +19,7 @@ import {
 } from "firebase/firestore";
 import type { User } from "firebase/auth";
 import { fbDb } from "./firebase";
+import { withTimeout } from "./timeout";
 
 export type OrderItem = {
   id: string;
@@ -121,8 +122,10 @@ export async function myOrders(user: User | null): Promise<SavedOrder[]> {
   const db = fbDb();
   if (!db || !user) return [];
 
-  const snap = await getDocs(
-    query(collection(db, "orders"), where("uid", "==", user.uid), limit(200)),
+  const snap = await withTimeout(
+    getDocs(
+      query(collection(db, "orders"), where("uid", "==", user.uid), limit(200)),
+    ),
   );
 
   return snap.docs
