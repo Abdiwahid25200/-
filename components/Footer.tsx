@@ -46,7 +46,15 @@ export default async function Footer({ locale }: { locale: string }) {
     "flex min-h-10 items-center text-sm text-muted transition-colors hover:text-orange";
 
   return (
-    <footer className="mt-10 border-t border-line bg-surface">
+    /**
+     * 🚫 لا فوتر على الجوّال — قرار صاحبة المتجر.
+     *
+     * روابطه تكرّر القائمة السفلية والقائمة الجانبية معاً، والشريط العائم
+     * يمرّ فوقها فتظهر مقصوصة. فصار الفوتر عبئاً على شاشة صغيرة لا خدمة.
+     * ولا يضيع شيء: السياسات والدعم في القائمة الجانبية، والتواصل في
+     * صفحة المساعدة. ويبقى الفوتر كاملاً على الشاشات الكبيرة (‏640px+).
+     */
+    <footer className="mt-10 hidden border-t border-line bg-surface sm:block">
       <div className="mx-auto max-w-5xl px-4 py-10">
         <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
           {/* العلامة */}
