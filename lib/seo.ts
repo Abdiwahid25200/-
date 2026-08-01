@@ -44,9 +44,14 @@ export async function pageMeta(
 ): Promise<Metadata> {
   const tp = await getTranslations({ locale, namespace: "pages" });
   const tm = await getTranslations({ locale, namespace: "meta" });
+  const td = await getTranslations({ locale, namespace: "pageDesc" });
 
   const title = `${tp(key)} · ${tm("brand")}`;
-  const desc = description ?? tm("description");
+
+  /* وصفٌ يخصّ الصفحة إن وُجد، وإلا وصف المتجر العام.
+     ⚠️ جوجل يعرض هذا السطر تحت العنوان في النتيجة — ووصفٌ واحد
+        مكرّر على كل الصفحات يجعلها تتنافس على الظهور بدل أن تتكامل. */
+  const desc = description ?? (td.has(key) ? td(key) : tm("description"));
 
   return {
     title,

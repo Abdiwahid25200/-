@@ -17,6 +17,8 @@
   --color-navy: var(--deep);
   --color-danger: var(--danger);
   --color-gold: var(--accent-2);
+  /* الأخضر الحيّ — «مفتوح الآن» وما شابهه. ينقلب مع الوضع كغيره */
+  --color-success: var(--accent-3);
 
   --color-bg: var(--bg);
   --color-surface: var(--surface);

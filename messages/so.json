@@ -1,7 +1,7 @@
 {
   "meta": {
-    "title": "KU SOO DHAWOW eramaan",
-    "description": "waxaad kaheli karta wax walbo oo gaming ah",
+    "title": "Ramaan Store — Buuxinta PUBG UC iyo eFootball Coins",
+    "description": "Iibso PUBG UC, lacagta eFootball, akoonnada eFootball iyo TikTok. Qiimo cad, gaarsiin daqiiqado gudahood, lacag-bixin maxalli iyo mid caalami ah.",
     "brand": "Ramaan Store",
     "keywords": "PUBG UC, buuxinta PUBG, lacagta eFootball, akoonnada eFootball, akoonnada TikTok, buuxinta ciyaaraha Soomaaliya, iibso UC, elektaroonig Muqdisho, Ramaan Store, buuxin degdeg ah"
   },
@@ -199,6 +199,14 @@
       "title": "Dalabyo dammaanad qaadan",
       "note": "Ama lacagtaada waa laguu celinayaa"
     }
+  },
+  "proof": {
+    "delivered": "{n} dalab oo la gaarsiiyay",
+    "avgHr": "Celcelis ahaan {n} saac",
+    "avgMin": "Celcelis ahaan {n} daqiiqo",
+    "openNow": "Hadda waa furan",
+    "opensAt": "Waxaan furaynaa {t}",
+    "closedNow": "Hadda waa xiran"
   },
   "hero": {
     "topup": "BUUXI",
@@ -573,5 +581,15 @@
     "hoursTitle": "Waqtiga shaqadu waa dhammaaday",
     "hoursNote": "Dalabyada waxaan qaadnaa {from} ilaa {to}.",
     "cannotOrder": "Dalabka hadda lama diri karo"
+  },
+  "pageDesc": {
+    "pubg": "Buuxi PUBG Mobile UC adigoo isticmaalaya ID-gaaga — hubi ID-ga ka hor lacag-bixinta, gaarsiin daqiiqado gudahood, qiimo cad.",
+    "efootball": "Lacagta eFootball ee ciyaartoyda Icons — ku buuxi ID-ga akoonkaaga oo hel daqiiqado gudahood, taageero WhatsApp.",
+    "tiktok": "Akoonno TikTok diyaar ah oo qiimahoodu muuqdo — wareejin ammaan ah iyo taageero toos ah haddii aad u baahato.",
+    "efootballAccounts": "Akoonno eFootball oo diyaar ah — faahfaahinta akoon kasta ka hor iibsashada, wareejin ammaan ah iyo taageero.",
+    "accounts": "Iibso akoonno TikTok iyo eFootball qiimo cad — faahfaahinta akoon kasta waa la tusayaa ka hor lacag-bixinta.",
+    "games": "Buuxinta ciyaaraha meel keliya: PUBG UC iyo lacagta eFootball — qiimo cad, gaarsiin degdeg ah, taageero WhatsApp.",
+    "help": "Sida dukaanku u shaqeeyo, habab lacag-bixin, su'aalaha badan la is weydiiyo, iyo siday noola soo xiriiri karaan.",
+    "policy": "Siyaasadaha celinta lacagta, qarsoodiga iyo isticmaalka — si cad loo qoray si aad u ogaato xuquuqdaada."
   }
 }

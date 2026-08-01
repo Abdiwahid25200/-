@@ -388,7 +388,10 @@ service cloud.firestore {
       allow write: if isAdmin()
         || (id == 'points' && staffCan('points'))
         || (id == 'faq' && staffCan('faq'))
-        || ((id == 'how' || id == 'policy') && staffCan('sections'));
+        || ((id == 'how' || id == 'policy') && staffCan('sections'))
+        /* عدّاد الثقة: يكتبه من يسلّم الطلبات، لأنه يُحدَّث لحظة التسليم.
+           ولا يُقرأ منه شيء خاص — عددٌ ومجموع دقائق لا أكثر. */
+        || (id == 'stats' && canDo('orders'));
       // ملاحظة: `settings/store` (أرقام التواصل) لصاحبة المتجر وحدها
     }
 

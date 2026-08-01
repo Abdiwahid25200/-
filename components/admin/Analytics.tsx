@@ -4,6 +4,13 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { allOrders, type AdminOrder } from "@/lib/adminOrders";
 import { readCosts, type Costs } from "@/lib/costs";
 import { pointsToUsd } from "@/lib/points";
+import {
+  MIN_ORDERS,
+  avgMinutes,
+  readStats,
+  recalcStats,
+  type PublicStats,
+} from "@/lib/stats";
 
 /**
  * التحليل — الأرقام التي تقول لكِ **هل المتجر رابح**، لا كم طلباً وصل.
@@ -216,9 +223,77 @@ export default function Analytics() {
               </ul>
             )}
           </section>
+
+          <TrustBarBox />
         </>
       )}
     </div>
+  );
+}
+
+/**
+ * شريط الثقة في الرئيسية — ما يراه الزائر، ومن أين يأتي.
+ *
+ * الأرقام في `settings/stats` تُحدَّث وحدها عند كل تسليم. وهذا الزرّ
+ * لمرّةٍ واحدة عند التشغيل: يعيد حسابها من الطلبات القديمة، فلا يبدأ
+ * العدّاد من صفرٍ وأنتِ قد سلّمتِ مئة طلب.
+ */
+function TrustBarBox() {
+  const [s, setS] = useState<PublicStats | null>(null);
+  const [busy, setBusy] = useState(false);
+
+  useEffect(() => {
+    void readStats().then(setS);
+  }, []);
+
+  async function recalc() {
+    setBusy(true);
+    const v = await recalcStats();
+    if (v) setS(v);
+    setBusy(false);
+  }
+
+  const done = s?.done ?? 0;
+  const avg = s ? avgMinutes(s) : 0;
+
+  return (
+    <section className="rounded-card border border-line bg-surface p-4">
+      <h3 className="font-bold">Trust bar on the home page</h3>
+      <p className="mt-1 text-sm text-muted">
+        Real numbers from your own orders. It stays hidden until you have{" "}
+        <strong className="num">{MIN_ORDERS}</strong> delivered orders — a small
+        number weakens trust instead of building it.
+      </p>
+
+      <div className="mt-3 grid grid-cols-2 gap-2">
+        <Box label="Delivered" value={String(done)} small />
+        <Box
+          label="Average delivery"
+          value={avg > 0 ? `${avg} min` : "—"}
+          small
+        />
+      </div>
+
+      <p className="mt-2 text-sm">
+        {done >= MIN_ORDERS ? (
+          <span className="text-orange">✓ Showing on the home page now.</span>
+        ) : (
+          <span className="text-muted">
+            Hidden — <strong className="num">{MIN_ORDERS - done}</strong> more
+            delivered orders to go.
+          </span>
+        )}
+      </p>
+
+      <button
+        type="button"
+        onClick={() => void recalc()}
+        disabled={busy}
+        className="mt-3 min-h-11 rounded-card border border-line px-4 text-sm font-bold disabled:opacity-50"
+      >
+        {busy ? "Counting…" : "Recount from old orders"}
+      </button>
+    </section>
   );
 }
 

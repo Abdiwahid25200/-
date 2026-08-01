@@ -25,6 +25,7 @@ import { fbDb } from "./firebase";
 import { withTimeout } from "./timeout";
 import type { SavedOrder } from "./orders";
 import { orderPoints, type PointsMap } from "./points";
+import { bumpDelivered } from "./stats";
 
 export type OrderStatus = SavedOrder["status"];
 
@@ -120,8 +121,12 @@ export async function setOrderStatus(
   const db = fbDb();
   if (!db) return { ok: false, reason: "no-db" };
 
+  /* عدّاد الثقة يُحدَّث **بعد** المعاملة لا داخلها: رقمُ عرضٍ لا يستحقّ
+     أن يُفشل تسليم طلب لو رُفضت كتابته أو تعثّرت. */
+  let delivered: { at: unknown } | null = null;
+
   try {
-    return await runTransaction(db, async (tx) => {
+    const res = await runTransaction(db, async (tx) => {
       const oRef = doc(db, "orders", orderId);
       const oSnap = await tx.get(oRef);
       if (!oSnap.exists()) return { ok: false as const, reason: "missing" };
@@ -133,6 +138,9 @@ export async function setOrderStatus(
 
       const awarded = Number(o.pointsAwarded) || 0;
       const spent = Number(o.pointsSpent) || 0;
+
+      // يُعدّ مرّة واحدة: عند **الانتقال** إلى التسليم لا عند كل حفظ
+      if (next === "done" && o.status !== "done") delivered = { at: o.createdAt };
 
       let delta = 0;
       let nextAwarded = awarded;
@@ -182,6 +190,9 @@ export async function setOrderStatus(
 
       return { ok: true as const, delta, balance: balance + delta };
     });
+
+    if (res.ok && delivered) await bumpDelivered((delivered as { at: unknown }).at);
+    return res;
   } catch {
     return { ok: false, reason: "error" };
   }

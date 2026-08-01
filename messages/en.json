@@ -1,7 +1,7 @@
 {
   "meta": {
-    "title": "KU SOO DHAWOW eramaan",
-    "description": "waxaad kaheli karta wax walbo oo gaming ah",
+    "title": "Ramaan Store — PUBG UC, eFootball Coins & Game Accounts",
+    "description": "Buy PUBG Mobile UC, eFootball coins, eFootball and TikTok accounts at clear prices with delivery in minutes. Local and international payment, WhatsApp support.",
     "brand": "Ramaan Store",
     "keywords": "PUBG UC, PUBG Mobile top up, eFootball coins, eFootball accounts, TikTok accounts, game top up Somalia, buy UC online, electronics Mogadishu, Ramaan Store, instant top up"
   },
@@ -199,6 +199,14 @@
       "title": "Guaranteed orders",
       "note": "Or your money back"
     }
+  },
+  "proof": {
+    "delivered": "{n} orders delivered",
+    "avgMin": "{n} min average delivery",
+    "avgHr": "{n} h average delivery",
+    "openNow": "Open now",
+    "opensAt": "Opens {t}",
+    "closedNow": "Closed right now"
   },
   "hero": {
     "topup": "TOP UP",
@@ -573,5 +581,15 @@
     "hoursTitle": "Outside working hours",
     "hoursNote": "We take orders from {from} to {to}. Order within that time and it is delivered right away.",
     "cannotOrder": "Orders cannot be sent right now"
+  },
+  "pageDesc": {
+    "pubg": "Top up PUBG Mobile UC with your player ID — verify the ID before paying, delivery in minutes, clear prices and no hidden fees.",
+    "efootball": "eFootball coins for Icons players — top up with your account ID and receive within minutes. Local or international payment, WhatsApp support.",
+    "tiktok": "Ready TikTok accounts at listed prices — safe handover, reviewed before you receive it, with direct support if you need it.",
+    "efootballAccounts": "Ready eFootball accounts with their squads — every account's details shown before you buy, safe handover and direct support.",
+    "accounts": "Buy TikTok and eFootball accounts at clear prices with a safe handover — every account's details shown before payment.",
+    "games": "Game top-ups in one place: PUBG UC and eFootball coins — clear prices, instant delivery and WhatsApp support.",
+    "help": "How the store works, payment methods, frequent questions and every way to reach us — before and after your order.",
+    "policy": "Refund, privacy and usage policies — written plainly so you know where you stand before and after buying."
   }
 }
