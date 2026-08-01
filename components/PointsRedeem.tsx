@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
 import { useAuth } from "@/lib/auth";
+import PointsBrand from "./PointsBrand";
 import {
   DEFAULT_POINTS,
   myPoints,
@@ -93,6 +94,7 @@ export default function PointsRedeem({ r }: { r: Redeem }) {
         onChange={(e) => r.setOn(e.target.checked)}
         className="size-5 shrink-0 accent-orange"
       />
+      <PointsBrand settings={r.settings} size={26} showName={false} />
       <span className="min-w-0 flex-1 leading-tight">
         <span className="block font-bold">{t("useTitle")}</span>
         <span className="block text-sm text-muted">

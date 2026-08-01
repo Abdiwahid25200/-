@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
 import { useAuth } from "@/lib/auth";
+import PointsBrand from "./PointsBrand";
 import {
   DEFAULT_POINTS,
   USD_PER_POINT,
@@ -83,9 +84,13 @@ export default function PointsCard() {
 
   return (
     <section id="points" className="scroll-mt-20 rounded-card border border-line bg-surface p-4">
-      <p className="text-[0.7rem] font-bold uppercase tracking-wide text-muted rtl:tracking-normal">
-        {t("eyebrow")}
-      </p>
+      {/* هويّة البرنامج: الشعار واسمه — لا كلمة «نقاط» مجرّدة */}
+      <div className="flex items-center justify-between gap-2">
+        <PointsBrand settings={settings} size={30} />
+        <span className="text-[0.7rem] font-bold uppercase tracking-wide text-muted rtl:tracking-normal">
+          {t("eyebrow")}
+        </span>
+      </div>
 
       <p className="mt-1 flex items-baseline gap-2">
         <span className="num text-3xl font-bold leading-none">{points}</span>

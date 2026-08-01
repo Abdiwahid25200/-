@@ -28,6 +28,15 @@ import { fbDb } from "./firebase";
 import { withTimeout } from "./timeout";
 import { readPackages, readProducts } from "./overrides";
 
+/**
+ * هويّة برنامج النقاط.
+ * برنامج الولاء اسمٌ يحفظه الزبون لا «نقاط» مجرّدة — فله اسمه وشعاره،
+ * ويظهران أينما ذُكرت النقاط. وكلاهما يُغيَّر من اللوحة.
+ */
+export const POINTS_BRAND = "Barwaaqo";
+export const POINTS_ICON = "/images/points/barwaaqo-icon.png";
+export const POINTS_WORDMARK = "/images/points/barwaaqo.png";
+
 /** قيمة النقطة الواحدة بالدولار — ١٠ نقاط = ٠٫١٠ دولار */
 export const USD_PER_POINT = 0.01;
 
@@ -59,6 +68,10 @@ export type PointsSettings = {
   sell: boolean;
   /** أقلّ شراء بالنقاط — ٢٥ نقطة = ٠٫٢٥ دولار */
   minBuy: number;
+  /** اسم البرنامج كما يراه الزبون */
+  brand: string;
+  /** شعاره — مسار في `public/` أو رابط مرفوع من اللوحة */
+  logo: string;
 };
 
 export const DEFAULT_POINTS: PointsSettings = {
@@ -68,6 +81,8 @@ export const DEFAULT_POINTS: PointsSettings = {
   showFrom: 0.15,
   sell: true,
   minBuy: 25,
+  brand: POINTS_BRAND,
+  logo: POINTS_ICON,
 };
 
 /**
@@ -88,6 +103,8 @@ export async function readPointsSettings(): Promise<PointsSettings> {
         v.showFrom === undefined ? DEFAULT_POINTS.showFrom : Number(v.showFrom) || 0,
       sell: typeof v.sell === "boolean" ? v.sell : DEFAULT_POINTS.sell,
       minBuy: Number(v.minBuy) || DEFAULT_POINTS.minBuy,
+      brand: (v.brand ?? "").trim() || DEFAULT_POINTS.brand,
+      logo: (v.logo ?? "").trim() || DEFAULT_POINTS.logo,
     };
   } catch {
     return DEFAULT_POINTS;

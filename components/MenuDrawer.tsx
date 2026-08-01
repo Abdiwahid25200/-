@@ -7,10 +7,11 @@ import { Link, usePathname } from "@/i18n/navigation";
 import { localeNames, routing, type Locale } from "@/i18n/routing";
 import { ThemeChoice } from "./ThemeToggle";
 import Logo from "./Logo";
-import { IconCart, IconDoc, IconMenu, IconSparkle, IconSupport, IconUser } from "./icons";
+import { IconCart, IconDoc, IconMenu, IconSupport, IconUser } from "./icons";
 import SectionIcon, { type SectionIconKey } from "./SectionIcon";
 import { sections } from "@/lib/content";
 import { customSections, readSections } from "@/lib/overrides";
+import { POINTS_BRAND, POINTS_ICON, readPointsSettings } from "@/lib/points";
 
 /**
  * الأقسام تُقرأ من الإعدادات — القسم الموقوف (off) لا يظهر بالقائمة.
@@ -39,7 +40,7 @@ const mine = [
   { key: "account", href: "/account", Icon: IconUser },
   // ينزلان إلى قسمهما في صفحة الحساب مباشرة بدل البحث عنه
   { key: "orders", href: "/account#orders", Icon: IconDoc },
-  { key: "points", href: "/account#points", Icon: IconSparkle },
+  // الشعار والاسم يأتيان من اللوحة عند الفتح — انظري `pts` أدناه
   { key: "cart", href: "/cart", Icon: IconCart },
 ] as const;
 
@@ -57,6 +58,8 @@ export default function MenuDrawer({ phone }: { phone?: string }) {
   >([]);
   /** الأقسام الأصلية بعد تطبيق صور اللوحة عليها */
   const [base, setBase] = useState(shop);
+  /** هويّة برنامج النقاط — اسمه وشعاره كما ضبطتهما صاحبة المتجر */
+  const [pts, setPts] = useState({ brand: POINTS_BRAND, logo: POINTS_ICON, on: true });
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => setMounted(true), []);
@@ -75,6 +78,10 @@ export default function MenuDrawer({ phone }: { phone?: string }) {
       setBase(
         shop.map((x) => ({ ...x, img: o[x.key]?.img || x.img })),
       ),
+    );
+
+    void readPointsSettings().then((v) =>
+      setPts({ brand: v.brand, logo: v.logo, on: v.on }),
     );
 
     void customSections().then((list) =>
@@ -203,7 +210,22 @@ export default function MenuDrawer({ phone }: { phone?: string }) {
 
             <nav className="flex flex-col gap-5 p-3">
               <Group title={t("shop")} items={[...base, ...added]} />
-              <Group title={t("mine")} items={mine} />
+              <Group
+                title={t("mine")}
+                items={
+                  pts.on
+                    ? [
+                        ...mine,
+                        {
+                          key: "points",
+                          href: "/account#points",
+                          img: pts.logo,
+                          label: pts.brand,
+                        },
+                      ]
+                    : mine
+                }
+              />
               <Group title={t("info")} items={info} />
 
               <div>

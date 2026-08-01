@@ -2,6 +2,8 @@
 
 import { useEffect, useState } from "react";
 import { saveOverride } from "@/lib/overrides";
+import ImagePicker from "./ImagePicker";
+import PointsBrand from "@/components/PointsBrand";
 import {
   DEFAULT_POINTS,
   USD_PER_POINT,
@@ -36,6 +38,8 @@ export default function PointsEditor() {
       showFrom: Math.max(0, Number(s.showFrom) || 0),
       sell: s.sell,
       minBuy: Math.max(1, Math.round(Number(s.minBuy) || 1)),
+      brand: s.brand.trim(),
+      logo: s.logo.trim(),
     });
     setBusy(false);
     setSaved(ok);
@@ -49,6 +53,31 @@ export default function PointsEditor() {
 
   return (
     <div className="flex flex-col gap-4">
+      {/* هويّة البرنامج — تظهر أينما ذُكرت النقاط في الموقع */}
+      <div className="flex items-center gap-3 rounded-card border border-line bg-surface p-3">
+        <PointsBrand settings={s} size={40} />
+        <span className="ms-auto text-xs text-muted">Shown to customers</span>
+      </div>
+
+      <label className="flex flex-col gap-1.5 text-sm">
+        <span className="font-bold">Programme name</span>
+        <input
+          value={s.brand}
+          onChange={(e) => setS({ ...s, brand: e.target.value })}
+          placeholder="Barwaaqo"
+          className={field}
+        />
+      </label>
+
+      <div className="flex flex-col gap-1.5 text-sm">
+        <span className="font-bold">Programme logo</span>
+        <ImagePicker
+          value={s.logo}
+          folder="points"
+          onChange={(url) => setS({ ...s, logo: url ?? "" })}
+        />
+      </div>
+
       <p className="rounded-card border border-dashed border-line p-3 text-sm text-muted">
         1 point = <strong className="num">${USD_PER_POINT.toFixed(2)}</strong> ·
         100 points = <strong className="num">$1.00</strong>
