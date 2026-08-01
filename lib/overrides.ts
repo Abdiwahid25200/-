@@ -10,7 +10,7 @@
  * `firestore.rules` لا هنا، فلا ينفع تجاوزه من المتصفّح.
  */
 
-import { collection, deleteDoc, doc, getDocs, setDoc } from "firebase/firestore";
+import { collection, deleteDoc, doc, getDoc, getDocs, setDoc } from "firebase/firestore";
 import { fbDb } from "./firebase";
 import type { Multilang } from "./content";
 
@@ -95,7 +95,7 @@ export const readProducts = () => readAll<ItemOverride>("products");
 
 /** حفظ تعديل — `merge` فلا يمحو حقلاً لم تلمسه صاحبة المتجر */
 export async function saveOverride(
-  col: "sections" | "packages" | "products" | "settings",
+  col: "sections" | "packages" | "products" | "settings" | "slides",
   id: string,
   data: Record<string, unknown>,
 ): Promise<boolean> {
@@ -120,7 +120,7 @@ export async function saveOverride(
  * يكون بالحالة `off` لا بالحذف.
  */
 export async function deleteOverride(
-  col: "sections" | "packages" | "products",
+  col: "sections" | "packages" | "products" | "slides",
   id: string,
 ): Promise<boolean> {
   const db = fbDb();
@@ -131,6 +131,110 @@ export async function deleteOverride(
   } catch {
     return false;
   }
+}
+
+/* ═══════════════════════════════════════════════════════════
+   بيانات المتجر — أرقام التواصل وساعات العمل
+   ═══════════════════════════════════════════════════════════ */
+
+export type SiteOverride = {
+  whatsapp?: string;
+  email?: string;
+  telegram?: string;
+  hours?: Partial<Multilang>;
+};
+
+/**
+ * بيانات المتجر بعد التعديل — `settings/store` يعلو `lib/content.ts`.
+ *
+ * ⚠️ لا يرمي خطأً أبداً: تعذّر القراءة ⇒ الأصل الثابت. صفحة الدعم
+ *    يجب ألّا تنكسر لأن وثيقة إعدادات غائبة أو الشبكة بطيئة.
+ */
+export async function mergedSite(): Promise<
+  typeof siteStatic & { hoursOf: (locale: string) => string }
+> {
+  const db = fbDb();
+  let o: SiteOverride = {};
+  if (db) {
+    try {
+      const snap = await Promise.race([
+        getDoc(doc(db, "settings", "store")),
+        new Promise<never>((_, rej) => setTimeout(() => rej(new Error("slow")), READ_MS)),
+      ]);
+      if (snap.exists()) o = snap.data() as SiteOverride;
+    } catch {
+      o = {};
+    }
+  }
+
+  return {
+    ...siteStatic,
+    whatsapp: o.whatsapp ?? siteStatic.whatsapp,
+    email: o.email ?? siteStatic.email,
+    telegram: o.telegram ?? siteStatic.telegram,
+    hoursOf: (locale: string) => pick(o.hours, locale, siteStatic.hours[locale as keyof typeof siteStatic.hours] ?? ""),
+  };
+}
+
+/* ═══════════════════════════════════════════════════════════
+   شرائح البانر
+   ═══════════════════════════════════════════════════════════ */
+
+export type SlideOverride = {
+  img?: string;
+  href?: string;
+  kicker?: Partial<Multilang>;
+  title?: Partial<Multilang>;
+  note?: Partial<Multilang>;
+  order?: number;
+  hidden?: boolean;
+  custom?: boolean;
+};
+
+export const readSlides = () => readAll<SlideOverride>("slides");
+
+/** شريحة جاهزة للعرض — النصّ المعدَّل يعلو الترجمة، وبلاه تبقى الترجمة */
+export type MergedSlide = {
+  key: string;
+  href: string;
+  img?: string;
+  kicker?: string;
+  title?: string;
+  note?: string;
+};
+
+/**
+ * شرائح البانر بعد الدمج، ثمّ ما أضافته صاحبة المتجر.
+ * الشريحة المضافة تحمل نصّها معها — لا مفتاح ترجمة لها في `messages`.
+ */
+export async function mergedSlides(locale: string): Promise<MergedSlide[]> {
+  const over = await readSlides();
+
+  const base: MergedSlide[] = staticSlides
+    .filter((s) => !over[s.key]?.hidden)
+    .map((s) => ({
+      key: s.key,
+      href: over[s.key]?.href || s.href,
+      img: over[s.key]?.img || s.img,
+      kicker: pick(over[s.key]?.kicker, locale, ""),
+      title: pick(over[s.key]?.title, locale, ""),
+      note: pick(over[s.key]?.note, locale, ""),
+    }));
+
+  const added: MergedSlide[] = Object.entries(over)
+    .filter(([key, o]) => o.custom === true && !staticSlides.some((s) => s.key === key) && !o.hidden)
+    .map(([key, o]) => ({
+      key,
+      href: o.href || "/",
+      img: o.img,
+      kicker: pick(o.kicker, locale, ""),
+      title: pick(o.title, locale, key),
+      note: pick(o.note, locale, ""),
+    }));
+
+  return [...base, ...added].sort(
+    (a, b) => (over[a.key]?.order ?? 99) - (over[b.key]?.order ?? 99),
+  );
 }
 
 /** يختار قيمة اللغة من التعديل، وإلا يرجع الأصل */
@@ -147,7 +251,12 @@ export function pick(
    الدمج — الأصل الثابت تعلوه تعديلات الإدارة
    ═══════════════════════════════════════════════════════════ */
 
-import { sections as staticSections, type Section } from "./content";
+import {
+  sections as staticSections,
+  site as siteStatic,
+  slides as staticSlides,
+  type Section,
+} from "./content";
 
 export type MergedSection = Section & {
   over?: SectionOverride;

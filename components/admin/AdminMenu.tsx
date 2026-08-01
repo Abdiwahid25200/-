@@ -25,6 +25,8 @@ export type AdminTab =
   | "customers"
   | "items"
   | "sections"
+  | "slides"
+  | "store"
   | "points"
   | "faq"
   | "staff";
@@ -35,6 +37,8 @@ const ICONS: Record<AdminTab, (p: { className?: string }) => React.ReactElement>
   customers: IconUser,
   items: IconDevice,
   sections: IconDoc,
+  slides: IconDevice,
+  store: IconUser,
   points: IconUser,
   faq: IconChat,
   staff: IconUser,

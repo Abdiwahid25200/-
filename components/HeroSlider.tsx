@@ -4,7 +4,7 @@ import Image from "next/image";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
-import type { Slide } from "@/lib/content";
+import type { MergedSlide } from "@/lib/overrides";
 import { optimizable } from "@/lib/img";
 
 /**
@@ -13,7 +13,12 @@ import { optimizable } from "@/lib/img";
  * بلا صور يظهر تدرّج بلون العلامة، فالبانر لا ينكسر قبل رفع الصور.
  * يتوقّف الدوران عند اللمس أو التركيز، ويحترم "تقليل الحركة" في الجهاز.
  */
-export default function HeroSlider({ slides }: { slides: Slide[] }) {
+/**
+ * ⚠️ `t.has` قبل كل ترجمة: الشريحة التي أضافتها صاحبة المتجر من اللوحة
+ *    لا مفتاح لها في `messages/*.json`، ونداء `t` بمفتاح غائب يرمي خطأً
+ *    فتسقط الصفحة الرئيسية كلّها. نصّها يأتي معها، والترجمة احتياطٌ.
+ */
+export default function HeroSlider({ slides }: { slides: MergedSlide[] }) {
   const t = useTranslations("slides");
   const [i, setI] = useState(0);
   const [paused, setPaused] = useState(false);
@@ -102,12 +107,12 @@ export default function HeroSlider({ slides }: { slides: Slide[] }) {
 
               <div className="relative flex flex-col items-start gap-2">
                 <p className="text-[0.7rem] font-bold uppercase tracking-[0.18em] text-white/85 rtl:tracking-normal">
-                  {t(`${s.key}.kicker`)}
+                  {s.kicker || (t.has(`${s.key}.kicker`) ? t(`${s.key}.kicker`) : "")}
                 </p>
                 <h2 className="text-2xl font-bold leading-tight text-balance text-white sm:text-3xl">
-                  {t(`${s.key}.title`)}
+                  {s.title || (t.has(`${s.key}.title`) ? t(`${s.key}.title`) : s.key)}
                 </h2>
-                <p className="text-sm text-white/85">{t(`${s.key}.note`)}</p>
+                <p className="text-sm text-white/85">{s.note || (t.has(`${s.key}.note`) ? t(`${s.key}.note`) : "")}</p>
                 <Link
                   href={s.href}
                   className="mt-1.5 flex min-h-12 items-center rounded-card bg-surface px-5 font-bold text-text transition-opacity hover:opacity-90"

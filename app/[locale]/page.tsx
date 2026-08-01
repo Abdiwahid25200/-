@@ -2,7 +2,7 @@ import { getTranslations, setRequestLocale } from "next-intl/server";
 import HeroSlider from "@/components/HeroSlider";
 import ProductCard from "@/components/ProductCard";
 import { IconDevice } from "@/components/icons";
-import { slides } from "@/lib/content";
+import { mergedSlides } from "@/lib/overrides";
 import { mergedItems } from "@/lib/items";
 
 /**
@@ -31,7 +31,7 @@ export default async function Home({
 
   return (
     <main className="seq page-w flex flex-col gap-9 px-4 py-6">
-      <HeroSlider slides={slides} />
+      <HeroSlider slides={await mergedSlides(locale)} />
 
       <section>
         <div className="coast-glow mb-3.5 flex flex-col gap-1">

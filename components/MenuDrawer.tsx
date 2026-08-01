@@ -10,7 +10,7 @@ import Logo from "./Logo";
 import { IconCart, IconDoc, IconMenu, IconSupport, IconUser } from "./icons";
 import SectionIcon, { type SectionIconKey } from "./SectionIcon";
 import { sections } from "@/lib/content";
-import { customSections } from "@/lib/overrides";
+import { customSections, readSections } from "@/lib/overrides";
 
 /**
  * الأقسام تُقرأ من الإعدادات — القسم الموقوف (off) لا يظهر بالقائمة.
@@ -27,7 +27,12 @@ const shop = [
       icon: s.icon as SectionIconKey,
       img: s.img,
     })),
-  { key: "games", href: "/games", icon: "games" as SectionIconKey },
+  {
+    key: "games",
+    href: "/games",
+    icon: "games" as SectionIconKey,
+    img: undefined as string | undefined,
+  },
 ];
 
 const mine = [
@@ -47,6 +52,8 @@ export default function MenuDrawer({ phone }: { phone?: string }) {
   const [added, setAdded] = useState<
     { key: string; href: string; icon: SectionIconKey; img?: string; label: string }[]
   >([]);
+  /** الأقسام الأصلية بعد تطبيق صور اللوحة عليها */
+  const [base, setBase] = useState(shop);
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => setMounted(true), []);
@@ -57,6 +64,16 @@ export default function MenuDrawer({ phone }: { phone?: string }) {
    */
   useEffect(() => {
     if (!open || added.length) return;
+
+    /* ⚠️ نقرأ التعديلات مرّةً واحدة لغرضين: صور الأقسام **الأصلية**
+       (كانت تُقرأ من الملفات فلا تظهر الصورة التي رفعتها من اللوحة)،
+       والأقسام المضافة كلّها. */
+    void readSections().then((o) =>
+      setBase(
+        shop.map((x) => ({ ...x, img: o[x.key]?.img || x.img })),
+      ),
+    );
+
     void customSections().then((list) =>
       setAdded(
         list
@@ -182,7 +199,7 @@ export default function MenuDrawer({ phone }: { phone?: string }) {
             </div>
 
             <nav className="flex flex-col gap-5 p-3">
-              <Group title={t("shop")} items={[...shop, ...added]} />
+              <Group title={t("shop")} items={[...base, ...added]} />
               <Group title={t("mine")} items={mine} />
               <Group title={t("info")} items={info} />
 

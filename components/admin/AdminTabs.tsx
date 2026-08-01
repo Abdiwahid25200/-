@@ -9,6 +9,8 @@ import OrdersEditor from "./OrdersEditor";
 import PointsEditor from "./PointsEditor";
 import CustomersEditor from "./CustomersEditor";
 import StaffEditor from "./StaffEditor";
+import SlidesEditor from "./SlidesEditor";
+import SiteEditor from "./SiteEditor";
 import { useAccess } from "@/lib/adminAccess";
 import type { Perm } from "@/lib/staff";
 
@@ -24,6 +26,8 @@ const TABS: { v: AdminTab; label: string; perm?: Perm; owner?: boolean }[] = [
   { v: "customers", label: "Customers", perm: "customers" },
   { v: "items", label: "Products", perm: "products" },
   { v: "sections", label: "Sections", perm: "sections" },
+  { v: "slides", label: "Banner", perm: "sections" },
+  { v: "store", label: "Store info", owner: true },
   { v: "points", label: "Points", perm: "points" },
   { v: "faq", label: "Q&A", perm: "faq" },
   // المساعدون: لصاحبة المتجر وحدها — ولو رآه مساعد لمنح نفسه كل شيء
@@ -80,6 +84,10 @@ export default function AdminTabs() {
         <ItemsEditor />
       ) : current === "sections" ? (
         <SectionsEditor />
+      ) : current === "slides" ? (
+        <SlidesEditor />
+      ) : current === "store" ? (
+        <SiteEditor />
       ) : current === "points" ? (
         <PointsEditor />
       ) : current === "staff" ? (
