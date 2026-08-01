@@ -1,9 +1,13 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import { useAuth } from "@/lib/auth";
+import { useAccess } from "@/lib/adminAccess";
 import {
   allOrders,
+  claimOrder,
   customerOf,
+  releaseOrder,
   setOrderStatus,
   type AdminOrder,
   type Customer,
@@ -47,6 +51,11 @@ const fmtDate = (d: Date | null) =>
   d ? d.toLocaleString("en-GB", { dateStyle: "short", timeStyle: "short" }) : "—";
 
 export default function OrdersEditor() {
+  const { user } = useAuth();
+  const access = useAccess();
+  const owner = access.role === "owner";
+  const me = (user?.email ?? "").toLowerCase();
+
   const [orders, setOrders] = useState<AdminOrder[] | null>(null);
   const [filter, setFilter] = useState<(typeof FILTERS)[number]["v"]>("pending");
   const [open, setOpen] = useState<string | null>(null);
@@ -91,6 +100,29 @@ export default function OrdersEditor() {
     }
   }
 
+  /** قبول الطلب — يحجزه باسمي فيختفي من قوائم بقيّة المساعدين */
+  async function accept(o: AdminOrder) {
+    setBusy(o.id);
+    const r = await claimOrder(o.id, me, user?.displayName ?? me);
+    setBusy(null);
+    if (!r.ok) {
+      setNote(r.takenBy ? `Already accepted by ${r.takenBy}` : "Could not accept");
+      void load();
+      return;
+    }
+    setNote("You accepted this order — it is yours now.");
+    void load();
+  }
+
+  /** فكّ الحجز — لصاحبة المتجر حين يتعثّر المساعد أو يغيب */
+  async function release(o: AdminOrder) {
+    setBusy(o.id);
+    await releaseOrder(o.id);
+    setBusy(null);
+    setNote("Released — any helper can accept it now.");
+    void load();
+  }
+
   async function move(o: AdminOrder, next: OrderStatus) {
     setBusy(o.id);
     setNote(null);
@@ -116,9 +148,16 @@ export default function OrdersEditor() {
     );
   }
 
-  const shown = (orders ?? []).filter(
-    (o) => filter === "all" || o.status === filter,
-  );
+  /**
+   * ⚠️ **المساعد لا يرى ما قَبِله غيره.** بدون هذا يفتح اثنان الطلب
+   *    نفسه فيشحنه كلاهما. وصاحبة المتجر ترى الكل ومعه اسم من قبله.
+   */
+  const shown = (orders ?? [])
+    .filter((o) => filter === "all" || o.status === filter)
+    .filter((o) => {
+      const c = String(o.claimedBy ?? "").toLowerCase();
+      return owner || !c || c === me;
+    });
 
   const chip =
     "min-h-10 rounded-full border px-3 text-sm font-bold transition-colors";
@@ -204,12 +243,21 @@ export default function OrdersEditor() {
                 <span className="num shrink-0 font-bold">
                   ${Number(o.total ?? 0).toFixed(2)}
                 </span>
-                <span
-                  className={`shrink-0 rounded-full px-2 py-1 text-[0.7rem] font-bold uppercase ${
-                    STATUS_STYLE[o.status] ?? ""
-                  }`}
-                >
-                  {o.status}
+                <span className="flex shrink-0 flex-col items-end gap-1">
+                  <span
+                    className={`rounded-full px-2 py-1 text-[0.7rem] font-bold uppercase ${
+                      STATUS_STYLE[o.status] ?? ""
+                    }`}
+                  >
+                    {o.status}
+                  </span>
+                  {o.claimedBy && (
+                    <span className="max-w-24 truncate text-[0.65rem] text-muted">
+                      {String(o.claimedBy).toLowerCase() === me
+                        ? "yours"
+                        : o.claimedName || o.claimedBy}
+                    </span>
+                  )}
                 </span>
               </button>
 
@@ -317,10 +365,41 @@ export default function OrdersEditor() {
                     </p>
                   )}
 
+                  {/* القبول أوّلاً: لا يعمل مساعدٌ على طلبٍ لم يقبله */}
+                  {!o.claimedBy ? (
+                    <button
+                      type="button"
+                      disabled={busy === o.id}
+                      onClick={() => void accept(o)}
+                      className="min-h-12 rounded-card bg-orange px-3 font-bold text-onaccent disabled:opacity-50"
+                    >
+                      Accept this order
+                    </button>
+                  ) : (
+                    <p className="flex flex-wrap items-center gap-2 rounded-card border border-line p-2.5 text-sm">
+                      <span className="text-muted">Accepted by</span>
+                      <strong>
+                        {String(o.claimedBy).toLowerCase() === me
+                          ? "you"
+                          : o.claimedName || o.claimedBy}
+                      </strong>
+                      {owner && (
+                        <button
+                          type="button"
+                          disabled={busy === o.id}
+                          onClick={() => void release(o)}
+                          className="ms-auto min-h-9 rounded-card border border-line px-3 text-sm font-bold text-danger"
+                        >
+                          Release
+                        </button>
+                      )}
+                    </p>
+                  )}
+
                   <div className="flex flex-wrap gap-2">
                     <button
                       type="button"
-                      disabled={busy === o.id || o.status === "paid"}
+                      disabled={busy === o.id || o.status === "paid" || (!owner && !o.claimedBy)}
                       onClick={() => void move(o, "paid")}
                       className={btn}
                     >
@@ -328,7 +407,7 @@ export default function OrdersEditor() {
                     </button>
                     <button
                       type="button"
-                      disabled={busy === o.id || o.status === "done"}
+                      disabled={busy === o.id || o.status === "done" || (!owner && !o.claimedBy)}
                       onClick={() => void move(o, "done")}
                       className={btn}
                     >
@@ -336,7 +415,11 @@ export default function OrdersEditor() {
                     </button>
                     <button
                       type="button"
-                      disabled={busy === o.id || (o.status === "cancelled" && !unsettled)}
+                      disabled={
+                        busy === o.id ||
+                        (o.status === "cancelled" && !unsettled) ||
+                        (!owner && !o.claimedBy)
+                      }
                       onClick={() => void move(o, "cancelled")}
                       className={`${btn} text-danger`}
                     >

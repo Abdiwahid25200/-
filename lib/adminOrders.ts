@@ -36,6 +36,13 @@ export type AdminOrder = SavedOrder & {
   pointsSpent?: number;
   /** طلبُ شراء نقاط */
   buyPoints?: number;
+
+  /* ── الحجز ──
+     بريد من قَبِل الطلب. ما إن يُحجز حتى يختفي من قوائم بقيّة
+     المساعدين، فلا يعمل اثنان على طلبٍ واحد ولا يُشحن مرّتين. */
+  claimedBy?: string;
+  claimedName?: string;
+  claimedAt?: unknown;
 };
 
 /**
@@ -209,5 +216,59 @@ export async function adjustPoints(
     });
   } catch {
     return { ok: false, reason: "error" };
+  }
+}
+
+/**
+ * قبول الطلب — يحجزه باسم من قبله.
+ *
+ * ⚠️ الخطر الحقيقي في متجرٍ فيه مساعدون: يفتح اثنان الطلب نفسه فيشحنه
+ *    كلاهما، فتخسرين شحنةً كاملة. الحجز يمنع ذلك، **والقواعد تمنعه عند
+ *    الخادم** لا في الواجهة وحدها: من حُجز الطلب لغيره لا يستطيع تعديله.
+ *
+ * ونقرأ الوثيقة داخل المعاملة قبل الكتابة، فلو ضغط اثنان في اللحظة
+ * نفسها فاز الأوّل وحده.
+ */
+export async function claimOrder(
+  orderId: string,
+  email: string,
+  name: string,
+): Promise<{ ok: true } | { ok: false; takenBy?: string }> {
+  const db = fbDb();
+  if (!db || !email) return { ok: false };
+
+  try {
+    return await runTransaction(db, async (tx) => {
+      const ref = doc(db, "orders", orderId);
+      const snap = await tx.get(ref);
+      const cur = String((snap.data() as AdminOrder | undefined)?.claimedBy ?? "");
+
+      if (cur && cur !== email) return { ok: false as const, takenBy: cur };
+
+      tx.update(ref, {
+        claimedBy: email,
+        claimedName: name || email,
+        claimedAt: serverTimestamp(),
+      });
+      return { ok: true as const };
+    });
+  } catch {
+    return { ok: false };
+  }
+}
+
+/** فكّ الحجز — لصاحبة المتجر، حين يغيب المساعد أو يتعثّر */
+export async function releaseOrder(orderId: string): Promise<boolean> {
+  const db = fbDb();
+  if (!db) return false;
+  try {
+    const { updateDoc } = await import("firebase/firestore");
+    await updateDoc(doc(db, "orders", orderId), {
+      claimedBy: "",
+      claimedName: "",
+    });
+    return true;
+  } catch {
+    return false;
   }
 }

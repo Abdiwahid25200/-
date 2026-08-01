@@ -15,6 +15,7 @@ import PaymentsEditor from "./PaymentsEditor";
 import TextsEditor from "./TextsEditor";
 import Analytics from "./Analytics";
 import RecycleBin from "./RecycleBin";
+import Report from "./Report";
 import { useAccess } from "@/lib/adminAccess";
 import type { Perm } from "@/lib/staff";
 
@@ -37,6 +38,7 @@ const GROUPS: { label: string; items: Item[] }[] = [
       { v: "orders", label: "Orders", perm: "orders" },
       { v: "customers", label: "Customers", perm: "customers" },
       { v: "analytics", label: "Analytics", owner: true },
+      { v: "report", label: "Report", owner: true },
     ],
   },
   {
@@ -106,6 +108,8 @@ export default function AdminTabs() {
         <CustomersEditor />
       ) : current === "analytics" ? (
         <Analytics />
+      ) : current === "report" ? (
+        <Report />
       ) : current === "items" ? (
         <ItemsEditor />
       ) : current === "sections" ? (

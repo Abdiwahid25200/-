@@ -181,8 +181,17 @@ service cloud.firestore {
           && d.get('usePoints', 0) == o.get('usePoints', 0);
       }
 
+      /* ── احترام الحجز ──
+         ⚠️ لولا هذا لَفتح مساعدان الطلب نفسه فشحنه كلاهما. من حُجز
+            الطلب لغيره لا يعدّله — إلا صاحبة المتجر، فهي ترى الكل
+            وتفكّ الحجز عند الحاجة. */
+      function claimOk() {
+        let c = resource.data.get('claimedBy', '');
+        return isAdmin() || c == '' || c == request.auth.token.email;
+      }
+
       // الحالة والسعر بيد الإدارة — والزبون لا يملك إلا الإلغاء أعلاه
-      allow update: if canDo('orders')
+      allow update: if (canDo('orders') && claimOk())
         || (isSignedIn() && validCustomerCancel());
 
       allow delete: if canDo('orders');
