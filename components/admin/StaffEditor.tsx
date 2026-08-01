@@ -12,6 +12,7 @@ import {
   type StaffDoc,
 } from "@/lib/staff";
 import { useAuth } from "@/lib/auth";
+import { createStaffLogin, toStaffEmail } from "@/lib/staffAuth";
 
 /**
  * المساعدون — تُعطى الصلاحية **للبريد** فيعمل قبل أوّل دخول له.
@@ -26,6 +27,8 @@ export default function StaffEditor() {
   const { user } = useAuth();
   const [rows, setRows] = useState<(StaffDoc & { id: string })[] | null>(null);
   const [email, setEmail] = useState("");
+  const [userName, setUserName] = useState("");
+  const [pass, setPass] = useState("");
   const [busy, setBusy] = useState<string | null>(null);
   const [note, setNote] = useState<string | null>(null);
 
@@ -55,6 +58,51 @@ export default function StaffEditor() {
     if (!ok) return setNote("Could not save — check your access.");
     setEmail("");
     setNote(`${id} added — orders only for now.`);
+    void load();
+  }
+
+  /**
+   * حسابٌ باسم وكلمة سرّ — للمساعد الذي لا يملك جوجل أو لا تريدين ربطه به.
+   * يُصنع الحساب ثم تُفتح له أبوابه، فيدخل من `/admin` باسمه فقط.
+   */
+  async function makeLogin() {
+    const u = userName.trim();
+    if (!u || pass.length < 6) {
+      setNote("Pick a username and a password of at least 6 characters.");
+      return;
+    }
+    const id = toStaffEmail(u);
+    if ((rows ?? []).some((r) => r.id === id)) {
+      setNote("This username is already on the list.");
+      return;
+    }
+
+    setBusy("login");
+    const made = await createStaffLogin(u, pass);
+
+    if (!made.ok) {
+      setBusy(null);
+      setNote(
+        made.reason === "taken"
+          ? "That username is taken — pick another."
+          : made.reason === "weak"
+            ? "Password too short — at least 6 characters."
+            : "Could not create the login. Check your connection.",
+      );
+      return;
+    }
+
+    const ok = await saveStaff(made.email, {
+      email: made.email,
+      active: true,
+      can: { orders: true },
+    });
+    setBusy(null);
+    if (!ok) return setNote("Login created, but saving the permissions failed.");
+
+    setNote(`Done — ${u} signs in at /admin with the password you set.`);
+    setUserName("");
+    setPass("");
     void load();
   }
 
@@ -119,6 +167,54 @@ export default function StaffEditor() {
         >
           {busy === "new" ? "Adding…" : "Add helper"}
         </button>
+      </div>
+
+      <div className="flex flex-col gap-2 rounded-card border border-line bg-surface p-3">
+        <p className="font-bold">Create a username &amp; password</p>
+        <p className="text-sm text-muted">
+          For a helper with no Google account. They sign in at{" "}
+          <strong>/admin</strong> with the username only.
+        </p>
+        <div className="flex flex-wrap gap-2">
+          <input
+            value={userName}
+            onChange={(e) => setUserName(e.target.value)}
+            placeholder="Username"
+            dir="ltr"
+            autoCapitalize="none"
+            autoCorrect="off"
+            spellCheck={false}
+            className={`${field} min-w-32 flex-1`}
+          />
+          <input
+            value={pass}
+            onChange={(e) => setPass(e.target.value)}
+            placeholder="Password"
+            type="text"
+            dir="ltr"
+            autoCapitalize="none"
+            autoCorrect="off"
+            spellCheck={false}
+            className={`${field} min-w-32 flex-1`}
+          />
+        </div>
+        {userName.trim() && (
+          <p className="num text-xs text-muted" dir="ltr">
+            {toStaffEmail(userName)}
+          </p>
+        )}
+        <button
+          type="button"
+          onClick={() => void makeLogin()}
+          disabled={busy === "login" || !userName.trim() || pass.length < 6}
+          className="min-h-12 rounded-card bg-orange px-4 font-bold text-onaccent disabled:opacity-50"
+        >
+          {busy === "login" ? "Creating…" : "Create login"}
+        </button>
+        <p className="text-xs text-muted">
+          Write the password down — it cannot be read again. To change it,
+          remove the helper and create a new username.
+        </p>
       </div>
 
       {note && (

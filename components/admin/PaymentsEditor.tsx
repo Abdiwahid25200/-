@@ -9,6 +9,7 @@ import {
   toNumbers,
   type PayOverride,
 } from "@/lib/payments";
+import ImagePicker from "./ImagePicker";
 import { IconCheckCircle, IconSpinner } from "@/components/icons";
 
 const STATUSES = [
@@ -209,6 +210,16 @@ export default function PaymentsEditor() {
 
             {isOpen && !d.hidden && (
               <div className="flex flex-col gap-4 border-t border-line p-4">
+                {/* شعار الخدمة — يحلّ محلّ العلامة المرسومة حين يوجد */}
+                <div className="flex flex-col gap-1.5 text-sm">
+                  <span className="font-medium">Logo</span>
+                  <ImagePicker
+                    value={d.logo ?? x.base?.logo}
+                    folder="pay"
+                    onChange={(url) => edit(x.id, { logo: url ?? "" })}
+                  />
+                </div>
+
                 <label className="flex flex-col gap-1.5 text-sm">
                   <span className="font-medium">Status</span>
                   <select

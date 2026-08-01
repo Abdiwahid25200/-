@@ -365,7 +365,8 @@
       "efootball": "We review your order, then top up your account manually.",
       "tiktok": "We message you on WhatsApp to hand over the account details.",
       "accounts": "We message you on WhatsApp to hand over the account details.",
-      "elec": "Your order ships to the address you entered."
+      "elec": "Your order ships to the address you entered.",
+      "points": "Your points are added to your balance as soon as we confirm the payment."
     },
     "done": {
       "toppedUp": "Topped up",

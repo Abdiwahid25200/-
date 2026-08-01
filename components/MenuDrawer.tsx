@@ -39,7 +39,7 @@ const shop = [
 const mine = [
   { key: "account", href: "/account", Icon: IconUser },
   // ينزلان إلى قسمهما في صفحة الحساب مباشرة بدل البحث عنه
-  { key: "orders", href: "/account#orders", Icon: IconDoc },
+  { key: "orders", href: "/orders", Icon: IconDoc },
   // الشعار والاسم يأتيان من اللوحة عند الفتح — انظري `pts` أدناه
   { key: "cart", href: "/cart", Icon: IconCart },
 ] as const;
@@ -218,7 +218,7 @@ export default function MenuDrawer({ phone }: { phone?: string }) {
                         ...mine,
                         {
                           key: "points",
-                          href: "/account#points",
+                          href: "/points",
                           img: pts.logo,
                           label: pts.brand,
                         },

@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import { useAuth } from "@/lib/auth";
+import PointsBrand from "./PointsBrand";
 import { cancelMyOrder, canCancel } from "@/lib/orders";
 import { fmt } from "@/lib/format";
 import { wa } from "@/lib/data";
@@ -41,6 +42,8 @@ const kinds = {
   tiktok: { Icon: IconMusic, page: "tiktok", done: "handedOver" },
   accounts: { Icon: IconBall, page: "efootballAccounts", done: "handedOver" },
   elec: { Icon: IconDevice, page: "electronics", done: "shipped" },
+  // شراء نقاط — كان يظهر «إلكترونيات» بأيقونة جهاز، وهو ليس منتجاً أصلاً
+  points: { Icon: IconDevice, page: "points", done: "toppedUp" },
 } as const;
 
 type KindKey = keyof typeof kinds;
@@ -78,6 +81,7 @@ export default function OrderCard({
 
   const kind = (order.kind in kinds ? order.kind : "elec") as KindKey;
   const { Icon, page, done: doneKey } = kinds[kind];
+  const isPoints = kind === "points";
 
   const cancelled = order.status === "cancelled";
   const at = STEPS.indexOf(order.status as (typeof STEPS)[number]);
@@ -99,7 +103,7 @@ export default function OrderCard({
             done ? "bg-yellow/15 text-yellow" : "bg-orange/10 text-orange"
           }`}
         >
-          <Icon className="size-6" />
+          {isPoints ? <PointsBrand size={26} showName={false} /> : <Icon className="size-6" />}
         </span>
 
         <span className="min-w-0 flex-1 leading-tight">
