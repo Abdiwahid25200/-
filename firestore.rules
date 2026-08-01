@@ -143,8 +143,34 @@ service cloud.firestore {
 
       allow create: if isSignedIn() && validNewOrder();
 
-      // بعد الإنشاء لا يملك الزبون تعديل شيء — الحالة والسعر بيد الإدارة
-      allow update, delete: if canDo('orders');
+      /* ── إلغاء الزبون طلبَه ──
+         يُسمح له بتغيير واحد لا غير: الحالة إلى `cancelled` مع سببٍ
+         مكتوب، وقبل التسليم فقط. وما عدا ذلك يبقى كما هو — لا يمسّ
+         مبلغاً ولا أصنافاً ولا نقاطاً ولا يُحيي طلباً ألغاه. */
+      function validCustomerCancel() {
+        let d = request.resource.data;
+        let o = resource.data;
+        return o.uid == request.auth.uid
+          && o.status != 'done' && o.status != 'cancelled'
+          && d.status == 'cancelled'
+          && d.cancelReason is string
+          && d.cancelReason.size() >= 3
+          && d.cancelReason.size() <= 300
+          && d.cancelledBy == 'customer'
+          && d.uid == o.uid
+          && d.code == o.code
+          && d.total == o.total
+          && d.items == o.items
+          && d.get('pointsAwarded', 0) == o.get('pointsAwarded', 0)
+          && d.get('pointsSpent', 0) == o.get('pointsSpent', 0)
+          && d.get('usePoints', 0) == o.get('usePoints', 0);
+      }
+
+      // الحالة والسعر بيد الإدارة — والزبون لا يملك إلا الإلغاء أعلاه
+      allow update: if canDo('orders')
+        || (isSignedIn() && validCustomerCancel());
+
+      allow delete: if canDo('orders');
 
       /* بيانات التسليم الحسّاسة — كلمات مرور الحسابات المُباعة وما شابه.
          الأدمن فقط. تُسلَّم للزبون عبر واتساب لا عبر الموقع. */

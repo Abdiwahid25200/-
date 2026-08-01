@@ -1,6 +1,9 @@
 "use client";
 
+import { useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
+import { useAuth } from "@/lib/auth";
+import { cancelMyOrder, canCancel } from "@/lib/orders";
 import { fmt } from "@/lib/format";
 import { wa } from "@/lib/data";
 import type { SavedOrder } from "@/lib/orders";
@@ -45,7 +48,30 @@ type KindKey = keyof typeof kinds;
 /** مراحل الطلب — الملغى خارجها فيُعرض وحده */
 const STEPS = ["pending", "paid", "done"] as const;
 
-export default function OrderCard({ order }: { order: SavedOrder }) {
+export default function OrderCard({
+  order,
+  onChanged,
+}: {
+  order: SavedOrder;
+  /** يُنادى بعد الإلغاء ليُعاد تحميل الطلبات */
+  onChanged?: () => void;
+}) {
+  const { user } = useAuth();
+  const [asking, setAsking] = useState(false);
+  const [reason, setReason] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [failed, setFailed] = useState(false);
+
+  async function cancel() {
+    setBusy(true);
+    setFailed(false);
+    const ok = await cancelMyOrder(user, order.id, reason);
+    setBusy(false);
+    if (!ok) return setFailed(true);
+    setAsking(false);
+    onChanged?.();
+  }
+
   const t = useTranslations("accountPage");
   const tp = useTranslations("pages");
   const locale = useLocale();
@@ -92,6 +118,11 @@ export default function OrderCard({ order }: { order: SavedOrder }) {
       {cancelled ? (
         <p className="mt-3 rounded-card bg-bg px-3 py-2 text-sm font-medium text-muted">
           {t("status.cancelled")}
+          {order.cancelReason && (
+            <span className="mt-1 block font-normal">
+              {t("cancelReason", { reason: order.cancelReason })}
+            </span>
+          )}
         </p>
       ) : (
         <ol className="mt-3.5 flex items-center gap-1.5">
@@ -164,6 +195,55 @@ export default function OrderCard({ order }: { order: SavedOrder }) {
           {t(`next.${kind}`)}
         </p>
       )}
+
+      {/* الإلغاء — ما دام الطلب لم يصل صاحبه بعد، وبسببٍ مكتوب */}
+      {canCancel(order) &&
+        (asking ? (
+          <div className="mt-3 flex flex-col gap-2 rounded-card border border-line p-3">
+            <label className="text-sm font-bold" htmlFor={`why-${order.id}`}>
+              {t("cancelWhy")}
+            </label>
+            <textarea
+              id={`why-${order.id}`}
+              value={reason}
+              onChange={(e) => setReason(e.target.value)}
+              rows={2}
+              maxLength={300}
+              placeholder={t("cancelPlaceholder")}
+              className="w-full rounded-card border border-line bg-bg p-3 text-sm outline-none focus:border-orange"
+            />
+            {failed && <p className="text-sm text-danger">{t("cancelError")}</p>}
+            {reason.trim().length < 3 && (
+              <p className="text-sm text-muted">{t("cancelHint")}</p>
+            )}
+            <div className="flex flex-wrap gap-2">
+              <button
+                type="button"
+                disabled={busy || reason.trim().length < 3}
+                onClick={() => void cancel()}
+                className="min-h-11 flex-1 rounded-card bg-danger px-3 font-bold text-white disabled:opacity-50"
+              >
+                {t("cancelConfirm")}
+              </button>
+              <button
+                type="button"
+                disabled={busy}
+                onClick={() => setAsking(false)}
+                className="min-h-11 flex-1 rounded-card border border-line px-3 font-bold"
+              >
+                {t("cancelBack")}
+              </button>
+            </div>
+          </div>
+        ) : (
+          <button
+            type="button"
+            onClick={() => setAsking(true)}
+            className="mt-3 min-h-11 w-full rounded-card border border-line text-sm font-bold text-danger transition-colors hover:border-danger"
+          >
+            {t("cancel")}
+          </button>
+        ))}
 
       <div className="mt-3 flex flex-wrap items-center gap-2">
         {order.createdAt && (

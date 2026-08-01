@@ -341,6 +341,15 @@
       "cancelled": "Cancelled"
     },
     "completeProfile": "Complete your registration →",
+    "cancel": "Cancel order",
+    "cancelWhy": "Why are you cancelling?",
+    "cancelPlaceholder": "Tell us briefly why",
+    "cancelConfirm": "Confirm cancellation",
+    "cancelBack": "Keep order",
+    "cancelHint": "A reason is required to cancel",
+    "cancelError": "Could not cancel. Please try again.",
+    "cancelReason": "Reason: {reason}",
+    "cancelNote": "You can cancel until the order is delivered",
     "askAbout": "Ask about this order",
     "next": {
       "pubg": "Your UC lands on the player ID above — usually within minutes.",

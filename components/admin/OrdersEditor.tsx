@@ -178,6 +178,12 @@ export default function OrdersEditor() {
         shown.map((o) => {
           const who = people[o.uid];
           const due = orderPoints(o.items ?? [], map, settings.perItem);
+          /* أُلغي الطلب ونقاطه لم تُسوَّ بعد — يحدث حين يُلغي الزبون
+             بنفسه: هو لا يملك رصيده، فالتسوية بضغطة منكِ هنا. */
+          const unsettled =
+            o.status === "cancelled" &&
+            ((Number(o.pointsAwarded) || 0) > 0 ||
+              (Number(o.pointsSpent) || 0) > 0);
 
           return (
             <article
@@ -224,6 +230,16 @@ export default function OrdersEditor() {
                         <dd className="num font-medium text-orange">
                           −${Number(o.discount ?? 0).toFixed(2)} ({o.usePoints}{" "}
                           pts)
+                        </dd>
+                      </>
+                    )}
+
+                    {o.cancelReason && (
+                      <>
+                        <dt className="text-muted">Cancelled</dt>
+                        <dd className="font-medium text-danger">
+                          {o.cancelledBy === "customer" ? "by customer" : "by you"} —{" "}
+                          {o.cancelReason}
                         </dd>
                       </>
                     )}
@@ -284,6 +300,14 @@ export default function OrdersEditor() {
                     </a>
                   )}
 
+                  {unsettled && (
+                    <p className="rounded-card border border-danger/40 bg-danger/5 p-2.5 text-sm">
+                      The customer cancelled — press <strong>Settle points</strong>{" "}
+                      to return what was used and take back what was given. Already
+                      topped up? Press <strong>Mark paid</strong> instead.
+                    </p>
+                  )}
+
                   <div className="flex flex-wrap gap-2">
                     <button
                       type="button"
@@ -303,11 +327,11 @@ export default function OrdersEditor() {
                     </button>
                     <button
                       type="button"
-                      disabled={busy === o.id || o.status === "cancelled"}
+                      disabled={busy === o.id || (o.status === "cancelled" && !unsettled)}
                       onClick={() => void move(o, "cancelled")}
                       className={`${btn} text-danger`}
                     >
-                      Cancel
+                      {unsettled ? "Settle points" : "Cancel"}
                     </button>
                   </div>
                 </div>

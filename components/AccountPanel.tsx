@@ -154,7 +154,11 @@ export default function AccountPanel() {
         ) : (
           <ul className="flex flex-col gap-3">
             {orders.map((o) => (
-              <OrderCard key={o.id} order={o} />
+              <OrderCard
+                key={o.id}
+                order={o}
+                onChanged={() => setTick((n) => n + 1)}
+              />
             ))}
           </ul>
         )}

@@ -341,6 +341,15 @@
       "cancelled": "La joojiyay"
     },
     "completeProfile": "Dhameystir is-diiwaangelintaada →",
+    "cancel": "Jooji dalabka",
+    "cancelWhy": "Maxaad u joojinaysaa?",
+    "cancelPlaceholder": "Si kooban noo sheeg sababta",
+    "cancelConfirm": "Xaqiiji joojinta",
+    "cancelBack": "Sii hay dalabka",
+    "cancelHint": "Sababta waa lagama maarmaan",
+    "cancelError": "Waa la joojin kari waayay. Isku day mar kale.",
+    "cancelReason": "Sababta: {reason}",
+    "cancelNote": "Waad joojin kartaa inta aan dalabku ku gaarin",
     "askAbout": "Wax ka weydii dalabkan",
     "next": {
       "pubg": "UC-gaagu wuxuu ku soo degayaa aqoonsiga kore — inta badan daqiiqado gudahood.",

@@ -11,10 +11,12 @@
 import {
   addDoc,
   collection,
+  doc,
   getDocs,
   limit,
   query,
   serverTimestamp,
+  updateDoc,
   where,
 } from "firebase/firestore";
 import type { User } from "firebase/auth";
@@ -54,7 +56,21 @@ export type SavedOrder = NewOrder & {
   email: string;
   status: "pending" | "paid" | "done" | "cancelled";
   createdAt: Date | null;
+  /** سبب الإلغاء — إلزاميّ حين يُلغي الزبون بنفسه */
+  cancelReason?: string;
+  /** من ألغى: `customer` أم الإدارة */
+  cancelledBy?: string;
+  /** نقاط مُنحت أو استُعملت — تُسوّى في اللوحة */
+  pointsAwarded?: number;
+  pointsSpent?: number;
 };
+
+/** آخر مرحلة: بعدها لا إلغاء — وصل الطلب صاحبه */
+export const FINAL_STATUS = "done";
+
+/** هل يستطيع الزبون إلغاء هذا الطلب الآن؟ */
+export const canCancel = (o: SavedOrder) =>
+  o.status !== "done" && o.status !== "cancelled";
 
 export type SaveResult =
   | { ok: true; id: string }
@@ -147,4 +163,38 @@ export async function myOrders(user: User | null): Promise<SavedOrder[]> {
     })
     // الأحدث أولاً · والطلب الذي لم يصله وقت الخادم بعد هو أحدثها جميعاً
     .sort((a, b) => (b.createdAt?.getTime() ?? Infinity) - (a.createdAt?.getTime() ?? Infinity));
+}
+
+/**
+ * إلغاء الزبون طلبَه بنفسه — **قبل التسليم فقط**، وبسببٍ مكتوب.
+ *
+ * ⚠️ لماذا السبب إلزاميّ: الإلغاء بلا سبب يترك صاحبة المتجر تخمّن —
+ *    أخطأ في الآيدي؟ غيّر رأيه؟ تأخّر التسليم؟ والفرق بين الثلاثة
+ *    قرارٌ مختلف في كل مرّة.
+ *
+ * 🔒 والقواعد لا تثق بهذا الملف: تشترط أن يكون الطلب طلبَه هو، وأن
+ *    حالته ليست `done`، وأن السبب مكتوب، وألّا يمسّ المبلغ ولا الأصناف.
+ *
+ * وما مُنح من نقاط أو خُصم يُسوّى من اللوحة — الزبون لا يملك رصيده.
+ */
+export async function cancelMyOrder(
+  user: User | null,
+  orderId: string,
+  reason: string,
+): Promise<boolean> {
+  const db = fbDb();
+  const text = reason.trim();
+  if (!db || !user || text.length < 3) return false;
+
+  try {
+    await updateDoc(doc(db, "orders", orderId), {
+      status: "cancelled",
+      cancelReason: text.slice(0, 300),
+      cancelledBy: "customer",
+      cancelledAt: serverTimestamp(),
+    });
+    return true;
+  } catch {
+    return false;
+  }
 }
