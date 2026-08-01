@@ -159,20 +159,6 @@ service cloud.firestore {
               && d.total * 100 >= d.buyPoints - 0.5);
       }
 
-      /* الطلب المدفوع بالنقاط: يُقبل `paid` من أوّل لحظة، بشرط أن
-         **يكون الخصم قد وقع فعلاً** — نبحث عن سطره في سجلّ صاحبه.
-         فلا تأكيد بلا خصم، ولا مبلغ نقديّ باقٍ. */
-      function pointsPaid() {
-        let d = request.resource.data;
-        let l = /databases/$(database)/documents/users/$(request.auth.uid)/ledger/$(d.code);
-        return d.status == 'paid'
-          && d.total == 0
-          && d.paidBy == 'points'
-          && d.usePoints is int && d.usePoints > 0
-          && exists(l)
-          && get(l).data.delta == -d.usePoints;
-      }
-
       function validNewOrder() {
         let d = request.resource.data;
         return validBuyPoints()
@@ -218,6 +204,27 @@ service cloud.firestore {
          ⚠️ لولا هذا لَفتح مساعدان الطلب نفسه فشحنه كلاهما. من حُجز
             الطلب لغيره لا يعدّله — إلا صاحبة المتجر، فهي ترى الكل
             وتفكّ الحجز عند الحاجة. */
+      /* ── تأكيد الطلب المدفوع بالنقاط ──
+         الزبون يؤكّد طلبه **بشرط أن يكون الخصم قد وقع فعلاً**: نبحث عن
+         سطره في سجلّه باسم رمز الطلب. فلا تأكيد بلا خصم. ولا يمسّ
+         شيئاً آخر: لا المبلغ ولا الأصناف ولا الرمز. */
+      function pointsSelfConfirm() {
+        let d = request.resource.data;
+        let o = resource.data;
+        let l = /databases/$(database)/documents/users/$(request.auth.uid)/ledger/$(o.code);
+        return o.uid == request.auth.uid
+          && o.status == 'pending'
+          && d.status == 'paid'
+          && d.paidBy == 'points'
+          && d.total == 0
+          && d.usePoints is int && d.usePoints > 0
+          && d.usePoints == o.usePoints
+          && d.code == o.code
+          && d.items == o.items
+          && exists(l)
+          && get(l).data.delta == -d.usePoints;
+      }
+
       function claimOk() {
         let c = resource.data.get('claimedBy', '');
         return isAdmin() || c == '' || c == request.auth.token.email;
@@ -225,7 +232,7 @@ service cloud.firestore {
 
       // الحالة والسعر بيد الإدارة — والزبون لا يملك إلا الإلغاء أعلاه
       allow update: if (canDo('orders') && claimOk())
-        || (isSignedIn() && validCustomerCancel());
+        || (isSignedIn() && (validCustomerCancel() || pointsSelfConfirm()));
 
       allow delete: if canDo('orders');
 

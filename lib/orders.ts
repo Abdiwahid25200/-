@@ -203,19 +203,19 @@ export async function cancelMyOrder(
 }
 
 /**
- * الشراء بالنقاط — **يُؤكَّد فوراً بلا انتظارك**.
+ * الشراء بالنقاط — **يُؤكَّد وحده، بثلاث خطوات مرتّبة**.
  *
- * ⚠️ المشكلة: الزبون لا يملك تغيير حالة طلبه ولا رصيده — وهذا صحيح،
- *    وإلا كتب لنفسه ما شاء. فكيف يُؤكَّد طلبٌ دُفع بالنقاط بلا خادم؟
+ * ⚠️ **لماذا لا تكفي معاملة واحدة؟** القاعدة تشترط وجود سطر الخصم قبل
+ *    قبول الطلب مؤكَّداً، وقواعد Firestore تقرأ الحالة **قبل** المعاملة —
+ *    فلو كُتب السطر والطلب معاً لم تر القاعدة السطر، ورفضت التأكيد.
  *
- * 🔑 **الخصم نفسه هو الإذن.** تكتب المعاملة ثلاثة أشياء معاً:
- *    ① رصيدٌ أقلّ ② سطرٌ في السجلّ باسم رمز الطلب ③ الطلب `paid`.
- *    والقواعد تشترط لكل واحدٍ منها شرطه:
- *    الرصيد **ينقص ولا يزيد** · السطر سالبٌ لا موجب · والطلب لا يُقبل
- *    مؤكَّداً إلا إذا **وُجد السطر بقيمته**. فمن حاول تأكيداً بلا خصم
- *    لم يجد سطراً يأذن له، ومن حاول زيادة رصيده رُفض من الأصل.
+ * فالترتيب:
+ *   ① الطلب يُنشأ `pending` — مسموحٌ دائماً، فلا يضيع طلب الزبون
+ *   ② معاملة تخصم الرصيد وتكتب سطر السجلّ باسم رمز الطلب
+ *   ③ تحديث الطلب إلى `paid` — والقاعدة الآن **ترى** السطر فتأذن
  *
- * وطلبٌ دُفع بالنقاط لا يربح نقاطاً فوقها — وإلا دار الرصيد على نفسه.
+ * وأي تعثّرٍ بعد ① يترك طلباً **ظاهراً في اللوحة** تؤكّدينه بيدك،
+ * بدل أن يخسر الزبون نقاطه أو طلبه. الترتيب مقصود لهذا.
  */
 export async function payWithPoints(
   user: User | null,
@@ -227,16 +227,34 @@ export async function payWithPoints(
   if (!user) return { ok: false, reason: "auth" };
 
   const spend = Math.round(points);
-  if (!Number.isFinite(spend) || spend <= 0) return { ok: false, reason: "error" };
+  if (!Number.isFinite(spend) || spend <= 0) return saveOrder(user, order);
+
+  // ① الطلب أوّلاً — فلا يضيع مهما تعثّر ما بعده
+  let ref;
+  try {
+    ref = await addDoc(collection(db, "orders"), {
+      ...order,
+      uid: user.uid,
+      email: user.email ?? "",
+      name: user.displayName ?? "",
+      status: "pending",
+      paidBy: "points",
+      createdAt: serverTimestamp(),
+    });
+  } catch {
+    return { ok: false, reason: "error" };
+  }
+
+  notifyOwner(order, user);
 
   try {
-    const id = await runTransaction(db, async (tx) => {
+    // ② الخصم وسطره — معاملة واحدة فلا ينقص رصيد بلا سطر يفسّره
+    await runTransaction(db, async (tx) => {
       const uRef = doc(db, "users", user.uid);
       const uSnap = await tx.get(uRef);
       const balance = Number(uSnap.data()?.points) || 0;
       if (balance < spend) throw new Error("balance");
 
-      // ① الرصيد ينقص ② وسطرٌ يفسّر النقص باسم رمز الطلب
       tx.set(uRef, { points: balance - spend }, { merge: true });
       tx.set(doc(db, "users", user.uid, "ledger", order.code), {
         delta: -spend,
@@ -244,31 +262,18 @@ export async function payWithPoints(
         code: order.code,
         at: serverTimestamp(),
       });
-
-      // ③ والطلب يُولد مؤكَّداً — القواعد تتحقّق من وجود السطر أعلاه
-      const oRef = doc(collection(db, "orders"));
-      tx.set(oRef, {
-        ...order,
-        uid: user.uid,
-        email: user.email ?? "",
-        name: user.displayName ?? "",
-        status: "paid",
-        paidBy: "points",
-        pointsSpent: spend,
-        pointsAwarded: 0,
-        createdAt: serverTimestamp(),
-      });
-      return oRef.id;
     });
 
-    notifyOwner(order, user);
-    return { ok: true, id };
+    // ③ والآن ترى القاعدة سطر الخصم، فتأذن بالتأكيد
+    await updateDoc(ref, {
+      status: "paid",
+      pointsSpent: spend,
+      pointsAwarded: 0,
+    });
   } catch {
-    /**
-     * ⚠️ المعاملة ذرّية: فشلها يعني أنه **لم يُكتب شيء** — لا خصم ولا
-     * طلب. فنرجع للمسار القديم (طلبٌ ينتظر تأكيدك) بدل أن يخسر الزبون
-     * طلبه لأن القواعد الجديدة لم تُنشر بعد.
-     */
-    return saveOrder(user, order);
+    /* تعثّر الخصم أو التأكيد ⇒ الطلب باقٍ `pending` في لوحتك.
+       لا نُظهر خطأً للزبون: طلبه وصل، وأنتِ تؤكّدينه. */
   }
+
+  return { ok: true, id: ref.id };
 }
