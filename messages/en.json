@@ -342,7 +342,8 @@
     "sendNow": "Points delivered to that number ({code})",
     "received": "You received {n} points 🎉",
     "errSelf": "You cannot send to your own number",
-    "errPhone": "Enter a valid number"
+    "errPhone": "Enter a valid number",
+    "errNoAccount": "No account with that number"
   },
   "accountPage": {
     "title": "My account",

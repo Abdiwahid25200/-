@@ -5,7 +5,7 @@ import { useTranslations } from "next-intl";
 import { useAuth } from "@/lib/auth";
 import PointsBrand from "./PointsBrand";
 import { getProfile } from "@/lib/profile";
-import { claimIncoming, sendPointsTo } from "@/lib/transfers";
+import { claimIncoming, ensurePhoneEntry, sendPointsTo } from "@/lib/transfers";
 import {
   DEFAULT_POINTS,
   USD_PER_POINT,
@@ -67,6 +67,8 @@ export default function PointsCard() {
             if (!alive) return;
             const ph = pr?.phone ?? "";
             setPhone(ph);
+            // من سجّل قبل وجود الدليل لا يجده أحد — نُدرجه عند أوّل فتح
+            void ensurePhoneEntry(user, ph);
             const got = await claimIncoming(user, ph);
             if (!alive || got <= 0) return;
             setPoints((v) => (v === null ? v : v + got));
@@ -111,7 +113,9 @@ export default function PointsCard() {
             ? t("errSelf")
             : why === "phone"
               ? t("errPhone")
-              : t("buyError"),
+              : why === "noaccount"
+                ? t("errNoAccount")
+                : t("buyError"),
       );
     }
     setWant("");

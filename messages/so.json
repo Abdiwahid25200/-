@@ -342,7 +342,8 @@
     "sendNow": "Dhibcuhu way gaareen lambarkaas ({code})",
     "received": "Waxaad heshay {n} dhibcood 🎉",
     "errSelf": "Naftaada uma diri kartid",
-    "errPhone": "Geli lambar sax ah"
+    "errPhone": "Geli lambar sax ah",
+    "errNoAccount": "Lambarkaas akoon ma laha"
   },
   "accountPage": {
     "title": "Akoonkayga",

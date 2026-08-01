@@ -20,6 +20,8 @@
 import {
   collection,
   doc,
+  getDoc,
+  setDoc,
   getDocs,
   limit as fbLimit,
   query,
@@ -36,7 +38,34 @@ export const digits = (s: string) => (s ?? "").replace(/\D/g, "");
 
 export type SendResult =
   | { ok: true; code: string }
-  | { ok: false; reason: "balance" | "phone" | "self" | "error" };
+  | { ok: false; reason: "balance" | "phone" | "self" | "noaccount" | "error" };
+
+/** هل لهذا الرقم حساب؟ — قراءةُ وثيقةٍ واحدة بالرقم، بلا سرد */
+export async function phoneHasAccount(phone: string): Promise<boolean> {
+  const db = fbDb();
+  const p = digits(phone);
+  if (!db || p.length < 7) return false;
+  try {
+    return (await withTimeout(getDoc(doc(db, "phones", p)))).exists();
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * تسجيل رقمي في الدليل — للزبائن الذين سجّلوا قبل وجوده.
+ * بلا هذا لا يستطيع أحد أن يرسل إليهم، ولا يعرف النظام أن حسابهم قائم.
+ */
+export async function ensurePhoneEntry(user: User | null, phone: string) {
+  const db = fbDb();
+  const p = digits(phone);
+  if (!db || !user || p.length < 7) return;
+  try {
+    await setDoc(doc(db, "phones", p), { uid: user.uid }, { merge: true });
+  } catch {
+    /* موجودة لصاحبٍ آخر أو تعذّرت الكتابة — لا يضرّ */
+  }
+}
 
 /** إرسال نقاط إلى رقم — يُخصم فوراً وتُكتب الحوالة */
 export async function sendPointsTo(
@@ -53,6 +82,9 @@ export async function sendPointsTo(
   if (to.length < 7) return { ok: false, reason: "phone" };
   if (to === digits(myPhone)) return { ok: false, reason: "self" };
   if (!Number.isFinite(amount) || amount <= 0) return { ok: false, reason: "error" };
+
+  // ⚠️ لا تُرسل نقاطٌ إلى رقمٍ بلا حساب: تبقى معلّقة ولا يعرف أحد أين ذهبت
+  if (!(await phoneHasAccount(to))) return { ok: false, reason: "noaccount" };
 
   const code = `SN-${Date.now().toString(36).toUpperCase()}`;
 

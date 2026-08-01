@@ -67,6 +67,24 @@ service cloud.firestore {
           يكتبها المرسِل بعد خصم رصيده، ويستلمها صاحب الرقم فتزيد نقاطه.
        ⚠️ ولا تُستلم مرّتين: القاعدة تشترط `claimed == false` قبل الاستلام،
           ومحاولتان متزامنتان تتصادمان على الوثيقة نفسها فتنجح واحدة. */
+    /* ── دليل الأرقام ──
+       وثيقةٌ اسمها الرقم وفيها صاحبه، ليُعرف: هل لهذا الرقم حساب؟
+       ⚠️ `get` وحده — **لا سرد**: لو سُمح بسرد المجموعة لقُرئت أرقام
+          الزبائن كلّها. وهكذا لا يُكشف إلا ما سأل عنه من يعرفه سلفاً.
+       ⚠️ ولا يُختطف رقم غيرك: الإنشاء متى كانت الوثيقة غائبة، والتعديل
+          لصاحبها وحده. ولولا ذلك لوجّه أحدهم حوالات غيره إلى نفسه. */
+    match /phones/{phone} {
+      allow get: if isSignedIn();
+      allow list: if isAdmin();
+
+      allow create: if isSignedIn()
+        && request.resource.data.uid == request.auth.uid;
+      allow update: if isSignedIn()
+        && resource.data.uid == request.auth.uid
+        && request.resource.data.uid == request.auth.uid;
+      allow delete: if isAdmin();
+    }
+
     match /transfers/{code} {
       allow read: if isAdmin()
         || (isSignedIn() && (resource.data.from == request.auth.uid
