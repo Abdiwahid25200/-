@@ -4,7 +4,6 @@ import { useCallback, useEffect, useState } from "react";
 import {
   PERMS,
   allStaff,
-  emailKey,
   removeStaff,
   saveStaff,
   type Can,
@@ -26,7 +25,6 @@ import { createStaffLogin, toStaffEmail } from "@/lib/staffAuth";
 export default function StaffEditor() {
   const { user } = useAuth();
   const [rows, setRows] = useState<(StaffDoc & { id: string })[] | null>(null);
-  const [email, setEmail] = useState("");
   const [userName, setUserName] = useState("");
   const [pass, setPass] = useState("");
   const [busy, setBusy] = useState<string | null>(null);
@@ -37,29 +35,6 @@ export default function StaffEditor() {
   useEffect(() => {
     void load();
   }, [load]);
-
-  async function add() {
-    const id = emailKey(email);
-    if (!id.includes("@")) {
-      setNote("Enter a full email address.");
-      return;
-    }
-    if ((rows ?? []).some((r) => r.id === id)) {
-      setNote("This email is already on the list.");
-      return;
-    }
-    setBusy("new");
-    const ok = await saveStaff(id, {
-      email: id,
-      active: true,
-      can: { orders: true },
-    });
-    setBusy(null);
-    if (!ok) return setNote("Could not save — check your access.");
-    setEmail("");
-    setNote(`${id} added — orders only for now.`);
-    void load();
-  }
 
   /**
    * حسابٌ باسم وكلمة سرّ — للمساعد الذي لا يملك جوجل أو لا تريدين ربطه به.
@@ -140,34 +115,10 @@ export default function StaffEditor() {
   return (
     <div className="flex flex-col gap-3">
       <p className="rounded-card border border-dashed border-line p-3 text-sm text-muted">
-        Give access by email. They sign in at <strong>/admin</strong> with that
-        Google account and see only what you tick below. Your own account is not
-        listed here and cannot be removed.
+        Create a login below, then tick what that helper may open. They sign in
+        at <strong>/admin</strong> with the username only. Your own account is
+        not listed here and cannot be removed.
       </p>
-
-      <div className="flex flex-wrap items-end gap-2">
-        <label className="flex min-w-48 flex-1 flex-col gap-1.5 text-sm">
-          <span className="font-medium">Helper email</span>
-          <input
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            placeholder="helper@gmail.com"
-            dir="ltr"
-            autoCapitalize="none"
-            autoCorrect="off"
-            spellCheck={false}
-            className={field}
-          />
-        </label>
-        <button
-          type="button"
-          onClick={() => void add()}
-          disabled={busy === "new" || !email.trim()}
-          className="min-h-12 rounded-card bg-orange px-4 font-bold text-onaccent disabled:opacity-50"
-        >
-          {busy === "new" ? "Adding…" : "Add helper"}
-        </button>
-      </div>
 
       <div className="flex flex-col gap-2 rounded-card border border-line bg-surface p-3">
         <p className="font-bold">Create a username &amp; password</p>
