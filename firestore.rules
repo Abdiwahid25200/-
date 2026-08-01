@@ -73,9 +73,24 @@ service cloud.firestore {
     /* ── الطلبات ── */
     match /orders/{orderId} {
 
+      /* رصيد النقاط الحقيقي للزبون — من وثيقته لا من طلبه.
+         بدونه يكتب الزبون `usePoints: 999999` فيطلب خصماً لا يملكه. */
+      function balanceOf() {
+        let p = /databases/$(database)/documents/users/$(request.auth.uid);
+        return exists(p) && 'points' in get(p).data ? get(p).data.points : 0;
+      }
+
+      function validRedeem() {
+        let d = request.resource.data;
+        return !('usePoints' in d)
+          || (d.usePoints is int && d.usePoints >= 0
+              && d.usePoints <= balanceOf());
+      }
+
       function validNewOrder() {
         let d = request.resource.data;
-        return d.uid == request.auth.uid
+        return validRedeem()
+          && d.uid == request.auth.uid
           && d.status == 'pending'                 // لا يبدأ الطلب مدفوعاً
           && d.total is number && d.total >= 0
           && d.code is string && d.code.size() <= 32

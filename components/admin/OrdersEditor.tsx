@@ -102,17 +102,10 @@ export default function OrdersEditor() {
       return;
     }
 
-    setOrders((list) =>
-      (list ?? []).map((x) =>
-        x.id === o.id
-          ? {
-              ...x,
-              status: next,
-              pointsAwarded: next === "cancelled" ? 0 : (x.pointsAwarded ?? 0) + Math.max(0, res.delta),
-            }
-          : x,
-      ),
-    );
+    // نعيد القراءة بدل التخمين: المنح والخصم والإعادة تتشابك، والرقم
+    // المعروض يجب أن يكون ما في قاعدة البيانات لا ما توقّعناه
+    void load();
+
     if (res.delta > 0) setNote(`+${res.delta} points added`);
     else if (res.delta < 0) setNote(`${res.delta} points removed`);
     else setNote("Status updated");
@@ -224,6 +217,16 @@ export default function OrdersEditor() {
                     <dd className="num font-medium break-all" dir="ltr">
                       {o.account || "—"}
                     </dd>
+
+                    {Number(o.usePoints) > 0 && (
+                      <>
+                        <dt className="text-muted">Points discount</dt>
+                        <dd className="num font-medium text-orange">
+                          −${Number(o.discount ?? 0).toFixed(2)} ({o.usePoints}{" "}
+                          pts)
+                        </dd>
+                      </>
+                    )}
 
                     <dt className="text-muted">Payment</dt>
                     <dd className="font-medium">{o.payMethod || "—"}</dd>

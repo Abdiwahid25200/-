@@ -30,8 +30,10 @@ export type OrderStatus = SavedOrder["status"];
 
 export type AdminOrder = SavedOrder & {
   name?: string;
-  /** كم نقطة مُنحت لهذا الطلب فعلاً — مرجع الخصم عند الإلغاء */
+  /** كم نقطة مُنحت لهذا الطلب فعلاً — مرجع السحب عند الإلغاء */
   pointsAwarded?: number;
+  /** وكم نقطة استُعملت خصماً — تُعاد إليه عند الإلغاء */
+  pointsSpent?: number;
 };
 
 /**
@@ -119,30 +121,50 @@ export async function setOrderStatus(
       const balance = Number(uSnap.data()?.points) || 0;
 
       const awarded = Number(o.pointsAwarded) || 0;
-      let delta = 0;
+      const spent = Number(o.pointsSpent) || 0;
 
-      if (next === "paid" && awarded === 0) {
-        delta = orderPoints(o.items ?? [], map, fallback);
-      } else if (next === "cancelled" && awarded > 0) {
-        // لا نخصم أكثر ممّا يملك — الرصيد السالب يربك الزبون بلا فائدة
-        delta = -Math.min(awarded, balance);
+      let delta = 0;
+      let nextAwarded = awarded;
+      let nextSpent = spent;
+      const rows: { delta: number; reason: string }[] = [];
+
+      if (next === "paid" && awarded === 0 && spent === 0) {
+        // ① نقاط الشراء ② والخصم الذي طلبه — كلاهما الآن لا قبل الدفع
+        const earn = orderPoints(o.items ?? [], map, fallback);
+        const redeem = Math.min(Math.max(0, Number(o.usePoints) || 0), balance);
+        if (redeem > 0) rows.push({ delta: -redeem, reason: "redeem" });
+        if (earn > 0) rows.push({ delta: earn, reason: "order" });
+        delta = earn - redeem;
+        nextAwarded = earn;
+        nextSpent = redeem;
+      } else if (next === "cancelled" && (awarded > 0 || spent > 0)) {
+        // الإلغاء يعكس الحركتين: يُعيد ما خُصم ويسحب ما مُنح
+        const pull = Math.min(awarded, balance + spent);
+        if (spent > 0) rows.push({ delta: spent, reason: "refund" });
+        if (pull > 0) rows.push({ delta: -pull, reason: "cancel" });
+        delta = spent - pull;
+        nextAwarded = 0;
+        nextSpent = 0;
       }
 
       tx.update(oRef, {
         status: next,
-        pointsAwarded: next === "cancelled" ? 0 : awarded + Math.max(0, delta),
+        pointsAwarded: nextAwarded,
+        pointsSpent: nextSpent,
         updatedAt: serverTimestamp(),
       });
 
-      if (delta !== 0) {
+      if (rows.length > 0) {
         tx.set(uRef, { points: balance + delta }, { merge: true });
-        tx.set(doc(collection(db, "users", o.uid, "ledger")), {
-          delta,
-          reason: next === "cancelled" ? "cancel" : "order",
-          code: o.code ?? "",
-          orderId,
-          at: serverTimestamp(),
-        });
+        for (const r of rows) {
+          tx.set(doc(collection(db, "users", o.uid, "ledger")), {
+            delta: r.delta,
+            reason: r.reason,
+            code: o.code ?? "",
+            orderId,
+            at: serverTimestamp(),
+          });
+        }
       }
 
       return { ok: true as const, delta, balance: balance + delta };

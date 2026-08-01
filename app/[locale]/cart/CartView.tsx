@@ -10,6 +10,7 @@ import { optimizable } from "@/lib/img";
 import { isBuyable, live, pay, wa } from "@/lib/data";
 import { useAuth } from "@/lib/auth";
 import { saveOrder } from "@/lib/orders";
+import PointsRedeem, { usePointsRedeem } from "@/components/PointsRedeem";
 import {
   IconArrow,
   IconCartEmpty,
@@ -34,9 +35,11 @@ export default function CartView() {
   const [contact, setContact] = useState("");
   const [addr, setAddr] = useState("");
   const [payId, setPayId] = useState<string | null>(null);
-  const [done, setDone] = useState<{ code: string } | null>(null);
+  const [done, setDone] = useState<{ code: string; total: number } | null>(null);
   const [saved, setSaved] = useState<"idle" | "saving" | "ok" | "auth" | "local" | "error">("idle");
   const { user } = useAuth();
+  // خصم النقاط — يقرأ الرصيد ويحسب المبلغ بعد الخصم
+  const redeem = usePointsRedeem(total);
 
   const methods = live(pay).filter(isBuyable);
   const method = methods.find((m) => m.id === payId) ?? methods[0];
@@ -69,14 +72,16 @@ export default function CartView() {
     const items = lines.map((l) => ({
       id: l.id, title: l.name, qty: l.qty, price: l.price,
     }));
-    const sum = total;
-    setDone({ code });
+    const sum = redeem.payable;
+    setDone({ code, total: sum });
     clear();
     window.scrollTo({ top: 0, behavior: "smooth" });
 
     setSaved("saving");
     const r = await saveOrder(user, {
       code, kind: "elec", items, total: sum,
+      usePoints: redeem.spend,
+      discount: redeem.discount,
       payMethod: methodName,
       account: `${name.trim()} · ${contact.trim()} · ${addr.trim()}`,
     });
@@ -110,7 +115,7 @@ export default function CartView() {
     const msg = [
       `${tb("orderCode")}: ${done.code}`,
       lineText,
-      `${tb("total")}: ${fmt(total)}`,
+      `${tb("total")}: ${fmt(done.total)}`,
       `${tb("payTitle")}: ${methodName}`,
       `${t("name")}: ${name}`,
       `${t("contact")}: ${contact}`,
@@ -315,14 +320,22 @@ export default function CartView() {
       {/* طريقة الدفع — نفس القسم المستعمل في صفحات الألعاب بالضبط،
           فلا يتعلّم الزبون شكلين لشيء واحد، ويصله كود التحويل هنا أيضاً */}
       <div ref={payRef}>
-        <PaySection amount={total} selected={payId} onSelect={setPayId} />
+        <PaySection amount={redeem.payable} selected={payId} onSelect={setPayId} />
       </div>
+
+      {/* خصم النقاط — يظهر لمن يملك رصيداً كافياً وحده */}
+      <PointsRedeem r={redeem} />
 
       {/* الإجمالي — للمراجعة وحدها، والتأكيد في الشريط العائم أسفل الشاشة */}
       <section className="flex items-center justify-between rounded-card border border-line bg-surface p-4 text-lg">
         <span className="font-bold">{tb("total")}</span>
         <span className="num text-2xl font-bold text-yellow" dir="ltr">
-          {fmt(total)}
+          {redeem.discount > 0 && (
+            <span className="me-2 text-base font-medium text-muted line-through">
+              {fmt(total)}
+            </span>
+          )}
+          {fmt(redeem.payable)}
         </span>
       </section>
 
@@ -340,7 +353,7 @@ export default function CartView() {
               </span>
             </span>
             <span className="num block text-xl font-bold text-orange" dir="ltr">
-              {fmt(total)}
+              {fmt(redeem.payable)}
             </span>
           </span>
 

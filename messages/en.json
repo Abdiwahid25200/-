@@ -301,7 +301,10 @@
     "toRedeem": "{n} more points to redeem (minimum {min})",
     "canRedeem": "You can use these as a discount at checkout",
     "forOrder": "Order {code}",
-    "manual": "From the store"
+    "manual": "From the store",
+    "useTitle": "Use my points on this order",
+    "balanceIs": "You have {n} points · {usd}",
+    "discount": "Points discount"
   },
   "accountPage": {
     "title": "My account",

@@ -11,6 +11,7 @@ import { useAuth } from "@/lib/auth";
 import { Link } from "@/i18n/navigation";
 import { IconArrow, IconCheckCircle, IconSpinner, IconSuccess } from "./icons";
 import { saveOrder } from "@/lib/orders";
+import PointsRedeem, { usePointsRedeem } from "./PointsRedeem";
 
 export type Pack = {
   id: string;
@@ -81,6 +82,8 @@ export default function BuyFlow({
   // حارس: لو أُغلقت باقة مختارة سابقاً تُهمل بدل أن تُشترى
   const pack = found && !found.soon ? found : null;
   const total = pack ? fin(pack) : 0;
+  // خصم النقاط — نفس المكوّن المستعمل في السلة، فلا يتعلّم الزبون شكلين
+  const redeem = usePointsRedeem(total);
 
   const isWa = mode === "whatsapp";
 
@@ -160,7 +163,7 @@ export default function BuyFlow({
     return [
       `${t("orderCode")}: ${code}`,
       `${t("item")}: ${pack?.title ?? ""}`,
-      `${t("total")}: ${fmt(total)}`,
+      `${t("total")}: ${fmt(redeem.payable)}`,
       isWa ? "" : `${t("payTitle")}: ${methodName}`,
       accountSummary,
     ].filter(Boolean);
@@ -192,7 +195,9 @@ export default function BuyFlow({
       code,
       kind,
       items: [{ id: pack.id, title: pack.title, qty: 1, price: total }],
-      total,
+      total: redeem.payable,
+      usePoints: redeem.spend,
+      discount: redeem.discount,
       payMethod: methodName,
       account: accountSummary,
     });
@@ -261,7 +266,7 @@ export default function BuyFlow({
           <dl className="flex flex-col gap-2 text-sm">
             {[
               [t("item"), pack.title],
-              [t("total"), fmt(total)],
+              [t("total"), fmt(redeem.payable)],
               [t("payTitle"), methodName],
               [t("account"), accountSummary],
               [t("time"), done.at],
@@ -341,13 +346,16 @@ export default function BuyFlow({
         </div>
       </section>
 
+      {/* خصم النقاط — بعد اختيار الباقة، فلا يظهر خصمٌ على لا شيء */}
+      {pack && <PointsRedeem r={redeem} />}
+
       {/* بعد الاختيار: حقل الواتساب في وضع الحسابات · قسم الدفع في غيره */}
       {pack &&
         (isWa ? (
           <div ref={accountRef}>{accountForm}</div>
         ) : (
           <div ref={payRef}>
-            <PaySection amount={total} selected={payId} onSelect={setPayId} />
+            <PaySection amount={redeem.payable} selected={payId} onSelect={setPayId} />
           </div>
         ))}
 
@@ -371,7 +379,7 @@ export default function BuyFlow({
                 <span className="leading-tight">
                   <span className="block text-xs text-muted">{t("total")}</span>
                   <span className="num block text-xl font-bold text-orange" dir="ltr">
-                    {fmt(total)}
+                    {fmt(redeem.payable)}
                   </span>
                 </span>
               )}

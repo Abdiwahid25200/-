@@ -38,6 +38,14 @@ export type NewOrder = {
   account: string;
   /** القسم: pubg · efootball · tiktok · accounts · elec */
   kind: string;
+  /**
+   * كم نقطة طلب الزبون استعمالها خصماً.
+   * ⚠️ **لا تُخصم عند الحفظ** — تُخصم في اللوحة عند تأكيد الدفع، لأن
+   * الزبون لا يملك تعديل رصيده أصلاً. والقواعد تشترط ألّا يتجاوز رصيده.
+   */
+  usePoints?: number;
+  /** قيمة الخصم بالدولار — للعرض في اللوحة وفي ملخّص الطلب */
+  discount?: number;
 };
 
 export type SavedOrder = NewOrder & {
