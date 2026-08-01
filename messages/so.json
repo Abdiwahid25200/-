@@ -339,8 +339,8 @@
     "sendPhone": "Lambarka WhatsApp ee qofka",
     "sendCta": "Dir {n} dhibcood",
     "sendDone": "Waa la diray — wuu heli doonaa marka aan eegno ({code})",
-    "receiveTitle": "Si aad u hesho dhibco",
-    "receiveNote": "Sii lambarkan qofka ku soo dirayo:",
+    "receiveTitle": "Saaxiib dhibco weydiiso",
+    "receiveNote": "Lambarkaaga aad ku heshid — koobi ama toos u dir codsiga:",
     "receiveNone": "Marka hore ku dar lambarkaaga akoonkaaga",
     "sellTitle": "Iibi dhibcahaaga",
     "sellNote": "Qiimaha ayaan lambarkaaga ugu soo dirnaa",
@@ -365,7 +365,11 @@
     "inviteApplied": "Waa la sameeyay ✓ dhibcaha waxaad heli doontaa dalabkaaga ugu horreeya ee la bixiyo kaddib",
     "inviteUnknown": "Koodhka lama helin",
     "inviteSelf": "Naftaada ma casuumi kartid",
-    "inviteAlready": "Horey ayaad u leedahay qof ku casuumay"
+    "inviteAlready": "Horey ayaad u leedahay qof ku casuumay",
+    "receiveAsk": "Dhibco ku weydiiso WhatsApp",
+    "receiveMsg": "Ii soo dir dhibcaha {brand} lambarkayga {phone} — bogga dhibcahaaga {url} ka rid 'Dir'.",
+    "receiveCopy": "Koobi lambarka",
+    "receiveCopied": "Waa la koobiyeeyay ✓"
   },
   "accountPage": {
     "title": "Akoonkayga",

@@ -136,7 +136,11 @@ export default async function LocaleLayout({
         />
       </head>
       {/* الحشو السفلي يمنع القائمة الثابتة من تغطية الفوتر — كما بالموقع القديم */}
-      <body className="flex min-h-dvh flex-col pb-[calc(6.5rem+env(safe-area-inset-bottom))]">
+      {/* ⚠️ الحشوة السفلية تُقاس بـ**زرّ الدردشة** لا بالقائمة السفلية:
+          الزرّ عائم على اليمين، قاعدته `--chat-bottom` (٤٫٨٥rem) وارتفاعه
+          ٣٫٥rem، فقمّته على ٨٫٣٥rem. وبحشوة ٦٫٥ كان آخر سطرٍ في الصفحة
+          يقع تحته فيُقرأ نصفه — وهذا ما حدث في آخر سطر بطاقة الدعوة. */}
+      <body className="flex min-h-dvh flex-col pb-[calc(8.75rem+env(safe-area-inset-bottom))]">
         <NextIntlClientProvider>
           <AuthProvider>
             <CartProvider>

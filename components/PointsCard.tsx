@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
 import { useAuth } from "@/lib/auth";
 import PointsBrand from "./PointsBrand";
+import { IconWhatsApp } from "./icons";
 import { getProfile } from "@/lib/profile";
 import { claimIncoming, ensurePhoneEntry, sendPointsTo } from "@/lib/transfers";
 import {
@@ -40,7 +41,20 @@ export default function PointsCard() {
   const [toPhone, setToPhone] = useState("");
   const [phone, setPhone] = useState("");
   const [busy, setBusy] = useState(false);
+  const [copied, setCopied] = useState(false);
   const [msg, setMsg] = useState<string | null>(null);
+
+  /** نسخ رقم الاستلام — ومن منعه متصفّحه فالرقم أمامه يقرؤه */
+  async function copyPhone() {
+    if (!phone) return;
+    try {
+      await navigator.clipboard.writeText(phone);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch {
+      /* لا شيء — الرقم معروض */
+    }
+  }
 
   useEffect(() => {
     if (!user) {
@@ -267,13 +281,48 @@ export default function PointsCard() {
         </div>
       )}
 
+      {/* ── استلام ──
+          كان عرضاً لرقمٍ يعرفه صاحبه، فلا فائدة منه. صار **طلباً**:
+          ضغطةٌ تفتح واتساب برسالة جاهزة يختار لها صديقاً — بابُ دخولٍ
+          للنقاط لا لافتة. والرقم يبقى معروضاً وقابلاً للنسخ. */}
       {tab === "receive" && (
-        <div className="mt-3 flex flex-col gap-1.5">
+        <div className="mt-3 flex flex-col gap-2">
           <p className="font-bold">{t("receiveTitle")}</p>
-          <p className="text-sm text-muted">{t("receiveNote")}</p>
-          <p className="num rounded-card border border-line bg-bg p-3 text-center text-lg font-bold" dir="ltr">
-            {phone || t("receiveNone")}
+          <p className="text-sm text-muted">
+            {phone ? t("receiveNote") : t("receiveNone")}
           </p>
+
+          {phone && (
+            <>
+              <button
+                type="button"
+                onClick={() => void copyPhone()}
+                className="num rounded-card border border-dashed border-orange bg-orange/5 p-3 text-center text-lg font-bold text-orange"
+                dir="ltr"
+              >
+                {phone}
+                <span className="block text-xs font-normal text-muted">
+                  {copied ? t("receiveCopied") : t("receiveCopy")}
+                </span>
+              </button>
+
+              <a
+                href={`https://wa.me/?text=${encodeURIComponent(
+                  t("receiveMsg", {
+                    brand: settings.brand,
+                    phone,
+                    url: typeof window === "undefined" ? "" : window.location.origin,
+                  }),
+                )}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="lift flex min-h-12 items-center justify-center gap-2 rounded-card bg-orange px-4 font-bold text-onaccent"
+              >
+                <IconWhatsApp className="size-5" />
+                {t("receiveAsk")}
+              </a>
+            </>
+          )}
         </div>
       )}
 

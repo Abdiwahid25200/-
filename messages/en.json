@@ -339,8 +339,8 @@
     "sendPhone": "Their WhatsApp number",
     "sendCta": "Send {n} points",
     "sendDone": "Done — they get the points once we review it ({code})",
-    "receiveTitle": "To receive points",
-    "receiveNote": "Give this number to whoever sends them:",
+    "receiveTitle": "Ask a friend for points",
+    "receiveNote": "Your receiving number — copy it or send the request directly:",
     "receiveNone": "Add your phone number in your account first",
     "sellTitle": "Sell your points",
     "sellNote": "We transfer the value to your number",
@@ -365,7 +365,11 @@
     "inviteApplied": "Done ✓ you get your points after your first paid order",
     "inviteUnknown": "Code not found",
     "inviteSelf": "You cannot invite yourself",
-    "inviteAlready": "You already have an inviter"
+    "inviteAlready": "You already have an inviter",
+    "receiveAsk": "Ask for points on WhatsApp",
+    "receiveMsg": "Send me {brand} points on my number {phone} — open your points page at {url} and tap Send.",
+    "receiveCopy": "Copy number",
+    "receiveCopied": "Copied ✓"
   },
   "accountPage": {
     "title": "My account",
