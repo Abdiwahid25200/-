@@ -16,6 +16,7 @@ import TextsEditor from "./TextsEditor";
 import Analytics from "./Analytics";
 import RecycleBin from "./RecycleBin";
 import Report from "./Report";
+import Dashboard from "./Dashboard";
 import { useAccess } from "@/lib/adminAccess";
 import type { Perm } from "@/lib/staff";
 
@@ -80,13 +81,14 @@ export default function AdminTabs() {
     items: g.items.filter(allowed),
   })).filter((g) => g.items.length > 0);
 
-  const first = groups[0]?.items[0]?.v ?? "orders";
-  const [tab, setTab] = useState<AdminTab>(first);
+  /* تفتح اللوحة على الشاشة الرئيسية لا على أوّل تبويب — فتُرى الأرقام
+     المهمّة أوّلاً، ويُفتح كل باب بلمسة واحدة بدل ثلاث. */
+  const [tab, setTab] = useState<AdminTab>("home");
 
-  // مساعدٌ فُتح له بابٌ واحد قد يبدأ على تبويب لا يملكه — نردّه لأوّل ما يملك
+  // مساعدٌ فُتح له بابٌ واحد قد يبدأ على تبويب لا يملكه — نردّه للرئيسية
   const flat = groups.flatMap((g) => g.items);
-  const current = flat.some((t) => t.v === tab) ? tab : first;
-  const title = flat.find((t) => t.v === current)?.label ?? "";
+  const current = tab === "home" || flat.some((t) => t.v === tab) ? tab : "home";
+  const title = flat.find((t) => t.v === current)?.label ?? "Ramaan Admin";
 
   if (groups.length === 0)
     return (
@@ -97,12 +99,24 @@ export default function AdminTabs() {
 
   return (
     <div className="flex flex-col gap-4">
-      <div className="flex items-center gap-3 border-b border-line pb-3">
+      <div className="flex items-center gap-2 border-b border-line pb-3">
         <AdminMenu tab={current} onTab={setTab} groups={groups} />
+        {current !== "home" && (
+          <button
+            type="button"
+            onClick={() => setTab("home")}
+            aria-label="Back to dashboard"
+            className="flex size-11 shrink-0 items-center justify-center rounded-card border border-line text-lg text-muted transition-colors hover:text-text"
+          >
+            <span aria-hidden className="rtl:rotate-180">‹</span>
+          </button>
+        )}
         <h2 className="min-w-0 flex-1 truncate text-lg font-bold">{title}</h2>
       </div>
 
-      {current === "orders" ? (
+      {current === "home" ? (
+        <Dashboard groups={groups} onTab={setTab} />
+      ) : current === "orders" ? (
         <OrdersEditor />
       ) : current === "customers" ? (
         <CustomersEditor />

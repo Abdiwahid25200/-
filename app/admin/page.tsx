@@ -10,14 +10,9 @@ export default function AdminPage() {
           <Logo solid className="size-11 shrink-0 rounded-[13px] shadow-sm" />
           <div className="min-w-0 flex-1 leading-tight">
             <h1 className="text-xl font-bold">Ramaan Admin</h1>
-            <p className="text-sm text-muted">Sections · Images · Text</p>
+            <p className="text-sm text-muted">Store control panel</p>
           </div>
         </header>
-
-        <p className="rounded-card border border-dashed border-line p-3 text-sm text-muted">
-          What you save here <strong>overrides</strong> the defaults without
-          erasing them. Clear any field to restore the original.
-        </p>
 
         <AdminTabs />
       </main>

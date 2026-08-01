@@ -6,6 +6,7 @@ import { useAuth } from "@/lib/auth";
 import Logo from "@/components/Logo";
 import {
   IconCart,
+  IconHome,
   IconTrash,
   IconChat,
   IconClose,
@@ -23,6 +24,7 @@ import {
  */
 /** تبويبات اللوحة — مصدر واحد للاسم، فلا يتفرّق النوع بين ملفّين */
 export type AdminTab =
+  | "home"
   | "orders"
   | "customers"
   | "items"
@@ -40,6 +42,7 @@ export type AdminTab =
 
 /** أيقونة كل تبويب — القائمة تُبنى من نفس مصدر التبويبات فلا يتفرّقان */
 const ICONS: Record<AdminTab, (p: { className?: string }) => React.ReactElement> = {
+  home: IconHome,
   orders: IconDoc,
   customers: IconUser,
   items: IconDevice,
@@ -108,6 +111,18 @@ export default function AdminMenu({
             <IconClose className="size-5" />
           </button>
         </div>
+
+        <button
+          type="button"
+          onClick={() => {
+            onTab("home");
+            setOpen(false);
+          }}
+          className={`${row} ${tab === "home" ? "text-orange" : ""}`}
+        >
+          <IconHome className="size-5 shrink-0" />
+          Dashboard
+        </button>
 
         {groups.map((g) => (
           <div key={g.label}>
