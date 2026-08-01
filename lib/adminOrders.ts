@@ -36,6 +36,8 @@ export type AdminOrder = SavedOrder & {
   pointsSpent?: number;
   /** طلبُ شراء نقاط */
   buyPoints?: number;
+  /** `points` حين دُفع الطلب من الرصيد فتأكّد وحده */
+  paidBy?: string;
 
   /* ── الحجز ──
      بريد من قَبِل الطلب. ما إن يُحجز حتى يختفي من قوائم بقيّة

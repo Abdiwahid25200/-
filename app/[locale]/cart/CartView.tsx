@@ -9,7 +9,7 @@ import { fmt } from "@/lib/format";
 import { optimizable } from "@/lib/img";
 import { isBuyable, live, pay, wa } from "@/lib/data";
 import { useAuth } from "@/lib/auth";
-import { saveOrder } from "@/lib/orders";
+import { payWithPoints, saveOrder } from "@/lib/orders";
 import { usePayMethods } from "@/components/usePayMethods";
 import { usePointsRedeem } from "@/components/PointsRedeem";
 import {
@@ -87,7 +87,14 @@ export default function CartView() {
     window.scrollTo({ top: 0, behavior: "smooth" });
 
     setSaved("saving");
-    const r = await saveOrder(user, {
+    // غطّت النقاط المبلغ كلّه ⇒ يُولد الطلب مؤكَّداً
+    const byPoints = redeem.on && redeem.payable <= 0 && redeem.spend > 0;
+    const send = byPoints
+      ? (u: typeof user, o: Parameters<typeof saveOrder>[1]) =>
+          payWithPoints(u, o, redeem.spend)
+      : saveOrder;
+
+    const r = await send(user, {
       code, kind: "elec", items, total: sum,
       usePoints: redeem.spend,
       discount: redeem.discount,

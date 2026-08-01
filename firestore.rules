@@ -85,6 +85,16 @@ service cloud.firestore {
               && request.resource.data.points == resource.data.points);
       }
 
+      /* الإنفاق: الرصيد **ينقص ولا يزيد**. أسوأ ما يفعله الزبون بنفسه
+         أن يُتلف نقاطه، ولا يستطيع أن يخلق منها واحدة. */
+      function pointsSpentOnly() {
+        return resource != null
+          && 'points' in resource.data
+          && request.resource.data.points is int
+          && request.resource.data.points >= 0
+          && request.resource.data.points < resource.data.points;
+      }
+
       allow read: if canDo('customers') || canDo('orders')
         || (isSignedIn() && request.auth.uid == uid);
 
@@ -92,7 +102,7 @@ service cloud.firestore {
       allow create, update: if canDo('customers') || canDo('orders')
         || (isSignedIn()
         && request.auth.uid == uid
-        && pointsUntouched()
+        && (pointsUntouched() || pointsSpentOnly())
         && request.resource.data.phone is string
         && request.resource.data.phone.size() >= 7
         && request.resource.data.phone.size() <= 20);
@@ -106,6 +116,15 @@ service cloud.firestore {
         allow read: if canDo('customers') || canDo('orders')
           || (isSignedIn() && request.auth.uid == uid);
         allow write: if canDo('customers') || canDo('orders');
+
+        /* الزبون يسجّل **إنفاقه** وحده: سطرٌ سالب باسم رمز طلبه.
+           لا يعدّله ولا يمحوه بعدها، فيبقى دليلاً على الخصم. */
+        allow create: if isSignedIn() && request.auth.uid == uid
+          && request.resource.data.delta is int
+          && request.resource.data.delta < 0
+          && request.resource.data.reason == 'redeem'
+          && request.resource.data.code == entryId
+          && request.resource.data.at == request.time;
       }
     }
 
@@ -138,6 +157,20 @@ service cloud.firestore {
               && d.buyPoints > 0
               && d.buyPoints <= 100000
               && d.total * 100 >= d.buyPoints - 0.5);
+      }
+
+      /* الطلب المدفوع بالنقاط: يُقبل `paid` من أوّل لحظة، بشرط أن
+         **يكون الخصم قد وقع فعلاً** — نبحث عن سطره في سجلّ صاحبه.
+         فلا تأكيد بلا خصم، ولا مبلغ نقديّ باقٍ. */
+      function pointsPaid() {
+        let d = request.resource.data;
+        let l = /databases/$(database)/documents/users/$(request.auth.uid)/ledger/$(d.code);
+        return d.status == 'paid'
+          && d.total == 0
+          && d.paidBy == 'points'
+          && d.usePoints is int && d.usePoints > 0
+          && exists(l)
+          && get(l).data.delta == -d.usePoints;
       }
 
       function validNewOrder() {

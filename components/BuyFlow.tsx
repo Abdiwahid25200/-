@@ -10,7 +10,7 @@ import { isBuyable, live, pay, wa } from "@/lib/data";
 import { useAuth } from "@/lib/auth";
 import { Link } from "@/i18n/navigation";
 import { IconArrow, IconCheckCircle, IconSpinner, IconSuccess } from "./icons";
-import { saveOrder } from "@/lib/orders";
+import { payWithPoints, saveOrder } from "@/lib/orders";
 import { usePayMethods } from "@/components/usePayMethods";
 import { usePointsRedeem } from "./PointsRedeem";
 
@@ -196,7 +196,15 @@ export default function BuyFlow({
 
     // الحفظ لا يمنع الزبون من متابعة طلبه عبر واتساب مهما كانت نتيجته
     setSaved("saving");
-    const r = await saveOrder(user, {
+    /* غطّت النقاط المبلغ كلّه ⇒ الدفع تمّ فعلاً، فيُولد الطلب مؤكَّداً
+       ولا ينتظر تأكيداً يدوياً لا معنى له. */
+    const byPoints = redeem.on && redeem.payable <= 0 && redeem.spend > 0;
+    const send = byPoints
+      ? (u: typeof user, o: Parameters<typeof saveOrder>[1]) =>
+          payWithPoints(u, o, redeem.spend)
+      : saveOrder;
+
+    const r = await send(user, {
       code,
       kind,
       items: [{ id: pack.id, title: pack.title, qty: 1, price: total }],

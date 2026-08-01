@@ -12,6 +12,7 @@ import {
   addDoc,
   collection,
   doc,
+  runTransaction,
   getDocs,
   limit,
   query,
@@ -198,5 +199,76 @@ export async function cancelMyOrder(
     return true;
   } catch {
     return false;
+  }
+}
+
+/**
+ * الشراء بالنقاط — **يُؤكَّد فوراً بلا انتظارك**.
+ *
+ * ⚠️ المشكلة: الزبون لا يملك تغيير حالة طلبه ولا رصيده — وهذا صحيح،
+ *    وإلا كتب لنفسه ما شاء. فكيف يُؤكَّد طلبٌ دُفع بالنقاط بلا خادم؟
+ *
+ * 🔑 **الخصم نفسه هو الإذن.** تكتب المعاملة ثلاثة أشياء معاً:
+ *    ① رصيدٌ أقلّ ② سطرٌ في السجلّ باسم رمز الطلب ③ الطلب `paid`.
+ *    والقواعد تشترط لكل واحدٍ منها شرطه:
+ *    الرصيد **ينقص ولا يزيد** · السطر سالبٌ لا موجب · والطلب لا يُقبل
+ *    مؤكَّداً إلا إذا **وُجد السطر بقيمته**. فمن حاول تأكيداً بلا خصم
+ *    لم يجد سطراً يأذن له، ومن حاول زيادة رصيده رُفض من الأصل.
+ *
+ * وطلبٌ دُفع بالنقاط لا يربح نقاطاً فوقها — وإلا دار الرصيد على نفسه.
+ */
+export async function payWithPoints(
+  user: User | null,
+  order: NewOrder,
+  points: number,
+): Promise<SaveResult> {
+  const db = fbDb();
+  if (!db) return { ok: false, reason: "local" };
+  if (!user) return { ok: false, reason: "auth" };
+
+  const spend = Math.round(points);
+  if (!Number.isFinite(spend) || spend <= 0) return { ok: false, reason: "error" };
+
+  try {
+    const id = await runTransaction(db, async (tx) => {
+      const uRef = doc(db, "users", user.uid);
+      const uSnap = await tx.get(uRef);
+      const balance = Number(uSnap.data()?.points) || 0;
+      if (balance < spend) throw new Error("balance");
+
+      // ① الرصيد ينقص ② وسطرٌ يفسّر النقص باسم رمز الطلب
+      tx.set(uRef, { points: balance - spend }, { merge: true });
+      tx.set(doc(db, "users", user.uid, "ledger", order.code), {
+        delta: -spend,
+        reason: "redeem",
+        code: order.code,
+        at: serverTimestamp(),
+      });
+
+      // ③ والطلب يُولد مؤكَّداً — القواعد تتحقّق من وجود السطر أعلاه
+      const oRef = doc(collection(db, "orders"));
+      tx.set(oRef, {
+        ...order,
+        uid: user.uid,
+        email: user.email ?? "",
+        name: user.displayName ?? "",
+        status: "paid",
+        paidBy: "points",
+        pointsSpent: spend,
+        pointsAwarded: 0,
+        createdAt: serverTimestamp(),
+      });
+      return oRef.id;
+    });
+
+    notifyOwner(order, user);
+    return { ok: true, id };
+  } catch {
+    /**
+     * ⚠️ المعاملة ذرّية: فشلها يعني أنه **لم يُكتب شيء** — لا خصم ولا
+     * طلب. فنرجع للمسار القديم (طلبٌ ينتظر تأكيدك) بدل أن يخسر الزبون
+     * طلبه لأن القواعد الجديدة لم تُنشر بعد.
+     */
+    return saveOrder(user, order);
   }
 }

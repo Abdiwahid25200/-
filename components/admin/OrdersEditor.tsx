@@ -272,6 +272,31 @@ export default function OrdersEditor() {
                       {o.account || "—"}
                     </dd>
 
+                    {o.paidBy === "points" && (
+                      <>
+                        <dt className="text-muted">Paid with</dt>
+                        <dd className="font-bold text-orange">
+                          Points · {o.pointsSpent ?? 0} pts
+                          {(() => {
+                            /* ⚠️ النقاط تُخصم فعلاً قبل التأكيد، لكن قيمتها
+                               قد لا تغطّي سعر الأصناف لو تلاعب أحد بالطلب.
+                               المقارنة هنا تكشف ذلك قبل التسليم. */
+                            const worth = (Number(o.pointsSpent) || 0) / 100;
+                            const value = (o.items ?? []).reduce(
+                              (n, i) => n + (Number(i.price) || 0) * Math.max(1, i.qty ?? 1),
+                              0,
+                            );
+                            return worth + 0.005 < value ? (
+                              <span className="mt-1 block font-medium text-danger">
+                                ⚠️ Points cover only ${worth.toFixed(2)} of $
+                                {value.toFixed(2)} — check before delivering.
+                              </span>
+                            ) : null;
+                          })()}
+                        </dd>
+                      </>
+                    )}
+
                     {Number(o.buyPoints) > 0 && (
                       <>
                         <dt className="text-muted">Buying points</dt>
