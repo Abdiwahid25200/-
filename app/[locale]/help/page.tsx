@@ -64,7 +64,7 @@ export default async function HelpPage({
   }
 
   return (
-    <main className="seq mx-auto flex max-w-5xl flex-col gap-8 px-4 py-6">
+    <main className="seq page-w flex flex-col gap-8 px-4 py-6">
       <BackLink href="/" />
       <SectionHead
         eyebrow={te("help")} title={t("title")} note={t("note")} />

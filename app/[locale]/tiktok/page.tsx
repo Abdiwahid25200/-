@@ -35,7 +35,7 @@ export default async function TiktokPage({
   const over = await sectionOverride("tiktok");
 
   return (
-    <main className="mx-auto flex max-w-4xl flex-col gap-5 px-4 py-6">
+    <main className="page-w flex flex-col gap-5 px-4 py-6">
       <BackLink href="/accounts" />
       <SectionHero
         icon="tiktok"

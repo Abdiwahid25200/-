@@ -7,7 +7,7 @@ export default async function ComingSoon({ pageKey }: { pageKey?: string }) {
   const tp = await getTranslations("pages");
 
   return (
-    <main className="mx-auto flex max-w-2xl flex-col items-center gap-5 px-5 py-20 text-center">
+    <main className="page-w flex flex-col items-center gap-5 px-5 py-20 text-center">
       <span
         aria-hidden
         className="flex size-16 items-center justify-center rounded-card bg-yellow/12 text-3xl"

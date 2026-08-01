@@ -35,7 +35,7 @@ export default async function PubgPage({
   const over = await sectionOverride("pubg");
 
   return (
-    <main className="seq mx-auto flex max-w-4xl flex-col gap-5 px-4 py-6">
+    <main className="seq page-w flex flex-col gap-5 px-4 py-6">
       <BackLink href="/games" />
       <SectionHero
         icon="pubg"

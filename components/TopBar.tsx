@@ -9,7 +9,7 @@ export default async function TopBar() {
 
   return (
     <div className="bg-navy text-white">
-      <div className="mx-auto flex max-w-5xl flex-wrap items-center gap-x-5 gap-y-1 px-4 py-1.5 text-[0.8rem]">
+      <div className="page-w flex flex-wrap items-center gap-x-5 gap-y-1 px-4 py-1.5 text-[0.8rem]">
         {store.whatsapp && (
           <a href={`tel:${store.whatsapp}`} className="flex items-center gap-1.5">
             <span aria-hidden>📞</span>

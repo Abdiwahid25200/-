@@ -25,7 +25,7 @@ export default async function PolicyPage({
   const te = await getTranslations("eyebrow");
 
   return (
-    <main className="mx-auto flex max-w-3xl flex-col gap-5 px-4 py-6">
+    <main className="page-w flex flex-col gap-5 px-4 py-6">
       <BackLink href="/" />
       <SectionHead
         eyebrow={te("policy")} title={t("title")} note={t("note")} />

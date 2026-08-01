@@ -30,7 +30,7 @@ export default async function Home({
   const items = await mergedItems("elec");
 
   return (
-    <main className="seq mx-auto flex max-w-5xl flex-col gap-9 px-4 py-6">
+    <main className="seq page-w flex flex-col gap-9 px-4 py-6">
       <HeroSlider slides={slides} />
 
       <section>

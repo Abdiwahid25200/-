@@ -37,7 +37,7 @@ export default async function GamesPage({
   const list = await mergedSections("games");
 
   return (
-    <main className="seq mx-auto flex max-w-3xl flex-col gap-4 px-4 py-6">
+    <main className="seq page-w flex flex-col gap-4 px-4 py-6">
       <BackLink />
       <SectionHead
         eyebrow={te("games")} title={t("title")} note={t("note")} />

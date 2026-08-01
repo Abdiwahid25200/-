@@ -52,7 +52,7 @@ export default function BottomNav() {
         aria-label={t("label")}
         className="relative mx-3 rounded-[26px] border border-line bg-surface shadow-[0_6px_28px_rgba(0,0,0,0.12)]"
       >
-        <div className="mx-auto flex max-w-5xl px-1.5 py-1">
+        <div className="page-w flex px-1.5 py-1">
         {tabs.map(({ key, href, Icon }) => {
           const isActive =
             href === "/" ? pathname === "/" : pathname.startsWith(href);

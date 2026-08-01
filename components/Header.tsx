@@ -21,7 +21,7 @@ export default async function Header() {
     // ولأنه شفّاف فهو لا يلتصق بالأعلى، وإلا ظهر المحتوى من خلفه عند التمرير؛
     // التنقّل الدائم مكانه القائمة السفلية.
     <header className="coast-glow relative z-30">
-      <div className="mx-auto flex max-w-5xl items-center gap-3 px-4 py-3">
+      <div className="page-w flex items-center gap-3 px-4 py-3">
         <Link href="/" className="flex min-w-0 items-center gap-3">
           <Logo solid className="size-11 shrink-0 rounded-[13px] shadow-sm" />
           <span className="min-w-0 leading-tight">
