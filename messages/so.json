@@ -566,5 +566,12 @@
     "none": "Waxba lama helin “{q}”.",
     "section": "Qaybta",
     "loading": "Raadinaya…"
+  },
+  "closed": {
+    "title": "Dukaanku waa xiran yahay",
+    "note": "Waxaan samaynaynaa cusboonaysiin degdeg ah — mar dambe soo eeg.",
+    "hoursTitle": "Waqtiga shaqadu waa dhammaaday",
+    "hoursNote": "Dalabyada waxaan qaadnaa {from} ilaa {to}.",
+    "cannotOrder": "Dalabka hadda lama diri karo"
   }
 }

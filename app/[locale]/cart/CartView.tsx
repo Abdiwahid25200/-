@@ -12,6 +12,8 @@ import { useAuth } from "@/lib/auth";
 import { payWithPoints, saveOrder } from "@/lib/orders";
 import { usePayMethods } from "@/components/usePayMethods";
 import { usePointsRedeem } from "@/components/PointsRedeem";
+import ClosedNotice from "@/components/ClosedNotice";
+import { useStoreOpen } from "@/lib/storeOpen";
 import {
   IconArrow,
   IconCartEmpty,
@@ -29,6 +31,7 @@ const newCode = () => "M-" + Math.floor(100000 + Math.random() * 900000);
 export default function CartView() {
   const t = useTranslations("cart");
   const tb = useTranslations("buy");
+  const tClosed = useTranslations("closed");
   const locale = useLocale();
   const { lines, total, count, setQty, remove, clear, ready } = useCart();
 
@@ -41,6 +44,8 @@ export default function CartView() {
   const { user } = useAuth();
   // خصم النقاط — يقرأ الرصيد ويحسب المبلغ بعد الخصم
   const redeem = usePointsRedeem(total);
+  // المتجر مغلق أو خارج الدوام ⇒ يتصفّح ولا يطلب
+  const store = useStoreOpen();
 
   const methods = live(usePayMethods()).filter(isBuyable);
   const method = methods.find((m) => m.id === payId) ?? methods[0];
@@ -57,7 +62,9 @@ export default function CartView() {
   // النقاط خيارٌ داخل قائمة الدفع، فالقسم يظهر متى وُجدت طريقة أو رصيد
   const payNeeded = methods.length > 0 || redeem.eligible;
   const payReady = !payNeeded || !!payId;
-  const canOrder = detailsReady && payReady;
+  const canOrder = detailsReady && payReady && store.open;
+  /** أكمل كلّ شيء والمانع هو المتجر وحده ⇒ زرّ معطّل يقول السبب، لا زرٌّ صامت */
+  const blocked = !!detailsReady && payReady && !store.open;
 
   /* حقول التوصيل: الشريط العائم ينقل الزبون إلى أوّل حقل ناقص */
   const nameRef = useRef<HTMLInputElement>(null);
@@ -346,6 +353,8 @@ export default function CartView() {
         </div>
       )}
 
+      <ClosedNotice state={store} />
+
       {/* الإجمالي — للمراجعة وحدها، والتأكيد في الشريط العائم أسفل الشاشة */}
       <section className="flex items-center justify-between rounded-card border border-line bg-surface p-4 text-lg">
         <span className="font-bold">{tb("total")}</span>
@@ -380,9 +389,12 @@ export default function CartView() {
           <button
             type="button"
             onClick={canOrder ? placeOrder : goToMissing}
-            className="lift ms-auto flex min-h-12 items-center gap-2 rounded-[20px] bg-orange px-5 font-bold text-onaccent"
+            disabled={blocked}
+            className="lift ms-auto flex min-h-12 items-center gap-2 rounded-[20px] bg-orange px-5 font-bold text-onaccent disabled:opacity-50"
           >
-            {canOrder ? (
+            {blocked ? (
+              tClosed("cannotOrder")
+            ) : canOrder ? (
               <>
                 {tb("confirm")}
                 <IconCheckCircle className="size-5" />

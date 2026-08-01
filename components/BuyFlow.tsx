@@ -13,6 +13,8 @@ import { IconArrow, IconCheckCircle, IconSpinner, IconSuccess } from "./icons";
 import { payWithPoints, saveOrder } from "@/lib/orders";
 import { usePayMethods } from "@/components/usePayMethods";
 import { usePointsRedeem } from "./PointsRedeem";
+import ClosedNotice from "./ClosedNotice";
+import { useStoreOpen } from "@/lib/storeOpen";
 
 export type Pack = {
   id: string;
@@ -69,6 +71,7 @@ export default function BuyFlow({
 }) {
   const t = useTranslations("buy");
   const tc = useTranslations("common");
+  const tClosed = useTranslations("closed");
   const locale = useLocale();
 
   const [packId, setPackId] = useState<string | null>(null);
@@ -85,6 +88,8 @@ export default function BuyFlow({
   const total = pack ? fin(pack) : 0;
   // خصم النقاط — نفس المكوّن المستعمل في السلة، فلا يتعلّم الزبون شكلين
   const redeem = usePointsRedeem(total);
+  // المتجر مغلق أو خارج الدوام ⇒ يتصفّح ولا يطلب
+  const store = useStoreOpen();
 
   const isWa = mode === "whatsapp";
 
@@ -124,7 +129,11 @@ export default function BuyFlow({
      فالنقاط صارت خياراً داخل القائمة لا مفتاحاً منفصلاً فوقها. */
   const payNeeded = !isWa && (methods.length > 0 || redeem.eligible);
   const payReady = !payNeeded || !!payId;
-  const canConfirm = !!pack && accountReady && payReady;
+  // المتجر مغلق أو خارج الدوام ⇒ لا تأكيد
+  const ready = !!pack && accountReady && payReady;
+  const canConfirm = ready && store.open;
+  /** أكمل كلّ شيء والمانع هو المتجر وحده ⇒ زرّ معطّل يقول السبب، لا زرٌّ صامت */
+  const blocked = ready && !store.open;
 
   const steps = payNeeded ? 3 : 2;
   const stepsDone =
@@ -359,6 +368,8 @@ export default function BuyFlow({
         </div>
       </section>
 
+      {pack && <ClosedNotice state={store} />}
+
       {/* بعد الاختيار: حقل الواتساب في وضع الحسابات · قسم الدفع في غيره */}
       {pack &&
         (isWa ? (
@@ -402,11 +413,14 @@ export default function BuyFlow({
               <button
                 type="button"
                 onClick={canConfirm ? confirm : goToNext}
-                className={`lift flex min-h-12 items-center gap-2 rounded-[20px] bg-orange px-5 font-bold text-onaccent ${
+                disabled={blocked}
+                className={`lift flex min-h-12 items-center gap-2 rounded-[20px] bg-orange px-5 font-bold text-onaccent disabled:opacity-50 ${
                   pack ? "ms-auto" : "w-full justify-center"
                 }`}
               >
-                {next === "confirm" ? (
+                {blocked ? (
+                  tClosed("cannotOrder")
+                ) : next === "confirm" ? (
                   <>
                     {isWa ? t("continueWa") : t("confirm")}
                     <IconCheckCircle className="size-5" />

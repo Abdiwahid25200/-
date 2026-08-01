@@ -566,5 +566,12 @@
     "none": "Nothing matches “{q}”.",
     "section": "Section",
     "loading": "Searching…"
+  },
+  "closed": {
+    "title": "The store is closed for now",
+    "note": "We are running a quick update — check back shortly.",
+    "hoursTitle": "Outside working hours",
+    "hoursNote": "We take orders from {from} to {to}. Order within that time and it is delivered right away.",
+    "cannotOrder": "Orders cannot be sent right now"
   }
 }
