@@ -1,18 +1,24 @@
 import { getTranslations } from "next-intl/server";
+import { getLocale } from "next-intl/server";
 import { howItWorks } from "@/lib/content";
+import { readTexts, tx } from "@/lib/overrides";
 /**
  * "كيف يعمل المتجر" — شارة علوية، عنوان، شرح، فيديو اختياري، ثم ثلاث خطوات.
  * الفيديو يظهر فقط عند وضع `youtubeId` في lib/content.ts، فلا تبقى فجوة فارغة.
  */
 export default async function HowItWorks() {
   const t = await getTranslations("how");
-  const { youtubeId, steps } = howItWorks;
+  const locale = await getLocale();
+  // نصوص اللوحة تعلو الترجمات — والفارغ يُبقي الأصل
+  const d = await readTexts("how");
+  const { steps } = howItWorks;
+  const youtubeId = tx(d, "youtubeId", locale, howItWorks.youtubeId ?? "");
 
   return (
     <section className="coast-glow flex flex-col gap-4">
-      <p className="eyebrow">{t("badge")}</p>
-      <h2 className="text-2xl font-bold leading-tight">{t("title")}</h2>
-      <p className="max-w-prose text-muted">{t("note")}</p>
+      <p className="eyebrow">{tx(d, "badge", locale, t("badge"))}</p>
+      <h2 className="text-2xl font-bold leading-tight">{tx(d, "title", locale, t("title"))}</h2>
+      <p className="max-w-prose text-muted">{tx(d, "note", locale, t("note"))}</p>
 
       {youtubeId && (
         <div className="w-full overflow-hidden rounded-card border border-line bg-navy shadow-sm">
@@ -44,9 +50,9 @@ export default async function HowItWorks() {
               {i + 1}
             </span>
             <span className="min-w-0">
-              <span className="block font-bold">{t(`steps.${k}.title`)}</span>
+              <span className="block font-bold">{tx(d, `steps.${k}.title`, locale, t(`steps.${k}.title`))}</span>
               <span className="mt-0.5 block text-sm text-muted">
-                {t(`steps.${k}.note`)}
+                {tx(d, `steps.${k}.note`, locale, t(`steps.${k}.note`))}
               </span>
             </span>
           </li>

@@ -5,6 +5,7 @@ import { createPortal } from "react-dom";
 import { useAuth } from "@/lib/auth";
 import Logo from "@/components/Logo";
 import {
+  IconCart,
   IconChat,
   IconClose,
   IconDevice,
@@ -27,6 +28,8 @@ export type AdminTab =
   | "sections"
   | "slides"
   | "store"
+  | "payments"
+  | "texts"
   | "points"
   | "faq"
   | "staff";
@@ -39,6 +42,8 @@ const ICONS: Record<AdminTab, (p: { className?: string }) => React.ReactElement>
   sections: IconDoc,
   slides: IconDevice,
   store: IconUser,
+  payments: IconCart,
+  texts: IconDoc,
   points: IconUser,
   faq: IconChat,
   staff: IconUser,

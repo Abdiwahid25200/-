@@ -2,6 +2,7 @@ import { getTranslations, setRequestLocale } from "next-intl/server";
 import { pageMeta } from "@/lib/seo";
 import SectionHead from "@/components/SectionHead";
 import BackLink from "@/components/BackLink";
+import { readTexts, tx } from "@/lib/overrides";
 
 const sections = ["terms", "privacy", "refund", "delivery"] as const;
 
@@ -23,6 +24,7 @@ export default async function PolicyPage({
   setRequestLocale(locale);
   const t = await getTranslations("policy");
   const te = await getTranslations("eyebrow");
+  const d = await readTexts("policy");
 
   return (
     <main className="page-w flex flex-col gap-5 px-4 py-6">
@@ -36,9 +38,9 @@ export default async function PolicyPage({
           id={k}
           className="scroll-mt-24 rounded-card border border-line bg-surface p-5"
         >
-          <h2 className="mb-2 text-lg font-bold">{t(`${k}.title`)}</h2>
+          <h2 className="mb-2 text-lg font-bold">{tx(d, `${k}.title`, locale, t(`${k}.title`))}</h2>
           <p className="whitespace-pre-line text-sm leading-relaxed text-muted">
-            {t(`${k}.body`)}
+            {tx(d, `${k}.body`, locale, t(`${k}.body`))}
           </p>
         </section>
       ))}

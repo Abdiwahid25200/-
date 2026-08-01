@@ -1,7 +1,9 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import { isBuyable, live, pay, type PayMethod } from "@/lib/data";
+import { mergedPay } from "@/lib/payments";
 import PayMark from "./PayMark";
 import { IconCall } from "./icons";
 
@@ -50,7 +52,20 @@ export default function PaySection({
   const tc = useTranslations("common");
   const locale = useLocale();
 
-  const methods = live(pay);
+  /**
+   * الطرق تُقرأ من اللوحة بعد التركيب، والأصل الثابت يظهر ريثما تصل —
+   * فلا يرى الزبون فراغاً للحظة ثم تقفز القائمة.
+   */
+  const [all, setAll] = useState<PayMethod[]>(pay);
+  useEffect(() => {
+    let alive = true;
+    void mergedPay().then((m) => alive && setAll(m));
+    return () => {
+      alive = false;
+    };
+  }, []);
+
+  const methods = live(all);
   // الطريقة المختارة لا تكون إلا طريقة عاملة — "قريباً" معروضة لا مُتاحة
   const ready = methods.filter(isBuyable);
   // بلا طرق دفع لا نعرض عنواناً فوق فراغ — يختفي القسم كلّه

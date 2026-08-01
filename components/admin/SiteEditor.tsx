@@ -49,6 +49,43 @@ export default function SiteEditor() {
   return (
     <div className="flex flex-col gap-4">
       <label className="flex flex-col gap-1.5 text-sm">
+        <span className="font-bold">Store name</span>
+        <span className="text-muted">Shown in the header and the menu.</span>
+        <input
+          value={d.brand ?? ""}
+          onChange={(e) => setD({ ...d, brand: e.target.value })}
+          placeholder={site.brand}
+          className={field}
+        />
+      </label>
+
+      <div className="flex flex-col gap-1.5">
+        <span className="text-sm font-bold">Tagline under the name</span>
+        <div className="flex flex-wrap gap-2">
+          {LOCALES.map((l) => (
+            <button
+              key={l.v}
+              type="button"
+              onClick={() => setLang(l.v)}
+              className={`min-h-11 rounded-card border px-4 text-sm font-medium ${
+                lang === l.v ? "border-orange text-orange" : "border-line text-muted"
+              }`}
+            >
+              {l.label}
+            </button>
+          ))}
+        </div>
+        <input
+          value={d.tagline?.[lang] ?? ""}
+          onChange={(e) =>
+            setD({ ...d, tagline: { ...d.tagline, [lang]: e.target.value } })
+          }
+          placeholder={site.tagline[lang]}
+          className={field}
+        />
+      </div>
+
+      <label className="flex flex-col gap-1.5 text-sm">
         <span className="font-bold">WhatsApp number</span>
         <span className="text-muted">
           With country code, digits only — e.g. 252612345678. Empty shows

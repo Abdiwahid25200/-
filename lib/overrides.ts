@@ -95,7 +95,7 @@ export const readProducts = () => readAll<ItemOverride>("products");
 
 /** حفظ تعديل — `merge` فلا يمحو حقلاً لم تلمسه صاحبة المتجر */
 export async function saveOverride(
-  col: "sections" | "packages" | "products" | "settings" | "slides",
+  col: "sections" | "packages" | "products" | "settings" | "slides" | "payments",
   id: string,
   data: Record<string, unknown>,
 ): Promise<boolean> {
@@ -120,7 +120,7 @@ export async function saveOverride(
  * يكون بالحالة `off` لا بالحذف.
  */
 export async function deleteOverride(
-  col: "sections" | "packages" | "products" | "slides",
+  col: "sections" | "packages" | "products" | "slides" | "payments",
   id: string,
 ): Promise<boolean> {
   const db = fbDb();
@@ -138,6 +138,9 @@ export async function deleteOverride(
    ═══════════════════════════════════════════════════════════ */
 
 export type SiteOverride = {
+  /** اسم المتجر ووسمه — يظهران في الترويسة والقائمة */
+  brand?: string;
+  tagline?: Partial<Multilang>;
   whatsapp?: string;
   email?: string;
   telegram?: string;
@@ -151,7 +154,10 @@ export type SiteOverride = {
  *    يجب ألّا تنكسر لأن وثيقة إعدادات غائبة أو الشبكة بطيئة.
  */
 export async function mergedSite(): Promise<
-  typeof siteStatic & { hoursOf: (locale: string) => string }
+  typeof siteStatic & {
+    hoursOf: (locale: string) => string;
+    taglineOf: (locale: string) => string;
+  }
 > {
   const db = fbDb();
   let o: SiteOverride = {};
@@ -169,11 +175,49 @@ export async function mergedSite(): Promise<
 
   return {
     ...siteStatic,
+    brand: o.brand || siteStatic.brand,
+    taglineOf: (locale: string) =>
+      pick(o.tagline, locale, siteStatic.tagline[locale as keyof typeof siteStatic.tagline] ?? ""),
     whatsapp: o.whatsapp ?? siteStatic.whatsapp,
     email: o.email ?? siteStatic.email,
     telegram: o.telegram ?? siteStatic.telegram,
     hoursOf: (locale: string) => pick(o.hours, locale, siteStatic.hours[locale as keyof typeof siteStatic.hours] ?? ""),
   };
+}
+
+/* ═══════════════════════════════════════════════════════════
+   النصوص العامّة — «كيف يعمل المتجر» · السياسات · اسم المتجر
+   ═══════════════════════════════════════════════════════════ */
+
+/** وثيقة نصوص: مفتاحٌ مسطّح ⇐ ثلاث لغات. مثال: `steps.choose.title` */
+export type TextDoc = Record<string, Partial<Multilang>>;
+
+/**
+ * ⚠️ لا ترمي خطأً: تعذّر القراءة ⇒ كائن فارغ ⇒ تظهر نصوص
+ * `messages/*.json` الأصلية. صفحةٌ بنصّها الأصلي خيرٌ من صفحة بيضاء.
+ */
+export async function readTexts(id: string): Promise<TextDoc> {
+  const db = fbDb();
+  if (!db) return {};
+  try {
+    const snap = await Promise.race([
+      getDoc(doc(db, "settings", id)),
+      new Promise<never>((_, rej) => setTimeout(() => rej(new Error("slow")), READ_MS)),
+    ]);
+    return snap.exists() ? (snap.data() as TextDoc) : {};
+  } catch {
+    return {};
+  }
+}
+
+/** نصّ من الوثيقة بلغة الصفحة، وإلا الأصل من الترجمات */
+export function tx(
+  d: TextDoc,
+  key: string,
+  locale: string,
+  fallback: string,
+): string {
+  return pick(d[key], locale, fallback);
 }
 
 /* ═══════════════════════════════════════════════════════════

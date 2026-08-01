@@ -32,6 +32,7 @@ export const PERMS = [
   { v: "customers", label: "Customers — phones and points" },
   { v: "products", label: "Products — packages and prices" },
   { v: "sections", label: "Sections — games and pages" },
+  { v: "payments", label: "Payment methods" },
   { v: "points", label: "Points settings" },
   { v: "faq", label: "Q&A" },
 ] as const;

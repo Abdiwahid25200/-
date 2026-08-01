@@ -11,6 +11,8 @@ import CustomersEditor from "./CustomersEditor";
 import StaffEditor from "./StaffEditor";
 import SlidesEditor from "./SlidesEditor";
 import SiteEditor from "./SiteEditor";
+import PaymentsEditor from "./PaymentsEditor";
+import TextsEditor from "./TextsEditor";
 import { useAccess } from "@/lib/adminAccess";
 import type { Perm } from "@/lib/staff";
 
@@ -28,6 +30,8 @@ const TABS: { v: AdminTab; label: string; perm?: Perm; owner?: boolean }[] = [
   { v: "sections", label: "Sections", perm: "sections" },
   { v: "slides", label: "Banner", perm: "sections" },
   { v: "store", label: "Store info", owner: true },
+  { v: "payments", label: "Payments", perm: "payments" },
+  { v: "texts", label: "Page texts", perm: "sections" },
   { v: "points", label: "Points", perm: "points" },
   { v: "faq", label: "Q&A", perm: "faq" },
   // المساعدون: لصاحبة المتجر وحدها — ولو رآه مساعد لمنح نفسه كل شيء
@@ -88,6 +92,10 @@ export default function AdminTabs() {
         <SlidesEditor />
       ) : current === "store" ? (
         <SiteEditor />
+      ) : current === "payments" ? (
+        <PaymentsEditor />
+      ) : current === "texts" ? (
+        <TextsEditor />
       ) : current === "points" ? (
         <PointsEditor />
       ) : current === "staff" ? (

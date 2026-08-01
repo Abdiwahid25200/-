@@ -229,6 +229,8 @@ service cloud.firestore {
     match /sections/{id}  { allow read: if true; allow write: if canDo('sections'); }
     // شرائح البانر — نفس باب الأقسام
     match /slides/{id}    { allow read: if true; allow write: if canDo('sections'); }
+    // طرق الدفع — بابها المستقلّ
+    match /payments/{id}  { allow read: if true; allow write: if canDo('payments'); }
 
     /* الإعدادات وثائق مختلفة الأغراض، فلكلٍّ بابها:
        `points` لمن فُتحت له النقاط · `faq` لمن فُتحت له الأسئلة. */
@@ -236,7 +238,8 @@ service cloud.firestore {
       allow read: if true;
       allow write: if isAdmin()
         || (id == 'points' && staffCan('points'))
-        || (id == 'faq' && staffCan('faq'));
+        || (id == 'faq' && staffCan('faq'))
+        || ((id == 'how' || id == 'policy') && staffCan('sections'));
       // ملاحظة: `settings/store` (أرقام التواصل) لصاحبة المتجر وحدها
     }
 

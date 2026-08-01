@@ -1,4 +1,5 @@
-import { getTranslations } from "next-intl/server";
+import { getTranslations, getLocale } from "next-intl/server";
+import { mergedSite } from "@/lib/overrides";
 import { Link } from "@/i18n/navigation";
 import Logo from "./Logo";
 import CartButton from "./CartButton";
@@ -16,6 +17,9 @@ import { site as store } from "@/lib/content";
 export default async function Header() {
   const t = await getTranslations("header");
 
+  const store = await mergedSite();
+  const hLocale = await getLocale();
+
   return (
     // بلا خلفية بيضاء ولا خطّ فاصل — يجلس على أرضية الصفحة كما بالمعاينة.
     // ولأنه شفّاف فهو لا يلتصق بالأعلى، وإلا ظهر المحتوى من خلفه عند التمرير؛
@@ -26,10 +30,10 @@ export default async function Header() {
           <Logo solid className="size-11 shrink-0 rounded-[13px] shadow-sm" />
           <span className="min-w-0 leading-tight">
             <span className="block truncate text-[1.05rem] font-bold">
-              {t("brand")}
+              {store.brand || t("brand")}
             </span>
             <span className="block truncate text-[0.62rem] font-semibold uppercase tracking-[0.16em] text-muted rtl:tracking-normal">
-              {t("tagline")}
+              {store.taglineOf(hLocale) || t("tagline")}
             </span>
           </span>
         </Link>
