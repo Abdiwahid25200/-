@@ -131,7 +131,8 @@ export default function AccountPanel() {
         </Link>
       )}
 
-      <section>
+      {/* `scroll-mt` يترك مساحة فوق العنوان فلا يختفي تحت الترويسة */}
+      <section id="orders" className="scroll-mt-20">
         <h2 className="mb-3 text-lg font-bold">{t("myOrders")}</h2>
 
         {failed ? (

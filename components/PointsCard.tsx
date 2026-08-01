@@ -82,7 +82,7 @@ export default function PointsCard() {
   const short = Math.max(0, settings.minRedeem - points);
 
   return (
-    <section className="rounded-card border border-line bg-surface p-4">
+    <section id="points" className="scroll-mt-20 rounded-card border border-line bg-surface p-4">
       <p className="text-[0.7rem] font-bold uppercase tracking-wide text-muted rtl:tracking-normal">
         {t("eyebrow")}
       </p>
