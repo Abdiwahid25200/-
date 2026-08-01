@@ -46,6 +46,8 @@ const kinds = {
   elec: { Icon: IconDevice, page: "electronics", done: "shipped" },
   // شراء نقاط — كان يظهر «إلكترونيات» بأيقونة جهاز، وهو ليس منتجاً أصلاً
   points: { Icon: IconDevice, page: "points", done: "toppedUp" },
+  "points-send": { Icon: IconDevice, page: "points", done: "handedOver" },
+  "points-sell": { Icon: IconDevice, page: "points", done: "handedOver" },
 } as const;
 
 type KindKey = keyof typeof kinds;
@@ -83,7 +85,7 @@ export default function OrderCard({
 
   const kind = (order.kind in kinds ? order.kind : "elec") as KindKey;
   const { Icon, page, done: doneKey } = kinds[kind];
-  const isPoints = kind === "points";
+  const isPoints = kind.startsWith("points");
 
   /**
    * صورة القسم كما رفعتها صاحبة المتجر — كانت البطاقة تعرض الأيقونة

@@ -240,3 +240,85 @@ export async function buyPointsOrder(
     return { ok: false };
   }
 }
+
+/* ═══════════════════════════════════════════════════════════
+   إرسال النقاط وبيعها — كلاهما **يُخصم فوراً ويصلك طلباً**
+   ═══════════════════════════════════════════════════════════ */
+
+/**
+ * ⚠️ **لماذا يُخصم فوراً ثم يصلك طلب، ولا يُضاف للمستقبِل تلقائياً؟**
+ *    لأن الزبون **لا يملك زيادة رصيد أحد** — لا رصيده ولا رصيد غيره،
+ *    وهذا هو ما يحمي النقاط من أن تُخلق من العدم. فما يستطيعه أن
+ *    **يُنقص رصيده هو**، ويترك لكِ إيصال النقاط إلى صاحبها.
+ *
+ *    والخصم أوّلاً مقصود: لو خُصم بعد موافقتك لأرسل الزبون نقاطه
+ *    مرّتين قبل أن تنظري في الأولى.
+ */
+async function spendAndRequest(
+  user: User,
+  n: number,
+  kind: "points-send" | "points-sell",
+  title: string,
+  account: string,
+): Promise<{ ok: true; code: string } | { ok: false }> {
+  const db = fbDb();
+  if (!db || n <= 0) return { ok: false };
+
+  const code = `${kind === "points-send" ? "SN" : "SL"}-${Date.now().toString(36).toUpperCase()}`;
+  const reason = kind === "points-send" ? "send" : "sell";
+
+  try {
+    const { addDoc, collection, runTransaction, serverTimestamp } = await import(
+      "firebase/firestore"
+    );
+
+    // ① الخصم وسطره معاً — فلا رصيد ينقص بلا سبب مكتوب
+    await runTransaction(db, async (tx) => {
+      const uRef = doc(db, "users", user.uid);
+      const uSnap = await tx.get(uRef);
+      const balance = Number(uSnap.data()?.points) || 0;
+      if (balance < n) throw new Error("balance");
+
+      tx.set(uRef, { points: balance - n }, { merge: true });
+      tx.set(doc(db, "users", user.uid, "ledger", code), {
+        delta: -n,
+        reason,
+        code,
+        at: serverTimestamp(),
+      });
+    });
+
+    // ② والطلب يصلك في اللوحة لتُنفّذيه
+    await addDoc(collection(db, "orders"), {
+      code,
+      kind,
+      items: [{ id: reason, title, qty: 1, price: 0 }],
+      total: 0,
+      usePoints: n,
+      payMethod: "",
+      account,
+      uid: user.uid,
+      email: user.email ?? "",
+      name: user.displayName ?? "",
+      status: "pending",
+      pointsSpent: n,
+      createdAt: serverTimestamp(),
+    });
+
+    return { ok: true, code };
+  } catch {
+    return { ok: false };
+  }
+}
+
+/** تحويل نقاط إلى زبون آخر برقم هاتفه */
+export const sendPoints = (user: User | null, toPhone: string, n: number) =>
+  user && toPhone.replace(/\D/g, "").length >= 7
+    ? spendAndRequest(user, Math.round(n), "points-send", `${Math.round(n)} points → ${toPhone}`, toPhone)
+    : Promise.resolve({ ok: false as const });
+
+/** بيع نقاط: تُخصم ويصلك طلبٌ لتدفعي قيمتها */
+export const sellPoints = (user: User | null, n: number, payTo: string) =>
+  user && payTo.trim().length >= 6
+    ? spendAndRequest(user, Math.round(n), "points-sell", `${Math.round(n)} points → cash`, payTo.trim())
+    : Promise.resolve({ ok: false as const });

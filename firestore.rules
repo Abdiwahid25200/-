@@ -122,7 +122,7 @@ service cloud.firestore {
         allow create: if isSignedIn() && request.auth.uid == uid
           && request.resource.data.delta is int
           && request.resource.data.delta < 0
-          && request.resource.data.reason == 'redeem'
+          && request.resource.data.reason in ['redeem', 'send', 'sell']
           && request.resource.data.code == entryId
           && request.resource.data.at == request.time;
       }

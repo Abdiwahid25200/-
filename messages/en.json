@@ -322,7 +322,23 @@
     "useTitle": "Use my points on this order",
     "fullyCovered": "Your points cover the whole amount — no transfer needed.",
     "balanceIs": "You have {n} points · {usd}",
-    "discount": "Points discount"
+    "discount": "Points discount",
+    "tabBuy": "Buy",
+    "tabSend": "Send",
+    "tabReceive": "Receive",
+    "tabSell": "Sell",
+    "sendTitle": "Send points to a friend",
+    "sendPhone": "Their WhatsApp number",
+    "sendCta": "Send {n} points",
+    "sendDone": "Done — they get the points once we review it ({code})",
+    "receiveTitle": "To receive points",
+    "receiveNote": "Give this number to whoever sends them:",
+    "receiveNone": "Add your phone number in your account first",
+    "sellTitle": "Sell your points",
+    "sellNote": "We transfer the value to your number",
+    "sellCta": "Sell {n} points · {usd}",
+    "sellDone": "Done — we transfer the money after review ({code})",
+    "errBalance": "Not enough points"
   },
   "accountPage": {
     "title": "My account",
@@ -367,7 +383,9 @@
       "tiktok": "We message you on WhatsApp to hand over the account details.",
       "accounts": "We message you on WhatsApp to hand over the account details.",
       "elec": "Your order ships to the address you entered.",
-      "points": "Your points are added to your balance as soon as we confirm the payment."
+      "points": "Your points are added to your balance as soon as we confirm the payment.",
+      "points-send": "The points reach that number once we review it.",
+      "points-sell": "We transfer the value to your number after review."
     },
     "done": {
       "toppedUp": "Topped up",

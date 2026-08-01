@@ -322,7 +322,23 @@
     "useTitle": "Isticmaal dhibcahayga dalabkan",
     "fullyCovered": "Dhibcahaagu waxay daboolayaan qiimaha oo dhan — wareejin looma baahna.",
     "balanceIs": "Waxaad haysataa {n} dhibcood · {usd}",
-    "discount": "Qiimo-dhimis dhibco"
+    "discount": "Qiimo-dhimis dhibco",
+    "tabBuy": "Iibso",
+    "tabSend": "Dir",
+    "tabReceive": "Hel",
+    "tabSell": "Iibi",
+    "sendTitle": "U dir dhibco saaxiib",
+    "sendPhone": "Lambarka WhatsApp ee qofka",
+    "sendCta": "Dir {n} dhibcood",
+    "sendDone": "Waa la diray — wuu heli doonaa marka aan eegno ({code})",
+    "receiveTitle": "Si aad u hesho dhibco",
+    "receiveNote": "Sii lambarkan qofka ku soo dirayo:",
+    "receiveNone": "Marka hore ku dar lambarkaaga akoonkaaga",
+    "sellTitle": "Iibi dhibcahaaga",
+    "sellNote": "Qiimaha ayaan lambarkaaga ugu soo dirnaa",
+    "sellCta": "Iibi {n} dhibcood · {usd}",
+    "sellDone": "Waa la diray — lacagta waan kuu soo dirnaa ({code})",
+    "errBalance": "Dhibcahaagu kuma filna"
   },
   "accountPage": {
     "title": "Akoonkayga",
@@ -367,7 +383,9 @@
       "tiktok": "WhatsApp ayaan kugula soo xiriiraynaa si aan kuu siino xogta akoonka.",
       "accounts": "WhatsApp ayaan kugula soo xiriiraynaa si aan kuu siino xogta akoonka.",
       "elec": "Dalabkaaga waxaa loo dirayaa cinwaanka aad qortay.",
-      "points": "Dhibcahaaga waa lagu darayaa marka aan lacagta xaqiijino."
+      "points": "Dhibcahaaga waa lagu darayaa marka aan lacagta xaqiijino.",
+      "points-send": "Dhibcuhu waxay gaarayaan lambarkaas marka aan eegno.",
+      "points-sell": "Qiimaha ayaan lambarkaaga ugu soo dirnaa."
     },
     "done": {
       "toppedUp": "La buuxiyay",

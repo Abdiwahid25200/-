@@ -4,10 +4,13 @@ import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
 import { useAuth } from "@/lib/auth";
 import PointsBrand from "./PointsBrand";
+import { getProfile } from "@/lib/profile";
 import {
   DEFAULT_POINTS,
   USD_PER_POINT,
   buyPointsOrder,
+  sellPoints,
+  sendPoints,
   myLedger,
   myPoints,
   pointsToUsd,
@@ -33,6 +36,9 @@ export default function PointsCard() {
   const [points, setPoints] = useState<number | null>(null);
   const [rows, setRows] = useState<LedgerRow[]>([]);
   const [want, setWant] = useState("");
+  const [tab, setTab] = useState<"buy" | "send" | "receive" | "sell" | null>(null);
+  const [toPhone, setToPhone] = useState("");
+  const [phone, setPhone] = useState("");
   const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState<string | null>(null);
 
@@ -54,6 +60,9 @@ export default function PointsCard() {
         setSettings(s);
         setPoints(p);
         setRows(l);
+        void getProfile(user)
+          .then((pr) => alive && setPhone(pr?.phone ?? ""))
+          .catch(() => {});
       } catch {
         // بلا Firebase أو مع انقطاع: تختفي البطاقة ولا يظهر خطأ للزبون
         if (alive) setPoints(null);
@@ -64,6 +73,30 @@ export default function PointsCard() {
       alive = false;
     };
   }, [user]);
+
+  const amount = Math.max(0, Math.round(Number(want) || 0));
+
+  const field =
+    "min-h-12 w-full rounded-card border border-line bg-bg px-3 text-start outline-none focus:border-orange";
+  const cta =
+    "min-h-12 rounded-card bg-orange px-3 font-bold text-onaccent disabled:opacity-50";
+
+  /** الإرسال والبيع — كلاهما يخصم فوراً ويصل صاحبة المتجر طلباً */
+  async function move(what: "send" | "sell") {
+    if (amount <= 0 || amount > (points ?? 0)) return setMsg(t("errBalance"));
+    setBusy(true);
+    setMsg(null);
+    const r =
+      what === "send"
+        ? await sendPoints(user, toPhone, amount)
+        : await sellPoints(user, amount, phone);
+    setBusy(false);
+    if (!r.ok) return setMsg(t("buyError"));
+    setWant("");
+    setToPhone("");
+    setPoints((p) => (p === null ? p : p - amount));
+    setMsg(t(what === "send" ? "sendDone" : "sellDone", { code: r.code }));
+  }
 
   async function buy() {
     const n = Math.round(Number(want) || 0);
@@ -111,15 +144,30 @@ export default function PointsCard() {
           : t("canRedeem")}
       </p>
 
-      {settings.sell && (
-        <div className="mt-3 flex flex-col gap-2 border-t border-dashed border-line pt-3">
-          <p className="font-bold">{t("buyTitle")}</p>
-          <p className="text-sm text-muted">
-            {t("buyNote", {
-              usd: `$${(settings.minBuy * USD_PER_POINT).toFixed(2)}`,
-            })}
-          </p>
+      {/* أربعة أبواب كالمحفظة: شراء · إرسال · استلام · بيع */}
+      <div className="mt-3 grid grid-cols-4 gap-2 border-t border-dashed border-line pt-3">
+        {(["buy", "send", "receive", "sell"] as const).map((k) => (
+          <button
+            key={k}
+            type="button"
+            onClick={() => setTab(tab === k ? null : k)}
+            className={`flex min-h-16 flex-col items-center justify-center gap-1 rounded-card border text-xs font-bold transition-colors ${
+              tab === k ? "border-orange bg-orange/5 text-orange" : "border-line"
+            }`}
+          >
+            <span aria-hidden className="text-lg leading-none">
+              {k === "buy" ? "＋" : k === "send" ? "↗" : k === "receive" ? "↙" : "$"}
+            </span>
+            {t(`tab${k[0].toUpperCase()}${k.slice(1)}`)}
+          </button>
+        ))}
+      </div>
 
+      {tab === "buy" && settings.sell && (
+        <div className="mt-3 flex flex-col gap-2">
+          <p className="text-sm text-muted">
+            {t("buyNote", { usd: `$${(settings.minBuy * USD_PER_POINT).toFixed(2)}` })}
+          </p>
           <div className="flex flex-wrap gap-2">
             {[settings.minBuy, 100, 500, 1000].map((n) => (
               <button
@@ -127,44 +175,109 @@ export default function PointsCard() {
                 type="button"
                 onClick={() => setWant(String(n))}
                 className={`num min-h-10 rounded-full border px-3 text-sm font-bold ${
-                  Number(want) === n
-                    ? "border-orange text-orange"
-                    : "border-line text-muted"
+                  Number(want) === n ? "border-orange text-orange" : "border-line text-muted"
                 }`}
               >
                 {n}
               </button>
             ))}
           </div>
-
           <input
             type="number"
             inputMode="numeric"
             min={settings.minBuy}
-            step={1}
             value={want}
             onChange={(e) => setWant(e.target.value)}
             aria-label={t("buyCount")}
             placeholder={t("buyCount")}
             dir="ltr"
-            className="num min-h-12 w-full rounded-card border border-line bg-bg px-3 text-start outline-none focus:border-orange"
+            className={field}
           />
-
           <button
             type="button"
             disabled={busy || Math.round(Number(want) || 0) < settings.minBuy}
             onClick={() => void buy()}
-            className="min-h-12 rounded-card bg-orange px-3 font-bold text-onaccent disabled:opacity-50"
+            className={cta}
           >
             {t("buyCta", {
               n: Math.max(0, Math.round(Number(want) || 0)),
               usd: `$${(Math.max(0, Math.round(Number(want) || 0)) * USD_PER_POINT).toFixed(2)}`,
             })}
           </button>
-
-          {msg && <p className="text-sm font-medium">{msg}</p>}
         </div>
       )}
+
+      {tab === "send" && (
+        <div className="mt-3 flex flex-col gap-2">
+          <p className="font-bold">{t("sendTitle")}</p>
+          <input
+            value={toPhone}
+            onChange={(e) => setToPhone(e.target.value)}
+            placeholder={t("sendPhone")}
+            aria-label={t("sendPhone")}
+            dir="ltr"
+            inputMode="tel"
+            className={field}
+          />
+          <input
+            type="number"
+            inputMode="numeric"
+            min={1}
+            value={want}
+            onChange={(e) => setWant(e.target.value)}
+            placeholder={t("buyCount")}
+            aria-label={t("buyCount")}
+            dir="ltr"
+            className={field}
+          />
+          <button
+            type="button"
+            disabled={busy || amount <= 0 || amount > (points ?? 0) || toPhone.replace(/\D/g, "").length < 7}
+            onClick={() => void move("send")}
+            className={cta}
+          >
+            {t("sendCta", { n: amount })}
+          </button>
+        </div>
+      )}
+
+      {tab === "receive" && (
+        <div className="mt-3 flex flex-col gap-1.5">
+          <p className="font-bold">{t("receiveTitle")}</p>
+          <p className="text-sm text-muted">{t("receiveNote")}</p>
+          <p className="num rounded-card border border-line bg-bg p-3 text-center text-lg font-bold" dir="ltr">
+            {phone || t("receiveNone")}
+          </p>
+        </div>
+      )}
+
+      {tab === "sell" && (
+        <div className="mt-3 flex flex-col gap-2">
+          <p className="font-bold">{t("sellTitle")}</p>
+          <p className="text-sm text-muted">{t("sellNote")}</p>
+          <input
+            type="number"
+            inputMode="numeric"
+            min={1}
+            value={want}
+            onChange={(e) => setWant(e.target.value)}
+            placeholder={t("buyCount")}
+            aria-label={t("buyCount")}
+            dir="ltr"
+            className={field}
+          />
+          <button
+            type="button"
+            disabled={busy || amount <= 0 || amount > (points ?? 0) || !phone}
+            onClick={() => void move("sell")}
+            className={cta}
+          >
+            {t("sellCta", { n: amount, usd: `$${pointsToUsd(amount).toFixed(2)}` })}
+          </button>
+        </div>
+      )}
+
+      {msg && <p className="mt-2 text-sm font-medium">{msg}</p>}
 
       {rows.length > 0 && (
         <ul className="mt-3 flex flex-col gap-1.5 text-sm">
