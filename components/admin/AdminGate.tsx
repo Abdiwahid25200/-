@@ -32,7 +32,7 @@ const toEmail = (u: string) =>
   u.includes("@") ? u.trim() : `${u.trim().toLowerCase()}@${DOMAIN}`;
 
 export default function AdminGate({ children }: { children: React.ReactNode }) {
-  const { user, ready, enabled, signIn } = useAuth();
+  const { user, ready, enabled } = useAuth();
   /** `null` = لم يُفحص بعد */
   const [access, setAccess] = useState<Access | null>(null);
 
@@ -198,15 +198,6 @@ export default function AdminGate({ children }: { children: React.ReactNode }) {
           >
             {busy && <IconSpinner className="size-4" />}
             Sign in
-          </button>
-
-          {/* المساعدون يدخلون بحساب جوجل، والصلاحية تُمنح لبريدهم */}
-          <button
-            type="button"
-            onClick={() => void signIn()}
-            className="min-h-12 rounded-card border border-line font-bold text-muted transition-colors hover:text-text"
-          >
-            Staff sign-in with Google
           </button>
         </form>
       </>,
