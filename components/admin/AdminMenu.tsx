@@ -37,6 +37,7 @@ export type AdminTab =
   | "bin"
   | "report"
   | "points"
+  | "referrals"
   | "faq"
   | "staff";
 
@@ -55,6 +56,7 @@ const ICONS: Record<AdminTab, (p: { className?: string }) => React.ReactElement>
   bin: IconTrash,
   report: IconDoc,
   points: IconUser,
+  referrals: IconUser,
   faq: IconChat,
   staff: IconUser,
 };

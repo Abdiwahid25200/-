@@ -16,6 +16,7 @@ import TextsEditor from "./TextsEditor";
 import Analytics from "./Analytics";
 import RecycleBin from "./RecycleBin";
 import Report from "./Report";
+import ReferralsView from "./ReferralsView";
 import Dashboard from "./Dashboard";
 import { useAccess } from "@/lib/adminAccess";
 import type { Perm } from "@/lib/staff";
@@ -40,6 +41,7 @@ const GROUPS: { label: string; items: Item[] }[] = [
       { v: "customers", label: "Customers", perm: "customers" },
       { v: "analytics", label: "Analytics", owner: true },
       { v: "report", label: "Report", owner: true },
+      { v: "referrals", label: "Invites", owner: true },
     ],
   },
   {
@@ -124,6 +126,8 @@ export default function AdminTabs() {
         <Analytics />
       ) : current === "report" ? (
         <Report />
+      ) : current === "referrals" ? (
+        <ReferralsView />
       ) : current === "items" ? (
         <ItemsEditor />
       ) : current === "sections" ? (

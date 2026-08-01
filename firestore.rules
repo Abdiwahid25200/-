@@ -85,6 +85,19 @@ service cloud.firestore {
       allow delete: if isAdmin();
     }
 
+    /* ── رموز الدعوة ──
+       وثيقةٌ اسمها الرمز وفيها صاحبه — بها يُعرف الداعي بلا سرد
+       المستخدمين. `get` وحده كدليل الأرقام: من يعرف الرمز يستعمله،
+       ولا يقرأ أحدٌ قائمة الرموز. ولا يُختطف رمزُ غيرك: التعديل ممنوع. */
+    match /refcodes/{code} {
+      allow get: if isSignedIn();
+      allow list: if isAdmin();
+      allow create: if isSignedIn()
+        && request.resource.data.uid == request.auth.uid;
+      allow update: if false;
+      allow delete: if isAdmin();
+    }
+
     match /transfers/{code} {
       allow read: if isAdmin()
         || (isSignedIn() && (resource.data.from == request.auth.uid
@@ -165,6 +178,26 @@ service cloud.firestore {
           && d.points == resource.data.get('points', 0) + get(t).data.points;
       }
 
+      /* ── الدعوة ──
+         الزبون يكتب **من دعاه** مرّة واحدة ولا يبدّلها، ولا يدعو نفسه.
+         ⚠️ ولولا «مرّة واحدة» لَبدّل داعيَه قبل كل طلبٍ فجنى مراراً. */
+      function refOk() {
+        let d = request.resource.data;
+        let had = resource != null && 'referredBy' in resource.data;
+        return !('referredBy' in d)
+          || (had && d.referredBy == resource.data.referredBy)
+          || (!had && d.referredBy is string
+              && d.referredBy.size() > 0
+              && d.referredBy != request.auth.uid);
+      }
+
+      /* 🔒 حقولُ إدارةٍ لا يكتبها الزبون: عدد دعواته وما كسبه منها
+         وختمُ أنه كوفئ. ولو كتبها لَختم نفسه أو رفع عدّاده كما شاء. */
+      function adminFieldsKept(f) {
+        return request.resource.data.get(f, null)
+          == (resource != null ? resource.data.get(f, null) : null);
+      }
+
       allow read: if canDo('customers') || canDo('orders')
         || (isSignedIn() && request.auth.uid == uid);
 
@@ -173,6 +206,10 @@ service cloud.firestore {
         || (isSignedIn()
         && request.auth.uid == uid
         && (pointsUntouched() || pointsSpentOnly() || claimsTransfer())
+        && refOk()
+        && adminFieldsKept('refPaid')
+        && adminFieldsKept('refCount')
+        && adminFieldsKept('refEarned')
         && request.resource.data.phone is string
         && request.resource.data.phone.size() >= 7
         && request.resource.data.phone.size() <= 20);

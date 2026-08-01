@@ -10,6 +10,7 @@ import {
   isComplete,
   saveProfile,
 } from "@/lib/profile";
+import { applyRefCode, cleanCode } from "@/lib/referrals";
 import {
   IconArrow,
   IconCheckCircle,
@@ -27,12 +28,15 @@ import Logo from "@/components/Logo";
  */
 export default function LoginFlow() {
   const t = useTranslations("login");
+  const tp = useTranslations("points");
   const router = useRouter();
   const { user, ready, enabled, signIn } = useAuth();
 
   const [step, setStep] = useState<"google" | "phone" | "checking">("checking");
   const [dial, setDial] = useState("252");
   const [num, setNum] = useState("");
+  /** رمز الدعوة — اختياريّ، ومن دخل بلاه لا يُعاق */
+  const [code, setCode] = useState("");
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState<"none" | "signin" | "save">("none");
 
@@ -74,9 +78,19 @@ export default function LoginFlow() {
     setBusy(true);
     setErr("none");
     const ok = await saveProfile(user, dial + clean);
+    if (!ok) {
+      setBusy(false);
+      setErr("save");
+      return;
+    }
+
+    /* رمز الدعوة **بعد حفظ الرقم لا قبله**: القواعد تشترط رقماً صحيحاً
+       في الوثيقة، ووثيقةٌ بلا رقم تُرفض فيضيع الرمز. وفشلُ الرمز لا
+       يمنع الدخول — الحساب أهمّ من هديّة. */
+    if (code.trim()) await applyRefCode(user, code);
+
     setBusy(false);
-    if (ok) router.replace("/account");
-    else setErr("save");
+    router.replace("/account");
   }
 
   /* ── Firebase غير مضبوط ── */
@@ -226,6 +240,22 @@ export default function LoginFlow() {
             className="min-h-12 min-w-0 flex-1 rounded-card border border-line bg-bg px-3 text-start outline-none focus:border-orange"
           />
         </div>
+
+        <label
+          htmlFor="refcode"
+          className="mt-4 block text-xs font-semibold uppercase tracking-widest text-muted"
+        >
+          {tp("inviteFrom")}
+        </label>
+        <input
+          id="refcode"
+          value={code}
+          onChange={(e) => setCode(cleanCode(e.target.value))}
+          placeholder="RSXXXXX"
+          dir="ltr"
+          autoCapitalize="characters"
+          className="num mt-2 min-h-12 w-full rounded-card border border-line bg-bg px-3 text-start tracking-widest outline-none focus:border-orange"
+        />
 
         <button
           type="button"

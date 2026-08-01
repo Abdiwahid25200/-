@@ -72,6 +72,19 @@ export type PointsSettings = {
   brand: string;
   /** شعاره — مسار في `public/` أو رابط مرفوع من اللوحة */
   logo: string;
+
+  /* ── الدعوة ──
+     ⚠️ الجائزة **بعد أوّل طلبٍ مدفوعٍ بمال**، لا عند التسجيل. فمن سجّل
+        ولم يشترِ لم يكلّفك شيئاً، ومن اشترى مُوِّلت جائزته من ربح بيعةٍ
+        ما كانت لتوجد. اجعلي المجموع أقلّ من ربحك من طلبٍ متوسّط. */
+  /** تشغيل الدعوة أصلاً */
+  refOn: boolean;
+  /** نقاط الداعي */
+  refInviter: number;
+  /** ونقاط المدعوّ */
+  refInvitee: number;
+  /** أقصى عدد دعواتٍ تُكافَأ للشخص الواحد — صفرٌ يعني بلا حدّ */
+  refCap: number;
 };
 
 export const DEFAULT_POINTS: PointsSettings = {
@@ -83,6 +96,10 @@ export const DEFAULT_POINTS: PointsSettings = {
   minBuy: 25,
   brand: POINTS_BRAND,
   logo: POINTS_ICON,
+  refOn: true,
+  refInviter: 10,
+  refInvitee: 10,
+  refCap: 50,
 };
 
 /**
@@ -105,6 +122,19 @@ export async function readPointsSettings(): Promise<PointsSettings> {
       minBuy: Number(v.minBuy) || DEFAULT_POINTS.minBuy,
       brand: (v.brand ?? "").trim() || DEFAULT_POINTS.brand,
       logo: (v.logo ?? "").trim() || DEFAULT_POINTS.logo,
+      refOn: typeof v.refOn === "boolean" ? v.refOn : DEFAULT_POINTS.refOn,
+      refInviter:
+        v.refInviter === undefined
+          ? DEFAULT_POINTS.refInviter
+          : Math.max(0, Math.round(Number(v.refInviter)) || 0),
+      refInvitee:
+        v.refInvitee === undefined
+          ? DEFAULT_POINTS.refInvitee
+          : Math.max(0, Math.round(Number(v.refInvitee)) || 0),
+      refCap:
+        v.refCap === undefined
+          ? DEFAULT_POINTS.refCap
+          : Math.max(0, Math.round(Number(v.refCap)) || 0),
     };
   } catch {
     return DEFAULT_POINTS;

@@ -24,7 +24,7 @@ import {
 import { fbDb } from "./firebase";
 import { withTimeout } from "./timeout";
 import type { SavedOrder } from "./orders";
-import { orderPoints, type PointsMap } from "./points";
+import { orderPoints, type PointsMap, type PointsSettings } from "./points";
 import { bumpDelivered } from "./stats";
 
 export type OrderStatus = SavedOrder["status"];
@@ -116,8 +116,9 @@ export async function setOrderStatus(
   orderId: string,
   next: OrderStatus,
   map: PointsMap,
-  fallback: number,
+  settings: PointsSettings,
 ): Promise<StatusResult> {
+  const fallback = settings.perItem;
   const db = fbDb();
   if (!db) return { ok: false, reason: "no-db" };
 
@@ -134,7 +135,15 @@ export async function setOrderStatus(
       const o = oSnap.data() as AdminOrder;
       const uRef = doc(db, "users", o.uid);
       const uSnap = await tx.get(uRef);
-      const balance = Number(uSnap.data()?.points) || 0;
+      const u = uSnap.data() ?? {};
+      const balance = Number(u.points) || 0;
+
+      /* جائزة الدعوة — تُدفع مرّة واحدة بعد أوّل طلبٍ **بمالٍ حقيقي**.
+         تُقرأ هنا وتُكتب مع بقيّة الحركات في آخر المعاملة. */
+      let refRef: ReturnType<typeof doc> | null = null;
+      let refBalance = 0;
+      let refCount = 0;
+      let refEarned = 0;
 
       const awarded = Number(o.pointsAwarded) || 0;
       const spent = Number(o.pointsSpent) || 0;
@@ -158,6 +167,42 @@ export async function setOrderStatus(
         delta = earn - redeem;
         nextAwarded = earn;
         nextSpent = redeem;
+
+        /* ── الدعوة ──
+           ⚠️ ثلاثة شروطٍ مجتمعة، وسقوط واحدٍ يعني: لا جائزة.
+              ① النظام مُشغَّل ② الزبون دعاه أحدٌ ولم يُكافأ عنه بعد
+              ③ **الطلب بمالٍ حقيقي** — طلبٌ دُفع كلّه بالنقاط لا يُنتج
+                نقاطاً جديدة، وإلا صنع أحدُهم حساباتٍ تتبادل النقاط. */
+        const inviter = String(u.referredBy ?? "");
+        const payable = Number(o.total) || 0;
+
+        if (
+          settings.refOn &&
+          inviter &&
+          inviter !== o.uid &&
+          u.refPaid !== true &&
+          payable > 0 &&
+          settings.refInviter + settings.refInvitee > 0
+        ) {
+          const rRef = doc(db, "users", inviter);
+          const rSnap = await tx.get(rRef);
+          if (rSnap.exists()) {
+            const r = rSnap.data() ?? {};
+            const count = Number(r.refCount) || 0;
+            // سقفٌ تكتبينه — بلاه يدعو الواحد بلا حدّ
+            const capped = settings.refCap > 0 && count >= settings.refCap;
+            if (!capped) {
+              refRef = rRef;
+              refBalance = Number(r.points) || 0;
+              refCount = count + 1;
+              refEarned = (Number(r.refEarned) || 0) + settings.refInviter;
+              if (settings.refInvitee > 0) {
+                rows.push({ delta: settings.refInvitee, reason: "referral" });
+                delta += settings.refInvitee;
+              }
+            }
+          }
+        }
       } else if (next === "cancelled" && (awarded > 0 || spent > 0)) {
         // الإلغاء يعكس الحركتين: يُعيد ما خُصم ويسحب ما مُنح
         const pull = Math.min(awarded, balance + spent);
@@ -175,12 +220,40 @@ export async function setOrderStatus(
         updatedAt: serverTimestamp(),
       });
 
-      if (rows.length > 0) {
-        tx.set(uRef, { points: balance + delta }, { merge: true });
+      // `refRef` وحده يكفي للكتابة: جائزةُ الداعي قد تُمنح بلا حركةٍ للمدعوّ
+      if (rows.length > 0 || refRef) {
+        // `refPaid` يُختم مع الرصيد: لا جائزة دعوةٍ ثانية لنفس الزبون
+        tx.set(
+          uRef,
+          refRef ? { points: balance + delta, refPaid: true } : { points: balance + delta },
+          { merge: true },
+        );
         for (const r of rows) {
           tx.set(doc(collection(db, "users", o.uid, "ledger")), {
             delta: r.delta,
             reason: r.reason,
+            code: o.code ?? "",
+            orderId,
+            at: serverTimestamp(),
+          });
+        }
+      }
+
+      // جائزة الداعي في وثيقته هو — مع سطرٍ في سجلّه يفسّرها
+      if (refRef) {
+        tx.set(
+          refRef,
+          {
+            points: refBalance + settings.refInviter,
+            refCount,
+            refEarned,
+          },
+          { merge: true },
+        );
+        if (settings.refInviter > 0) {
+          tx.set(doc(collection(db, refRef.path, "ledger")), {
+            delta: settings.refInviter,
+            reason: "invite",
             code: o.code ?? "",
             orderId,
             at: serverTimestamp(),

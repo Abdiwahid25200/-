@@ -126,7 +126,7 @@ export default function OrdersEditor() {
   async function move(o: AdminOrder, next: OrderStatus) {
     setBusy(o.id);
     setNote(null);
-    const res = await setOrderStatus(o.id, next, map, settings.perItem);
+    const res = await setOrderStatus(o.id, next, map, settings);
     setBusy(null);
 
     if (!res.ok) {

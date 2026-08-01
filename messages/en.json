@@ -351,7 +351,21 @@
     "received": "You received {n} points 🎉",
     "errSelf": "You cannot send to your own number",
     "errPhone": "Enter a valid number",
-    "errNoAccount": "No account with that number"
+    "errNoAccount": "No account with that number",
+    "inviteTitle": "Invite your friends",
+    "inviteNote": "Every friend who signs up with your code and buys their first order: you get {a} points, they get {b}.",
+    "inviteCode": "Your code",
+    "inviteCopy": "Copy",
+    "inviteCopied": "Copied ✓",
+    "inviteShare": "Share on WhatsApp",
+    "inviteMsg": "Try {brand} — fast, reliable game top-ups. Use my code {code} when you sign up and get {n} points free: {url}",
+    "inviteCount": "{n} invites paid off · you earned {p} points",
+    "inviteNone": "No invite has paid off yet — share your code to start",
+    "inviteFrom": "Invite code (optional)",
+    "inviteApplied": "Done ✓ you get your points after your first paid order",
+    "inviteUnknown": "Code not found",
+    "inviteSelf": "You cannot invite yourself",
+    "inviteAlready": "You already have an inviter"
   },
   "accountPage": {
     "title": "My account",

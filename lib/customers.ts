@@ -20,6 +20,18 @@ export type CustomerRow = {
   email: string;
   points: number;
   at: Date | null;
+
+  /* ── الدعوة ── */
+  /** رمز الزبون الذي يشاركه */
+  ref: string;
+  /** معرّف من دعاه */
+  referredBy: string;
+  /** كم دعوةً له أثمرت طلباً مدفوعاً */
+  refCount: number;
+  /** وكم نقطة كسب منها */
+  refEarned: number;
+  /** هل كوفئ عن دعوته هو (أوّل طلبٍ مدفوع)؟ */
+  refPaid: boolean;
 };
 
 export async function allCustomers(n = 300): Promise<CustomerRow[]> {
@@ -40,6 +52,11 @@ export async function allCustomers(n = 300): Promise<CustomerRow[]> {
         email: String(v.email ?? ""),
         points: Number(v.points) || 0,
         at: v.updatedAt?.toDate?.() ?? null,
+        ref: String(v.ref ?? ""),
+        referredBy: String(v.referredBy ?? ""),
+        refCount: Number(v.refCount) || 0,
+        refEarned: Number(v.refEarned) || 0,
+        refPaid: v.refPaid === true,
       };
     })
     .sort((a, b) => (b.at?.getTime() ?? 0) - (a.at?.getTime() ?? 0));

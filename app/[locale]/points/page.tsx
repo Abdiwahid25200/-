@@ -1,6 +1,7 @@
 import { setRequestLocale } from "next-intl/server";
 import BackLink from "@/components/BackLink";
 import PointsCard from "@/components/PointsCard";
+import ReferralCard from "@/components/ReferralCard";
 import { privateMeta } from "@/lib/seo";
 
 /**
@@ -21,6 +22,7 @@ export default async function PointsPage({
     <main className="page-w flex flex-col gap-5 px-4 py-6">
       <BackLink href="/account" />
       <PointsCard />
+      <ReferralCard />
     </main>
   );
 }

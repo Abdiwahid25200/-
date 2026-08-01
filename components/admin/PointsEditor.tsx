@@ -40,6 +40,10 @@ export default function PointsEditor() {
       minBuy: Math.max(1, Math.round(Number(s.minBuy) || 1)),
       brand: s.brand.trim(),
       logo: s.logo.trim(),
+      refOn: s.refOn,
+      refInviter: Math.max(0, Math.round(Number(s.refInviter) || 0)),
+      refInvitee: Math.max(0, Math.round(Number(s.refInvitee) || 0)),
+      refCap: Math.max(0, Math.round(Number(s.refCap) || 0)),
     });
     setBusy(false);
     setSaved(ok);
@@ -175,6 +179,79 @@ export default function PointsEditor() {
           step={1}
           value={s.minBuy}
           onChange={(e) => setS({ ...s, minBuy: Number(e.target.value) })}
+          dir="ltr"
+          className={`${field} num text-start`}
+        />
+      </label>
+
+      {/* ── الدعوة ──
+          الجائزة بعد أوّل طلبٍ مدفوعٍ بمال، لا عند التسجيل. فمن سجّل
+          ولم يشترِ لم يكلّف شيئاً، ومن اشترى مُوِّلت جائزته من ربح بيعة. */}
+      <hr className="border-line" />
+
+      <label className="flex items-center gap-3 rounded-card border border-line bg-surface p-3">
+        <input
+          type="checkbox"
+          checked={s.refOn}
+          onChange={(e) => setS({ ...s, refOn: e.target.checked })}
+          className="size-5 shrink-0 accent-orange"
+        />
+        <span className="min-w-0 flex-1">
+          <span className="block font-bold">Invite a friend</span>
+          <span className="block text-sm text-muted">
+            Nothing is paid until the invited friend places a first order paid
+            with real money — a signup alone costs you nothing.
+          </span>
+        </span>
+      </label>
+
+      <div className="grid grid-cols-2 gap-3">
+        <label className="flex flex-col gap-1.5 text-sm">
+          <span className="font-bold">Points to the inviter</span>
+          <input
+            type="number"
+            min={0}
+            step={1}
+            value={s.refInviter}
+            onChange={(e) => setS({ ...s, refInviter: Number(e.target.value) })}
+            dir="ltr"
+            className={`${field} num text-start`}
+          />
+        </label>
+        <label className="flex flex-col gap-1.5 text-sm">
+          <span className="font-bold">Points to the friend</span>
+          <input
+            type="number"
+            min={0}
+            step={1}
+            value={s.refInvitee}
+            onChange={(e) => setS({ ...s, refInvitee: Number(e.target.value) })}
+            dir="ltr"
+            className={`${field} num text-start`}
+          />
+        </label>
+      </div>
+
+      <p className="rounded-card border border-dashed border-line p-3 text-sm text-muted">
+        Each successful invite costs you{" "}
+        <strong className="num">
+          ${pointsToUsd(s.refInviter + s.refInvitee).toFixed(2)}
+        </strong>{" "}
+        — paid out of a sale that would not have existed. Keep it well under
+        your profit on an average order.
+      </p>
+
+      <label className="flex flex-col gap-1.5">
+        <span className="font-bold">Most rewarded invites per person</span>
+        <span className="text-sm text-muted">
+          <strong className="num">0</strong> means no limit.
+        </span>
+        <input
+          type="number"
+          min={0}
+          step={1}
+          value={s.refCap}
+          onChange={(e) => setS({ ...s, refCap: Number(e.target.value) })}
           dir="ltr"
           className={`${field} num text-start`}
         />

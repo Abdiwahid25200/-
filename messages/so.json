@@ -351,7 +351,21 @@
     "received": "Waxaad heshay {n} dhibcood 🎉",
     "errSelf": "Naftaada uma diri kartid",
     "errPhone": "Geli lambar sax ah",
-    "errNoAccount": "Lambarkaas akoon ma laha"
+    "errNoAccount": "Lambarkaas akoon ma laha",
+    "inviteTitle": "Casuun saaxiibbadaa",
+    "inviteNote": "Saaxiib kasta oo isku diiwaangeliya koodhkaaga oo iibsada dalabkiisa ugu horreeya: adigu waxaad heshaa {a} dhibcood, isaguna {b}.",
+    "inviteCode": "Koodhkaaga",
+    "inviteCopy": "Koobi",
+    "inviteCopied": "Waa la koobiyeeyay ✓",
+    "inviteShare": "La wadaag WhatsApp",
+    "inviteMsg": "Tijaabi {brand} — buuxin ciyaareed degdeg ah oo la aamini karo. Isticmaal koodhkayga {code} markaad isdiiwaangelinayso oo hel {n} dhibcood: {url}",
+    "inviteCount": "{n} casuumaad oo dhalay · waxaad kastay {p} dhibcood",
+    "inviteNone": "Weli casuumaad midho ma dhalin — la wadaag koodhkaaga",
+    "inviteFrom": "Koodhka casuumaadda (ikhtiyaari)",
+    "inviteApplied": "Waa la sameeyay ✓ dhibcaha waxaad heli doontaa dalabkaaga ugu horreeya ee la bixiyo kaddib",
+    "inviteUnknown": "Koodhka lama helin",
+    "inviteSelf": "Naftaada ma casuumi kartid",
+    "inviteAlready": "Horey ayaad u leedahay qof ku casuumay"
   },
   "accountPage": {
     "title": "Akoonkayga",
