@@ -320,6 +320,7 @@
     "buyDone": "Dalabka {code} waa la sameeyay — dhibcaha waa lagu darayaa marka lacagta la xaqiijiyo",
     "buyError": "Dalabka lama samayn karin. Isku day mar kale.",
     "useTitle": "Isticmaal dhibcahayga dalabkan",
+    "fullyCovered": "Dhibcahaagu waxay daboolayaan qiimaha oo dhan — wareejin looma baahna.",
     "balanceIs": "Waxaad haysataa {n} dhibcood · {usd}",
     "discount": "Qiimo-dhimis dhibco"
   },

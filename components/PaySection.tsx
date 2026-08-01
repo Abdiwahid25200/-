@@ -3,6 +3,9 @@
 import { useLocale, useTranslations } from "next-intl";
 import { isBuyable, live, type PayMethod } from "@/lib/data";
 import { usePayMethods } from "./usePayMethods";
+import PointsBrand from "./PointsBrand";
+import { pointsToUsd } from "@/lib/points";
+import type { Redeem } from "./PointsRedeem";
 import PayMark from "./PayMark";
 import { IconCall } from "./icons";
 
@@ -42,20 +45,24 @@ export default function PaySection({
   amount,
   selected,
   onSelect,
+  redeem,
 }: {
   amount: number;
   selected: string | null;
   onSelect: (id: string) => void;
+  /** رصيد نقاط الزبون — يظهر خياراً أوّل في القائمة متى كفى */
+  redeem?: Redeem;
 }) {
   const t = useTranslations("buy");
   const tc = useTranslations("common");
+  const tp = useTranslations("points");
   const locale = useLocale();
 
   const methods = live(usePayMethods());
   // الطريقة المختارة لا تكون إلا طريقة عاملة — "قريباً" معروضة لا مُتاحة
   const ready = methods.filter(isBuyable);
-  // بلا طرق دفع لا نعرض عنواناً فوق فراغ — يختفي القسم كلّه
-  if (!methods.length) return null;
+  // بلا طرق دفع **ولا رصيد نقاط** لا نعرض عنواناً فوق فراغ
+  if (!methods.length && !redeem?.eligible) return null;
   /**
    * ⚠️ لا طريقة مختارة **حتى يختار الزبون**.
    *
@@ -64,6 +71,19 @@ export default function PaySection({
    * قرارٌ يخصّه، فيبقى فارغاً حتى يقرّر.
    */
   const active = ready.find((m) => m.id === selected) ?? null;
+
+  /**
+   * اختيار طريقةٍ نقدية يُطفئ النقاط، واختيار النقاط يُطفئ الطريقة —
+   * فلا يظنّ الزبون أنه اختار اثنتين ويصل الطلب بمبلغ لا يفهمه أحد.
+   */
+  const pick = (id: string) => {
+    redeem?.setOn(false);
+    onSelect(id);
+  };
+
+  const usePts = redeem?.on === true;
+  // غطّت النقاط المبلغ كلّه ⇒ لا معنى لعرض طرقٍ نقدية بعدها
+  const covered = usePts && redeem!.payable <= 0;
   const label = (m: PayMethod) => (locale === "ar" ? m.nameAr : m.nameEn);
 
   // المحلي أولاً: هو ما يعمل اليوم. لو صدّرنا مجموعةً كلّها "قريباً"
@@ -78,7 +98,54 @@ export default function PaySection({
       <h2 className="mb-4 text-lg font-bold">{t("payTitle")}</h2>
 
       <div className="flex flex-col gap-5">
-        {groups.map((g) => {
+        {/* الدفع من رصيد النقاط — أوّل الخيارات متى كفى الرصيد */}
+        {redeem?.eligible && (
+          <div>
+            <div className="mb-2.5 flex items-baseline justify-between gap-3">
+              <h3 className="text-sm font-bold">{tp("useTitle")}</h3>
+              <p className="num text-xs text-muted" dir="ltr">
+                {redeem.balance} · ${pointsToUsd(redeem.balance).toFixed(2)}
+              </p>
+            </div>
+
+            <button
+              type="button"
+              role="radio"
+              aria-checked={usePts}
+              onClick={() => {
+                redeem.setOn(!usePts);
+                onSelect(usePts ? "" : "points");
+              }}
+              className={`flex w-full items-center gap-3 rounded-card border p-3 text-start transition-colors ${
+                usePts ? "border-orange bg-orange/5" : "border-line"
+              }`}
+            >
+              <PointsBrand settings={redeem.settings} size={40} showName={false} />
+              <span className="min-w-0 flex-1 leading-tight">
+                <span className="block truncate font-bold">
+                  {redeem.settings.brand}
+                </span>
+                <span className="num block truncate text-sm text-muted" dir="ltr">
+                  −${redeem.discount > 0 ? redeem.discount.toFixed(2) : pointsToUsd(Math.min(redeem.balance, 100000)).toFixed(2)}
+                </span>
+              </span>
+              <span
+                aria-hidden
+                className={`size-5 shrink-0 rounded-full border-2 ${
+                  usePts ? "border-orange bg-orange" : "border-line"
+                }`}
+              />
+            </button>
+
+            {covered && (
+              <p className="mt-2 rounded-card bg-bg p-3 text-sm text-muted">
+                {tp("fullyCovered")}
+              </p>
+            )}
+          </div>
+        )}
+
+        {!covered && groups.map((g) => {
           const list = methods.filter((m) => m.scope === g.scope);
           if (!list.length) return null;
 
@@ -101,7 +168,7 @@ export default function PaySection({
                         aria-checked={on}
                         aria-disabled={soon}
                         disabled={soon}
-                        onClick={() => !soon && onSelect(m.id)}
+                        onClick={() => !soon && pick(m.id)}
                         className={`flex w-full items-center gap-3 rounded-card border-2 p-3 text-start transition-colors ${
                           soon
                             ? "cursor-not-allowed border-line opacity-55"

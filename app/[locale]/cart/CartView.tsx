@@ -11,7 +11,7 @@ import { isBuyable, live, pay, wa } from "@/lib/data";
 import { useAuth } from "@/lib/auth";
 import { saveOrder } from "@/lib/orders";
 import { usePayMethods } from "@/components/usePayMethods";
-import PointsRedeem, { usePointsRedeem } from "@/components/PointsRedeem";
+import { usePointsRedeem } from "@/components/PointsRedeem";
 import {
   IconArrow,
   IconCartEmpty,
@@ -44,11 +44,18 @@ export default function CartView() {
 
   const methods = live(usePayMethods()).filter(isBuyable);
   const method = methods.find((m) => m.id === payId) ?? methods[0];
-  const methodName = method ? (locale === "ar" ? method.nameAr : method.nameEn) : "";
+  const methodName =
+    payId === "points"
+      ? redeem.settings.brand
+      : method
+        ? locale === "ar"
+          ? method.nameAr
+          : method.nameEn
+        : "";
   const detailsReady = count > 0 && name.trim() && contact.trim() && addr.trim();
   /* طريقة الدفع تُشترط إن كانت هناك طرق عاملة — وكلّها "قريباً" اليوم */
-  // غطّت نقاطه المبلغ كلّه ⇒ لا خطوة دفع
-  const payNeeded = methods.length > 0 && redeem.payable > 0;
+  // النقاط خيارٌ داخل قائمة الدفع، فالقسم يظهر متى وُجدت طريقة أو رصيد
+  const payNeeded = methods.length > 0 || redeem.eligible;
   const payReady = !payNeeded || !!payId;
   const canOrder = detailsReady && payReady;
 
@@ -323,12 +330,14 @@ export default function CartView() {
           فلا يتعلّم الزبون شكلين لشيء واحد، ويصله كود التحويل هنا أيضاً */}
       {payNeeded && (
         <div ref={payRef}>
-          <PaySection amount={redeem.payable} selected={payId} onSelect={setPayId} />
+          <PaySection
+              amount={redeem.payable}
+              selected={payId}
+              onSelect={setPayId}
+              redeem={redeem}
+            />
         </div>
       )}
-
-      {/* خصم النقاط — يظهر لمن يملك رصيداً كافياً وحده */}
-      <PointsRedeem r={redeem} />
 
       {/* الإجمالي — للمراجعة وحدها، والتأكيد في الشريط العائم أسفل الشاشة */}
       <section className="flex items-center justify-between rounded-card border border-line bg-surface p-4 text-lg">

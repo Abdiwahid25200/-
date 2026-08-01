@@ -320,6 +320,7 @@
     "buyDone": "Order {code} created — points are added once payment is confirmed",
     "buyError": "Could not create the order. Please try again.",
     "useTitle": "Use my points on this order",
+    "fullyCovered": "Your points cover the whole amount — no transfer needed.",
     "balanceIs": "You have {n} points · {usd}",
     "discount": "Points discount"
   },
