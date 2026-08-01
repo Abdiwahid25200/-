@@ -1,9 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import { useAuth } from "@/lib/auth";
 import PointsBrand from "./PointsBrand";
+import { readSections } from "@/lib/overrides";
+import { sections as staticSections } from "@/lib/content";
 import { cancelMyOrder, canCancel } from "@/lib/orders";
 import { fmt } from "@/lib/format";
 import { wa } from "@/lib/data";
@@ -83,6 +85,25 @@ export default function OrderCard({
   const { Icon, page, done: doneKey } = kinds[kind];
   const isPoints = kind === "points";
 
+  /**
+   * صورة القسم كما رفعتها صاحبة المتجر — كانت البطاقة تعرض الأيقونة
+   * المرسومة دائماً، فيرى الزبون برقاً مكان صورة ببجي التي يعرفها.
+   */
+  const [img, setImg] = useState<string | undefined>(
+    staticSections.find((s) => s.key === page)?.img,
+  );
+
+  useEffect(() => {
+    if (isPoints) return;
+    let alive = true;
+    void readSections()
+      .then((o) => alive && setImg(o[page]?.img || staticSections.find((s) => s.key === page)?.img))
+      .catch(() => {});
+    return () => {
+      alive = false;
+    };
+  }, [page, isPoints]);
+
   const cancelled = order.status === "cancelled";
   const at = STEPS.indexOf(order.status as (typeof STEPS)[number]);
   const done = order.status === "done";
@@ -99,11 +120,18 @@ export default function OrderCard({
       <div className="flex items-center gap-3">
         <span
           aria-hidden
-          className={`flex size-11 shrink-0 items-center justify-center rounded-card ${
+          className={`flex size-11 shrink-0 items-center justify-center overflow-hidden rounded-card ${
             done ? "bg-yellow/15 text-yellow" : "bg-orange/10 text-orange"
           }`}
         >
-          {isPoints ? <PointsBrand size={26} showName={false} /> : <Icon className="size-6" />}
+          {isPoints ? (
+            <PointsBrand size={26} showName={false} />
+          ) : img ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img src={img} alt="" className="size-full rounded-card object-cover" />
+          ) : (
+            <Icon className="size-6" />
+          )}
         </span>
 
         <span className="min-w-0 flex-1 leading-tight">

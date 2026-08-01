@@ -89,7 +89,19 @@ async function readAll<T>(col: string): Promise<Record<string, T>> {
   }
 }
 
-export const readSections = () => readAll<SectionOverride>("sections");
+/**
+ * تعديلات الأقسام — بذاكرة قصيرة (دقيقة).
+ * بطاقات الطلبات تسأل عنها كلٌّ على حدة، فبلا ذاكرةٍ صارت قراءةً
+ * لكل بطاقة على شاشة واحدة.
+ */
+let secCache: { at: number; data: Record<string, SectionOverride> } | null = null;
+
+export async function readSections(): Promise<Record<string, SectionOverride>> {
+  if (secCache && Date.now() - secCache.at < 60_000) return secCache.data;
+  const data = await readAll<SectionOverride>("sections");
+  if (typeof window !== "undefined") secCache = { at: Date.now(), data };
+  return data;
+}
 export const readPackages = () => readAll<ItemOverride>("packages");
 export const readProducts = () => readAll<ItemOverride>("products");
 

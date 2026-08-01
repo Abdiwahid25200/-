@@ -10,8 +10,6 @@
     "tagline": "Buuxin ciyaareed caalami ah",
     "searchPlaceholder": "Raadi alaab…",
     "account": "Akoonkayga",
-    "orders": "Dalabkayga",
-    "points": "Dhibcahayga",
     "cart": "Dambiisha"
   },
   "nav": {
@@ -65,7 +63,9 @@
     "policy": "Siyaasadaha",
     "account": "Akoonkayga",
     "cart": "Dambiisha wax-iibsiga",
-    "freefire": "Free Fire"
+    "freefire": "Free Fire",
+    "orders": "Dalabkayga",
+    "points": "Dhibcahayga"
   },
   "notFound": {
     "title": "Bogga lama helin",

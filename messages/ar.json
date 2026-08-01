@@ -10,8 +10,6 @@
     "tagline": "شحن ألعاب عالمي",
     "searchPlaceholder": "ابحث عن منتج…",
     "account": "حسابي",
-    "orders": "طلباتي",
-    "points": "نقاطي",
     "cart": "السلة"
   },
   "nav": {
@@ -65,7 +63,9 @@
     "policy": "السياسات",
     "account": "حسابي",
     "cart": "سلة المشتريات",
-    "freefire": "فري فاير"
+    "freefire": "فري فاير",
+    "orders": "طلباتي",
+    "points": "نقاطي"
   },
   "notFound": {
     "title": "الصفحة غير موجودة",

@@ -10,8 +10,6 @@
     "tagline": "Global game top-up",
     "searchPlaceholder": "Search for a product…",
     "account": "My account",
-    "orders": "My orders",
-    "points": "My points",
     "cart": "Cart"
   },
   "nav": {
@@ -65,7 +63,9 @@
     "policy": "Policies",
     "account": "My account",
     "cart": "Shopping cart",
-    "freefire": "Free Fire"
+    "freefire": "Free Fire",
+    "orders": "My orders",
+    "points": "My points"
   },
   "notFound": {
     "title": "Page not found",
