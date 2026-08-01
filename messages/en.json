@@ -310,6 +310,13 @@
     "canRedeem": "You can use these as a discount at checkout",
     "forOrder": "Order {code}",
     "manual": "From the store",
+    "hiddenValue": "Its value shows once you reach {usd}",
+    "buyTitle": "Top up your points",
+    "buyNote": "Minimum {usd}",
+    "buyCount": "Number of points",
+    "buyCta": "Order {n} points · {usd}",
+    "buyDone": "Order {code} created — points are added once payment is confirmed",
+    "buyError": "Could not create the order. Please try again.",
     "useTitle": "Use my points on this order",
     "balanceIs": "You have {n} points · {usd}",
     "discount": "Points discount"

@@ -49,12 +49,25 @@ export type PointsSettings = {
   perItem: number;
   /** أقلّ رصيد يُسمح باستعماله خصماً */
   minRedeem: number;
+  /**
+   * لا تظهر **قيمة** النقاط للزبون حتى تبلغ هذا المبلغ بالدولار.
+   * السبب: «٣ نقاط = ٠٫٠٣ دولار» رقمٌ يُصغّر الهديّة في عين الزبون،
+   * فنُريه العدد وحده حتى يصير للقيمة معنى.
+   */
+  showFrom: number;
+  /** يبيع المتجر نقاطاً؟ */
+  sell: boolean;
+  /** أقلّ شراء بالنقاط — ٢٥ نقطة = ٠٫٢٥ دولار */
+  minBuy: number;
 };
 
 export const DEFAULT_POINTS: PointsSettings = {
   on: true,
   perItem: 0,
   minRedeem: 100,
+  showFrom: 0.15,
+  sell: true,
+  minBuy: 25,
 };
 
 /**
@@ -71,6 +84,10 @@ export async function readPointsSettings(): Promise<PointsSettings> {
       on: typeof v.on === "boolean" ? v.on : DEFAULT_POINTS.on,
       perItem: Number(v.perItem) || DEFAULT_POINTS.perItem,
       minRedeem: Number(v.minRedeem) || DEFAULT_POINTS.minRedeem,
+      showFrom:
+        v.showFrom === undefined ? DEFAULT_POINTS.showFrom : Number(v.showFrom) || 0,
+      sell: typeof v.sell === "boolean" ? v.sell : DEFAULT_POINTS.sell,
+      minBuy: Number(v.minBuy) || DEFAULT_POINTS.minBuy,
     };
   } catch {
     return DEFAULT_POINTS;
@@ -161,4 +178,48 @@ export async function myLedger(
       at: v.at?.toDate?.() ?? null,
     };
   });
+}
+
+/* ═══════════════════════════════════════════════════════════
+   شراء النقاط
+   ═══════════════════════════════════════════════════════════ */
+
+/**
+ * طلبُ شراء نقاط — يمرّ **بنفس مسار أي طلب**: يُنشأ `pending`، وتؤكّدينه
+ * من اللوحة، فتُضاف النقاط. لا مسار جانبيّ ولا رصيد يزيد بلا مراجعتك.
+ *
+ * ⚠️ والنقاط المشتراة **لا تربح نقاطاً فوقها** — وإلا اشترى الزبون
+ *    نقاطاً بنقاطٍ فصار الرصيد يولّد نفسه.
+ */
+export async function buyPointsOrder(
+  user: User | null,
+  points: number,
+): Promise<{ ok: true; code: string } | { ok: false }> {
+  const n = Math.round(points);
+  const db = fbDb();
+  if (!db || !user || !Number.isFinite(n) || n <= 0) return { ok: false };
+
+  const total = Math.round(n * USD_PER_POINT * 100) / 100;
+  const code = `PT-${Date.now().toString(36).toUpperCase()}`;
+
+  try {
+    const { addDoc, collection, serverTimestamp } = await import("firebase/firestore");
+    await addDoc(collection(db, "orders"), {
+      code,
+      kind: "points",
+      items: [{ id: "points", title: `${n} points`, qty: 1, price: total }],
+      total,
+      buyPoints: n,
+      payMethod: "",
+      account: "",
+      uid: user.uid,
+      email: user.email ?? "",
+      name: user.displayName ?? "",
+      status: "pending",
+      createdAt: serverTimestamp(),
+    });
+    return { ok: true, code };
+  } catch {
+    return { ok: false };
+  }
 }

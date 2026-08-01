@@ -310,6 +310,13 @@
     "canRedeem": "Waad isticmaali kartaa dhibcahaaga qiimo-dhimis ahaan",
     "forOrder": "Dalabka {code}",
     "manual": "Bakhaarka",
+    "hiddenValue": "Qiimaheeda wuxuu muuqan doonaa marka ay gaarto {usd}",
+    "buyTitle": "Kordhi dhibcahaaga",
+    "buyNote": "Ugu yaraan {usd}",
+    "buyCount": "Tirada dhibcaha",
+    "buyCta": "Dalbo {n} dhibcood · {usd}",
+    "buyDone": "Dalabka {code} waa la sameeyay — dhibcaha waa lagu darayaa marka lacagta la xaqiijiyo",
+    "buyError": "Dalabka lama samayn karin. Isku day mar kale.",
     "useTitle": "Isticmaal dhibcahayga dalabkan",
     "balanceIs": "Waxaad haysataa {n} dhibcood · {usd}",
     "discount": "Qiimo-dhimis dhibco"

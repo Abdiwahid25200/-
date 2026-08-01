@@ -126,9 +126,24 @@ service cloud.firestore {
               && d.usePoints <= balanceOf());
       }
 
+      /* ── شراء نقاط ──
+         ⚠️ الخطر: زبونٌ يطلب مليون نقطة بربع دولار، ثم تضغطين «مدفوع»
+            بلا انتباه. فنشترط أن يغطّي المبلغ عدد النقاط بسعرها
+            (نقطة = سنت)، ونضع سقفاً معقولاً. واللوحة تعرض العدد
+            والمبلغ صريحين قبل التأكيد. */
+      function validBuyPoints() {
+        let d = request.resource.data;
+        return !('buyPoints' in d)
+          || (d.buyPoints is int
+              && d.buyPoints > 0
+              && d.buyPoints <= 100000
+              && d.total * 100 >= d.buyPoints - 0.5);
+      }
+
       function validNewOrder() {
         let d = request.resource.data;
-        return validRedeem()
+        return validBuyPoints()
+          && validRedeem()
           && d.uid == request.auth.uid
           && d.status == 'pending'                 // لا يبدأ الطلب مدفوعاً
           && d.total is number && d.total >= 0

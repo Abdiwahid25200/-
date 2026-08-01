@@ -34,6 +34,8 @@ export type AdminOrder = SavedOrder & {
   pointsAwarded?: number;
   /** وكم نقطة استُعملت خصماً — تُعاد إليه عند الإلغاء */
   pointsSpent?: number;
+  /** طلبُ شراء نقاط */
+  buyPoints?: number;
 };
 
 /**
@@ -130,7 +132,9 @@ export async function setOrderStatus(
 
       if (next === "paid" && awarded === 0 && spent === 0) {
         // ① نقاط الشراء ② والخصم الذي طلبه — كلاهما الآن لا قبل الدفع
-        const earn = orderPoints(o.items ?? [], map, fallback);
+        /* النقاط المشتراة لا تربح نقاطاً فوقها — وإلا ولّد الرصيد نفسه */
+        const bought = Math.max(0, Number(o.buyPoints) || 0);
+        const earn = bought > 0 ? bought : orderPoints(o.items ?? [], map, fallback);
         const redeem = Math.min(Math.max(0, Number(o.usePoints) || 0), balance);
         if (redeem > 0) rows.push({ delta: -redeem, reason: "redeem" });
         if (earn > 0) rows.push({ delta: earn, reason: "order" });

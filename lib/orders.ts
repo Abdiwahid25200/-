@@ -48,6 +48,8 @@ export type NewOrder = {
   usePoints?: number;
   /** قيمة الخصم بالدولار — للعرض في اللوحة وفي ملخّص الطلب */
   discount?: number;
+  /** طلبُ شراء نقاط: كم نقطة اشترى. تُضاف عند تأكيدك الدفع */
+  buyPoints?: number;
 };
 
 export type SavedOrder = NewOrder & {

@@ -224,6 +224,15 @@ export default function OrdersEditor() {
                       {o.account || "—"}
                     </dd>
 
+                    {Number(o.buyPoints) > 0 && (
+                      <>
+                        <dt className="text-muted">Buying points</dt>
+                        <dd className="num font-bold text-orange">
+                          {o.buyPoints} pts for ${Number(o.total ?? 0).toFixed(2)}
+                        </dd>
+                      </>
+                    )}
+
                     {Number(o.usePoints) > 0 && (
                       <>
                         <dt className="text-muted">Points discount</dt>
@@ -285,7 +294,7 @@ export default function OrdersEditor() {
                     <p className="text-sm text-muted">
                       {o.pointsAwarded
                         ? `Awarded ${o.pointsAwarded} points`
-                        : `Will award ${due} points on payment`}
+                        : `Will award ${Number(o.buyPoints) > 0 ? Number(o.buyPoints) : due} points on payment`}
                     </p>
                   )}
 

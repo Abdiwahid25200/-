@@ -33,6 +33,9 @@ export default function PointsEditor() {
       on: s.on,
       perItem: Math.max(0, Math.round(Number(s.perItem) || 0)),
       minRedeem: Math.max(0, Math.round(Number(s.minRedeem) || 0)),
+      showFrom: Math.max(0, Number(s.showFrom) || 0),
+      sell: s.sell,
+      minBuy: Math.max(1, Math.round(Number(s.minBuy) || 1)),
     });
     setBusy(false);
     setSaved(ok);
@@ -95,6 +98,56 @@ export default function PointsEditor() {
           value={s.minRedeem}
           onChange={(e) => setS({ ...s, minRedeem: Number(e.target.value) })}
           className={`${field} num`}
+        />
+      </label>
+
+      <label className="flex flex-col gap-1.5">
+        <span className="font-bold">Show the value from</span>
+        <span className="text-sm text-muted">
+          Customers see the number of points always, but its value in dollars
+          only once it reaches this amount — a tiny “$0.03” makes the reward
+          look worthless.
+        </span>
+        <input
+          type="number"
+          min={0}
+          step={0.01}
+          value={s.showFrom}
+          onChange={(e) => setS({ ...s, showFrom: Number(e.target.value) })}
+          dir="ltr"
+          className={`${field} num text-start`}
+        />
+      </label>
+
+      <label className="flex items-center gap-3 rounded-card border border-line bg-surface p-3">
+        <input
+          type="checkbox"
+          checked={s.sell}
+          onChange={(e) => setS({ ...s, sell: e.target.checked })}
+          className="size-5 shrink-0 accent-orange"
+        />
+        <span className="min-w-0 flex-1">
+          <span className="block font-bold">Customers can buy points</span>
+          <span className="block text-sm text-muted">
+            It becomes a normal order you confirm — points are added only then.
+          </span>
+        </span>
+      </label>
+
+      <label className="flex flex-col gap-1.5">
+        <span className="font-bold">Minimum points to buy</span>
+        <span className="text-sm text-muted">
+          Currently{" "}
+          <strong className="num">${pointsToUsd(s.minBuy).toFixed(2)}</strong>.
+        </span>
+        <input
+          type="number"
+          min={1}
+          step={1}
+          value={s.minBuy}
+          onChange={(e) => setS({ ...s, minBuy: Number(e.target.value) })}
+          dir="ltr"
+          className={`${field} num text-start`}
         />
       </label>
 
