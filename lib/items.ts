@@ -38,6 +38,8 @@ export type ShopItem = {
   popular?: boolean;
   status: ItemStatus;
   order?: number;
+  /** نقاط الولاء التي يربحها الزبون بشرائه — بلا قيمة يأخذ الافتراضي العام */
+  points?: number;
   /** أُضيف من اللوحة لا من الملفات — يجوز حذفه نهائياً */
   custom?: boolean;
   /** محذوف من الموقع — تراه اللوحة وحدها ليمكن إرجاعه */

@@ -5,16 +5,20 @@ import AdminMenu from "./AdminMenu";
 import SectionsEditor from "./SectionsEditor";
 import ItemsEditor from "./ItemsEditor";
 import FaqEditor from "./FaqEditor";
+import OrdersEditor from "./OrdersEditor";
+import PointsEditor from "./PointsEditor";
 
 const TABS = [
+  { v: "orders", label: "Orders" },
   { v: "items", label: "Products" },
   { v: "sections", label: "Sections" },
+  { v: "points", label: "Points" },
   { v: "faq", label: "Q&A" },
 ] as const;
 
-/** تبويبات اللوحة — الباقات أولاً لأنها ما يُعدَّل يومياً */
+/** تبويبات اللوحة — الطلبات أولاً لأنها ما يُفتح كل يوم */
 export default function AdminTabs() {
-  const [tab, setTab] = useState<(typeof TABS)[number]["v"]>("items");
+  const [tab, setTab] = useState<(typeof TABS)[number]["v"]>("orders");
 
   return (
     <div className="flex flex-col gap-4">
@@ -39,10 +43,14 @@ export default function AdminTabs() {
         </span>
       </div>
 
-      {tab === "items" ? (
+      {tab === "orders" ? (
+        <OrdersEditor />
+      ) : tab === "items" ? (
         <ItemsEditor />
       ) : tab === "sections" ? (
         <SectionsEditor />
+      ) : tab === "points" ? (
+        <PointsEditor />
       ) : (
         <FaqEditor />
       )}

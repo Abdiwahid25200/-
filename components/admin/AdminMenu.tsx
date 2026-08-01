@@ -19,12 +19,15 @@ import {
  * الترويسة كانت تحمل رابط المتجر وزرّ الخروج جنباً إلى جنب مع العنوان،
  * فتضيق على الجوال. نقلناهما هنا، وتبقى الترويسة للاسم وحده.
  */
+/** تبويبات اللوحة — مصدر واحد للاسم، فلا يتفرّق النوع بين ملفّين */
+export type AdminTab = "orders" | "items" | "sections" | "points" | "faq";
+
 export default function AdminMenu({
   tab,
   onTab,
 }: {
-  tab: "items" | "sections" | "faq";
-  onTab: (t: "items" | "sections" | "faq") => void;
+  tab: AdminTab;
+  onTab: (t: AdminTab) => void;
 }) {
   const [open, setOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
@@ -75,6 +78,17 @@ export default function AdminMenu({
         <button
           type="button"
           onClick={() => {
+            onTab("orders");
+            setOpen(false);
+          }}
+          className={`${row} ${tab === "orders" ? "text-orange" : ""}`}
+        >
+          <IconDoc className="size-5 shrink-0" />
+          Orders
+        </button>
+        <button
+          type="button"
+          onClick={() => {
             onTab("items");
             setOpen(false);
           }}
@@ -104,6 +118,17 @@ export default function AdminMenu({
         >
           <IconChat className="size-5 shrink-0" />
           Q&A
+        </button>
+        <button
+          type="button"
+          onClick={() => {
+            onTab("points");
+            setOpen(false);
+          }}
+          className={`${row} ${tab === "points" ? "text-orange" : ""}`}
+        >
+          <IconUser className="size-5 shrink-0" />
+          Points
         </button>
 
         <p className="mt-3 px-3 pb-1 text-xs font-bold uppercase tracking-wide text-muted">

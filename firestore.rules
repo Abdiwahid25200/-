@@ -37,13 +37,37 @@ service cloud.firestore {
        رقم الهاتف الذي يُدخله الزبون بعد الدخول بجوجل (للتسليم عبر واتساب).
        كل زبون يقرأ ويكتب وثيقته وحده — ولا يرى أرقام غيره أبداً. */
     match /users/{uid} {
+
+      /* 🔒 النقاط رصيدٌ ماليّ: الزبون **يقرأه ولا يكتبه**.
+         بدون هذا الشرط يفتح أي زبون أدوات المتصفّح ويكتب لنفسه ما شاء،
+         ثم يشتري به. الكتابة للأدمن وحده — من لوحة الإدارة. */
+      function pointsUntouched() {
+        let inNew = 'points' in request.resource.data;
+        let inOld = resource != null && 'points' in resource.data;
+        return (!inNew && !inOld)
+          || (inNew && inOld
+              && request.resource.data.points == resource.data.points);
+      }
+
       allow read: if isAdmin() || (isSignedIn() && request.auth.uid == uid);
-      allow create, update: if isSignedIn()
+
+      // الأدمن يكتب الرصيد · والزبون يكتب رقمه وحده بلا لمس النقاط
+      allow create, update: if isAdmin() || (isSignedIn()
         && request.auth.uid == uid
+        && pointsUntouched()
         && request.resource.data.phone is string
         && request.resource.data.phone.size() >= 7
-        && request.resource.data.phone.size() <= 20;
+        && request.resource.data.phone.size() <= 20);
+
       allow delete: if isAdmin();
+
+      /* ── سجلّ حركات النقاط ──
+         الزبون يقرأ سجلّه (من أين جاءت نقاطه؟) ولا يكتب فيه حرفاً.
+         كل سطر: كم · لماذا · لأي طلب — فالإلغاء يعرف كم يخصم. */
+      match /ledger/{entryId} {
+        allow read: if isAdmin() || (isSignedIn() && request.auth.uid == uid);
+        allow write: if isAdmin();
+      }
     }
 
     /* ── الطلبات ── */

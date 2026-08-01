@@ -294,6 +294,15 @@
       "body": "Alaabta dhijitaalka (buuxin, lacag ciyaareed, akoonno): gaarsiin degdeg ah adduunka oo dhan marka lacagta la xaqiijiyo.\nElektaroonig: gaarsiin Soomaaliya gudaheeda — 1–2 maalmood Muqdisho."
     }
   },
+  "points": {
+    "eyebrow": "Dhibcaha macmiilka",
+    "unit": "dhibco",
+    "worth": "Waxay le'eg tahay {usd}",
+    "toRedeem": "Waxaa kuu haray {n} dhibcood si aad u isticmaasho (ugu yaraan {min})",
+    "canRedeem": "Waad isticmaali kartaa dhibcahaaga qiimo-dhimis ahaan",
+    "forOrder": "Dalabka {code}",
+    "manual": "Bakhaarka"
+  },
   "accountPage": {
     "title": "Akoonkayga",
     "note": "Dalabyadaada iyo xogtaada",

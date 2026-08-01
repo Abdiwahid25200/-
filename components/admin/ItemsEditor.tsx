@@ -62,6 +62,7 @@ export default function ItemsEditor() {
       title: it.title,
       sub: it.sub ?? "",
       price: Number(it.price) || 0,
+      points: it.points === undefined ? undefined : Number(it.points) || 0,
       img: it.img ?? "",
       status: it.status,
       order: it.order,
@@ -247,6 +248,29 @@ export default function ItemsEditor() {
                           value={it.price}
                           onChange={(e) =>
                             patch(it.id, { price: Number(e.target.value) })
+                          }
+                          dir="ltr"
+                          className={`${field} num text-start`}
+                        />
+                      </label>
+
+                      {/* نقاط الولاء — الفراغ يعني «استعملي الافتراضي العام» */}
+                      <label className="flex flex-col gap-1.5 text-sm">
+                        <span className="font-medium">Points</span>
+                        <input
+                          type="number"
+                          inputMode="numeric"
+                          min={0}
+                          step={1}
+                          value={it.points ?? ""}
+                          placeholder="Default"
+                          onChange={(e) =>
+                            patch(it.id, {
+                              points:
+                                e.target.value === ""
+                                  ? undefined
+                                  : Number(e.target.value),
+                            })
                           }
                           dir="ltr"
                           className={`${field} num text-start`}

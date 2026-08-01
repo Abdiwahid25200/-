@@ -36,6 +36,8 @@ export type SectionOverride = {
 export type ItemOverride = {
   img?: string;
   price?: number;
+  /** نقاط الولاء التي يربحها الزبون بشراء هذا الصنف (`lib/points.ts`) */
+  points?: number;
   status?: string;
   order?: number;
   title?: string;

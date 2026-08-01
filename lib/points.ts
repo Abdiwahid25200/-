@@ -1,0 +1,164 @@
+/**
+ * نظام النقاط — Ramaan Store
+ *
+ * 🔒 **القاعدة الأولى: النقاط لا تُكتب من جهاز الزبون أبداً.**
+ *    لو كان الرصيد حقلاً يكتبه صاحبه، لفتح أي شخص أدوات المتصفّح وكتب
+ *    لنفسه مليون نقطة. لذلك `firestore.rules` تمنع الزبون من تغيير
+ *    `points` في وثيقته — يقرأها فقط — والكتابة للأدمن وحده.
+ *
+ * 💵 قيمة النقطة: **سنت واحد** (قرار صاحبة المتجر: عشر نقاط = عشرة سنتات).
+ *
+ * 🧾 ولماذا سجلّ حركات (`users/{uid}/ledger`) لا رقمٌ مجرّد؟
+ *    لأن الطلب المُلغى **يُخصم منه فوراً**، ولا نعرف كم نخصم إلا إذا
+ *    سجّلنا كم مُنح ومتى ولأي طلب. والسجلّ يجيب الزبون حين يسأل
+ *    "من أين جاءت نقاطي؟" بلا أن تفتحي قاعدة البيانات.
+ */
+
+import {
+  collection,
+  doc,
+  getDoc,
+  getDocs,
+  limit as fbLimit,
+  orderBy,
+  query,
+} from "firebase/firestore";
+import type { User } from "firebase/auth";
+import { fbDb } from "./firebase";
+import { withTimeout } from "./timeout";
+import { readPackages, readProducts } from "./overrides";
+
+/** قيمة النقطة الواحدة بالدولار — ١٠ نقاط = ٠٫١٠ دولار */
+export const USD_PER_POINT = 0.01;
+
+/** رصيد بالنقاط ⇐ قيمته بالدولار، مقرّبة إلى سنتين */
+export const pointsToUsd = (points: number) =>
+  Math.round(Math.max(0, points) * USD_PER_POINT * 100) / 100;
+
+/** المبلغ بالدولار ⇐ كم نقطة يلزم لتغطيته */
+export const usdToPoints = (usd: number) => Math.ceil(usd / USD_PER_POINT);
+
+/* ═══════════════════════════════════════════════════════════
+   إعدادات النقاط — تُعدَّل من لوحة الإدارة (`settings/points`)
+   ═══════════════════════════════════════════════════════════ */
+
+export type PointsSettings = {
+  /** يعمل النظام أصلاً؟ إطفاؤه يُخفي النقاط من الموقع كلّه */
+  on: boolean;
+  /** نقاط أي صنف لم تُحدَّد له قيمة — فلا تملئين خمسين باقة يدوياً */
+  perItem: number;
+  /** أقلّ رصيد يُسمح باستعماله خصماً */
+  minRedeem: number;
+};
+
+export const DEFAULT_POINTS: PointsSettings = {
+  on: true,
+  perItem: 0,
+  minRedeem: 100,
+};
+
+/**
+ * ⚠️ لا يرمي خطأً أبداً: تعذّر القراءة ⇒ الإعدادات الافتراضية.
+ * صفحة الزبون يجب ألّا تنكسر لأن وثيقة إعدادات غائبة.
+ */
+export async function readPointsSettings(): Promise<PointsSettings> {
+  const db = fbDb();
+  if (!db) return DEFAULT_POINTS;
+  try {
+    const snap = await withTimeout(getDoc(doc(db, "settings", "points")));
+    const v = (snap.exists() ? snap.data() : {}) as Partial<PointsSettings>;
+    return {
+      on: typeof v.on === "boolean" ? v.on : DEFAULT_POINTS.on,
+      perItem: Number(v.perItem) || DEFAULT_POINTS.perItem,
+      minRedeem: Number(v.minRedeem) || DEFAULT_POINTS.minRedeem,
+    };
+  } catch {
+    return DEFAULT_POINTS;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════
+   كم نقطة يستحقّ هذا الطلب؟
+   ═══════════════════════════════════════════════════════════ */
+
+/** آيدي الصنف ⇐ نقاطه. مصدره تعديلات الإدارة، فلا يُلمس `lib/data.ts` */
+export type PointsMap = Record<string, number>;
+
+export async function readPointsMap(): Promise<PointsMap> {
+  const [packs, prods] = await Promise.all([readPackages(), readProducts()]);
+  const out: PointsMap = {};
+  for (const [id, v] of Object.entries({ ...packs, ...prods })) {
+    const p = Math.round(Number((v as { points?: number }).points));
+    if (Number.isFinite(p) && p > 0) out[id] = p;
+  }
+  return out;
+}
+
+/**
+ * ⚠️ **تُحسَب هنا لا في متصفّح الزبون.**
+ * لو أرسل الزبون عدد النقاط مع طلبه لكتب ما شاء. هذه الدالة تعمل في
+ * لوحة الإدارة وقت التأكيد، وتقرأ القيم من مصدرها الموثوق.
+ */
+export function orderPoints(
+  items: { id: string; qty?: number }[],
+  map: PointsMap,
+  fallback: number,
+): number {
+  return items.reduce(
+    (sum, it) => sum + (map[it.id] ?? fallback) * Math.max(1, it.qty ?? 1),
+    0,
+  );
+}
+
+/* ═══════════════════════════════════════════════════════════
+   قراءة رصيد الزبون وسجلّه
+   ═══════════════════════════════════════════════════════════ */
+
+export type LedgerRow = {
+  id: string;
+  /** موجب = مُنحت · سالب = خُصمت */
+  delta: number;
+  /** `order` عند التأكيد · `cancel` عند الإلغاء · `manual` بيد الإدارة */
+  reason: string;
+  /** رمز الطلب المرتبط، إن وُجد */
+  code: string;
+  at: Date | null;
+};
+
+export async function myPoints(user: User | null): Promise<number> {
+  const db = fbDb();
+  if (!db || !user) return 0;
+  const snap = await withTimeout(getDoc(doc(db, "users", user.uid)));
+  return Number(snap.data()?.points) || 0;
+}
+
+/**
+ * آخر الحركات. ترتيبٌ بحقل واحد بلا `where` — تكفيه الفهارس التلقائية،
+ * فلا نحتاج إنشاء فهرس مركّب يدوياً (درسُ صفحة "طلباتي").
+ */
+export async function myLedger(
+  user: User | null,
+  n = 20,
+): Promise<LedgerRow[]> {
+  const db = fbDb();
+  if (!db || !user) return [];
+  const snap = await withTimeout(
+    getDocs(
+      query(
+        collection(db, "users", user.uid, "ledger"),
+        orderBy("at", "desc"),
+        fbLimit(n),
+      ),
+    ),
+  );
+  return snap.docs.map((d) => {
+    const v = d.data();
+    return {
+      id: d.id,
+      delta: Number(v.delta) || 0,
+      reason: String(v.reason ?? ""),
+      code: String(v.code ?? ""),
+      at: v.at?.toDate?.() ?? null,
+    };
+  });
+}
