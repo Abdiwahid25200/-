@@ -6,6 +6,7 @@ import { useAuth } from "@/lib/auth";
 import Logo from "@/components/Logo";
 import {
   IconCart,
+  IconTrash,
   IconChat,
   IconClose,
   IconDevice,
@@ -31,6 +32,7 @@ export type AdminTab =
   | "payments"
   | "texts"
   | "analytics"
+  | "bin"
   | "points"
   | "faq"
   | "staff";
@@ -46,6 +48,7 @@ const ICONS: Record<AdminTab, (p: { className?: string }) => React.ReactElement>
   payments: IconCart,
   texts: IconDoc,
   analytics: IconDevice,
+  bin: IconTrash,
   points: IconUser,
   faq: IconChat,
   staff: IconUser,

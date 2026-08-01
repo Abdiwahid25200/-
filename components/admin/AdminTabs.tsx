@@ -14,6 +14,7 @@ import SiteEditor from "./SiteEditor";
 import PaymentsEditor from "./PaymentsEditor";
 import TextsEditor from "./TextsEditor";
 import Analytics from "./Analytics";
+import RecycleBin from "./RecycleBin";
 import { useAccess } from "@/lib/adminAccess";
 import type { Perm } from "@/lib/staff";
 
@@ -59,6 +60,7 @@ const GROUPS: { label: string; items: Item[] }[] = [
     items: [
       { v: "points", label: "Points", perm: "points" },
       { v: "store", label: "Store info", owner: true },
+      { v: "bin", label: "Recycle bin", owner: true },
       { v: "staff", label: "Helpers", owner: true },
     ],
   },
@@ -118,6 +120,8 @@ export default function AdminTabs() {
         <PointsEditor />
       ) : current === "store" ? (
         <SiteEditor />
+      ) : current === "bin" ? (
+        <RecycleBin />
       ) : current === "staff" ? (
         <StaffEditor />
       ) : (
