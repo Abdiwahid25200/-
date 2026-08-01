@@ -229,6 +229,12 @@ service cloud.firestore {
     match /sections/{id}  { allow read: if true; allow write: if canDo('sections'); }
     // شرائح البانر — نفس باب الأقسام
     match /slides/{id}    { allow read: if true; allow write: if canDo('sections'); }
+    /* ── تكلفة الأصناف — بيانات صاحبة المتجر وحدها ──
+       🔒 خارج `packages` عمداً: تلك يقرأها كل زائر (أسعار وصور)، فلو
+          كانت التكلفة فيها لعرف أي شخص ربحك من كل باقة. هنا لا يقرأها
+          إلا الأدمن — ولا حتى المساعد. */
+    match /costs/{id}     { allow read, write: if isAdmin(); }
+
     // طرق الدفع — بابها المستقلّ
     match /payments/{id}  { allow read: if true; allow write: if canDo('payments'); }
 

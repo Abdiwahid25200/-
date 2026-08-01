@@ -11,6 +11,7 @@ import {
   type ShopItem,
 } from "@/lib/items";
 import { customSections } from "@/lib/overrides";
+import { profitOf, readCosts, saveCost, type Costs } from "@/lib/costs";
 import ImagePicker from "./ImagePicker";
 import { IconCheckCircle, IconSpinner, IconTrash } from "@/components/icons";
 
@@ -45,6 +46,12 @@ export default function ItemsEditor() {
   const [saved, setSaved] = useState<string | null>(null);
   /** الأقسام التي أنشأتها صاحبة المتجر — تظهر هنا كي تملأها بأصنافها */
   const [extra, setExtra] = useState<KindOption[]>([]);
+  /** التكاليف — مجموعة منفصلة لا يقرأها أحد سواك (`lib/costs.ts`) */
+  const [costs, setCosts] = useState<Costs>({});
+
+  useEffect(() => {
+    void readCosts().then(setCosts);
+  }, []);
 
   useEffect(() => {
     void customSections().then((list) =>
@@ -74,6 +81,8 @@ export default function ItemsEditor() {
 
   async function save(it: ShopItem) {
     setBusy(it.id);
+    // التكلفة تُحفظ في مجموعتها الخاصّة، لا مع بيانات المنتج العامّة
+    if (costs[it.id] !== undefined) await saveCost(it.id, costs[it.id]);
     const ok = await saveItem(it.id, {
       kind: it.kind,
       title: it.title,
@@ -272,6 +281,44 @@ export default function ItemsEditor() {
                           dir="ltr"
                           className={`${field} num text-start`}
                         />
+                      </label>
+
+                      {/* 🔒 التكلفة والربح — لكِ وحدك، لا يراهما الزبون */}
+                      <label className="flex flex-col gap-1.5 text-sm">
+                        <span className="font-medium">Cost (private)</span>
+                        <input
+                          type="number"
+                          inputMode="decimal"
+                          step="0.01"
+                          min={0}
+                          value={costs[it.id] ?? ""}
+                          placeholder="What you pay"
+                          onChange={(e) =>
+                            setCosts((c) => ({
+                              ...c,
+                              [it.id]:
+                                e.target.value === "" ? 0 : Number(e.target.value),
+                            }))
+                          }
+                          dir="ltr"
+                          className={`${field} num text-start`}
+                        />
+                      </label>
+
+                      <label className="flex flex-col gap-1.5 text-sm">
+                        <span className="font-medium">Profit</span>
+                        <span
+                          className={`num flex min-h-12 items-center rounded-card border border-line px-3 font-bold ${
+                            (profitOf(Number(it.price), costs[it.id]) ?? 0) < 0
+                              ? "text-danger"
+                              : "text-orange"
+                          }`}
+                          dir="ltr"
+                        >
+                          {costs[it.id] === undefined
+                            ? "—"
+                            : `$${(profitOf(Number(it.price), costs[it.id]) ?? 0).toFixed(2)}`}
+                        </span>
                       </label>
 
                       {/* نقاط الولاء — الفراغ يعني «استعملي الافتراضي العام» */}

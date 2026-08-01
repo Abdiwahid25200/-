@@ -30,6 +30,7 @@ export type AdminTab =
   | "store"
   | "payments"
   | "texts"
+  | "analytics"
   | "points"
   | "faq"
   | "staff";
@@ -44,6 +45,7 @@ const ICONS: Record<AdminTab, (p: { className?: string }) => React.ReactElement>
   store: IconUser,
   payments: IconCart,
   texts: IconDoc,
+  analytics: IconDevice,
   points: IconUser,
   faq: IconChat,
   staff: IconUser,
@@ -52,12 +54,12 @@ const ICONS: Record<AdminTab, (p: { className?: string }) => React.ReactElement>
 export default function AdminMenu({
   tab,
   onTab,
-  tabs,
+  groups,
 }: {
   tab: AdminTab;
   onTab: (t: AdminTab) => void;
-  /** ما يملكه هذا الحساب فقط — يأتي جاهزاً من `AdminTabs` */
-  tabs: { v: AdminTab; label: string }[];
+  /** المجموعات المسموح بها لهذا الحساب — تأتي جاهزة من `AdminTabs` */
+  groups: { label: string; items: { v: AdminTab; label: string }[] }[];
 }) {
   const [open, setOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
@@ -102,26 +104,30 @@ export default function AdminMenu({
           </button>
         </div>
 
-        <p className="px-3 pb-1 text-xs font-bold uppercase tracking-wide text-muted">
-          Manage
-        </p>
-        {tabs.map((t) => {
-          const Icon = ICONS[t.v];
-          return (
-            <button
-              key={t.v}
-              type="button"
-              onClick={() => {
-                onTab(t.v);
-                setOpen(false);
-              }}
-              className={`${row} ${tab === t.v ? "text-orange" : ""}`}
-            >
-              <Icon className="size-5 shrink-0" />
-              {t.label}
-            </button>
-          );
-        })}
+        {groups.map((g) => (
+          <div key={g.label}>
+            <p className="px-3 pb-1 pt-3 text-xs font-bold uppercase tracking-wide text-muted">
+              {g.label}
+            </p>
+            {g.items.map((t) => {
+              const Icon = ICONS[t.v];
+              return (
+                <button
+                  key={t.v}
+                  type="button"
+                  onClick={() => {
+                    onTab(t.v);
+                    setOpen(false);
+                  }}
+                  className={`${row} ${tab === t.v ? "text-orange" : ""}`}
+                >
+                  <Icon className="size-5 shrink-0" />
+                  {t.label}
+                </button>
+              );
+            })}
+          </div>
+        ))}
 
         <p className="mt-3 px-3 pb-1 text-xs font-bold uppercase tracking-wide text-muted">
           Account
