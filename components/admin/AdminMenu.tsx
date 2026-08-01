@@ -20,14 +20,35 @@ import {
  * فتضيق على الجوال. نقلناهما هنا، وتبقى الترويسة للاسم وحده.
  */
 /** تبويبات اللوحة — مصدر واحد للاسم، فلا يتفرّق النوع بين ملفّين */
-export type AdminTab = "orders" | "items" | "sections" | "points" | "faq";
+export type AdminTab =
+  | "orders"
+  | "customers"
+  | "items"
+  | "sections"
+  | "points"
+  | "faq"
+  | "staff";
+
+/** أيقونة كل تبويب — القائمة تُبنى من نفس مصدر التبويبات فلا يتفرّقان */
+const ICONS: Record<AdminTab, (p: { className?: string }) => React.ReactElement> = {
+  orders: IconDoc,
+  customers: IconUser,
+  items: IconDevice,
+  sections: IconDoc,
+  points: IconUser,
+  faq: IconChat,
+  staff: IconUser,
+};
 
 export default function AdminMenu({
   tab,
   onTab,
+  tabs,
 }: {
   tab: AdminTab;
   onTab: (t: AdminTab) => void;
+  /** ما يملكه هذا الحساب فقط — يأتي جاهزاً من `AdminTabs` */
+  tabs: { v: AdminTab; label: string }[];
 }) {
   const [open, setOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
@@ -75,61 +96,23 @@ export default function AdminMenu({
         <p className="px-3 pb-1 text-xs font-bold uppercase tracking-wide text-muted">
           Manage
         </p>
-        <button
-          type="button"
-          onClick={() => {
-            onTab("orders");
-            setOpen(false);
-          }}
-          className={`${row} ${tab === "orders" ? "text-orange" : ""}`}
-        >
-          <IconDoc className="size-5 shrink-0" />
-          Orders
-        </button>
-        <button
-          type="button"
-          onClick={() => {
-            onTab("items");
-            setOpen(false);
-          }}
-          className={`${row} ${tab === "items" ? "text-orange" : ""}`}
-        >
-          <IconDevice className="size-5 shrink-0" />
-          Products
-        </button>
-        <button
-          type="button"
-          onClick={() => {
-            onTab("sections");
-            setOpen(false);
-          }}
-          className={`${row} ${tab === "sections" ? "text-orange" : ""}`}
-        >
-          <IconDoc className="size-5 shrink-0" />
-          Sections
-        </button>
-        <button
-          type="button"
-          onClick={() => {
-            onTab("faq");
-            setOpen(false);
-          }}
-          className={`${row} ${tab === "faq" ? "text-orange" : ""}`}
-        >
-          <IconChat className="size-5 shrink-0" />
-          Q&A
-        </button>
-        <button
-          type="button"
-          onClick={() => {
-            onTab("points");
-            setOpen(false);
-          }}
-          className={`${row} ${tab === "points" ? "text-orange" : ""}`}
-        >
-          <IconUser className="size-5 shrink-0" />
-          Points
-        </button>
+        {tabs.map((t) => {
+          const Icon = ICONS[t.v];
+          return (
+            <button
+              key={t.v}
+              type="button"
+              onClick={() => {
+                onTab(t.v);
+                setOpen(false);
+              }}
+              className={`${row} ${tab === t.v ? "text-orange" : ""}`}
+            >
+              <Icon className="size-5 shrink-0" />
+              {t.label}
+            </button>
+          );
+        })}
 
         <p className="mt-3 px-3 pb-1 text-xs font-bold uppercase tracking-wide text-muted">
           Account

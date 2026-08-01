@@ -4,6 +4,8 @@ import { useEffect, useState } from "react";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { doc, getDoc } from "firebase/firestore";
 import { useAuth } from "@/lib/auth";
+import { AccessProvider } from "@/lib/adminAccess";
+import { ALL, staffAccess, type Access } from "@/lib/staff";
 import { fbAuth, fbDb } from "@/lib/firebase";
 import Logo from "@/components/Logo";
 import { IconEye, IconEyeOff, IconSpinner } from "@/components/icons";
@@ -30,8 +32,9 @@ const toEmail = (u: string) =>
   u.includes("@") ? u.trim() : `${u.trim().toLowerCase()}@${DOMAIN}`;
 
 export default function AdminGate({ children }: { children: React.ReactNode }) {
-  const { user, ready, enabled } = useAuth();
-  const [admin, setAdmin] = useState<boolean | null>(null);
+  const { user, ready, enabled, signIn } = useAuth();
+  /** `null` = لم يُفحص بعد */
+  const [access, setAccess] = useState<Access | null>(null);
 
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
@@ -39,17 +42,40 @@ export default function AdminGate({ children }: { children: React.ReactNode }) {
   const [err, setErr] = useState("");
   const [show, setShow] = useState(false);
 
+  /**
+   * من يدخل؟ صاحبة المتجر (وثيقة في `admins`) أم مساعد (وثيقة بالبريد
+   * في `staff`)؟ نسأل عن الأولى، وعند غيابها نسأل عن الثانية — فالمساعد
+   * لا يكلّف قراءةً إضافية لصاحبة المتجر.
+   */
   useEffect(() => {
     if (!user) {
-      setAdmin(null);
+      setAccess(null);
       return;
     }
     let live = true;
     const db = fbDb();
-    if (!db) return setAdmin(false);
-    getDoc(doc(db, "admins", user.uid))
-      .then((s) => live && setAdmin(s.exists()))
-      .catch(() => live && setAdmin(false));
+    if (!db) return setAccess({ role: "none", can: {} });
+
+    void (async () => {
+      /**
+       * ⚠️ فحص `admins` في `try` مستقلّ عمداً.
+       * القاعدة تسمح بقراءة `admins` للأدمن وحده، فقراءة المساعد لها
+       * **تُرفض وترمي خطأً**. ولو كان الفحصان في `try` واحد لابتلع الخطأ
+       * فحصَ المساعد معه، فلا يدخل أحدٌ غير صاحبة المتجر أبداً.
+       */
+      let owner = false;
+      try {
+        owner = (await getDoc(doc(db, "admins", user.uid))).exists();
+      } catch {
+        owner = false;
+      }
+      if (!live) return;
+      if (owner) return setAccess({ role: "owner", can: ALL });
+
+      const a = await staffAccess(user.email);
+      if (live) setAccess(a);
+    })();
+
     return () => {
       live = false;
     };
@@ -95,7 +121,7 @@ export default function AdminGate({ children }: { children: React.ReactNode }) {
 
   if (!enabled) return shell(<p className="text-muted">Firebase is not configured.</p>);
 
-  if (!ready || (user && admin === null))
+  if (!ready || (user && access === null))
     return shell(
       <p className="flex items-center gap-2 text-muted">
         <IconSpinner className="size-4" /> Checking…
@@ -173,6 +199,15 @@ export default function AdminGate({ children }: { children: React.ReactNode }) {
             {busy && <IconSpinner className="size-4" />}
             Sign in
           </button>
+
+          {/* المساعدون يدخلون بحساب جوجل، والصلاحية تُمنح لبريدهم */}
+          <button
+            type="button"
+            onClick={() => void signIn()}
+            className="min-h-12 rounded-card border border-line font-bold text-muted transition-colors hover:text-text"
+          >
+            Staff sign-in with Google
+          </button>
         </form>
       </>,
     );
@@ -190,7 +225,8 @@ export default function AdminGate({ children }: { children: React.ReactNode }) {
    * ويبقى النموذج ظاهراً: الدخول باسم الأدمن يُخرج الحساب القديم أولاً
    * (انظري `submit`)، فتدخل صاحبة المتجر ولو كانت متصفّحة كزبونة.
    */
-  if (!admin) return form("Sign in with the store owner account.");
+  if (!access || access.role === "none")
+    return form("This account has no access to the panel.");
 
-  return <>{children}</>;
+  return <AccessProvider value={access}>{children}</AccessProvider>;
 }

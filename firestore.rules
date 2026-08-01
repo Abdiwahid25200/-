@@ -28,6 +28,42 @@ service cloud.firestore {
       return request.auth != null;
     }
 
+    /* ── المساعدون ──
+       الصلاحية **للبريد** لا للمعرّف: صاحبة المتجر تعرف بريد مساعدها
+       وتكتبه، أمّا المعرّف فلا يُعرف إلا بعد أوّل دخول — فلو بنينا عليه
+       لَما استطاعت منح الصلاحية قبل أن يدخل.
+
+       ⚠️ ومجموعة `staff` لا يكتبها إلا الأدمن (انظري قاعدتها أسفل):
+          لو سُمح للمساعد بتعديلها لَمنح نفسه كل الأبواب في ثانية. */
+    function staffDoc() {
+      return /databases/$(database)/documents/staff/$(request.auth.token.email);
+    }
+
+    function isStaff() {
+      return request.auth != null
+        && request.auth.token.email != null
+        && exists(staffDoc());
+    }
+
+    function staffCan(p) {
+      return isStaff()
+        && get(staffDoc()).data.get('active', true) != false
+        && get(staffDoc()).data.get('can', {}).get(p, false) == true;
+    }
+
+    /** الأدمن يملك كل الأبواب · والمساعد ما فُتح له وحده */
+    function canDo(p) {
+      return isAdmin() || staffCan(p);
+    }
+
+    match /staff/{email} {
+      // المساعد يقرأ وثيقته ليعرف أبوابه · وصاحبة المتجر تقرأ الكل
+      allow read: if isAdmin()
+        || (isSignedIn() && request.auth.token.email == email);
+      // 🔒 الكتابة لصاحبة المتجر وحدها — لا ترقية ذاتية
+      allow write: if isAdmin();
+    }
+
     match /admins/{uid} {
       allow read: if isAdmin();
       allow write: if false;   // من Firebase Console فقط
@@ -49,10 +85,12 @@ service cloud.firestore {
               && request.resource.data.points == resource.data.points);
       }
 
-      allow read: if isAdmin() || (isSignedIn() && request.auth.uid == uid);
+      allow read: if canDo('customers') || canDo('orders')
+        || (isSignedIn() && request.auth.uid == uid);
 
-      // الأدمن يكتب الرصيد · والزبون يكتب رقمه وحده بلا لمس النقاط
-      allow create, update: if isAdmin() || (isSignedIn()
+      // الإدارة تكتب الرصيد · والزبون يكتب رقمه وحده بلا لمس النقاط
+      allow create, update: if canDo('customers') || canDo('orders')
+        || (isSignedIn()
         && request.auth.uid == uid
         && pointsUntouched()
         && request.resource.data.phone is string
@@ -65,8 +103,9 @@ service cloud.firestore {
          الزبون يقرأ سجلّه (من أين جاءت نقاطه؟) ولا يكتب فيه حرفاً.
          كل سطر: كم · لماذا · لأي طلب — فالإلغاء يعرف كم يخصم. */
       match /ledger/{entryId} {
-        allow read: if isAdmin() || (isSignedIn() && request.auth.uid == uid);
-        allow write: if isAdmin();
+        allow read: if canDo('customers') || canDo('orders')
+          || (isSignedIn() && request.auth.uid == uid);
+        allow write: if canDo('customers') || canDo('orders');
       }
     }
 
@@ -99,18 +138,18 @@ service cloud.firestore {
       }
 
       // الزبون يرى طلباته هو فقط · الأدمن يرى الكل
-      allow read: if isAdmin()
+      allow read: if canDo('orders')
         || (isSignedIn() && resource.data.uid == request.auth.uid);
 
       allow create: if isSignedIn() && validNewOrder();
 
-      // بعد الإنشاء لا يملك الزبون تعديل شيء — الحالة والسعر بيد الأدمن وحده
-      allow update, delete: if isAdmin();
+      // بعد الإنشاء لا يملك الزبون تعديل شيء — الحالة والسعر بيد الإدارة
+      allow update, delete: if canDo('orders');
 
       /* بيانات التسليم الحسّاسة — كلمات مرور الحسابات المُباعة وما شابه.
          الأدمن فقط. تُسلَّم للزبون عبر واتساب لا عبر الموقع. */
       match /private/{docId} {
-        allow read, write: if isAdmin();
+        allow read, write: if canDo('orders');
       }
     }
 
@@ -159,10 +198,18 @@ service cloud.firestore {
 
     /* ── المنتجات والأقسام والإعدادات ──
        يقرأها الجميع (متجر عام) · لا يكتبها إلا الأدمن من لوحة الإدارة */
-    match /products/{id}  { allow read: if true; allow write: if isAdmin(); }
-    match /packages/{id}  { allow read: if true; allow write: if isAdmin(); }
-    match /sections/{id}  { allow read: if true; allow write: if isAdmin(); }
-    match /settings/{id}  { allow read: if true; allow write: if isAdmin(); }
+    match /products/{id}  { allow read: if true; allow write: if canDo('products'); }
+    match /packages/{id}  { allow read: if true; allow write: if canDo('products'); }
+    match /sections/{id}  { allow read: if true; allow write: if canDo('sections'); }
+
+    /* الإعدادات وثائق مختلفة الأغراض، فلكلٍّ بابها:
+       `points` لمن فُتحت له النقاط · `faq` لمن فُتحت له الأسئلة. */
+    match /settings/{id} {
+      allow read: if true;
+      allow write: if isAdmin()
+        || (id == 'points' && staffCan('points'))
+        || (id == 'faq' && staffCan('faq'));
+    }
 
     /* ── أي شيء آخر: ممنوع ──
        الافتراض هو المنع، فأي مجموعة جديدة تحتاج قاعدة صريحة أعلاه. */
