@@ -70,6 +70,8 @@ export default function PaymentsEditor() {
       nameAr: newId.trim(),
       status: "soon",
       scope: "local",
+      // بلا علامة كان الموقع ينهار عند رسم قسم الدفع
+      mark: "card",
       numbers: [],
       ussd: "",
     };

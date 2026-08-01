@@ -65,7 +65,7 @@ export async function mergedPay(): Promise<PayMethod[]> {
           numbers: o.numbers ?? [],
           ussd: o.ussd ?? "",
           scope: o.scope ?? "local",
-          mark: o.mark,
+          mark: o.mark ?? "card",
           status: o.status ?? "on",
         }) as PayMethod,
     );

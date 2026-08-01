@@ -50,8 +50,14 @@ export default function PayMark({
   alt?: string;
   className?: string;
 }) {
-  const [light, dark] = tone[mark];
-  const id = `pm-${mark}`;
+  /**
+   * ⚠️ **لا تُفكَّك القيمة مباشرة.** الطريقة المضافة من اللوحة قد تصل
+   *    بلا علامة، فيكون `tone[mark]` غير معرّف، وتفكيكه يرمي خطأً
+   *    **يُسقط الصفحة كلّها** على الزبون — وقسم الدفع يُرسم بعد اختيار
+   *    الباقة، فيبدو الانهيار وكأنه من اختيارها.
+   */
+  const [light, dark] = tone[mark] ?? ["#3B4657", "#1E2735"];
+  const id = `pm-${mark ?? "generic"}`;
 
   if (logo) {
     return (
