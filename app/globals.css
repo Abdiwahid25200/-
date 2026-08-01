@@ -345,6 +345,10 @@ body.has-buybar {
   }
 
   .app-shell {
+    /* ⚠️ `width: 100%` لازم ولا يُحذف: `body` عنصر flex عمودي، والهامش
+       `auto` الجانبي في flexbox يُلغي التمدّد ويقلّص العنصر إلى عرض
+       محتواه — فكانت صفحة الألعاب تظهر عموداً ضيّقاً وسط الآيباد. */
+    width: 100%;
     max-width: 1100px;
     margin: 18px auto 0;
     border-radius: 34px;
