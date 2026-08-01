@@ -40,7 +40,7 @@ export async function createStaffLogin(
   password: string,
 ): Promise<MakeResult> {
   const email = toStaffEmail(username);
-  if (!email.startsWith("@") === false || email.length < 5) return { ok: false, reason: "bad" };
+  if (email.startsWith("@") || email.length < 5) return { ok: false, reason: "bad" };
   if (password.length < 6) return { ok: false, reason: "weak" };
 
   const main = fbAuth();

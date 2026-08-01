@@ -190,16 +190,24 @@ export default function StaffEditor() {
                   <span className="ms-2 text-xs font-medium text-muted">(you)</span>
                 )}
               </span>
-              <button
-                type="button"
-                onClick={() => void setActive(r, !(r.active !== false))}
-                className={`min-h-10 rounded-full border px-3 text-sm font-bold ${
+              {/* ⚠️ الشارة تُخبر، والزرّ يفعل — كانا شيئاً واحداً، فلمسةٌ
+                  للاطمئنان على الحالة كانت **توقف** المساعد بلا قصد. */}
+              <span
+                className={`shrink-0 rounded-full px-2.5 py-1 text-xs font-bold ${
                   r.active !== false
-                    ? "border-orange text-orange"
-                    : "border-line text-muted"
+                    ? "bg-orange/15 text-orange"
+                    : "bg-danger/10 text-danger"
                 }`}
               >
                 {r.active !== false ? "Active" : "Paused"}
+              </span>
+              <button
+                type="button"
+                disabled={busy === r.id}
+                onClick={() => void setActive(r, r.active === false)}
+                className="min-h-10 shrink-0 rounded-full border border-line px-3 text-sm font-bold text-muted disabled:opacity-50"
+              >
+                {r.active !== false ? "Pause" : "Activate"}
               </button>
             </div>
 

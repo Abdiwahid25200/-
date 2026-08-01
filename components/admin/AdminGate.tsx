@@ -217,7 +217,9 @@ export default function AdminGate({ children }: { children: React.ReactNode }) {
    * (انظري `submit`)، فتدخل صاحبة المتجر ولو كانت متصفّحة كزبونة.
    */
   if (!access || access.role === "none")
-    return form("This account has no access to the panel.");
+    return form(
+      `No access for ${user.email ?? "this account"} — ask the owner to add it under Helpers.`,
+    );
 
   return <AccessProvider value={access}>{children}</AccessProvider>;
 }
