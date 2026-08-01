@@ -10,6 +10,7 @@ import { optimizable } from "@/lib/img";
 import { isBuyable, live, pay, wa } from "@/lib/data";
 import { useAuth } from "@/lib/auth";
 import { saveOrder } from "@/lib/orders";
+import { usePayMethods } from "@/components/usePayMethods";
 import PointsRedeem, { usePointsRedeem } from "@/components/PointsRedeem";
 import {
   IconArrow,
@@ -41,12 +42,13 @@ export default function CartView() {
   // خصم النقاط — يقرأ الرصيد ويحسب المبلغ بعد الخصم
   const redeem = usePointsRedeem(total);
 
-  const methods = live(pay).filter(isBuyable);
+  const methods = live(usePayMethods()).filter(isBuyable);
   const method = methods.find((m) => m.id === payId) ?? methods[0];
   const methodName = method ? (locale === "ar" ? method.nameAr : method.nameEn) : "";
   const detailsReady = count > 0 && name.trim() && contact.trim() && addr.trim();
   /* طريقة الدفع تُشترط إن كانت هناك طرق عاملة — وكلّها "قريباً" اليوم */
-  const payNeeded = methods.length > 0;
+  // غطّت نقاطه المبلغ كلّه ⇒ لا خطوة دفع
+  const payNeeded = methods.length > 0 && redeem.payable > 0;
   const payReady = !payNeeded || !!payId;
   const canOrder = detailsReady && payReady;
 
@@ -319,9 +321,11 @@ export default function CartView() {
 
       {/* طريقة الدفع — نفس القسم المستعمل في صفحات الألعاب بالضبط،
           فلا يتعلّم الزبون شكلين لشيء واحد، ويصله كود التحويل هنا أيضاً */}
-      <div ref={payRef}>
-        <PaySection amount={redeem.payable} selected={payId} onSelect={setPayId} />
-      </div>
+      {payNeeded && (
+        <div ref={payRef}>
+          <PaySection amount={redeem.payable} selected={payId} onSelect={setPayId} />
+        </div>
+      )}
 
       {/* خصم النقاط — يظهر لمن يملك رصيداً كافياً وحده */}
       <PointsRedeem r={redeem} />

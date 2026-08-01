@@ -11,6 +11,7 @@ import { useAuth } from "@/lib/auth";
 import { Link } from "@/i18n/navigation";
 import { IconArrow, IconCheckCircle, IconSpinner, IconSuccess } from "./icons";
 import { saveOrder } from "@/lib/orders";
+import { usePayMethods } from "@/components/usePayMethods";
 import PointsRedeem, { usePointsRedeem } from "./PointsRedeem";
 
 export type Pack = {
@@ -87,7 +88,7 @@ export default function BuyFlow({
 
   const isWa = mode === "whatsapp";
 
-  const methods = live(pay).filter(isBuyable);
+  const methods = live(usePayMethods()).filter(isBuyable);
   const method = methods.find((m) => m.id === payId) ?? methods[0];
   const methodName = isWa
     ? t("payOnWhatsapp")
@@ -117,7 +118,9 @@ export default function BuyFlow({
    * وطريقة الدفع تُشترط **فقط** إن كانت هناك طرق متاحة فعلاً: كلّها
    * "قريباً" اليوم، ولو اشترطناها بلا هذا الحرس لتعطّل الشراء كلّه.
    */
-  const payNeeded = !isWa && methods.length > 0;
+  /* ⚠️ غطّت نقاطه المبلغ كلّه ⇒ لا خطوة دفع أصلاً. ولولا هذا لطُلب
+     من الزبون اختيار طريقة لتحويل **صفر دولار**، فيقف بلا مخرج. */
+  const payNeeded = !isWa && methods.length > 0 && redeem.payable > 0;
   const payReady = !payNeeded || !!payId;
   const canConfirm = !!pack && accountReady && payReady;
 
@@ -353,11 +356,11 @@ export default function BuyFlow({
       {pack &&
         (isWa ? (
           <div ref={accountRef}>{accountForm}</div>
-        ) : (
+        ) : payNeeded ? (
           <div ref={payRef}>
             <PaySection amount={redeem.payable} selected={payId} onSelect={setPayId} />
           </div>
-        ))}
+        ) : null)}
 
       {/* ── شريط الخطوات العائم — فوق قائمة التنقّل مباشرة ──
           خطّ التقدّم أعلاه يقول للزبون أين هو من الطريق بلا كلمة واحدة،

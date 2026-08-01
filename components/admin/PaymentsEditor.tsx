@@ -80,6 +80,22 @@ export default function PaymentsEditor() {
     setOpen(id);
   }
 
+  /**
+   * الحذف نوعان — كما في الأصناف والأقسام:
+   * المضاف من اللوحة يُمحى نهائياً، والأصليّ (من الملفات) **يُخفى**
+   * ويظهر هنا مشطوباً بزرّ استعادة. ولو مسحنا وثيقته لعاد من الملفات
+   * بعد كل حذف، فتظنّين أن الزرّ لا يعمل.
+   */
+  async function hide(id: string, on: boolean) {
+    setOver((p) => ({ ...p, [id]: { ...p[id], hidden: on } }));
+    const ok = await saveOverride("payments", id, {
+      ...(over[id] ?? {}),
+      hidden: on,
+    } as Record<string, unknown>);
+    clearPayCache();
+    if (!ok) alert("Could not save — check your access.");
+  }
+
   async function drop(id: string) {
     if (!confirm(`Delete payment method "${id}"?`)) return;
     const ok = await deleteOverride("payments", id);
@@ -162,18 +178,36 @@ export default function PaymentsEditor() {
               className="flex w-full items-center gap-3 p-4 text-start"
             >
               <span className="min-w-0 flex-1">
-                <span className="block truncate font-bold">
+                <span
+                  className={`block truncate font-bold ${
+                    d.hidden ? "text-muted line-through" : ""
+                  }`}
+                >
                   {d.nameEn || x.base?.nameEn || x.id}
                 </span>
                 <span className="block text-xs text-muted">
-                  {STATUSES.find((s) => s.v === status)?.label}
+                  {d.hidden
+                    ? "Removed"
+                    : STATUSES.find((s) => s.v === status)?.label}
                 </span>
               </span>
               {saved === x.id && <IconCheckCircle className="size-5 text-yellow" />}
               <span aria-hidden className="text-muted">{isOpen ? "−" : "+"}</span>
             </button>
 
-            {isOpen && (
+            {d.hidden && (
+              <div className="border-t border-line p-3">
+                <button
+                  type="button"
+                  onClick={() => void hide(x.id, false)}
+                  className="min-h-11 w-full rounded-card border border-line font-bold"
+                >
+                  Restore
+                </button>
+              </div>
+            )}
+
+            {isOpen && !d.hidden && (
               <div className="flex flex-col gap-4 border-t border-line p-4">
                 <label className="flex flex-col gap-1.5 text-sm">
                   <span className="font-medium">Status</span>
@@ -275,15 +309,13 @@ export default function PaymentsEditor() {
                   Save
                 </button>
 
-                {x.custom && (
-                  <button
-                    type="button"
-                    onClick={() => void drop(x.id)}
-                    className="min-h-12 rounded-card border border-line font-bold text-danger"
-                  >
-                    Delete this method
-                  </button>
-                )}
+                <button
+                  type="button"
+                  onClick={() => (x.custom ? void drop(x.id) : void hide(x.id, true))}
+                  className="min-h-12 rounded-card border border-line font-bold text-danger"
+                >
+                  {x.custom ? "Delete this method" : "Remove from the store"}
+                </button>
               </div>
             )}
           </section>
