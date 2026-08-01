@@ -27,6 +27,44 @@ const nextConfig: NextConfig = {
    *
    * وفائدة ثانية: اسم `eramaan.com` هو ما يظهر للزبون، لا اسم Firebase.
    */
+
+  /**
+   * ترويسات الأمان — ما نقص في تقرير securityheaders.com.
+   *
+   * كلّها **بلا خطر على الموقع**: تمنع سلوكاً ضارّاً ولا تقيّد ما نستعمله.
+   *
+   * ⚠️ و`Content-Security-Policy` هنا **مقصودة الاختصار**: تمنع تأطير
+   *    الموقع وحقن الإضافات وسرقة أساس الروابط، ولا تقيّد النصوص
+   *    البرمجية ولا الصور. سياسةٌ تفصيلية لـ`script-src` تحتاج ترقيماً
+   *    لكل نصّ (nonce)، وأي خطأ فيها **يوقف الموقع كلّه** — تُبنى على
+   *    مهل لا في سطرٍ عابر.
+   */
+  async headers() {
+    return [
+      {
+        source: "/:path*",
+        headers: [
+          // لا يُؤطَّر الموقع داخل موقع آخر — حماية من خطف النقرات
+          { key: "X-Frame-Options", value: "SAMEORIGIN" },
+          // المتصفّح لا يخمّن نوع الملف — يمنع تحويل صورة إلى نصّ برمجي
+          { key: "X-Content-Type-Options", value: "nosniff" },
+          // لا يتسرّب مسار الصفحة إلى المواقع الخارجية
+          { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
+          // لا كاميرا ولا ميكروفون ولا موقع جغرافي — المتجر لا يحتاجها
+          {
+            key: "Permissions-Policy",
+            value: "camera=(), microphone=(), geolocation=(), interest-cohort=()",
+          },
+          {
+            key: "Content-Security-Policy",
+            value:
+              "frame-ancestors 'self'; object-src 'none'; base-uri 'self'; upgrade-insecure-requests",
+          },
+        ],
+      },
+    ];
+  },
+
   async rewrites() {
     return {
       // beforeFiles: يسبق التوجيه، وإلا التقطته صفحات اللغات
