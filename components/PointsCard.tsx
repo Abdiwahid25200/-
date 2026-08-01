@@ -5,12 +5,12 @@ import { useTranslations } from "next-intl";
 import { useAuth } from "@/lib/auth";
 import PointsBrand from "./PointsBrand";
 import { getProfile } from "@/lib/profile";
+import { claimIncoming, sendPointsTo } from "@/lib/transfers";
 import {
   DEFAULT_POINTS,
   USD_PER_POINT,
   buyPointsOrder,
   sellPoints,
-  sendPoints,
   myLedger,
   myPoints,
   pointsToUsd,
@@ -60,8 +60,19 @@ export default function PointsCard() {
         setSettings(s);
         setPoints(p);
         setRows(l);
+        /* ⚠️ ما إن يفتح الصفحة حتى يستلم ما أُرسل إليه — بلا زرّ ولا
+           انتظار موافقة. الحوالة موجودة، والقواعد تأذن، فيدخل الرصيد. */
         void getProfile(user)
-          .then((pr) => alive && setPhone(pr?.phone ?? ""))
+          .then(async (pr) => {
+            if (!alive) return;
+            const ph = pr?.phone ?? "";
+            setPhone(ph);
+            const got = await claimIncoming(user, ph);
+            if (!alive || got <= 0) return;
+            setPoints((v) => (v === null ? v : v + got));
+            setMsg(t("received", { n: got }));
+            void myLedger(user, 8).then((l) => alive && setRows(l));
+          })
           .catch(() => {});
       } catch {
         // بلا Firebase أو مع انقطاع: تختفي البطاقة ولا يظهر خطأ للزبون
@@ -88,14 +99,25 @@ export default function PointsCard() {
     setMsg(null);
     const r =
       what === "send"
-        ? await sendPoints(user, toPhone, amount)
+        ? await sendPointsTo(user, phone, toPhone, amount)
         : await sellPoints(user, amount, phone);
     setBusy(false);
-    if (!r.ok) return setMsg(t("buyError"));
+    if (!r.ok) {
+      const why = "reason" in r ? r.reason : "";
+      return setMsg(
+        why === "balance"
+          ? t("errBalance")
+          : why === "self"
+            ? t("errSelf")
+            : why === "phone"
+              ? t("errPhone")
+              : t("buyError"),
+      );
+    }
     setWant("");
     setToPhone("");
     setPoints((p) => (p === null ? p : p - amount));
-    setMsg(t(what === "send" ? "sendDone" : "sellDone", { code: r.code }));
+    setMsg(t(what === "send" ? "sendNow" : "sellDone", { code: r.code }));
   }
 
   async function buy() {

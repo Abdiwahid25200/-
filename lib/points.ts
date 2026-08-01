@@ -311,11 +311,8 @@ async function spendAndRequest(
   }
 }
 
-/** تحويل نقاط إلى زبون آخر برقم هاتفه */
-export const sendPoints = (user: User | null, toPhone: string, n: number) =>
-  user && toPhone.replace(/\D/g, "").length >= 7
-    ? spendAndRequest(user, Math.round(n), "points-send", `${Math.round(n)} points → ${toPhone}`, toPhone)
-    : Promise.resolve({ ok: false as const });
+/* ملاحظة: التحويل بين الزبائن انتقل إلى `lib/transfers.ts` — صار
+   مباشراً بحوالة موقّعة بدل طلبٍ ينتظر موافقةً يدوية. */
 
 /** بيع نقاط: تُخصم ويصلك طلبٌ لتدفعي قيمتها */
 export const sellPoints = (user: User | null, n: number, payTo: string) =>

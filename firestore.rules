@@ -56,6 +56,44 @@ service cloud.firestore {
       return isAdmin() || staffCan(p);
     }
 
+    /** رقم هاتف صاحب الجلسة — مفتاح الحوالات بين الزبائن */
+    function myPhone() {
+      let u = /databases/$(database)/documents/users/$(request.auth.uid);
+      return exists(u) ? get(u).data.get('phone', '') : '';
+    }
+
+    /* ── حوالات النقاط بين الزبائن ──
+       🔑 الزبون لا يملك زيادة رصيد أحد. فالحوالة **وثيقةٌ تُثبت الإذن**:
+          يكتبها المرسِل بعد خصم رصيده، ويستلمها صاحب الرقم فتزيد نقاطه.
+       ⚠️ ولا تُستلم مرّتين: القاعدة تشترط `claimed == false` قبل الاستلام،
+          ومحاولتان متزامنتان تتصادمان على الوثيقة نفسها فتنجح واحدة. */
+    match /transfers/{code} {
+      allow read: if isAdmin()
+        || (isSignedIn() && (resource.data.from == request.auth.uid
+                             || resource.data.toPhone == myPhone()));
+
+      // المرسِل يكتبها باسمه ولا يكتبها مستلَمة
+      allow create: if isSignedIn()
+        && request.resource.data.from == request.auth.uid
+        && request.resource.data.points is int
+        && request.resource.data.points > 0
+        && request.resource.data.toPhone is string
+        && request.resource.data.toPhone.size() >= 7
+        && request.resource.data.claimed == false
+        && request.resource.data.at == request.time;
+
+      // ولا يعلّمها مستلَمة إلا صاحب الرقم، ومرّة واحدة
+      allow update: if isSignedIn()
+        && resource.data.claimed == false
+        && resource.data.toPhone == myPhone()
+        && request.resource.data.claimed == true
+        && request.resource.data.toUid == request.auth.uid
+        && request.resource.data.points == resource.data.points
+        && request.resource.data.from == resource.data.from;
+
+      allow delete: if isAdmin();
+    }
+
     match /staff/{email} {
       // المساعد يقرأ وثيقته ليعرف أبوابه · وصاحبة المتجر تقرأ الكل
       allow read: if isAdmin()
@@ -95,6 +133,20 @@ service cloud.firestore {
           && request.resource.data.points < resource.data.points;
       }
 
+      /* الزيادة الوحيدة المسموحة للزبون: استلام حوالة. القاعدة تفتح
+         الحوالة المذكورة في `lastClaim` وتتحقّق: غير مستلَمة، وبرقمه،
+         وبالفارق نفسه. فلا نقطة تدخل رصيداً بلا حوالة تفسّرها. */
+      function claimsTransfer() {
+        let d = request.resource.data;
+        let t = /databases/$(database)/documents/transfers/$(d.get('lastClaim', 'x'));
+        return 'lastClaim' in d
+          && exists(t)
+          && get(t).data.claimed == false
+          && get(t).data.toPhone == myPhone()
+          && d.points is int
+          && d.points == resource.data.get('points', 0) + get(t).data.points;
+      }
+
       allow read: if canDo('customers') || canDo('orders')
         || (isSignedIn() && request.auth.uid == uid);
 
@@ -102,7 +154,7 @@ service cloud.firestore {
       allow create, update: if canDo('customers') || canDo('orders')
         || (isSignedIn()
         && request.auth.uid == uid
-        && (pointsUntouched() || pointsSpentOnly())
+        && (pointsUntouched() || pointsSpentOnly() || claimsTransfer())
         && request.resource.data.phone is string
         && request.resource.data.phone.size() >= 7
         && request.resource.data.phone.size() <= 20);
@@ -120,11 +172,20 @@ service cloud.firestore {
         /* الزبون يسجّل **إنفاقه** وحده: سطرٌ سالب باسم رمز طلبه.
            لا يعدّله ولا يمحوه بعدها، فيبقى دليلاً على الخصم. */
         allow create: if isSignedIn() && request.auth.uid == uid
-          && request.resource.data.delta is int
-          && request.resource.data.delta < 0
-          && request.resource.data.reason in ['redeem', 'send', 'sell']
           && request.resource.data.code == entryId
-          && request.resource.data.at == request.time;
+          && request.resource.data.at == request.time
+          && request.resource.data.delta is int
+          && (
+            /* إنفاق: سالبٌ دائماً */
+            (request.resource.data.delta < 0
+             && request.resource.data.reason in ['redeem', 'send', 'sell'])
+            /* أو استلام حوالة: موجبٌ بقيمة الحوالة نفسها وباسم رمزها */
+            || (request.resource.data.delta > 0
+                && request.resource.data.reason == 'received'
+                && exists(/databases/$(database)/documents/transfers/$(entryId))
+                && get(/databases/$(database)/documents/transfers/$(entryId)).data.points
+                   == request.resource.data.delta)
+          );
       }
     }
 

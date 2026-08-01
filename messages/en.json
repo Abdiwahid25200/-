@@ -338,7 +338,11 @@
     "sellNote": "We transfer the value to your number",
     "sellCta": "Sell {n} points · {usd}",
     "sellDone": "Done — we transfer the money after review ({code})",
-    "errBalance": "Not enough points"
+    "errBalance": "Not enough points",
+    "sendNow": "Points delivered to that number ({code})",
+    "received": "You received {n} points 🎉",
+    "errSelf": "You cannot send to your own number",
+    "errPhone": "Enter a valid number"
   },
   "accountPage": {
     "title": "My account",

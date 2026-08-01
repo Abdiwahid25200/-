@@ -338,7 +338,11 @@
     "sellNote": "Qiimaha ayaan lambarkaaga ugu soo dirnaa",
     "sellCta": "Iibi {n} dhibcood · {usd}",
     "sellDone": "Waa la diray — lacagta waan kuu soo dirnaa ({code})",
-    "errBalance": "Dhibcahaagu kuma filna"
+    "errBalance": "Dhibcahaagu kuma filna",
+    "sendNow": "Dhibcuhu way gaareen lambarkaas ({code})",
+    "received": "Waxaad heshay {n} dhibcood 🎉",
+    "errSelf": "Naftaada uma diri kartid",
+    "errPhone": "Geli lambar sax ah"
   },
   "accountPage": {
     "title": "Akoonkayga",
