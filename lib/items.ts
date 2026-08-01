@@ -20,7 +20,18 @@ import {
   type ItemStatus,
 } from "./data";
 
-export type ItemKind = "pubg" | "efootball" | "tiktok" | "accounts" | "elec";
+/**
+ * أقسام الأصناف. الخمسة الأولى لها ملفّات ثابتة، وأي نصّ آخر هو **قسم
+ * أضافته صاحبة المتجر من اللوحة** — أصنافه كلّها في Firestore، فيعمل
+ * بلا سطر كود جديد. `string & {}` تُبقي الاقتراح في المحرّر وتسمح بالباقي.
+ */
+export type ItemKind =
+  | "pubg"
+  | "efootball"
+  | "tiktok"
+  | "accounts"
+  | "elec"
+  | (string & {});
 
 /** الشكل الموحّد الذي تعرضه البطاقات مهما اختلف القسم */
 export type ShopItem = {
@@ -48,7 +59,7 @@ export type ShopItem = {
 
 /* ── تحويل الأصل الثابت إلى الشكل الموحّد ── */
 
-const fromStatic: Record<ItemKind, () => ShopItem[]> = {
+const fromStatic: Record<string, () => ShopItem[]> = {
   pubg: () =>
     pubg.map((p) => ({
       id: p.id, kind: "pubg" as const,
@@ -131,7 +142,7 @@ async function readItems(): Promise<Record<string, ItemDoc>> {
 export async function mergedItems(kind: ItemKind): Promise<ShopItem[]> {
   const over = await readItems();
 
-  const base = fromStatic[kind]().map((i) => {
+  const base = (fromStatic[kind] ?? (() => []))().map((i) => {
     const o = over[i.id];
     return o ? ({ ...i, ...strip(o) } as ShopItem) : i;
   });
@@ -170,7 +181,7 @@ export async function mergedItems(kind: ItemKind): Promise<ShopItem[]> {
  */
 export async function allItems(kind: ItemKind): Promise<ShopItem[]> {
   const over = await readItems();
-  const base = fromStatic[kind]().map((i) => {
+  const base = (fromStatic[kind] ?? (() => []))().map((i) => {
     const o = over[i.id];
     return o ? ({ ...i, ...strip(o), hidden: o.hidden === true } as ShopItem) : i;
   });

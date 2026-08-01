@@ -10,7 +10,7 @@
  * `firestore.rules` لا هنا، فلا ينفع تجاوزه من المتصفّح.
  */
 
-import { collection, doc, getDocs, setDoc } from "firebase/firestore";
+import { collection, deleteDoc, doc, getDocs, setDoc } from "firebase/firestore";
 import { fbDb } from "./firebase";
 import type { Multilang } from "./content";
 
@@ -31,6 +31,23 @@ export type SectionOverride = {
   order?: number;
   /** حذف من الموقع دون حذف الملف الأصلي */
   hidden?: boolean;
+
+  /* ── الأقسام المضافة من اللوحة ──
+     قسمٌ لا أصل له في `lib/content.ts`: لعبة جديدة أضافتها صاحبة المتجر
+     بنفسها. صفحته تُولَد تلقائياً على `/s/{key}` — فلا تحتاج مبرمجاً. */
+
+  /** أُضيف من اللوحة لا من الملفات */
+  custom?: boolean;
+  /** أين يظهر: `games` · `accounts` · `home` */
+  group?: string;
+  /** الأيقونة الافتراضية حين لا صورة */
+  icon?: string;
+  /**
+   * كيف يشتري الزبون:
+   * `pay` — يدخل آيديه ويدفع بنفسه (شدّات وكوينز)
+   * `whatsapp` — يترك رقمه وتُكملين معه (حسابات وأسعار متّفق عليها)
+   */
+  flow?: string;
 };
 
 export type ItemOverride = {
@@ -95,6 +112,27 @@ export async function saveOverride(
   }
 }
 
+/**
+ * حذف تعديلٍ نهائياً — للأقسام التي أنشأتها صاحبة المتجر وحدها.
+ *
+ * ⚠️ لا يُستعمل مع الأقسام الأصلية: مسحُ تعديلها لا يمحوها من
+ * `lib/content.ts` فتعود كما كانت، ويحتار من ظنّ أنه حذفها. إخفاؤها
+ * يكون بالحالة `off` لا بالحذف.
+ */
+export async function deleteOverride(
+  col: "sections" | "packages" | "products",
+  id: string,
+): Promise<boolean> {
+  const db = fbDb();
+  if (!db) return false;
+  try {
+    await deleteDoc(doc(db, col, id));
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 /** يختار قيمة اللغة من التعديل، وإلا يرجع الأصل */
 export function pick(
   over: Partial<Multilang> | undefined,
@@ -111,18 +149,46 @@ export function pick(
 
 import { sections as staticSections, type Section } from "./content";
 
-export type MergedSection = Section & { over?: SectionOverride };
+export type MergedSection = Section & {
+  over?: SectionOverride;
+  /** أُضيف من اللوحة — اسمه في التعديل نفسه لا في `messages/*.json` */
+  custom?: boolean;
+};
+
+/** تحويل تعديلٍ مضاف من اللوحة إلى قسم كامل بصفحته المولّدة */
+function asCustom(key: string, o: SectionOverride): MergedSection {
+  return {
+    key,
+    href: `/s/${key}`,
+    icon: (o.icon ?? "games") as Section["icon"],
+    group: (o.group ?? "games") as Section["group"],
+    status: (o.status ?? "on") as Section["status"],
+    badge: o.badge as Section["badge"],
+    img: o.img,
+    over: o,
+    custom: true,
+  };
+}
+
+/** الأقسام التي أضافتها صاحبة المتجر — بلا فلترة، للوحة والخريطة */
+export async function customSections(): Promise<MergedSection[]> {
+  const over = await readSections();
+  return Object.entries(over)
+    .filter(([key, o]) => o.custom === true && !staticSections.some((s) => s.key === key))
+    .map(([key, o]) => asCustom(key, o));
+}
 
 /**
  * أقسام مجموعة واحدة بعد تطبيق التعديلات.
- * الحالة والصورة والترتيب تُقرأ من التعديل إن وُجد، وإلا من الأصل.
+ * الحالة والصورة والترتيب تُقرأ من التعديل إن وُجد، وإلا من الأصل،
+ * **ثم تُضاف الأقسام التي أنشأتها صاحبة المتجر من اللوحة**.
  */
 export async function mergedSections(
   group: Section["group"],
 ): Promise<MergedSection[]> {
   const over = await readSections();
 
-  return staticSections
+  const base: MergedSection[] = staticSections
     .map((s) => ({ ...s, over: over[s.key] }))
     .filter((s) => {
       const status = s.over?.status ?? s.status;
@@ -133,8 +199,22 @@ export async function mergedSections(
       status: (s.over?.status ?? s.status) as Section["status"],
       img: s.over?.img || s.img,
       badge: (s.over?.badge ?? s.badge) as Section["badge"],
-    }))
-    .sort((a, b) => (a.over?.order ?? 99) - (b.over?.order ?? 99));
+    }));
+
+  const added = Object.entries(over)
+    .filter(
+      ([key, o]) =>
+        o.custom === true &&
+        !staticSections.some((s) => s.key === key) &&
+        (o.group ?? "games") === group &&
+        (o.status ?? "on") !== "off" &&
+        !o.hidden,
+    )
+    .map(([key, o]) => asCustom(key, o));
+
+  return [...base, ...added].sort(
+    (a, b) => (a.over?.order ?? 99) - (b.over?.order ?? 99),
+  );
 }
 
 /** تعديل قسم واحد بمفتاحه — لترويسة صفحته */

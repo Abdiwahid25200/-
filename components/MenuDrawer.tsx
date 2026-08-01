@@ -10,6 +10,7 @@ import Logo from "./Logo";
 import { IconCart, IconDoc, IconMenu, IconSupport, IconUser } from "./icons";
 import SectionIcon, { type SectionIconKey } from "./SectionIcon";
 import { sections } from "@/lib/content";
+import { customSections } from "@/lib/overrides";
 
 /**
  * الأقسام تُقرأ من الإعدادات — القسم الموقوف (off) لا يظهر بالقائمة.
@@ -40,15 +41,43 @@ const info = [
 ] as const;
 
 export default function MenuDrawer({ phone }: { phone?: string }) {
+  const active = useLocale();
   const [open, setOpen] = useState(false);
+  /** الأقسام التي أضافتها صاحبة المتجر — تُقرأ مرّة عند أول فتح للقائمة */
+  const [added, setAdded] = useState<
+    { key: string; href: string; icon: SectionIconKey; img?: string; label: string }[]
+  >([]);
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => setMounted(true), []);
+
+  /**
+   * الأقسام المضافة من اللوحة تُقرأ **عند أول فتح للقائمة** لا عند تحميل
+   * الصفحة — فلا يدفع كلُّ زائر ثمن قراءةٍ قد لا يفتح القائمة أصلاً.
+   */
+  useEffect(() => {
+    if (!open || added.length) return;
+    void customSections().then((list) =>
+      setAdded(
+        list
+          .filter((c) => (c.over?.status ?? "on") === "on")
+          .map((c) => ({
+            key: c.key,
+            href: c.href,
+            icon: (c.over?.icon ?? "games") as SectionIconKey,
+            img: c.over?.img,
+            label:
+              c.over?.title?.[active as "ar" | "en" | "so"] ||
+              c.over?.title?.en ||
+              c.key,
+          })),
+      ),
+    );
+  }, [open, added.length, active]);
   const t = useTranslations("menu");
   const tp = useTranslations("pages");
   const tl = useTranslations("lang");
   const tth = useTranslations("theme");
-  const active = useLocale();
   const pathname = usePathname();
 
   // إغلاق بمفتاح Escape ومنع تمرير الصفحة خلف القائمة
@@ -77,6 +106,8 @@ export default function MenuDrawer({ phone }: { phone?: string }) {
       href: string;
       Icon?: (p: { className?: string }) => React.ReactElement;
       icon?: SectionIconKey;
+      /** اسمٌ جاهز — للأقسام المضافة من اللوحة، فلا مفتاح ترجمة لها */
+      label?: string;
       /** صورة القسم متى رُفعت — تحلّ محلّ الأيقونة المرسومة */
       img?: string;
     }[];
@@ -87,7 +118,7 @@ export default function MenuDrawer({ phone }: { phone?: string }) {
           {title}
         </h3>
         <ul>
-          {items.map(({ key, href, Icon, icon, img }) => (
+          {items.map(({ key, href, Icon, icon, img, label }) => (
             <li key={key}>
               <Link href={href} onClick={() => setOpen(false)} className={row}>
                 {img ? (
@@ -102,7 +133,7 @@ export default function MenuDrawer({ phone }: { phone?: string }) {
                 ) : Icon ? (
                   <Icon className="size-5 shrink-0 text-muted" />
                 ) : null}
-                {tp(key)}
+                {label ?? tp(key)}
               </Link>
             </li>
           ))}
@@ -151,7 +182,7 @@ export default function MenuDrawer({ phone }: { phone?: string }) {
             </div>
 
             <nav className="flex flex-col gap-5 p-3">
-              <Group title={t("shop")} items={shop} />
+              <Group title={t("shop")} items={[...shop, ...added]} />
               <Group title={t("mine")} items={mine} />
               <Group title={t("info")} items={info} />
 

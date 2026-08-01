@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { sections } from "@/lib/content";
 import {
+  deleteOverride,
   readSections,
   saveOverride,
   type SectionOverride,
@@ -15,6 +16,26 @@ const STATUSES = [
   { v: "on", label: "Live" },
   { v: "soon", label: "Coming soon" },
   { v: "off", label: "Hidden" },
+] as const;
+
+/** أين يظهر القسم — نفس مجموعات `lib/content.ts` */
+const GROUPS = [
+  { v: "games", label: "Games page" },
+  { v: "accounts", label: "Accounts page" },
+  { v: "home", label: "Home page" },
+] as const;
+
+/** كيف يشتري الزبون من هذا القسم */
+const FLOWS = [
+  { v: "pay", label: "Customer pays (enters an ID)" },
+  { v: "whatsapp", label: "WhatsApp (you agree the price)" },
+] as const;
+
+const BADGES = [
+  { v: "", label: "No badge" },
+  { v: "instant", label: "Instant" },
+  { v: "manual", label: "Manual" },
+  { v: "shipped", label: "Shipped" },
 ] as const;
 
 const LOCALES = [
@@ -38,6 +59,8 @@ export default function SectionsEditor() {
   const [saving, setSaving] = useState<string | null>(null);
   const [saved, setSaved] = useState<string | null>(null);
   const [lang, setLang] = useState<"ar" | "en" | "so">("ar");
+  const [newKey, setNewKey] = useState("");
+  const [adding, setAdding] = useState(false);
 
   useEffect(() => {
     readSections().then((o) => {
@@ -67,6 +90,54 @@ export default function SectionsEditor() {
     if (!ok) alert("Could not save — check your access and connection.");
   }
 
+  /**
+   * قسم جديد كلياً — لعبة أو خدمة لم تكن في الموقع.
+   * المفتاح يصير مسار صفحته `/s/{key}`، فنُنظّفه من كل ما لا يصلح
+   * في رابط. ويُنشأ بحالة "قريباً" عمداً: تُضيفين أصنافه على مهل ثم
+   * تشغّلينه، فلا يرى الزبون قسماً فارغاً.
+   */
+  async function create() {
+    const key = newKey
+      .trim()
+      .toLowerCase()
+      .replace(/[^a-z0-9-]+/g, "-")
+      .replace(/^-+|-+$/g, "");
+
+    if (!key) return;
+    if (sections.some((x) => x.key === key) || over[key]) {
+      alert("This key already exists — pick another one.");
+      return;
+    }
+
+    setAdding(true);
+    const draft: Draft = { custom: true, group: "games", status: "soon", flow: "pay" };
+    const ok = await saveOverride("sections", key, draft as Record<string, unknown>);
+    setAdding(false);
+    if (!ok) {
+      alert("Could not create — check your access and connection.");
+      return;
+    }
+    setOver((p) => ({ ...p, [key]: draft }));
+    setNewKey("");
+    setOpen(key);
+  }
+
+  /** الحذف نهائي — وللمضاف من اللوحة وحده. الأصلي يُخفى بالحالة لا يُحذف */
+  async function remove(key: string) {
+    if (!confirm(`Delete "${key}" and its page for good?`)) return;
+    const ok = await deleteOverride("sections", key);
+    if (!ok) {
+      alert("Could not delete — check your access and connection.");
+      return;
+    }
+    setOver((p) => {
+      const next = { ...p };
+      delete next[key];
+      return next;
+    });
+    setOpen(null);
+  }
+
   if (loading)
     return (
       <p className="flex items-center gap-2 text-sm text-muted">
@@ -76,6 +147,14 @@ export default function SectionsEditor() {
 
   const field =
     "min-h-12 w-full rounded-card border border-line bg-bg px-3 outline-none focus:border-orange";
+
+  /** الأصلية من الملفات، ثمّ ما أنشأته صاحبة المتجر من هنا */
+  const list: { key: string; img?: string; status: string; custom: boolean }[] = [
+    ...sections.map((x) => ({ key: x.key, img: x.img, status: x.status as string, custom: false })),
+    ...Object.entries(over)
+      .filter(([k, o]) => o.custom === true && !sections.some((x) => x.key === k))
+      .map(([k, o]) => ({ key: k, img: o.img, status: (o.status ?? "on") as string, custom: true })),
+  ];
 
   return (
     <div className="flex flex-col gap-3">
@@ -95,7 +174,32 @@ export default function SectionsEditor() {
         ))}
       </div>
 
-      {sections.map((s) => {
+      {/* إنشاء قسم جديد — لعبة أو خدمة لم تكن في الموقع أصلاً */}
+      <div className="flex flex-wrap items-end gap-2 rounded-card border border-dashed border-line p-3">
+        <label className="flex min-w-40 flex-1 flex-col gap-1.5 text-sm">
+          <span className="font-medium">New section key</span>
+          <input
+            value={newKey}
+            onChange={(e) => setNewKey(e.target.value)}
+            placeholder="freefire"
+            dir="ltr"
+            className={field}
+          />
+          <span className="text-xs text-muted">
+            Its page will be /s/{newKey.trim().toLowerCase().replace(/[^a-z0-9-]+/g, "-") || "key"}
+          </span>
+        </label>
+        <button
+          type="button"
+          onClick={() => void create()}
+          disabled={adding || !newKey.trim()}
+          className="min-h-12 rounded-card bg-orange px-4 font-bold text-onaccent disabled:opacity-50"
+        >
+          {adding ? "Adding…" : "Add section"}
+        </button>
+      </div>
+
+      {list.map((s) => {
         const d = over[s.key] ?? {};
         const isOpen = open === s.key;
 
@@ -179,6 +283,71 @@ export default function SectionsEditor() {
                   />
                 </label>
 
+                {s.custom && (
+                  <>
+                    <label className="flex flex-col gap-1.5 text-sm">
+                      <span className="font-medium">Shown on</span>
+                      <select
+                        value={d.group ?? "games"}
+                        onChange={(e) => edit(s.key, { group: e.target.value })}
+                        className={field}
+                      >
+                        {GROUPS.map((x) => (
+                          <option key={x.v} value={x.v}>{x.label}</option>
+                        ))}
+                      </select>
+                    </label>
+
+                    <label className="flex flex-col gap-1.5 text-sm">
+                      <span className="font-medium">How customers buy</span>
+                      <select
+                        value={d.flow ?? "pay"}
+                        onChange={(e) => edit(s.key, { flow: e.target.value })}
+                        className={field}
+                      >
+                        {FLOWS.map((x) => (
+                          <option key={x.v} value={x.v}>{x.label}</option>
+                        ))}
+                      </select>
+                    </label>
+
+                    <label className="flex flex-col gap-1.5 text-sm">
+                      <span className="font-medium">Badge on the tile</span>
+                      <select
+                        value={d.badge ?? ""}
+                        onChange={(e) => edit(s.key, { badge: e.target.value })}
+                        className={field}
+                      >
+                        {BADGES.map((x) => (
+                          <option key={x.v} value={x.v}>{x.label}</option>
+                        ))}
+                      </select>
+                    </label>
+
+                    <p className="rounded-card border border-dashed border-line p-3 text-sm text-muted">
+                      Add its packages in the <strong>Products</strong> tab —
+                      pick <strong>{s.key}</strong> in the section list there.
+                    </p>
+                  </>
+                )}
+
+                <label className="flex flex-col gap-1.5 text-sm">
+                  <span className="font-medium">Order</span>
+                  <input
+                    type="number"
+                    inputMode="numeric"
+                    value={d.order ?? ""}
+                    placeholder="Lowest first"
+                    onChange={(e) =>
+                      edit(s.key, {
+                        order: e.target.value === "" ? undefined : Number(e.target.value),
+                      })
+                    }
+                    dir="ltr"
+                    className={`${field} num text-start`}
+                  />
+                </label>
+
                 <button
                   type="button"
                   onClick={() => save(s.key)}
@@ -188,6 +357,16 @@ export default function SectionsEditor() {
                   {saving === s.key && <IconSpinner className="size-4" />}
                   Save
                 </button>
+
+                {s.custom && (
+                  <button
+                    type="button"
+                    onClick={() => void remove(s.key)}
+                    className="min-h-12 rounded-card border border-line font-bold text-danger"
+                  >
+                    Delete this section
+                  </button>
+                )}
               </div>
             )}
           </section>

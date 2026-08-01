@@ -294,6 +294,14 @@
       "body": "Digital products (top-ups, coins, accounts): instant delivery worldwide once payment is confirmed.\nElectronics: delivery within Somalia — 1–2 days in Mogadishu, 2–4 days elsewhere."
     }
   },
+  "customFlow": {
+    "title": "Order details",
+    "id": "Player ID / username",
+    "idNote": "Enter the ID this order should be delivered to",
+    "contact": "WhatsApp number",
+    "contactNote": "We'll message you to complete the order",
+    "hint": "Fill this in to continue"
+  },
   "points": {
     "eyebrow": "Loyalty points",
     "unit": "points",

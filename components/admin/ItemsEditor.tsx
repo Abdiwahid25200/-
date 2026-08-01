@@ -10,10 +10,13 @@ import {
   type ItemKind,
   type ShopItem,
 } from "@/lib/items";
+import { customSections } from "@/lib/overrides";
 import ImagePicker from "./ImagePicker";
 import { IconCheckCircle, IconSpinner, IconTrash } from "@/components/icons";
 
-const KINDS: { v: ItemKind; label: string; titleLabel: string }[] = [
+type KindOption = { v: ItemKind; label: string; titleLabel: string };
+
+const KINDS: KindOption[] = [
   { v: "pubg", label: "PUBG UC", titleLabel: "Amount (e.g. 660 UC)" },
   { v: "efootball", label: "eFootball", titleLabel: "Pack name" },
   { v: "tiktok", label: "TikTok", titleLabel: "Account name" },
@@ -40,6 +43,20 @@ export default function ItemsEditor() {
   const [open, setOpen] = useState<string | null>(null);
   const [busy, setBusy] = useState<string | null>(null);
   const [saved, setSaved] = useState<string | null>(null);
+  /** الأقسام التي أنشأتها صاحبة المتجر — تظهر هنا كي تملأها بأصنافها */
+  const [extra, setExtra] = useState<KindOption[]>([]);
+
+  useEffect(() => {
+    void customSections().then((list) =>
+      setExtra(
+        list.map((c) => ({
+          v: c.key as ItemKind,
+          label: c.over?.title?.ar || c.over?.title?.en || c.key,
+          titleLabel: "Item name",
+        })),
+      ),
+    );
+  }, []);
 
   const load = (k: ItemKind) => {
     setItems(null);
@@ -108,12 +125,15 @@ export default function ItemsEditor() {
 
   const field =
     "min-h-12 w-full rounded-card border border-line bg-bg px-3 outline-none focus:border-orange";
-  const meta = KINDS.find((k) => k.v === kind)!;
+  const kinds = [...KINDS, ...extra];
+  const meta =
+    kinds.find((k) => k.v === kind) ??
+    ({ v: kind, label: String(kind), titleLabel: "Item name" } as KindOption);
 
   return (
     <div className="flex flex-col gap-3">
       <div className="flex flex-wrap gap-2">
-        {KINDS.map((k) => (
+        {kinds.map((k) => (
           <button
             key={k.v}
             type="button"

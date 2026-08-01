@@ -49,7 +49,13 @@ export default async function GamesPage({
             href={s.href}
             icon={s.icon}
             img={s.img}
-            title={pick(s.over?.title, locale, tp(s.key))}
+            title={
+              // القسم المضاف من اللوحة اسمه في التعديل نفسه — لا مفتاح
+              // ترجمة له في `messages/*.json` فيرمي `tp` خطأً لو نودي به
+              s.custom
+                ? pick(s.over?.title, locale, s.key)
+                : pick(s.over?.title, locale, tp(s.key))
+            }
             badge={s.badge}
             badgeLabel={s.badge ? tc(s.badge) : undefined}
             soon={s.status === "soon"}
