@@ -365,8 +365,13 @@ service cloud.firestore {
        `admin` فيقنع غيره… لذلك الزبون لا يكتب إلا `from == 'user'`. */
     match /chats/{uid} {
 
+      /* صاحبةُ المتجر ومن فُتح له باب الدردشة — وصاحب المحادثة نفسه.
+         ⚠️ والمساعد يردّ **باسم المتجر**، فبابه بابٌ مستقلّ (`chat`):
+            من يشحن الطلبات ليس بالضرورة من يتكلّم مع الزبائن. */
+      /* ⚠️ صاحب المحادثة **أوّلاً**: شرطٌ بلا قراءة وثائق، فمحادثة
+         الزبون العادي لا تكلّف قراءتين في كل رسالة. */
       function ownerOrAdmin() {
-        return isAdmin() || (isSignedIn() && request.auth.uid == uid);
+        return (isSignedIn() && request.auth.uid == uid) || canDo('chat');
       }
 
       allow read: if ownerOrAdmin();
@@ -391,7 +396,7 @@ service cloud.firestore {
         allow read: if ownerOrAdmin();
 
         allow create: if validMsg() && (
-          (isAdmin() && request.resource.data.from == 'admin')
+          (canDo('chat') && request.resource.data.from == 'admin')
           // الزبون يكتب باسمه هو فقط — لا ينتحل صفة المتجر
           || (isSignedIn() && request.auth.uid == uid
               && request.resource.data.from == 'user')

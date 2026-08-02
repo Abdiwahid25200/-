@@ -35,6 +35,7 @@ export const PERMS = [
   { v: "payments", label: "Payment methods" },
   { v: "points", label: "Points settings" },
   { v: "faq", label: "Q&A" },
+  { v: "chat", label: "Live chat — read and reply" },
 ] as const;
 
 export type Perm = (typeof PERMS)[number]["v"];
