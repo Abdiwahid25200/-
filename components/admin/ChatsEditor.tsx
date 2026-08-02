@@ -104,6 +104,16 @@ export default function ChatsEditor() {
     return listenAdminChat(open.uid, setMsgs, () => setErr(true));
   }, [open]);
 
+  /* الصفحة خلف المحادثة لا تتحرّك — وإلا انزلقت اللوحة تحتها بالإصبع */
+  useEffect(() => {
+    if (!open) return;
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = prev;
+    };
+  }, [open]);
+
   useEffect(() => {
     endRef.current?.scrollIntoView({ block: "end" });
   }, [msgs]);
@@ -128,9 +138,15 @@ export default function ChatsEditor() {
   if (open) {
     let lastDay = "";
 
+    /* ⚠️ **ملء الشاشة كواتساب**: `fixed inset-0` فوق كل شيء — تختفي
+       قائمة المحادثات وترويسة اللوحة وشريط التبويبات معاً. محادثةٌ
+       داخل إطارٍ فيه تبويبات لا تُشبه واتساب مهما شابهتها فقاعاتها. */
     return (
-      <div className="-mx-4 flex h-[calc(100dvh-11rem)] flex-col">
-        <div className="flex items-center gap-3 border-b border-line bg-surface px-3 py-2">
+      <div className="adm fixed inset-0 z-50 flex flex-col bg-bg">
+        <div
+          className="flex items-center gap-3 border-b border-line bg-surface px-3 py-2"
+          style={{ paddingTop: "max(0.5rem, env(safe-area-inset-top))" }}
+        >
           <button
             type="button"
             onClick={() => setOpen(null)}
@@ -178,7 +194,10 @@ export default function ChatsEditor() {
           <div ref={endRef} />
         </div>
 
-        <div className="flex items-end gap-2 border-t border-line bg-surface px-3 py-2">
+        <div
+          className="flex items-end gap-2 border-t border-line bg-surface px-3 py-2"
+          style={{ paddingBottom: "max(0.5rem, env(safe-area-inset-bottom))" }}
+        >
           <textarea
             value={text}
             onChange={(e) => setText(e.target.value.slice(0, MAX_LEN))}

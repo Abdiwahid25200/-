@@ -4,14 +4,18 @@ import { useCallback, useEffect, useState } from "react";
 import {
   PERMS,
   allStaff,
+  digitsOnly,
   removeStaff,
   saveStaff,
+  validStaffPhone,
   type Can,
   type Perm,
   type StaffDoc,
 } from "@/lib/staff";
 import { useAuth } from "@/lib/auth";
 import { createStaffLogin, toStaffEmail } from "@/lib/staffAuth";
+import { dialCodes } from "@/lib/profile";
+import { IconWhatsApp } from "@/components/icons";
 
 /**
  * المساعدون — تُعطى الصلاحية **للبريد** فيعمل قبل أوّل دخول له.
@@ -27,6 +31,9 @@ export default function StaffEditor() {
   const [rows, setRows] = useState<(StaffDoc & { id: string })[] | null>(null);
   const [userName, setUserName] = useState("");
   const [pass, setPass] = useState("");
+  /** مفتاح الدولة ورقمه — يُحفظان معاً رقماً واحداً بلا `+` */
+  const [dial, setDial] = useState("252");
+  const [num, setNum] = useState("");
   const [busy, setBusy] = useState<string | null>(null);
   const [note, setNote] = useState<string | null>(null);
 
@@ -42,8 +49,16 @@ export default function StaffEditor() {
    */
   async function makeLogin() {
     const u = userName.trim();
+    const phone = digitsOnly(dial + num);
+
     if (!u || pass.length < 6) {
       setNote("Pick a username and a password of at least 6 characters.");
+      return;
+    }
+    /* ⚠️ الرقم شرطٌ لا خيار: إليه يُرسَل رمز التحقّق، وبه تصلين إلى
+       المساعد حين يتعثّر. واسمٌ بلا رقم لا يدلّ على أحد بعد شهر. */
+    if (!validStaffPhone(phone)) {
+      setNote("Add the helper's WhatsApp number with its country code.");
       return;
     }
     const id = toStaffEmail(u);
@@ -70,6 +85,7 @@ export default function StaffEditor() {
     const ok = await saveStaff(made.email, {
       email: made.email,
       active: true,
+      phone,
       can: { orders: true },
     });
     setBusy(null);
@@ -78,6 +94,7 @@ export default function StaffEditor() {
     setNote(`Done — ${u} signs in at /admin with the password you set.`);
     setUserName("");
     setPass("");
+    setNum("");
     void load();
   }
 
@@ -149,15 +166,50 @@ export default function StaffEditor() {
             className={`${field} min-w-32 flex-1`}
           />
         </div>
+        {/* رقم واتساب — مفتاح الدولة من قائمة، والباقي أرقام */}
+        <div className="flex gap-2">
+          <select
+            value={dial}
+            onChange={(e) => setDial(e.target.value)}
+            aria-label="Country code"
+            dir="ltr"
+            className={`${field} w-auto shrink-0 px-2`}
+          >
+            {dialCodes.map((c) => (
+              <option key={c.code} value={c.code}>
+                {c.flag} +{c.code}
+              </option>
+            ))}
+          </select>
+          <input
+            value={num}
+            onChange={(e) => setNum(digitsOnly(e.target.value))}
+            placeholder="WhatsApp number"
+            aria-label="WhatsApp number"
+            inputMode="tel"
+            dir="ltr"
+            className={`${field} num min-w-0 flex-1 text-start`}
+          />
+        </div>
+        <p className="text-xs text-muted">
+          Needed — the verification code goes to this number, and it is how you
+          reach the helper.
+        </p>
+
         {userName.trim() && (
           <p className="num text-xs text-muted" dir="ltr">
-            {toStaffEmail(userName)}
+            {toStaffEmail(userName)} · +{digitsOnly(dial + num)}
           </p>
         )}
         <button
           type="button"
           onClick={() => void makeLogin()}
-          disabled={busy === "login" || !userName.trim() || pass.length < 6}
+          disabled={
+            busy === "login" ||
+            !userName.trim() ||
+            pass.length < 6 ||
+            !validStaffPhone(dial + num)
+          }
           className="min-h-12 rounded-card bg-orange px-4 font-bold text-onaccent disabled:opacity-50"
         >
           {busy === "login" ? "Creating…" : "Create login"}
@@ -184,10 +236,24 @@ export default function StaffEditor() {
         rows.map((r) => (
           <article key={r.id} className="rounded-card border border-line bg-surface p-3">
             <div className="flex items-center gap-2">
-              <span className="min-w-0 flex-1 break-all font-bold" dir="ltr">
-                {r.id}
-                {r.id === (user?.email ?? "").toLowerCase() && (
-                  <span className="ms-2 text-xs font-medium text-muted">(you)</span>
+              <span className="min-w-0 flex-1" dir="ltr">
+                <span className="block break-all font-bold">
+                  {r.id}
+                  {r.id === (user?.email ?? "").toLowerCase() && (
+                    <span className="ms-2 text-xs font-medium text-muted">(you)</span>
+                  )}
+                </span>
+                {r.phone ? (
+                  <a
+                    href={`https://wa.me/${r.phone}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="num inline-flex items-center gap-1 text-xs text-success"
+                  >
+                    <IconWhatsApp className="size-3.5" />+{r.phone}
+                  </a>
+                ) : (
+                  <span className="text-xs text-danger">No number on file</span>
                 )}
               </span>
               {/* ⚠️ الشارة تُخبر، والزرّ يفعل — كانا شيئاً واحداً، فلمسةٌ
