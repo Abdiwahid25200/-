@@ -491,7 +491,9 @@
     "errSave": "Lambarkaaga lama kaydin. Fadlan isku day mar kale.",
     "disabled": "Gelitaanku weli lama heli karo.",
     "signIn": "Gal",
-    "phone": "Taleefan"
+    "phone": "Taleefan",
+    "noAccountNeeded": "Ama sii wad iyada oo aan akoon lahayn — iibsigu galitaan uma baahna.",
+    "browse": "Fiiri dukaanka"
   },
   "how": {
     "badge": "Sida ay u shaqeyso",

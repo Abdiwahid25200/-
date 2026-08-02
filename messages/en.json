@@ -491,7 +491,9 @@
     "errSave": "Could not save your number. Please try again.",
     "disabled": "Sign-in is not available yet.",
     "signIn": "Sign in",
-    "phone": "Phone"
+    "phone": "Phone",
+    "noAccountNeeded": "Or carry on without an account — buying needs no sign-in.",
+    "browse": "Browse the store"
   },
   "how": {
     "badge": "Process overview",

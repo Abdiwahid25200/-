@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
-import { useRouter } from "@/i18n/navigation";
+import { Link, useRouter } from "@/i18n/navigation";
 import { useAuth } from "@/lib/auth";
 import {
   dialCodes,
@@ -17,6 +17,7 @@ import {
   IconGift,
   IconGoogle,
   IconShieldCheck,
+  IconSpinner,
 } from "@/components/icons";
 import { DEFAULT_POINTS, readPointsSettings } from "@/lib/points";
 import Logo from "@/components/Logo";
@@ -126,7 +127,10 @@ export default function LoginFlow() {
   if (step === "checking" || !ready) {
     return (
       <Card>
-        <p className="text-center text-sm text-muted">…</p>
+        {/* ⚠️ كان المحرف … — ممنوعٌ بقرارها. أيقونةٌ تدور أوضحُ منه */}
+        <p className="flex justify-center text-muted">
+          <IconSpinner className="size-5" />
+        </p>
       </Card>
     );
   }
@@ -202,9 +206,14 @@ export default function LoginFlow() {
           {t("trust")}
         </p>
 
-        <p className="mt-5 flex items-center justify-center gap-2 border-t border-line pt-5 text-center text-xs font-semibold uppercase tracking-widest text-muted">
-          <IconShieldCheck className="size-4 shrink-0" />
-          {t("safe")}
+        {/* ⚠️ **بابُ الخروج مفتوح** — كما في النموذج. من وصل شاشة الدخول
+            وظنّها جداراً خرج من المتجر كلّه، والشراء عندنا **لا يحتاج
+            تسجيلاً** أصلاً. فيُقال له ذلك صراحةً بدل أن يخمّنه. */}
+        <p className="mt-5 border-t border-line pt-5 text-center text-sm text-muted">
+          {t("noAccountNeeded")}{" "}
+          <Link href="/" className="font-bold text-orange underline-offset-4 hover:underline">
+            {t("browse")}
+          </Link>
         </p>
       </Card>
     );
