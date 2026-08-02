@@ -625,5 +625,18 @@
     "note": "Buying accounts is handled on eramaan.com, where we can verify every account before it reaches you.",
     "open": "Open the website",
     "ask": "Ask us on WhatsApp"
+  },
+  "deleteAccount": {
+    "open": "Delete my account",
+    "title": "Delete your account?",
+    "goesAccount": "Your sign-in is removed — you cannot log back in with it.",
+    "goesPhone": "Your phone number and invite code are freed.",
+    "goesPoints": "Your {n} points are lost and cannot be brought back.",
+    "staysOrders": "Your past orders stay in our accounting records.",
+    "confirm": "Yes, delete my account",
+    "keep": "No, keep my account",
+    "working": "Deleting…",
+    "failed": "Could not delete — check your connection and try again.",
+    "again": "Please sign in once more, then press delete again."
   }
 }

@@ -82,7 +82,10 @@ service cloud.firestore {
       allow update: if isSignedIn()
         && resource.data.uid == request.auth.uid
         && request.resource.data.uid == request.auth.uid;
-      allow delete: if isAdmin();
+      /* ويحرّره عند حذف حسابه، وإلا بقي محجوزاً لحسابٍ لا وجود له
+         فلا يستطيع التسجيل برقمه نفسه لو عاد. */
+      allow delete: if isAdmin()
+        || (isSignedIn() && resource.data.uid == request.auth.uid);
     }
 
     /* ── رموز الدعوة ──
@@ -95,7 +98,8 @@ service cloud.firestore {
       allow create: if isSignedIn()
         && request.resource.data.uid == request.auth.uid;
       allow update: if false;
-      allow delete: if isAdmin();
+      allow delete: if isAdmin()
+        || (isSignedIn() && resource.data.uid == request.auth.uid);
     }
 
     match /transfers/{code} {
@@ -214,7 +218,12 @@ service cloud.firestore {
         && request.resource.data.phone.size() >= 7
         && request.resource.data.phone.size() <= 20);
 
-      allow delete: if isAdmin();
+      /* 🔒 **حذف الحساب من داخل التطبيق** — تشترطه Google Play على كل
+         تطبيق فيه تسجيل دخول، وبدونه يُرفض. فصاحب الوثيقة يمحوها.
+         ⚠️ ولا يضرّ ذلك شيئاً: رصيدُه يذهب معها (وقد قيل له بالرقم قبل
+            الضغط)، وطلباته في `orders` لا تُمسّ — سِجلٌّ محاسبيّ. */
+      allow delete: if isAdmin()
+        || (isSignedIn() && request.auth.uid == uid);
 
       /* ── سجلّ حركات النقاط ──
          الزبون يقرأ سجلّه (من أين جاءت نقاطه؟) ولا يكتب فيه حرفاً.

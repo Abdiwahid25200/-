@@ -7,6 +7,7 @@ import { fmt } from "@/lib/format";
 import { IconUser } from "@/components/icons";
 import { Link } from "@/i18n/navigation";
 import { getProfile, isComplete, type Profile } from "@/lib/profile";
+import DeleteAccount from "./DeleteAccount";
 
 /**
  * بطاقة الحساب — من أنتِ، ورقمك، والخروج.
@@ -122,6 +123,9 @@ export default function AccountPanel() {
           {t("signOut")}
         </button>
       </section>
+
+      {/* 🔒 حذف الحساب — تشترطه متاجر التطبيقات، وبدونه يُرفض التطبيق */}
+      <DeleteAccount />
 
       {/* الدعوة لإكمال التسجيل تحتاج قراءةً **ناجحة**: بلا وثيقة ⇒ تظهر
           (زبونة جديدة)، وبقراءةٍ فاشلة ⇒ لا تظهر، فلا تُدعى من أكملته */}

@@ -625,5 +625,18 @@
     "note": "Iibsashada akoonnada waxaa lagu qabtaa eramaan.com, halkaas oo aan ka hubinno akoon kasta ka hor inta uusan kuu gaarin.",
     "open": "Fur websaydka",
     "ask": "Nagu weydii WhatsApp"
+  },
+  "deleteAccount": {
+    "open": "Tirtir akoonkayga",
+    "title": "Ma tirtiraysaa akoonkaaga?",
+    "goesAccount": "Gelitaankaaga waa la tirtirayaa — dib uguma soo geli kartid.",
+    "goesPhone": "Lambarkaaga iyo koodhka casuumaadda waa la sii daynayaa.",
+    "goesPoints": "Dhibcahaaga {n} way lumayaan lamana soo celin karo.",
+    "staysOrders": "Dalabyadaadii hore waxay ku hadhayaan diiwaanka xisaabaadka.",
+    "confirm": "Haa, tirtir akoonkayga",
+    "keep": "Maya, sii hay akoonkayga",
+    "working": "Waa la tirtirayaa…",
+    "failed": "Ma tirtiri karin — hubi xiriirkaaga oo isku day mar kale.",
+    "again": "Fadlan mar kale gal, kadibna riix tirtirka."
   }
 }
