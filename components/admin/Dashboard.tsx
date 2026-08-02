@@ -8,6 +8,7 @@ import { readCosts, type Costs } from "@/lib/costs";
 import { mergedPay } from "@/lib/payments";
 import { isBuyable } from "@/lib/data";
 import { useAccess } from "@/lib/adminAccess";
+import { useAuth } from "@/lib/auth";
 import { doneLabel } from "@/lib/deliver";
 import { CLAIM_MINUTES, claimStale } from "@/lib/adminOrders";
 
@@ -36,6 +37,8 @@ export default function Dashboard({
 }) {
   const access = useAccess();
   const owner = access.role === "owner";
+  const { user } = useAuth();
+  const me = (user?.email ?? "").toLowerCase();
 
   const [orders, setOrders] = useState<AdminOrder[] | null>(null);
   const [costs, setCosts] = useState<Costs>({});
@@ -101,26 +104,39 @@ export default function Dashboard({
     const change =
       yProfit > 0 ? Math.round(((profit - yProfit) / yProfit) * 100) : null;
 
-    /* ⚠️ **الطلبات العالقة مع مساعد** — قَبِلها ثم غاب. كانت تختفي عن
-       بقيّة المساعدين ولا شيء يخبر صاحبة المتجر أنّها واقفة. */
-    const stuck = list.filter(
+    /**
+     * ⚠️ **الطلبات العالقة مع مساعد** — قَبِلها ثم غاب. كانت تختفي عن
+     *    بقيّة المساعدين ولا شيء يخبر صاحبة المتجر أنّها واقفة.
+     *
+     * ⚠️ و**حجزُك أنتِ ليس عالقاً**: طلبٌ قَبِلتِه بنفسك ثم انشغلتِ نصف
+     *    ساعة كان يُعدّ «عالقاً مع مساعد» فتُنذَرين من نفسك. الشرط
+     *    الأوّل هو ما يمنع ذلك.
+     */
+    const stuckList = list.filter(
       (o) =>
         o.claimedBy &&
+        String(o.claimedBy).toLowerCase() !== me &&
         (o.status === "pending" || o.status === "paid") &&
         claimStale(o.claimedAt),
-    ).length;
+    );
+
+    /* ومن هم؟ — «عالقة مع Ali» أنفعُ من رقمٍ مجرّد */
+    const holders = [
+      ...new Set(stuckList.map((o) => o.claimedName || o.claimedBy || "")),
+    ].filter(Boolean);
 
     return {
       revenue,
       profit,
       change,
-      stuck,
+      stuck: stuckList.length,
+      holders,
       count: today.length,
       pending: list.filter((o) => o.status === "pending").length,
       cancelled: today.filter((o) => o.status === "cancelled").length,
       recent: list.slice(0, 4),
     };
-  }, [orders, costs]);
+  }, [orders, costs, me]);
 
   const loading = orders === null;
 
@@ -184,7 +200,8 @@ export default function Dashboard({
         >
           <strong className="block">
             <span className="num">{s.stuck}</span>{" "}
-            {s.stuck === 1 ? "order is" : "orders are"} stuck with a helper
+            {s.stuck === 1 ? "order is" : "orders are"} stuck with{" "}
+            {s.holders.length === 1 ? s.holders[0] : "a helper"}
           </strong>
           Accepted but untouched for over {CLAIM_MINUTES} minutes. They are free
           for anyone to take now — open Orders and look for the{" "}
