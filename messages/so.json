@@ -240,7 +240,9 @@
     "contact": "Lambarka WhatsApp",
     "address": "Cinwaanka",
     "fillFirst": "Marka hore buuxi faahfaahinta gaarsiinta",
-    "goDelivery": "Xogta gaarsiinta"
+    "goDelivery": "Xogta gaarsiinta",
+    "less": "Mid ka jar",
+    "more": "Mid ku dar"
   },
   "help": {
     "title": "Caawimaad & taageero",

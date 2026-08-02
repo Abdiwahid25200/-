@@ -22,6 +22,8 @@ import {
   IconSuccess,
   IconDevice,
   IconSpinner,
+  IconMinus,
+  IconPlus,
   IconTrash,
 } from "@/components/icons";
 import PaySection from "@/components/PaySection";
@@ -275,19 +277,21 @@ export default function CartView() {
               <button
                 type="button"
                 onClick={() => setQty(l.id, l.qty - 1)}
-                aria-label="−"
-                className="flex size-10 items-center justify-center rounded-card border border-line text-lg font-bold text-muted hover:border-orange hover:text-orange"
+                aria-label={t("less")}
+                className="flex size-10 items-center justify-center rounded-card border border-line text-muted hover:border-orange hover:text-orange"
               >
-                −
+                {/* ⚠️ كانا المحرفين − و + — ممنوعان بقرارها: يتبدّل
+                    شكلُهما بين جهازٍ وجهاز ولا يقبلان سماكةً ولا حجماً */}
+                <IconMinus className="size-4" />
               </button>
               <span className="w-8 text-center font-bold">{l.qty}</span>
               <button
                 type="button"
                 onClick={() => setQty(l.id, l.qty + 1)}
-                aria-label="+"
-                className="flex size-10 items-center justify-center rounded-card border border-line text-lg font-bold text-muted hover:border-orange hover:text-orange"
+                aria-label={t("more")}
+                className="flex size-10 items-center justify-center rounded-card border border-line text-muted hover:border-orange hover:text-orange"
               >
-                +
+                <IconPlus className="size-4" />
               </button>
             </div>
 

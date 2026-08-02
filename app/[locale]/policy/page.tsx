@@ -2,6 +2,7 @@ import { getTranslations, setRequestLocale } from "next-intl/server";
 import { pageMeta } from "@/lib/seo";
 import SectionHead from "@/components/SectionHead";
 import BackLink from "@/components/BackLink";
+import PolicyTabs from "@/components/PolicyTabs";
 import { readTexts, tx } from "@/lib/overrides";
 
 const sections = ["terms", "privacy", "refund", "delivery"] as const;
@@ -32,18 +33,13 @@ export default async function PolicyPage({
       <SectionHead
         eyebrow={te("policy")} title={t("title")} note={t("note")} />
 
-      {sections.map((k) => (
-        <section
-          key={k}
-          id={k}
-          className="scroll-mt-24 rounded-card border border-line bg-surface p-5"
-        >
-          <h2 className="mb-2 text-lg font-bold">{tx(d, `${k}.title`, locale, t(`${k}.title`))}</h2>
-          <p className="whitespace-pre-line text-sm leading-relaxed text-muted">
-            {tx(d, `${k}.body`, locale, t(`${k}.body`))}
-          </p>
-        </section>
-      ))}
+      <PolicyTabs
+        items={sections.map((k) => ({
+          key: k,
+          title: tx(d, `${k}.title`, locale, t(`${k}.title`)),
+          body: tx(d, `${k}.body`, locale, t(`${k}.body`)),
+        }))}
+      />
 
     </main>
   );

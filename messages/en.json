@@ -240,7 +240,9 @@
     "contact": "WhatsApp number",
     "address": "Address",
     "fillFirst": "Complete your delivery details first",
-    "goDelivery": "Delivery details"
+    "goDelivery": "Delivery details",
+    "less": "Remove one",
+    "more": "Add one"
   },
   "help": {
     "title": "Help & support",
