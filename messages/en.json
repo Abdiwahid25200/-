@@ -444,7 +444,8 @@
       "shipped": "Delivered"
     },
     "earlier": "Earlier orders",
-    "nextTitle": "What happens after you pay?"
+    "nextTitle": "What happens after you pay?",
+    "policyRow": "Policies"
   },
   "tiktokFlow": {
     "title": "Contact details",

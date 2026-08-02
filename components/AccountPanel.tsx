@@ -4,7 +4,15 @@ import { useEffect, useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import { useAuth } from "@/lib/auth";
 import { fmt } from "@/lib/format";
-import { IconUser } from "@/components/icons";
+import {
+  IconBarwaaqo,
+  IconChevron,
+  IconDoc,
+  IconShieldCheck,
+  IconSpinner,
+  IconUser,
+} from "@/components/icons";
+import { DEFAULT_POINTS, readPointsSettings } from "@/lib/points";
 import { Link } from "@/i18n/navigation";
 import { getProfile, isComplete, type Profile } from "@/lib/profile";
 import DeleteAccount from "./DeleteAccount";
@@ -25,6 +33,18 @@ export default function AccountPanel() {
   const [profile, setProfile] = useState<Profile | null>(null);
   /** هل نجحت قراءة الملف الشخصي؟ `null` وحده لا يفرّق بين "لا وثيقة" و"فشل" */
   const [profileRead, setProfileRead] = useState(false);
+  /** اسم برنامج النقاط كما ضبطتِه — لا ثابتاً في الكود */
+  const [pointsBrand, setPointsBrand] = useState(DEFAULT_POINTS.brand);
+
+  useEffect(() => {
+    let alive = true;
+    void readPointsSettings()
+      .then((p) => alive && setPointsBrand(p.brand))
+      .catch(() => {});
+    return () => {
+      alive = false;
+    };
+  }, []);
   /** رقم يتغيّر فيُعاد التحميل — زرّ "أعيدي المحاولة" */
   const [tick, setTick] = useState(0);
 
@@ -66,8 +86,9 @@ export default function AccountPanel() {
 
   if (!ready) {
     return (
-      <section className="rounded-card border border-line bg-surface p-6 text-center text-sm text-muted">
-        …
+      <section className="flex items-center justify-center rounded-card border border-line bg-surface p-6 text-muted">
+        {/* ⚠️ كان المحرف … — ممنوع بقرارها، وأيقونةٌ تدور أوضحُ منه */}
+        <IconSpinner className="size-5" />
       </section>
     );
   }
@@ -92,37 +113,41 @@ export default function AccountPanel() {
       {/* ⚠️ زرّ الخروج في صفٍّ مستقلّ لا بجانب الاسم: كان يجلس في الزاوية
           السفلية اليمنى للبطاقة، وهناك يعوم زرّ الدردشة — فيغطّي طرفه.
           وبريدٌ طويل كان يضغطه حتى يكاد يختفي. */}
-      <section className="flex flex-col gap-3 rounded-card border border-line bg-surface p-4">
-        <div className="flex items-center gap-3">
-          <span
-            aria-hidden
-            className="flex size-12 shrink-0 items-center justify-center rounded-full bg-orange/10 text-orange"
-          >
-            <IconUser className="size-6" />
-          </span>
-          <span className="min-w-0 flex-1 leading-tight">
-            <span className="block truncate font-bold">
-              {user.displayName || t("guest")}
-            </span>
-            <span className="block truncate text-sm text-muted" dir="ltr">
-              {user.email}
-            </span>
-            {profile?.phone && (
-              <span className="num block truncate text-sm text-muted" dir="ltr">
-                +{profile.phone}
-              </span>
-            )}
-          </span>
-        </div>
-
-        <button
-          type="button"
-          onClick={() => signOut()}
-          className="min-h-12 rounded-card border border-line text-sm font-bold text-muted transition-colors hover:border-danger hover:text-danger"
+      {/* ⚠️ **صورةٌ في الوسط ثمّ صفوف** — كما في النموذج. كانت بطاقةً
+          واحدة فيها الاسمُ وزرُّ الخروج، فلا يجد الزبون طلباتِه ولا
+          رصيدَه إلا بالقائمة الجانبية. الآن كلّ ما يخصّه أمامه. */}
+      <div className="flex flex-col items-center gap-1.5 py-2 text-center">
+        <span
+          aria-hidden
+          className="mb-1 flex size-18 items-center justify-center rounded-full bg-orange/10 text-orange"
         >
-          {t("signOut")}
-        </button>
-      </section>
+          <IconUser className="size-9" />
+        </span>
+        <span className="text-xl font-bold">{user.displayName || t("guest")}</span>
+        {profile?.phone ? (
+          <span className="num text-sm text-muted" dir="ltr">
+            +{profile.phone}
+          </span>
+        ) : (
+          <span className="truncate text-sm text-muted" dir="ltr">
+            {user.email}
+          </span>
+        )}
+      </div>
+
+      <nav className="flex flex-col gap-2.5">
+        <AccountRow href="/orders" Icon={IconDoc} label={t("myOrders")} />
+        <AccountRow href="/points" Icon={IconBarwaaqo} label={pointsBrand} gold />
+        <AccountRow href="/policy" Icon={IconShieldCheck} label={t("policyRow")} />
+      </nav>
+
+      <button
+        type="button"
+        onClick={() => signOut()}
+        className="min-h-12 rounded-card border border-line text-sm font-bold text-danger transition-colors hover:border-danger"
+      >
+        {t("signOut")}
+      </button>
 
       {/* 🔒 حذف الحساب — تشترطه متاجر التطبيقات، وبدونه يُرفض التطبيق */}
       <DeleteAccount />
@@ -139,6 +164,37 @@ export default function AccountPanel() {
       )}
 
     </>
+  );
+}
+
+/** صفٌّ في «حسابي» — صفيحةٌ وأيقونة واسمٌ وسهم، كما في النموذج */
+function AccountRow({
+  href,
+  Icon,
+  label,
+  gold,
+}: {
+  href: string;
+  Icon: (p: { className?: string }) => React.ReactElement;
+  label: string;
+  gold?: boolean;
+}) {
+  return (
+    <Link
+      href={href}
+      className="lift flex min-h-14 items-center gap-3 rounded-card border border-line bg-surface p-3"
+    >
+      <span
+        aria-hidden
+        className={`flex size-10 shrink-0 items-center justify-center rounded-card ${
+          gold ? "bg-yellow/12 text-yellow" : "bg-orange/10 text-orange"
+        }`}
+      >
+        <Icon className="size-5" />
+      </span>
+      <span className="min-w-0 flex-1 truncate font-bold">{label}</span>
+      <IconChevron className="size-4 shrink-0 text-muted rtl:rotate-180" />
+    </Link>
   );
 }
 
