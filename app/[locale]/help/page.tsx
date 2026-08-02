@@ -8,6 +8,7 @@ import HowItWorks from "@/components/HowItWorks";
 import MessageForm from "@/components/MessageForm";
 import { IconChat, IconClock, IconEmail, IconWhatsApp } from "@/components/icons";
 import { site, supportChannels } from "@/lib/content";
+import { IconChevron } from "@/components/icons";
 import { faqSlots, pick as pickFaq, readFaq } from "@/lib/faq";
 import { mergedSite } from "@/lib/overrides";
 import Footer from "@/components/Footer";
@@ -77,7 +78,7 @@ export default async function HelpPage({
       {/* تواصل معنا — صفوف بأيقونة داخل صفيحة سداسية، كما اعتمدت المعاينة */}
       <section>
         <h2 className="mb-3.5 text-xl font-bold">{t("reach")}</h2>
-        <div className="flex flex-col gap-2.5">
+        <div className="grid grid-cols-2 gap-2.5">
           {supportChannels.map(({ key, icon }) => {
             const Icon = ICONS[icon];
             const field = key === "hours" ? "hours" : key === "inquiries" ? "email" : key;
@@ -92,7 +93,7 @@ export default async function HelpPage({
                 >
                   <Icon className="size-5" />
                 </span>
-                <span className="min-w-0 flex-1">
+                <span className="min-w-0">
                   <span className="block font-bold">{t(`${key}.title`)}</span>
                   <span
                     className="block truncate text-sm text-muted"
@@ -101,13 +102,14 @@ export default async function HelpPage({
                     {value || t("soon")}
                   </span>
                 </span>
-                <span aria-hidden className="shrink-0 text-muted rtl:rotate-180">
-                  ›
-                </span>
+                {/* ⚠️ كان المحرف › — ممنوع بقرارها: يتبدّل شكلُه بين
+                    جهازٍ وجهاز ولا يقبل حجماً ولا سماكة */}
+                <IconChevron className="size-4 shrink-0 text-muted rtl:rotate-180" />
               </>
             );
+            /* بطاقةٌ مربّعة بأيقونةٍ فوق النصّ — كما في النموذج، بطاقتان بالصفّ */
             const cls =
-              "flex items-center gap-3.5 rounded-card border border-line bg-surface p-4";
+              "flex flex-col items-center gap-2 rounded-card border border-line bg-surface p-4 text-center";
             return href ? (
               <a
                 key={key}
@@ -127,12 +129,6 @@ export default async function HelpPage({
         </div>
       </section>
 
-      {/* صف الضمانات ووسائل الدفع — هنا وحدهما بقرار صاحبة المشروع،
-          فلا يتكرّران في كل صفحة ويزاحمان المنتجات */}
-      <PayChips />
-
-      <MessageForm />
-
       <section>
         <h2 className="mb-4 text-xl font-bold">{t("faqTitle")}</h2>
         <Faq
@@ -142,6 +138,13 @@ export default async function HelpPage({
           }))}
         />
       </section>
+
+      {/* ⚠️ **بعد الأسئلة عمداً**: النموذج يجعل أعلى الصفحة «كيف يعمل»
+          ثمّ التواصل ثمّ الأسئلة — وهو ترتيب من جاء بسؤال. ووسائل
+          الدفع والنموذج يبقيان أسفلها لمن أراد أكثر. */}
+      <PayChips />
+
+      <MessageForm />
 
       {/* ختام الموقع — هنا وحده */}
       <Footer locale={locale} />

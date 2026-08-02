@@ -18,7 +18,14 @@ import { IconCheckCircle, IconClock, IconWhatsApp } from "@/components/icons";
  * ⚠️ **ولا يُعرض رقمٌ ضعيف**: دون عشرين طلباً يختفي العدّاد — «٣ طلبات»
  *    تُضعف الثقة لا تبنيها. ويبقى ما يصحّ منها وحده.
  */
-export default function GiftProof({ brand }: { brand: string }) {
+export default function GiftProof({
+  brand,
+  /** `bare` = بلا عنوانٍ ولا زرّ سؤال — للصفحات التي تعرف من أنت أصلاً */
+  bare = false,
+}: {
+  brand: string;
+  bare?: boolean;
+}) {
   const t = useTranslations("proof");
   const tg = useTranslations("gift");
   const store = useStoreOpen();
@@ -43,7 +50,7 @@ export default function GiftProof({ brand }: { brand: string }) {
   const { open, settings } = store;
   const tellState = ready && (settings.hoursOn || settings.closed);
 
-  const waHref = waLink(waNum, `${brand} — ${tg("askFirst")}`);
+  const waHref = bare ? null : waLink(waNum, `${brand} — ${tg("askFirst")}`);
 
   const rows: { key: string; icon: React.ReactNode; text: string }[] = [];
 
@@ -81,7 +88,7 @@ export default function GiftProof({ brand }: { brand: string }) {
 
   return (
     <section className="flex flex-col gap-3 rounded-card border border-line bg-surface p-4">
-      {!!rows.length && <h2 className="font-bold">{tg("whoTitle")}</h2>}
+      {!bare && !!rows.length && <h2 className="font-bold">{tg("whoTitle")}</h2>}
 
       {rows.map((r) => (
         <p key={r.key} className="flex items-center gap-2.5 text-sm">

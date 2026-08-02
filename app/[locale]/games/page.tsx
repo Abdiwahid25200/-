@@ -2,6 +2,8 @@ import { getTranslations, setRequestLocale } from "next-intl/server";
 import { pageMeta } from "@/lib/seo";
 import SectionHead from "@/components/SectionHead";
 import GameTile from "@/components/GameTile";
+import GiftProof from "@/components/GiftProof";
+import { mergedSite } from "@/lib/overrides";
 import BackLink from "@/components/BackLink";
 import { mergedSections } from "@/lib/overrides";
 import { pick } from "@/lib/overrides";
@@ -35,6 +37,7 @@ export default async function GamesPage({
   const tc = await getTranslations("common");
 
   const list = await mergedSections("games");
+  const store = await mergedSite();
 
   return (
     <main className="seq page-w flex flex-col gap-4 px-4 py-6">
@@ -63,6 +66,10 @@ export default async function GamesPage({
           />
         ))}
       </div>
+
+      {/* أرقامك تحت البلاطات — كما في النموذج. من اختار لعبته يسأل بعدها
+          سؤالاً واحداً: كم يستغرق؟ فيجد الجواب مقيساً لا موعوداً. */}
+      <GiftProof brand={store.brand} bare />
     </main>
   );
 }

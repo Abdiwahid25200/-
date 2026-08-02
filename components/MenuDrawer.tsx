@@ -7,7 +7,8 @@ import { Link, usePathname } from "@/i18n/navigation";
 import { localeNames, routing, type Locale } from "@/i18n/routing";
 import { ThemeChoice } from "./ThemeToggle";
 import Logo from "./Logo";
-import { IconCart, IconDoc, IconMenu, IconSupport, IconUser } from "./icons";
+import SearchButton from "./SearchButton";
+import { IconCart, IconClose, IconDoc, IconMenu, IconSupport, IconUser } from "./icons";
 import SectionIcon, { type SectionIconKey } from "./SectionIcon";
 import { showsGroup, useIsApp } from "@/lib/platform";
 import { IconBarwaaqo } from "@/components/icons";
@@ -215,13 +216,21 @@ export default function MenuDrawer({ phone }: { phone?: string }) {
                 type="button"
                 onClick={() => setOpen(false)}
                 aria-label={t("close")}
-                className="ms-auto flex size-11 items-center justify-center rounded-card text-2xl leading-none text-muted transition-colors hover:bg-bg hover:text-orange"
+                className="ms-auto flex size-11 items-center justify-center rounded-card text-muted transition-colors hover:bg-bg hover:text-orange"
               >
-                ✕
+                {/* ⚠️ كان المحرف ✕ — يتبدّل شكلُه بين جهازٍ وجهاز ولا يقبل
+                    سماكةً ولا حجماً، وقد يظهر مربّعاً فارغاً. أيقونةٌ مرسومة. */}
+                <IconClose className="size-5" />
               </button>
             </div>
 
             <nav className="flex flex-col gap-5 p-3">
+              {/* البحث — نزل من الترويسة إلى هنا، فالترويسة السلة
+                  وزرّ القائمة لا غير كما في النموذج */}
+              <div onClick={() => setOpen(false)}>
+                <SearchButton wide />
+              </div>
+
               <Group
                 title={t("shop")}
                 /* 🚫 أقسام الحسابات لا تظهر في التطبيق — قرارها.

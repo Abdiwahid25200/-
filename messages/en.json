@@ -112,7 +112,9 @@
     "tiktok": {
       "title": "TikTok accounts",
       "note": "Ready accounts with real followers"
-    }
+    },
+    "handTitle": "Handed over in person",
+    "handNote": "After you pay we message you on WhatsApp with the details, and we confirm you are signed in before closing the order."
   },
   "buy": {
     "selectPackage": "Choose a package",

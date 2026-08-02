@@ -42,7 +42,7 @@ const norm = (s: string) =>
     .replace(/[,\s]+/g, " ")
     .trim();
 
-export default function SearchButton() {
+export default function SearchButton({ wide = false }: { wide?: boolean }) {
   const t = useTranslations("search");
   const tp = useTranslations("pages");
 
@@ -177,14 +177,26 @@ export default function SearchButton() {
 
   return (
     <>
-      <button
-        type="button"
-        onClick={() => setOpen(true)}
-        aria-label={t("open")}
-        className="nav-tap flex size-11 items-center justify-center rounded-full text-muted hover:text-orange"
-      >
-        <IconSearch className="size-6" />
-      </button>
+      {/* `wide` = داخل القائمة الجانبية: حقلٌ يُقرأ، لا أيقونةٌ تُخمَّن */}
+      {wide ? (
+        <button
+          type="button"
+          onClick={() => setOpen(true)}
+          className="flex min-h-12 w-full items-center gap-2.5 rounded-card border border-line bg-bg px-3 text-sm text-muted transition-colors hover:border-orange"
+        >
+          <IconSearch className="size-5 shrink-0" />
+          {t("open")}
+        </button>
+      ) : (
+        <button
+          type="button"
+          onClick={() => setOpen(true)}
+          aria-label={t("open")}
+          className="nav-tap flex size-11 items-center justify-center rounded-full text-muted hover:text-orange"
+        >
+          <IconSearch className="size-6" />
+        </button>
+      )}
 
       {open && typeof document !== "undefined" && createPortal(panel, document.body)}
     </>

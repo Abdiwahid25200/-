@@ -66,6 +66,14 @@ export default async function AccountsPage({
           />
         ))}
       </div>
+
+      {/* ⚠️ **أكبر خوفٍ في بيع الحسابات: «ماذا يحدث بعد أن أدفع؟»**
+          جملةٌ واحدة هنا تقتل ترددّاً كاملاً — وهي في النموذج بطاقةٌ
+          منقّطة تحت البلاطات مباشرةً، حيث يُسأل السؤال. */}
+      <div className="flex flex-col gap-1.5 rounded-card border border-dashed border-line bg-surface p-4">
+        <span className="font-bold">{t("handTitle")}</span>
+        <p className="text-sm text-muted">{t("handNote")}</p>
+      </div>
     </main>
   );
 }

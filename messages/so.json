@@ -112,7 +112,9 @@
     "tiktok": {
       "title": "Akoonnada TikTok",
       "note": "Akoonno diyaar ah oo raacayaal dhab ah leh"
-    }
+    },
+    "handTitle": "Gacan-ku-gaarsiin",
+    "handNote": "Markaad bixiso waxaan kugu soo dirnaa WhatsApp xogta, waana hubinaynaa inaad gashay ka hor inta aan dalabka la xidhin."
   },
   "buy": {
     "selectPackage": "Dooro xirmo",

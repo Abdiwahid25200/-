@@ -83,8 +83,8 @@ export default function PubgFlow({ items }: { items?: ShopItem[] }) {
     idle: "",
     wait: t("wait"),
     ok: "",
-    bad: "✕ " + t("badId"),
-    notFound: "✕ " + t("notFound"),
+    bad: t("badId"),
+    notFound: t("notFound"),
     manual: t("manual"),
     busy: t("busy"),
   };

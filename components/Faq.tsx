@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { IconPlus } from "./icons";
 
 /** أسئلة شائعة قابلة للفتح — سؤال واحد مفتوح في كل مرة */
 export default function Faq({ items }: { items: { q: string; a: string }[] }) {
@@ -19,8 +20,13 @@ export default function Faq({ items }: { items: { q: string; a: string }[] }) {
               className="flex min-h-14 w-full items-center justify-between gap-3 px-4 text-start font-semibold"
             >
               {it.q}
-              <span aria-hidden className={`shrink-0 text-xl text-orange transition-transform ${on ? "rotate-45" : ""}`}>
-                +
+              {/* ⚠️ كان المحرف + — يتبدّل شكلُه بين جهازٍ وجهاز ولا يقبل
+                  سماكةً، وقد يظهر مربّعاً فارغاً. أيقونةٌ مرسومة تدور. */}
+              <span
+                aria-hidden
+                className={`shrink-0 text-orange transition-transform ${on ? "rotate-45" : ""}`}
+              >
+                <IconPlus className="size-5" />
               </span>
             </button>
             {on && (
