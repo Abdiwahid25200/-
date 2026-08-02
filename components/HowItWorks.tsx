@@ -36,22 +36,22 @@ export default async function HowItWorks() {
         </div>
       )}
 
-      {/* خطوات مرقّمة — الترقيم هنا يعني تسلسلاً حقيقياً لا زينة */}
-      <ol className="flex flex-col gap-2.5">
+      {/* ⚠️ **الخطوات الثلاث في بطاقةٍ واحدة** كما في النموذج، لا ثلاث
+          بطاقاتٍ متجاورة: هي شيءٌ واحد يُقرأ من أوّله إلى آخره، وثلاثة
+          إطاراتٍ تقطعه ثلاثاً وتُطيل الصفحة بشاشةٍ بلا أن تزيد خبراً.
+          والترقيم هنا تسلسلٌ حقيقيّ لا زينة. */}
+      <ol className="flex flex-col gap-3 rounded-card border border-line bg-surface p-4">
         {steps.map((k, i) => (
-          <li
-            key={k}
-            className="flex items-start gap-3.5 rounded-card border border-line bg-surface p-4"
-          >
+          <li key={k} className="flex items-start gap-3">
             <span
               aria-hidden
-              className="num flex size-9 shrink-0 items-center justify-center rounded-[11px] bg-surface2 font-bold text-orange"
+              className="num flex size-7 shrink-0 items-center justify-center rounded-[9px] bg-orange/10 text-sm font-bold text-orange"
             >
               {i + 1}
             </span>
             <span className="min-w-0">
-              <span className="block font-bold">{tx(d, `steps.${k}.title`, locale, t(`steps.${k}.title`))}</span>
-              <span className="mt-0.5 block text-sm text-muted">
+              <span className="block text-sm font-bold">{tx(d, `steps.${k}.title`, locale, t(`steps.${k}.title`))}</span>
+              <span className="mt-0.5 block text-xs text-muted">
                 {tx(d, `steps.${k}.note`, locale, t(`steps.${k}.note`))}
               </span>
             </span>

@@ -3,14 +3,11 @@ import { pageMeta } from "@/lib/seo";
 import SectionHead from "@/components/SectionHead";
 import BackLink from "@/components/BackLink";
 import Faq from "@/components/Faq";
-import PayChips from "@/components/PayChips";
 import HowItWorks from "@/components/HowItWorks";
-import MessageForm from "@/components/MessageForm";
 import { IconChat, IconClock, IconEmail, IconWhatsApp } from "@/components/icons";
 import { site, supportChannels } from "@/lib/content";
 import { faqSlots, pick as pickFaq, readFaq } from "@/lib/faq";
 import { mergedSite } from "@/lib/overrides";
-import Footer from "@/components/Footer";
 import type { Locale } from "@/i18n/routing";
 
 const ICONS = {
@@ -74,7 +71,7 @@ export default async function HelpPage({
 
       <HowItWorks />
 
-      {/* تواصل معنا — صفوف بأيقونة داخل صفيحة سداسية، كما اعتمدت المعاينة */}
+      {/* تواصل معنا — بطاقتان بالصفّ، أيقونةٌ فوق النصّ كما في النموذج */}
       <section>
         <h2 className="mb-3.5 text-xl font-bold">{t("reach")}</h2>
         <div className="grid grid-cols-2 gap-2.5">
@@ -91,12 +88,14 @@ export default async function HelpPage({
             const href = hrefOf(key);
             const Row = (
               <>
+                {/* ⚠️ **أيقونةٌ وحدها بلا صفيحة** (النموذج): البطاقة نفسها
+                    هي الصفيحة. وواتساب بأخضره المعروف — يُعرف قبل أن
+                    يُقرأ اسمه. */}
                 <span
                   aria-hidden
-                  className="flex aspect-square w-11 shrink-0 items-center justify-center bg-surface2 text-orange"
-                  style={{ clipPath: "polygon(50% 0, 93% 25%, 93% 75%, 50% 100%, 7% 75%, 7% 25%)" }}
+                  className={key === "whatsapp" ? "text-[#25d366]" : "text-orange"}
                 >
-                  <Icon className="size-5" />
+                  <Icon className="size-6" />
                 </span>
                 <span className="min-w-0">
                   <span className="block font-bold">{t(`${key}.title`)}</span>
@@ -141,15 +140,11 @@ export default async function HelpPage({
         />
       </section>
 
-      {/* ⚠️ **بعد الأسئلة عمداً**: النموذج يجعل أعلى الصفحة «كيف يعمل»
-          ثمّ التواصل ثمّ الأسئلة — وهو ترتيب من جاء بسؤال. ووسائل
-          الدفع والنموذج يبقيان أسفلها لمن أراد أكثر. */}
-      <PayChips />
-
-      <MessageForm />
-
-      {/* ختام الموقع — هنا وحده */}
-      <Footer locale={locale} />
+      {/* ⚠️ **ثلاث كتل لا سبع** — قرارها بعد النموذج. حُذف من هنا:
+          صفّ وسائل الدفع (يظهر في خطوة الدفع نفسها حيث يُسأل عنه) ·
+          استمارة «أرسلي لنا رسالة» (وواتساب فوقها أسرع منها وأقربُ
+          إلى يدها) · والفوتر (والسياسات صفٌّ في «حسابي» كما في النموذج).
+          من جاء صفحة الدعم جاء بسؤال، لا ليمرّ على سبع كتل. */}
     </main>
   );
 }
