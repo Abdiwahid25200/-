@@ -615,22 +615,47 @@ export default function OrdersEditor() {
                       <>
                         <dt className="text-muted">Paid with</dt>
                         <dd className="font-bold text-orange">
-                          Points · {o.pointsSpent ?? 0} pts
                           {(() => {
-                            /* ⚠️ النقاط تُخصم فعلاً قبل التأكيد، لكن قيمتها
-                               قد لا تغطّي سعر الأصناف لو تلاعب أحد بالطلب.
-                               المقارنة هنا تكشف ذلك قبل التسليم. */
-                            const worth = (Number(o.pointsSpent) || 0) / 100;
+                            /**
+                             * ⚠️ **الصفر هنا لا يعني «لم يدفع».**
+                             *
+                             * الزبون يخصم نقاطه بنفسه ثم يؤكَّد الطلب. فإن
+                             * تعثّر التأكيد بقي `pointsSpent: 0` **ونقاطُه
+                             * مخصومةٌ فعلاً**. وكانت الشاشة تقارن الصفر
+                             * بسعر الأصناف فتصرخ «النقاط تغطّي $0.00» عن
+                             * طلبٍ مدفوعٍ تماماً — إنذارٌ كاذب يُفزع بلا سبب.
+                             *
+                             * فيُقرأ **المطلوب** (`usePoints`) لا المسجَّل
+                             * وحده، ويُقال ما يجب فعله لا ما يبدو خطأً.
+                             */
+                            const spent = Number(o.pointsSpent) || 0;
+                            const want = Number(o.usePoints) || 0;
                             const value = (o.items ?? []).reduce(
                               (n, i) => n + (Number(i.price) || 0) * Math.max(1, i.qty ?? 1),
                               0,
                             );
-                            return worth + 0.005 < value ? (
-                              <span className="mt-1 block font-medium text-danger">
-                                ⚠️ Points cover only ${worth.toFixed(2)} of $
-                                {value.toFixed(2)} — check before delivering.
-                              </span>
-                            ) : null;
+                            const covers = (spent || want) / 100;
+
+                            return (
+                              <>
+                                {spent > 0 ? `Points · ${spent} pts` : `Points · ${want} pts asked`}
+
+                                {spent === 0 && want > 0 && (
+                                  <span className="mt-1 block text-sm font-medium text-text">
+                                    Not recorded on the order yet. Press{" "}
+                                    <strong>Mark paid</strong> — if the customer
+                                    already had them taken, nothing is charged twice.
+                                  </span>
+                                )}
+
+                                {covers + 0.005 < value && (
+                                  <span className="mt-1 block font-medium text-danger">
+                                    Points cover only ${covers.toFixed(2)} of $
+                                    {value.toFixed(2)} — check before delivering.
+                                  </span>
+                                )}
+                              </>
+                            );
                           })()}
                         </dd>
                       </>

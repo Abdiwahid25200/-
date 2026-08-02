@@ -153,6 +153,26 @@ export async function setOrderStatus(
       const u = uSnap.data() ?? {};
       const balance = Number(u.points) || 0;
 
+      /**
+       * 🔒 **هل خُصمت نقاطه من قبل؟**
+       *
+       * ⚠️ الزبون الذي يدفع بالنقاط يخصمها **بنفسه** قبل التأكيد
+       *    (`payWithPoints` في `lib/orders.ts`)، ويكتب سطراً في سجلّه
+       *    باسم رمز الطلب. فإن تعثّر التأكيد بعدها بقي الطلب `pending`
+       *    و`pointsSpent: 0` — **ونقاطُه مخصومةٌ فعلاً**.
+       *
+       *    ولولا هذه القراءة لخصم «Mark paid» مرّةً ثانية: رأينا طلباً
+       *    قيمتُه ١٢٠ نقطة يأخذ ١٢٥ — ١٢٠ من الزبون ثم ٥ هي كل ما بقي
+       *    في رصيده. السطرُ دليلٌ لا يُمحى، فبه نعرف ولا نكرّر.
+       */
+      const already = o.code
+        ? await tx.get(doc(db, "users", o.uid, "ledger", String(o.code)))
+        : null;
+      const preSpent =
+        already?.exists() && Number(already.data()?.delta) < 0
+          ? -Number(already.data()?.delta)
+          : 0;
+
       /* جائزة الدعوة — تُدفع مرّة واحدة بعد أوّل طلبٍ **بمالٍ حقيقي**.
          تُقرأ هنا وتُكتب مع بقيّة الحركات في آخر المعاملة. */
       let refRef: ReturnType<typeof doc> | null = null;
@@ -176,12 +196,16 @@ export async function setOrderStatus(
         /* النقاط المشتراة لا تربح نقاطاً فوقها — وإلا ولّد الرصيد نفسه */
         const bought = Math.max(0, Number(o.buyPoints) || 0);
         const earn = bought > 0 ? bought : orderPoints(o.items ?? [], map, fallback);
-        const redeem = Math.min(Math.max(0, Number(o.usePoints) || 0), balance);
+
+        /* ⚠️ ما خُصم من قبل لا يُخصم ثانية — يُسجَّل وحده على الطلب.
+           والباقي (لو لم يُخصم شيء) يُخصم الآن بحدّ رصيده. */
+        const want = Math.max(0, Number(o.usePoints) || 0);
+        const redeem = preSpent > 0 ? 0 : Math.min(want, balance);
         if (redeem > 0) rows.push({ delta: -redeem, reason: "redeem" });
         if (earn > 0) rows.push({ delta: earn, reason: "order" });
         delta = earn - redeem;
         nextAwarded = earn;
-        nextSpent = redeem;
+        nextSpent = preSpent > 0 ? preSpent : redeem;
 
         /* ── الدعوة ──
            ⚠️ ثلاثة شروطٍ مجتمعة، وسقوط واحدٍ يعني: لا جائزة.
