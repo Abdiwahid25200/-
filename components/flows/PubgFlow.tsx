@@ -132,7 +132,7 @@ export default function PubgFlow({ items }: { items?: ShopItem[] }) {
               type="button"
               onClick={verify}
               disabled={vrf.kind === "wait"}
-              className="min-h-12 shrink-0 rounded-card bg-navy px-5 font-medium text-white transition-opacity enabled:hover:opacity-90 disabled:opacity-50"
+              className="min-h-12 shrink-0 rounded-card bg-orange px-5 font-bold text-onaccent transition-opacity enabled:hover:opacity-90 disabled:opacity-50"
             >
               {t("verify")}
             </button>

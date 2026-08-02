@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
 import { setRequestLocale } from "next-intl/server";
-import SectionHero from "@/components/SectionHero";
+import SectionHead from "@/components/SectionHead";
 import BackLink from "@/components/BackLink";
 import CustomFlow from "@/components/flows/CustomFlow";
 import { pick, sectionOverride } from "@/lib/overrides";
@@ -45,12 +45,9 @@ export default async function CustomSectionPage({
   return (
     <main className="page-w flex flex-col gap-5 px-4 py-6">
       <BackLink href={back} />
-      <SectionHero
-        icon={(over.icon ?? "games") as SectionIconKey}
-        variant={2}
+      <SectionHead
         eyebrow={pick(over.eyebrow, locale, "")}
         title={title}
-        img={over.img}
         note={pick(over.note, locale, "")}
       />
 

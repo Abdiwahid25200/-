@@ -1,7 +1,6 @@
 "use client";
 
 import { IconCheckCircle, IconFlame } from "./icons";
-import Thumb from "./Thumb";
 import { fin, fmt } from "@/lib/format";
 
 type Props = {
@@ -10,7 +9,6 @@ type Props = {
   price: number;
   old?: number;
   disc?: number;
-  img?: string;
   instant?: boolean;
   popular?: boolean;
   /** كم شخصاً اشتراها اليوم — صفرٌ ⇒ لا شارة */
@@ -27,7 +25,6 @@ type Props = {
     selected: string;
     soon: string;
   };
-  Icon: (p: { className?: string }) => React.ReactElement;
   /** حالة "قريباً" — تُعرض الباقة معطّلة ولا تُختار */
   soon?: boolean;
 };
@@ -54,14 +51,13 @@ export default function PackageCard({
   price,
   old,
   disc,
-  img,
+  instant,
   popular,
   hot = 0,
   selected,
   onSelect,
   labels,
   soon,
-  Icon,
 }: Props) {
   const final = fin({ price, disc });
   const before = old ?? (disc ? price : undefined);
@@ -88,13 +84,10 @@ export default function PackageCard({
       }`}
     >
       {/* ── حزّة الوصف ── */}
-      <span className="flex min-w-0 flex-1 items-center gap-3 p-3.5">
-        {img && (
-          <span className="relative block size-13 shrink-0 overflow-hidden rounded-[13px] bg-surface2 text-orange">
-            <Thumb img={img} alt={title} Icon={Icon} iconClass="size-7" sizes="60px" />
-          </span>
-        )}
-
+      {/* ⚠️ **بلا صورة عمداً.** جُرّبت فصار كل صفٍّ صورةً صغيرة تتكرّر
+          ستّ مرّات بلا معنى — الباقات تختلف في **الرقم** لا في الشكل،
+          وصورةٌ واحدة مكرّرة تزحم القسيمة ولا تدلّ على شيء. */}
+      <span className="flex min-w-0 flex-1 items-center p-3.5">
         <span className="flex min-w-0 flex-1 flex-col gap-0.5">
           {/* 🔥 الدليل فوق الاسم — يُقرأ قبله فيُلوّن ما بعده */}
           {hot > 0 && !soon && (
@@ -117,12 +110,14 @@ export default function PackageCard({
             )}
           </span>
 
-          {/* السطر الصغير: الوحدة للنصّي، والوصف للرقمي */}
-          {(isNumeric ? sub : unit) && (
+          {/* السطر الصغير تحت الاسم — **لا يُترك فارغاً**: القسيمة بسطرٍ
+              واحد تبدو نصفَ خالية، والوعد بالسرعة هو أنفعُ ما يُملأ به.
+              فإن لم تكتبي وصفاً ظهر «فوري» لِما يُشحن فوراً. */}
+          {(isNumeric ? sub : unit) || instant ? (
             <span className="block truncate text-xs text-muted">
-              {isNumeric ? sub : unit}
+              {(isNumeric ? sub : unit) || labels.instant}
             </span>
-          )}
+          ) : null}
 
           {popular && !hot && !soon && (
             <span className="mt-0.5 block text-xs font-bold text-success">

@@ -39,7 +39,19 @@ export default function GameTile({
    */
   const tile = (
     <span className="block">
-      <span className="lift relative flex aspect-square items-center justify-center overflow-hidden rounded-[18px] border border-line bg-surface shadow-sm">
+      {/* ⚠️ **التدرّج والأيقونة أسفل الصورة لا بديلاً عنها.** كانت البلاطة
+          بيضاء تحت الصورة، فإن تعذّر تحميلها — رابطٌ حُذف، أو شبكةٌ
+          بطيئة — بقي مربّعٌ أبيض فارغ. الآن تظهر الأيقونة من تحتها
+          فلا يرى الزبون فراغاً أبداً. */}
+      <span className="lift relative flex aspect-square items-center justify-center overflow-hidden rounded-[18px] border border-line bg-gradient-to-bl from-orange/18 to-surface2 shadow-sm">
+        {/* سداسي = وجه عملة — صفيحة هادئة والأيقونة بلون العلامة */}
+        <span
+          className="flex aspect-square w-[56%] items-center justify-center bg-surface/70 text-orange"
+          style={{ clipPath: "polygon(50% 0, 93% 25%, 93% 75%, 50% 100%, 7% 75%, 7% 25%)" }}
+        >
+          <SectionIcon name={icon} mono className="w-[46%]" />
+        </span>
+
         {img ? (
           optimizable(img) ? (
             <Image
@@ -57,27 +69,22 @@ export default function GameTile({
               className="absolute inset-0 size-full object-cover transition-transform group-hover:scale-105"
             />
           )
-        ) : (
-          /* سداسي = وجه عملة — صفيحة هادئة والأيقونة بلون العلامة */
+        ) : null}
+
+        {/* الوسم **على** البلاطة كما في النموذج — لا سطراً ثالثاً تحتها */}
+        {(soon ? soonLabel : badgeLabel) && (
           <span
-            className="flex aspect-square w-[56%] items-center justify-center bg-surface2 text-orange"
-            style={{ clipPath: "polygon(50% 0, 93% 25%, 93% 75%, 50% 100%, 7% 75%, 7% 25%)" }}
+            className={`absolute start-1.5 top-1.5 rounded-full px-2 py-0.5 text-[0.62rem] font-bold ${
+              soon ? "bg-yellow text-onaccent" : "bg-orange text-onaccent"
+            }`}
           >
-            <SectionIcon name={icon} mono className="w-[46%]" />
+            {soon ? soonLabel : badgeLabel}
           </span>
         )}
       </span>
 
       <span className="mt-2 block text-center text-sm font-bold leading-tight">
         {title}
-      </span>
-
-      <span
-        className={`mt-0.5 block text-center text-xs font-bold uppercase tracking-[0.14em] rtl:tracking-normal ${
-          soon ? "text-yellow" : "text-muted"
-        }`}
-      >
-        {soon ? soonLabel : badgeLabel}
       </span>
     </span>
   );

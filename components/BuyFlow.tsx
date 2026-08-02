@@ -397,7 +397,6 @@ export default function BuyFlow({
               price={p.price}
               old={p.old}
               disc={p.disc}
-              img={p.img}
               instant={p.instant}
               popular={p.popular}
               soon={p.soon}
@@ -413,7 +412,6 @@ export default function BuyFlow({
                 soon: tc("soon"),
                 hot: tc.raw("hot") as string,
               }}
-              Icon={Icon}
             />
           ))}
         </div>
