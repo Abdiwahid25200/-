@@ -10,6 +10,7 @@ import Logo from "./Logo";
 import { IconCart, IconDoc, IconMenu, IconSupport, IconUser } from "./icons";
 import SectionIcon, { type SectionIconKey } from "./SectionIcon";
 import { showsGroup, useIsApp } from "@/lib/platform";
+import { IconBarwaaqo } from "@/components/icons";
 import { sections } from "@/lib/content";
 import { customSections, readSections } from "@/lib/overrides";
 import { POINTS_BRAND, POINTS_ICON, readPointsSettings } from "@/lib/points";
@@ -239,6 +240,8 @@ export default function MenuDrawer({ phone }: { phone?: string }) {
                           key: "points",
                           href: "/points",
                           img: pts.logo,
+                          /* بلا صورةٍ مرفوعة تُرسم القطرة — لا فراغ */
+                          Icon: IconBarwaaqo,
                           label: pts.brand,
                         },
                       ]

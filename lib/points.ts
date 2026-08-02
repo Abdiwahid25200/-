@@ -44,6 +44,28 @@ export const POINTS_BRAND = "Barwaaqo";
 export const POINTS_ICON = "";
 export const POINTS_WORDMARK = "/images/points/barwaaqo.png";
 
+/**
+ * 🗑️ **الشعارات القديمة — تُتجاهَل ولو كانت محفوظة**.
+ *
+ * ⚠️ الصورة القديمة (أزرقُ وذهبٌ ومخطّطٌ بيانيّ) ليست في الكود فحسب:
+ *    كل حفظٍ لإعدادات النقاط كتب مسارها في `settings/points.logo`.
+ *    فحذفُها من الملفات لا يكفي — الوثيقة تعلو الكود، فيبقى القديم
+ *    ظاهراً وتُظنّ الشاشة لم تتغيّر.
+ *
+ *    فتُمسح عند القراءة. ومن ترفع شعاراً جديداً من اللوحة يظهر شعارُها،
+ *    لأن مسارَه ليس في هذه القائمة.
+ */
+const LEGACY_LOGOS = [
+  "/images/points/barwaaqo-icon.png",
+  "/images/points/barwaaqo.png",
+];
+
+/** الشعار المحفوظ — أو فراغٌ يعني «ارسم القطرة» */
+export const usableLogo = (v: string | undefined): string => {
+  const s = (v ?? "").trim();
+  return LEGACY_LOGOS.includes(s) ? "" : s;
+};
+
 /** قيمة النقطة الواحدة بالدولار — ١٠ نقاط = ٠٫١٠ دولار */
 export const USD_PER_POINT = 0.01;
 
@@ -128,7 +150,7 @@ export async function readPointsSettings(): Promise<PointsSettings> {
       sell: typeof v.sell === "boolean" ? v.sell : DEFAULT_POINTS.sell,
       minBuy: Number(v.minBuy) || DEFAULT_POINTS.minBuy,
       brand: (v.brand ?? "").trim() || DEFAULT_POINTS.brand,
-      logo: (v.logo ?? "").trim() || DEFAULT_POINTS.logo,
+      logo: usableLogo(v.logo) || DEFAULT_POINTS.logo,
       refOn: typeof v.refOn === "boolean" ? v.refOn : DEFAULT_POINTS.refOn,
       refInviter:
         v.refInviter === undefined
