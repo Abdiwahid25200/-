@@ -29,6 +29,16 @@ const fmtDate = (d: Date | null) =>
   d ? d.toLocaleString("en-GB", { dateStyle: "short", timeStyle: "short" }) : "—";
 
 /** من نفّذ الطلب: المساعد الذي قَبِله، وإلا صاحبة المتجر */
+/** ما طُلب — سطرٌ واحد يُقرأ بلمحة، كما في شاشة الطلبات */
+function itemLine(o: AdminOrder): string {
+  const items = o.items ?? [];
+  if (items.length === 0) return o.kind || "Order";
+  const first = items[0];
+  const qty = Math.max(1, first.qty ?? 1);
+  const head = `${first.title}${qty > 1 ? ` ×${qty}` : ""}`;
+  return items.length > 1 ? `${head} +${items.length - 1}` : head;
+}
+
 const handlerOf = (o: AdminOrder) =>
   (o.claimedName || o.claimedBy || "").trim() || "Owner";
 
@@ -36,6 +46,8 @@ export default function Report() {
   const [orders, setOrders] = useState<AdminOrder[] | null>(null);
   const [gate, setGate] = useState<Gate>(null);
   const [days, setDays] = useState<number>(30);
+  /** يومٌ بعينه من التقويم — يتقدّم على المدى متى اختير */
+  const [oneDay, setOneDay] = useState("");
   const [err, setErr] = useState(false);
 
   const load = useCallback(async () => {
@@ -52,13 +64,24 @@ export default function Report() {
     void load();
   }, [load]);
 
+  /**
+   * ⚠️ يومٌ بعينه **يتقدّم على المدى**: من اختارت ٢٨ يوليو لا تريد
+   *    «آخر ٣٠ يوماً» معه. والمقارنة بالتاريخ المحلّي لا بالتوقيت
+   *    العالمي، فاليوم الذي تختاره هو اليوم الذي تراه في تقويمها.
+   */
   const inRange = useCallback(
     (o: AdminOrder) => {
+      const d = o.createdAt;
+      if (oneDay) {
+        if (!d) return false;
+        const [y, m, day] = oneDay.split("-").map(Number);
+        return d.getFullYear() === y && d.getMonth() + 1 === m && d.getDate() === day;
+      }
       if (!days) return true;
-      const t = o.createdAt?.getTime();
+      const t = d?.getTime();
       return t ? t >= Date.now() - days * 86_400_000 : false;
     },
-    [days],
+    [days, oneDay],
   );
 
   const split = useMemo(() => {
@@ -95,29 +118,63 @@ export default function Report() {
   const chip =
     "min-h-10 rounded-full border px-3 text-sm font-bold transition-colors";
 
+  /** المدى المختار بالكلمات — يُطبع في الترويسة وفوق الجداول */
+  const rangeLabel = oneDay
+    ? oneDay
+    : (RANGES.find((r) => r.v === days)?.label ?? "");
+
   const ranges = (
-    <div className="flex flex-wrap items-center gap-2">
-      {RANGES.map((r) => (
+    <div className="flex flex-col gap-2">
+      {/* ⚠️ صفٌّ واحد يُمرَّر أفقياً — أربعة مدىً وزرّ تحديث لا يلتفّون */}
+      <div className="-mx-4 flex items-center gap-2 overflow-x-auto px-4 pb-1">
+        {RANGES.map((r) => (
+          <button
+            key={r.v}
+            type="button"
+            onClick={() => {
+              setDays(r.v);
+              setOneDay("");
+            }}
+            className={`${chip} shrink-0 ${
+              !oneDay && days === r.v
+                ? "border-orange bg-orange/10 text-orange"
+                : "border-line text-muted"
+            }`}
+          >
+            {r.label}
+          </button>
+        ))}
         <button
-          key={r.v}
           type="button"
-          onClick={() => setDays(r.v)}
-          className={`${chip} ${
-            days === r.v
-              ? "border-orange bg-orange/10 text-orange"
-              : "border-line text-muted"
-          }`}
+          onClick={() => void load()}
+          className={`${chip} shrink-0 border-line text-muted`}
         >
-          {r.label}
+          Refresh
         </button>
-      ))}
-      <button
-        type="button"
-        onClick={() => void load()}
-        className={`${chip} ms-auto border-line text-muted`}
-      >
-        Refresh
-      </button>
+      </div>
+
+      {/* يومٌ بعينه من التقويم */}
+      <label className="flex items-center gap-2 text-sm text-muted">
+        <span className="shrink-0">Or pick a date</span>
+        <input
+          type="date"
+          value={oneDay}
+          onChange={(e) => setOneDay(e.target.value)}
+          dir="ltr"
+          className={`num min-h-11 min-w-0 flex-1 rounded-card border px-3 text-start outline-none ${
+            oneDay ? "border-orange text-orange" : "border-line"
+          }`}
+        />
+        {oneDay && (
+          <button
+            type="button"
+            onClick={() => setOneDay("")}
+            className="shrink-0 text-sm font-bold text-orange"
+          >
+            Clear
+          </button>
+        )}
+      </label>
     </div>
   );
 
@@ -138,7 +195,8 @@ export default function Report() {
         {ranges}
 
         <p className="text-sm text-muted">
-          Pick what you want to read. Numbers are for the period above.
+          Pick what you want to read. Numbers are for{" "}
+          <strong className="text-text">{rangeLabel}</strong>.
         </p>
 
         <div className="grid grid-cols-2 gap-3">
@@ -234,7 +292,7 @@ export default function Report() {
         <h4 className="mb-2 text-sm font-bold text-muted">Orders</h4>
         {rows.length === 0 ? (
           <p className="rounded-card border border-dashed border-line p-6 text-center text-sm text-muted">
-            Nothing in this period.
+            Nothing in {rangeLabel.toLowerCase()}.
           </p>
         ) : (
           <ul className="flex flex-col gap-1.5">
@@ -244,10 +302,14 @@ export default function Report() {
                 className="rounded-card border border-line bg-surface p-3"
               >
                 <div className="flex items-center gap-3">
+                  {/* ما طُلب أوّلاً — الرمز وحده لا يقول شيئاً (كما في الطلبات) */}
                   <span className="min-w-0 flex-1">
-                    <span className="num block truncate font-bold">{o.code}</span>
+                    <span className="block truncate font-bold">{itemLine(o)}</span>
                     <span className="block truncate text-xs text-muted">
                       {o.name || o.email || "—"} · {fmtDate(o.createdAt)}
+                    </span>
+                    <span className="num block truncate text-[0.7rem] text-muted">
+                      {o.code}
                     </span>
                   </span>
                   <span className="num shrink-0 font-bold">
