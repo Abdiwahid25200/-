@@ -5,15 +5,11 @@ import { createPortal } from "react-dom";
 import { useLocale, useTranslations } from "next-intl";
 import { Link, usePathname } from "@/i18n/navigation";
 import { localeNames, routing, type Locale } from "@/i18n/routing";
-import { ThemeChoice } from "./ThemeToggle";
 import Logo from "./Logo";
 import {
-  IconCart,
   IconChevron,
   IconClose,
-  IconDoc,
   IconMenu,
-  IconSupport,
   IconUser,
   IconWhatsApp,
 } from "./icons";
@@ -21,6 +17,8 @@ import SectionIcon, { type SectionIconKey } from "./SectionIcon";
 import { showsGroup, useIsApp } from "@/lib/platform";
 import { IconBarwaaqo } from "@/components/icons";
 import { sections } from "@/lib/content";
+import { myPoints } from "@/lib/points";
+import { useAuth } from "@/lib/auth";
 import { customSections, readSections } from "@/lib/overrides";
 import { POINTS_BRAND, POINTS_ICON, readPointsSettings } from "@/lib/points";
 
@@ -49,15 +47,11 @@ const shop = [
   },
 ];
 
-const info = [
-  { key: "help", href: "/help", Icon: IconSupport },
-  { key: "policy", href: "/policy", Icon: IconDoc },
-] as const;
-
 export default function MenuDrawer({ phone }: { phone?: string }) {
   const active = useLocale();
   const isApp = useIsApp();
   const [open, setOpen] = useState(false);
+  const { user } = useAuth();
   /** الأقسام التي أضافتها صاحبة المتجر — تُقرأ مرّة عند أول فتح للقائمة */
   const [added, setAdded] = useState<
     {
@@ -74,6 +68,8 @@ export default function MenuDrawer({ phone }: { phone?: string }) {
   /** هويّة برنامج النقاط — اسمه وشعاره كما ضبطتهما صاحبة المتجر */
   const [pts, setPts] = useState({ brand: POINTS_BRAND, logo: POINTS_ICON, on: true });
   const [mounted, setMounted] = useState(false);
+  /** رصيده — يُقرأ عند أوّل فتحٍ للقائمة، فلا يدفع ثمنَه من لم يفتحها */
+  const [balance, setBalance] = useState("");
 
   useEffect(() => setMounted(true), []);
 
@@ -87,6 +83,8 @@ export default function MenuDrawer({ phone }: { phone?: string }) {
     /* ⚠️ نقرأ التعديلات مرّةً واحدة لغرضين: صور الأقسام **الأصلية**
        (كانت تُقرأ من الملفات فلا تظهر الصورة التي رفعتها من اللوحة)،
        والأقسام المضافة كلّها. */
+    void myPoints(user).then((n) => n > 0 && setBalance(String(n))).catch(() => {});
+
     void readSections().then((o) =>
       setBase(
         shop.map((x) => ({ ...x, img: o[x.key]?.img || x.img })),
@@ -150,11 +148,13 @@ export default function MenuDrawer({ phone }: { phone?: string }) {
       label?: string;
       /** صورة القسم متى رُفعت — تحلّ محلّ الأيقونة المرسومة */
       img?: string;
+      /** رقمٌ في طرف الصفّ — الرصيد مثلاً */
+      right?: string;
     }[];
   }) {
     return (
       <ul className="flex flex-col gap-0.5">
-          {items.map(({ key, href, Icon, icon, img, label }) => (
+          {items.map(({ key, href, Icon, icon, img, label, right }) => (
             <li key={key}>
               <Link href={href} onClick={() => setOpen(false)} className={row}>
                 {img ? (
@@ -169,7 +169,10 @@ export default function MenuDrawer({ phone }: { phone?: string }) {
                 ) : Icon ? (
                   <Icon className="size-5 shrink-0 text-muted" />
                 ) : null}
-                {label ?? tp(key)}
+                <span className="min-w-0 flex-1 truncate">{label ?? tp(key)}</span>
+                {right && (
+                  <span className="num shrink-0 text-sm font-bold text-yellow">{right}</span>
+                )}
               </Link>
             </li>
         ))}
@@ -259,12 +262,11 @@ export default function MenuDrawer({ phone }: { phone?: string }) {
                           /* بلا صورةٍ مرفوعة تُرسم القطرة — لا فراغ */
                           Icon: IconBarwaaqo,
                           label: pts.brand,
+                          /* رصيدُه في طرف الصفّ — يراه بلا أن يفتح صفحة */
+                          right: balance,
                         },
                       ]
                     : []),
-                  { key: "orders", href: "/orders", Icon: IconDoc },
-                  { key: "cart", href: "/cart", Icon: IconCart },
-                  ...info,
                 ]}
               />
 
@@ -288,8 +290,6 @@ export default function MenuDrawer({ phone }: { phone?: string }) {
                   </Link>
                 ))}
               </div>
-
-              <ThemeChoice />
 
               {/* ⚠️ **زرّ واتساب بلون واتساب، وبأيقونةٍ مرسومة.**
                   كان أصفر وعليه الإيموجي 💬 — والإيموجي ممنوع بقرارها:
