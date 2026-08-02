@@ -809,6 +809,16 @@ export function IconGift({ className = "" }: IconProps) {
   );
 }
 
+/** المشاركة — صندوقٌ يخرج منه سهم لأعلى */
+export function IconShare({ className = "" }: IconProps) {
+  return (
+    <svg viewBox="0 0 24 24" strokeWidth="1.8" className={`${base} ${className}`} aria-hidden>
+      <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.5V20h15v-7.5" />
+      <path strokeLinecap="round" strokeLinejoin="round" d="M12 15.5V3.6M8 7.6 12 3.6l4 4" />
+    </svg>
+  );
+}
+
 /** بيانات المتجر — واجهة محلّ */
 export function IconStore({ className = "" }: IconProps) {
   return (

@@ -10,12 +10,14 @@ import { isBuyable, live, pay } from "@/lib/data";
 import { useWhatsApp, waLink as buildWa } from "@/lib/useWhatsApp";
 import { useAuth } from "@/lib/auth";
 import { Link } from "@/i18n/navigation";
-import { IconArrow, IconCheckCircle, IconSpinner, IconSuccess } from "./icons";
+import { IconArrow, IconCheckCircle, IconGift, IconSpinner, IconSuccess } from "./icons";
 import { payWithPoints, saveOrder } from "@/lib/orders";
 import { usePayMethods } from "@/components/usePayMethods";
 import { usePointsRedeem } from "./PointsRedeem";
 import ClosedNotice from "./ClosedNotice";
+import GiftAsk from "./GiftAsk";
 import { canOrderNow, isReservation, useStoreOpen } from "@/lib/storeOpen";
+import { useQuery } from "@/lib/useQuery";
 
 export type Pack = {
   id: string;
@@ -73,10 +75,27 @@ export default function BuyFlow({
   const t = useTranslations("buy");
   const tc = useTranslations("common");
   const tClosed = useTranslations("closed");
+  const tg = useTranslations("gift");
   const locale = useLocale();
   const waNum = useWhatsApp();
 
+  /**
+   * 🎁 **قادمٌ من رابط هديّة؟** الباقة مختارةٌ سلفاً والآيدي مكتوب —
+   * فلا يُعيد الدافعُ اختيار ما اختاره غيرُه، ولا يُخطئ في نقل الرقم.
+   *
+   * ⚠️ ويُقرأ **مرّة واحدة عند التركيب**: لو تتبّعنا الرابط لَعاد اختيارُه
+   *    إلى الباقة الأولى كلّما بدّل رأيه، فيجد نفسه محبوساً فيها.
+   */
+  const qs = useQuery("pack", "gift", "for");
   const [packId, setPackId] = useState<string | null>(null);
+  const forGift = qs.gift === "1";
+  const giftFor = (qs.for ?? "").trim().slice(0, 24);
+
+  /* الباقة تُختار مرّة عند وصول الرابط — ثم يملك الزبون اختياره،
+     فلو بدّل رأيه لم يُعَد إلى باقة أخيه في كل رسمة */
+  useEffect(() => {
+    if (qs.pack) setPackId((cur) => cur ?? qs.pack);
+  }, [qs.pack]);
   const [payId, setPayId] = useState<string | null>(null);
   const [done, setDone] = useState<null | { code: string; at: string }>(null);
   /** نتيجة حفظ الطلب في قاعدة البيانات — تُعرض للزبون بصراحة */
@@ -339,6 +358,15 @@ export default function BuyFlow({
   /* ── تدفّق الشراء ── */
   return (
     <div className="flex flex-col gap-5">
+      {/* 🎁 جاء من رابط هديّة — سطرٌ يذكّره لأجل من يدفع، فلا يظنّ
+          أنّ الآيدي المكتوب آيديه هو ثم يفزع حين لا تصله الشحنة */}
+      {forGift && (
+        <p className="flex items-center gap-2.5 rounded-card border border-orange bg-orange/8 px-4 py-3 text-sm font-bold text-orange">
+          <IconGift className="size-5 shrink-0" />
+          {giftFor ? tg("payingFor", { name: giftFor }) : tg("payingForAnon")}
+        </p>
+      )}
+
       {/* في وضع الحسابات يختار الزبون الحساب أولاً، ثم يظهر حقل الواتساب —
           بالترتيب الذي طلبته صاحبة المشروع */}
       {!isWa && <div ref={accountRef}>{accountForm}</div>}
@@ -380,16 +408,29 @@ export default function BuyFlow({
       {pack &&
         (isWa ? (
           <div ref={accountRef}>{accountForm}</div>
-        ) : payNeeded ? (
-          <div ref={payRef}>
-            <PaySection
-              amount={redeem.payable}
-              selected={payId}
-              onSelect={setPayId}
-              redeem={redeem}
+        ) : (
+          <div ref={payRef} className="flex flex-col gap-5">
+            {payNeeded && (
+              <PaySection
+                amount={redeem.payable}
+                selected={payId}
+                onSelect={setPayId}
+                redeem={redeem}
+              />
+            )}
+
+            {/* 🎁 البابُ الثاني — لمن اختار باقته ولا يملك بها دفعاً.
+                ⚠️ **بعد وسائل الدفع لا قبلها**: من معه EVC يدفع ويمضي،
+                   ومن ليس معه يجد هذا في اللحظة التي كان سيخرج فيها. */}
+            <GiftAsk
+              kind={kind}
+              item={pack.id}
+              account={accountSummary}
+              title={pack.title}
+              price={total}
             />
           </div>
-        ) : null)}
+        ))}
 
       {/* ── شريط الخطوات العائم — فوق قائمة التنقّل مباشرة ──
           خطّ التقدّم أعلاه يقول للزبون أين هو من الطريق بلا كلمة واحدة،

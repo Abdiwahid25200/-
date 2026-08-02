@@ -1,6 +1,8 @@
 "use client";
 
 import { useState } from "react";
+import { useEffect } from "react";
+import { useQuery } from "@/lib/useQuery";
 import { useTranslations } from "next-intl";
 import BuyFlow, { type Pack } from "@/components/BuyFlow";
 import { toPack, type ShopItem } from "@/lib/items";
@@ -16,7 +18,14 @@ type Vrf =
 /** `items` تأتي من الصفحة بعد دمج تعديلات الإدارة — وبلاها يعمل بالأصل */
 export default function PubgFlow({ items }: { items?: ShopItem[] }) {
   const t = useTranslations("pubgFlow");
+  /* 🎁 آيدي أخيه محمولٌ في الرابط — فلا ينقله بيده ولا يُخطئ رقماً */
+  const qs = useQuery("acct");
   const [pid, setPid] = useState("");
+
+  useEffect(() => {
+    const v = (qs.acct ?? "").replace(/\D/g, "").slice(0, 20);
+    if (v) setPid((cur) => cur || v);
+  }, [qs.acct]);
   const [vrf, setVrf] = useState<Vrf>({ kind: "idle" });
 
   const packs: Pack[] = items
