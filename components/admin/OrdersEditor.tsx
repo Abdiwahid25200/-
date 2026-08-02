@@ -4,6 +4,7 @@ import { useCallback, useEffect, useState } from "react";
 import { useAuth } from "@/lib/auth";
 import { useAccess } from "@/lib/adminAccess";
 import DateRange from "./DateRange";
+import Choose from "./Choose";
 import { IconDownload } from "@/components/icons";
 import { csvDate, csvName, downloadCsv } from "@/lib/csv";
 import { inSpan, spanLabel, today, type Span } from "@/lib/span";
@@ -36,13 +37,27 @@ import {
  * ورقم الزبون يظهر هنا مباشرة — لا تحتاجين فتح Firebase للتواصل معه.
  */
 
+/**
+ * ⚠️ **كلماتٌ واحدة في كل موضع.** كانت القائمة تقول `New`/`Paid` بينما
+ *    البطاقات فوقها تقول `Waiting`/`Accepted` — لشيءٍ واحد اسمان، فتظنّ
+ *    من تقرؤهما أنّهما بابان.
+ */
 const FILTERS = [
-  { v: "all", label: "All" },
-  { v: "pending", label: "New" },
-  { v: "paid", label: "Paid" },
-  { v: "done", label: "Delivered" },
-  { v: "cancelled", label: "Cancelled" },
+  { v: "all", label: "All orders" },
+  { v: "pending", label: "Waiting — not confirmed yet" },
+  { v: "paid", label: "Accepted — paid, to deliver" },
+  { v: "done", label: "Delivered — finished" },
+  { v: "cancelled", label: "Rejected — cancelled" },
 ] as const;
+
+/** الاسم وحده، بلا الشرح — للسطر الضيّق فوق القائمة */
+const SHORT: Record<(typeof FILTERS)[number]["v"], string> = {
+  all: "All orders",
+  pending: "Waiting",
+  paid: "Accepted",
+  done: "Delivered",
+  cancelled: "Rejected",
+};
 
 const STATUS_STYLE: Record<OrderStatus, string> = {
   pending: "bg-yellow/15 text-yellow",
@@ -269,6 +284,18 @@ export default function OrdersEditor() {
     );
   }
 
+  /** خيارات القائمة المنسدلة، وبجانب كلٍّ عددُه في المدى المختار */
+  const filterOpts = FILTERS.map((f) => ({
+    v: f.v,
+    label: f.label,
+    count:
+      orders === null
+        ? undefined
+        : f.v === "all"
+          ? inWindow.length
+          : inWindow.filter((o) => o.status === f.v).length,
+  }));
+
   const chip =
     "min-h-10 rounded-full border px-3 text-sm font-bold transition-colors";
   const btn =
@@ -276,16 +303,6 @@ export default function OrdersEditor() {
 
   /* ═══ الشاشة الأولى: متى؟ وأيّها؟ ═══ */
   if (asking) {
-    const count = (v: (typeof FILTERS)[number]["v"]) =>
-      v === "all" ? inWindow.length : inWindow.filter((o) => o.status === v).length;
-
-    const CARDS = [
-      { v: "pending" as const, label: "Waiting", note: "Not confirmed yet", tone: "bg-yellow/12 text-yellow border-yellow/40" },
-      { v: "paid" as const, label: "Accepted", note: "Paid, to deliver", tone: "bg-success/12 text-success border-success/40" },
-      { v: "done" as const, label: "Delivered", note: "Finished", tone: "bg-surface2 text-muted border-line" },
-      { v: "cancelled" as const, label: "Rejected", note: "Cancelled orders", tone: "bg-danger/10 text-danger border-danger/40" },
-    ];
-
     return (
       <div className="flex flex-col gap-5">
         {err && (
@@ -306,44 +323,24 @@ export default function OrdersEditor() {
           />
         </section>
 
-        {/* ② أيّها — والعدد يتبع المدى المختار فوق */}
+        {/* ② أيّها — قائمةٌ منسدلة (طلبها)، والعدد يتبع المدى المختار فوق.
+            ⚠️ والاختيار **يفتح القائمة فوراً**: لو انتظر زرّ «اعرضي» لصار
+               الاختيارُ خطوتين حيث تكفي واحدة. */}
         <section className="flex flex-col gap-2">
-          <h3 className="font-bold">Which orders?</h3>
-          <p className="-mt-1 text-sm text-muted">
-            {rangeLabel} · <strong className="num">{inWindow.length}</strong> in
-            total
-          </p>
-
-          <div className="grid grid-cols-2 gap-2.5">
-            {CARDS.map((c) => (
-              <button
-                key={c.v}
-                type="button"
-                onClick={() => {
-                  setFilter(c.v);
-                  setAsking(false);
-                }}
-                className={`rounded-card border-2 p-3 text-start ${c.tone}`}
-              >
-                <span className="num block text-2xl font-bold leading-none">
-                  {orders === null ? "…" : count(c.v)}
-                </span>
-                <span className="mt-1 block font-bold">{c.label}</span>
-                <span className="block text-xs opacity-75">{c.note}</span>
-              </button>
-            ))}
-          </div>
-
-          <button
-            type="button"
-            onClick={() => {
-              setFilter("all");
+          {/* ⚠️ تبدأ فارغةً بـ«Choose one…» عمداً: لو بدأت على «Waiting»
+              لَما فتح اختيارُ «Waiting» شيئاً — المتصفّح لا يُبلّغ عن
+              اختيارِ ما هو مختارٌ أصلاً، فتضغط ولا يحدث شيء. */}
+          <Choose
+            label="Which orders?"
+            value=""
+            onChange={(v) => {
+              if (!v) return;
+              setFilter(v as (typeof FILTERS)[number]["v"]);
               setAsking(false);
             }}
-            className="min-h-12 rounded-card border border-line font-bold"
-          >
-            Show all {orders !== null && <span className="num">({inWindow.length})</span>}
-          </button>
+            options={[{ v: "", label: "Choose one…" }, ...filterOpts]}
+            note={`${rangeLabel} · ${inWindow.length} in total`}
+          />
         </section>
       </div>
     );
@@ -359,41 +356,31 @@ export default function OrdersEditor() {
       >
         <span className="min-w-0 flex-1">
           <span className="block truncate font-bold">
-            {FILTERS.find((f) => f.v === filter)?.label} · {rangeLabel}
+            {SHORT[filter]} · {rangeLabel}
           </span>
           <span className="num block text-xs text-muted">
             {shown.length} orders
           </span>
         </span>
-        <span className="shrink-0 text-sm font-bold text-orange">Change</span>
+        <span className="shrink-0 text-sm font-bold text-orange">
+          Change dates
+        </span>
       </button>
 
-      {/* ⚠️ صفٌّ واحد يُمرَّر أفقياً: خمسة مرشّحات ملفوفة على سطرين
-          تسرق ثلث الشاشة وتُنزل الطلبات تحت الطيّ. */}
-      <div className="-mx-4 flex items-center gap-2 overflow-x-auto px-4 pb-1">
-        {FILTERS.map((f) => (
-          <button
-            key={f.v}
-            type="button"
-            onClick={() => setFilter(f.v)}
-            className={`${chip} shrink-0 ${
-              filter === f.v
-                ? "border-orange bg-orange/10 text-orange"
-                : "border-line text-muted"
-            }`}
-          >
-            {f.label}
-            {f.v !== "all" && orders && (
-              <span className="num ms-1.5 opacity-70">
-                {inWindow.filter((o) => o.status === f.v).length}
-              </span>
-            )}
-          </button>
-        ))}
+      {/* ⚠️ وتبديل النوع **بلا رجوعٍ إلى شاشة السؤال**: قائمةٌ منسدلة هنا
+          أيضاً، فمن فتحت «بانتظار» تنتقل إلى «مقبول» بضغطتين لا بأربع. */}
+      <Choose
+        label="Which orders?"
+        value={filter}
+        onChange={(v) => setFilter(v as (typeof FILTERS)[number]["v"])}
+        options={filterOpts}
+      />
+
+      <div className="flex items-center gap-2">
         <button
           type="button"
           onClick={() => void load()}
-          className={`${chip} shrink-0 border-line text-muted`}
+          className={`${chip} flex-1 border-line text-muted`}
         >
           Refresh
         </button>
@@ -404,7 +391,7 @@ export default function OrdersEditor() {
           onClick={() =>
             download(shown, `orders-${filter === "all" ? "all" : filter}`)
           }
-          className={`${chip} flex shrink-0 items-center gap-1.5 border-orange/50 text-orange disabled:opacity-45`}
+          className={`${chip} flex flex-1 items-center justify-center gap-1.5 border-orange/50 text-orange disabled:opacity-45`}
         >
           <IconDownload className="size-4" />
           Excel
@@ -427,7 +414,8 @@ export default function OrdersEditor() {
         <p className="p-4 text-center text-sm text-muted">Loading…</p>
       ) : shown.length === 0 ? (
         <p className="rounded-card border border-dashed border-line p-6 text-center text-sm text-muted">
-          No {filter === "all" ? "" : FILTERS.find((f) => f.v === filter)?.label.toLowerCase()} orders in {rangeLabel.toLowerCase()}.
+          No {filter === "all" ? "" : SHORT[filter].toLowerCase()} orders in{" "}
+          {rangeLabel.toLowerCase()}.
         </p>
       ) : (
         shown.map((o, idx) => {

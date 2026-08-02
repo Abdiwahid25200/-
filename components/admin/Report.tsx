@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { IconChevron } from "@/components/icons";
 import { allOrders, type AdminOrder } from "@/lib/adminOrders";
 import DateRange from "./DateRange";
+import Choose from "./Choose";
 import { csvDate, csvName, downloadCsv } from "@/lib/csv";
 import { daysAgo, inSpan, spanLabel, today, type Span } from "@/lib/span";
 
@@ -118,6 +119,27 @@ export default function Report() {
     );
   }
 
+  /**
+   * خيارا التقرير — والعدد والمبلغ في نصّ الخيار نفسه.
+   * ⚠️ كانا بطاقتين كبيرتين تُقرأ أرقامُهما على وجهيهما؛ فلو حُذفت
+   *    الأرقام مع البطاقات لصار الاختيار عمياءَ. فنُقلت إلى السطر.
+   */
+  const gateOpts = [
+    { v: "", label: "Choose one…" },
+    {
+      v: "accepted",
+      label: `Accepted — paid & delivered · ${money(split.acceptedSum)}`,
+      count: split.accepted.length,
+    },
+    {
+      v: "rejected",
+      label: `Rejected — cancelled · ${money(split.rejectedSum)}`,
+      count: split.rejected.length,
+    },
+  ];
+
+  const pick = (v: string) => setGate(v === "" ? null : (v as Gate));
+
   const ranges = (
     <DateRange
       span={span}
@@ -149,42 +171,15 @@ export default function Report() {
       <div className="flex flex-col gap-4">
         {ranges}
 
-        <p className="text-sm text-muted">
-          Pick what you want to read. Numbers are for{" "}
-          <strong className="text-text">{rangeLabel}</strong>.
-        </p>
-
-        <div className="grid grid-cols-2 gap-3">
-          <button
-            type="button"
-            onClick={() => setGate("accepted")}
-            className="lift flex flex-col gap-1 rounded-card border-2 border-orange/60 bg-orange/5 p-4 text-start"
-          >
-            <span className="text-xs font-bold uppercase tracking-wide text-orange rtl:tracking-normal">
-              Accepted
-            </span>
-            <span className="num text-3xl font-bold leading-none">
-              {split.accepted.length}
-            </span>
-            <span className="num text-sm text-muted">{money(split.acceptedSum)}</span>
-            <span className="mt-1 text-xs text-muted">Paid &amp; delivered</span>
-          </button>
-
-          <button
-            type="button"
-            onClick={() => setGate("rejected")}
-            className="lift flex flex-col gap-1 rounded-card border-2 border-danger/50 bg-danger/5 p-4 text-start"
-          >
-            <span className="text-xs font-bold uppercase tracking-wide text-danger rtl:tracking-normal">
-              Rejected
-            </span>
-            <span className="num text-3xl font-bold leading-none">
-              {split.rejected.length}
-            </span>
-            <span className="num text-sm text-muted">{money(split.rejectedSum)}</span>
-            <span className="mt-1 text-xs text-muted">Cancelled orders</span>
-          </button>
-        </div>
+        {/* ⚠️ قائمةٌ منسدلة لا بطاقتان (طلبها) — والمبلغ في الخيار نفسه،
+            فتُقرأ الحصيلة قبل الفتح كما كانت تُقرأ على وجه البطاقة. */}
+        <Choose
+          label="Which orders?"
+          value=""
+          onChange={pick}
+          options={gateOpts}
+          note={`Numbers are for ${rangeLabel}.`}
+        />
 
         {split.waiting > 0 && (
           <p className="rounded-card border border-dashed border-line p-3 text-sm text-muted">
@@ -218,6 +213,15 @@ export default function Report() {
       </div>
 
       {ranges}
+
+      {/* ⚠️ وتبديل القائمة **من مكانها**: من فتحت «المقبولة» تنتقل إلى
+          «المرفوضة» بضغطتين لا برجوعٍ ثم اختيارٍ جديد. */}
+      <Choose
+        label="Which orders?"
+        value={gate ?? ""}
+        onChange={pick}
+        options={gateOpts.slice(1)}
+      />
 
       {board.length > 0 && (
         <section>
