@@ -52,7 +52,7 @@ export default function SiteEditor() {
     setTimeout(() => setSaved(false), 2500);
   }
 
-  if (!d) return <p className="p-4 text-center text-sm text-muted">Loading…</p>;
+  if (!d) return <p className="p-4 text-center text-sm text-muted">جارٍ التحميل…</p>;
 
   const field =
     "min-h-12 w-full rounded-card border border-line bg-bg px-3 outline-none focus:border-orange";
@@ -267,7 +267,7 @@ export default function SiteEditor() {
         disabled={busy}
         className="min-h-12 rounded-card bg-orange px-4 font-bold text-onaccent disabled:opacity-50"
       >
-        {busy ? "Saving…" : saved ? "Saved ✓" : "Save"}
+        {busy ? "يُحفظ…" : saved ? "تم الحفظ ✓" : "حفظ"}
       </button>
     </div>
   );

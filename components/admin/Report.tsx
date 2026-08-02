@@ -116,7 +116,7 @@ export default function Report() {
         onClick={() => void load()}
         className={`${chip} ms-auto border-line text-muted`}
       >
-        Refresh
+        تحديث
       </button>
     </div>
   );
@@ -129,7 +129,7 @@ export default function Report() {
     );
 
   if (orders === null)
-    return <p className="p-4 text-center text-sm text-muted">Loading…</p>;
+    return <p className="p-4 text-center text-sm text-muted">جارٍ التحميل…</p>;
 
   /* ── البوّابة: ماذا تريدين أن تري؟ ── */
   if (gate === null)
@@ -148,7 +148,7 @@ export default function Report() {
             className="lift flex flex-col gap-1 rounded-card border-2 border-orange/60 bg-orange/5 p-4 text-start"
           >
             <span className="text-[0.7rem] font-bold uppercase tracking-wide text-orange rtl:tracking-normal">
-              Accepted
+              مقبول
             </span>
             <span className="num text-3xl font-bold leading-none">
               {split.accepted.length}
@@ -163,7 +163,7 @@ export default function Report() {
             className="lift flex flex-col gap-1 rounded-card border-2 border-danger/50 bg-danger/5 p-4 text-start"
           >
             <span className="text-[0.7rem] font-bold uppercase tracking-wide text-danger rtl:tracking-normal">
-              Rejected
+              مرفوض
             </span>
             <span className="num text-3xl font-bold leading-none">
               {split.rejected.length}

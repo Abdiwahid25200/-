@@ -80,7 +80,7 @@ export default function ImagePicker({
               className="flex min-h-11 items-center gap-1.5 rounded-card border border-line px-3 text-sm text-muted hover:border-danger hover:text-danger"
             >
               <IconTrash className="size-4" />
-              Remove
+              إزالة
             </button>
           )}
         </div>

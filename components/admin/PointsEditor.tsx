@@ -50,7 +50,7 @@ export default function PointsEditor() {
     setTimeout(() => setSaved(false), 2500);
   }
 
-  if (!s) return <p className="p-4 text-center text-sm text-muted">Loading…</p>;
+  if (!s) return <p className="p-4 text-center text-sm text-muted">جارٍ التحميل…</p>;
 
   const field =
     "min-h-12 w-full rounded-card border border-line bg-bg px-3 font-medium";
@@ -263,7 +263,7 @@ export default function PointsEditor() {
         disabled={busy}
         className="min-h-12 rounded-card bg-orange px-4 font-bold text-onaccent disabled:opacity-50"
       >
-        {busy ? "Saving…" : saved ? "Saved ✓" : "Save"}
+        {busy ? "يُحفظ…" : saved ? "تم الحفظ ✓" : "حفظ"}
       </button>
 
       <p className="text-sm text-muted">

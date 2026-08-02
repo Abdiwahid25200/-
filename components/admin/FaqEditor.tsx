@@ -56,7 +56,7 @@ export default function FaqEditor() {
   if (!over)
     return (
       <p className="flex items-center gap-2 text-sm text-muted">
-        <IconSpinner className="size-4" /> Loading…
+        <IconSpinner className="size-4" /> جارٍ التحميل…
       </p>
     );
 
@@ -128,7 +128,7 @@ export default function FaqEditor() {
       >
         {busy && <IconSpinner className="size-4" />}
         {saved && <IconCheckCircle className="size-5" />}
-        Save
+        حفظ
       </button>
     </div>
   );

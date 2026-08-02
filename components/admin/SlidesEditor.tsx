@@ -102,7 +102,7 @@ export default function SlidesEditor() {
   if (loading)
     return (
       <p className="flex items-center gap-2 text-sm text-muted">
-        <IconSpinner className="size-4" /> Loading…
+        <IconSpinner className="size-4" /> جارٍ التحميل…
       </p>
     );
 
@@ -150,7 +150,7 @@ export default function SlidesEditor() {
           disabled={!newKey.trim()}
           className="min-h-12 rounded-card bg-orange px-4 font-bold text-onaccent disabled:opacity-50"
         >
-          Add slide
+          إضافة شريحة
         </button>
       </div>
 
@@ -266,7 +266,7 @@ export default function SlidesEditor() {
                   className="flex min-h-12 items-center justify-center gap-2 rounded-card bg-orange font-bold text-onaccent disabled:opacity-50"
                 >
                   {saving === s.key && <IconSpinner className="size-4" />}
-                  Save
+                  حفظ
                 </button>
 
                 {s.custom && (
@@ -275,7 +275,7 @@ export default function SlidesEditor() {
                     onClick={() => void remove(s.key, true)}
                     className="min-h-12 rounded-card border border-line font-bold text-danger"
                   >
-                    Delete this slide
+                    حذف هذه الشريحة
                   </button>
                 )}
               </div>

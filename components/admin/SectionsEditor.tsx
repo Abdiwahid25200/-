@@ -141,7 +141,7 @@ export default function SectionsEditor() {
   if (loading)
     return (
       <p className="flex items-center gap-2 text-sm text-muted">
-        <IconSpinner className="size-4" /> Loading…
+        <IconSpinner className="size-4" /> جارٍ التحميل…
       </p>
     );
 
@@ -355,7 +355,7 @@ export default function SectionsEditor() {
                   className="flex min-h-12 items-center justify-center gap-2 rounded-card bg-orange font-bold text-onaccent disabled:opacity-50"
                 >
                   {saving === s.key && <IconSpinner className="size-4" />}
-                  Save
+                  حفظ
                 </button>
 
                 {s.custom && (
@@ -364,7 +364,7 @@ export default function SectionsEditor() {
                     onClick={() => void remove(s.key)}
                     className="min-h-12 rounded-card border border-line font-bold text-danger"
                   >
-                    Delete this section
+                    حذف هذا القسم
                   </button>
                 )}
               </div>

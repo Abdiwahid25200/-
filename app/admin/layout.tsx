@@ -11,14 +11,18 @@ const plexArabic = IBM_Plex_Sans_Arabic({
 });
 
 export const metadata: Metadata = {
-  title: "Ramaan Admin",
+  title: "لوحة رمان",
   // لا تُفهرَس لوحة الإدارة في محرّكات البحث
   robots: { index: false, follow: false },
 };
 
 /**
- * لوحة الإدارة خارج `[locale]` عمداً: بالإنجليزية دائماً بطلب صاحبة
- * المتجر، وبلا هيدر ولا قائمة سفلية ولا دردشة — تلك للزبون لا لها.
+ * لوحة الإدارة خارج `[locale]` عمداً: بالعربية دائماً، وبلا هيدر ولا
+ * قائمة سفلية ولا دردشة — تلك للزبون لا لها.
+ *
+ * ⚠️ صنف `.adm` على `<body>` هو ما يحمل لغة «العدّاد» (ورقٌ فاتح وحبرٌ
+ *    أزرق وأخضرُ ربح): يُعيد تعريف قيم الألوان على الغلاف، فتتبعه كل
+ *    أدوات Tailwind داخله بلا تعديل ستّ عشرة شاشة.
  */
 export default function AdminLayout({
   children,
@@ -26,16 +30,16 @@ export default function AdminLayout({
   children: React.ReactNode;
 }) {
   return (
-    // اللوحة بالإنجليزية واتجاهها ltr بطلب صاحبة المشروع،
-    // وسوداء دائماً لا تتبع إعداد الجهاز فلا يتغيّر شكلها بين جهاز وآخر
+    // ⚠️ فاتحةٌ دائماً ولا تتبع إعداد الجهاز: أداةُ عملٍ تُقرأ في الشمس
+    //    وعلى الطاولة، ولوحةُ أرقامٍ تفقد نصف وضوحها على أرضٍ سوداء.
     <html
-      lang="en"
-      dir="ltr"
-      data-theme="dark"
+      lang="ar"
+      dir="rtl"
+      data-theme="light"
       className={plexArabic.variable}
       suppressHydrationWarning
     >
-      <body className="min-h-dvh bg-bg">
+      <body className="adm min-h-dvh">
         <AuthProvider>{children}</AuthProvider>
       </body>
     </html>

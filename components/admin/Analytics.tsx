@@ -26,10 +26,10 @@ import {
  */
 
 const RANGES = [
-  { v: 7, label: "7 days" },
-  { v: 30, label: "30 days" },
-  { v: 90, label: "90 days" },
-  { v: 0, label: "All time" },
+  { v: 7, label: "٧ أيام" },
+  { v: 30, label: "٣٠ يوماً" },
+  { v: 90, label: "٩٠ يوماً" },
+  { v: 0, label: "الكلّ" },
 ] as const;
 
 const money = (n: number) => `$${(Math.round(n * 100) / 100).toFixed(2)}`;
@@ -136,26 +136,26 @@ export default function Analytics() {
           onClick={() => void load()}
           className={`${chip} ms-auto border-line text-muted`}
         >
-          Refresh
+          تحديث
         </button>
       </div>
 
       {err && (
         <p className="rounded-card border border-danger/40 bg-danger/5 p-3 text-sm">
-          Could not read the data. Check your access, then press Refresh.
+          تعذّرت قراءة البيانات. تحقّقي من صلاحيتك ثم اضغطي تحديث.
         </p>
       )}
 
       {orders === null ? (
-        <p className="p-4 text-center text-sm text-muted">Loading…</p>
+        <p className="p-4 text-center text-sm text-muted">جارٍ التحميل…</p>
       ) : (
         <>
           {/* الثلاثة الكبار: دخل · تكلفة · ربح */}
           <div className="grid grid-cols-3 gap-2">
-            <Box label="Revenue" value={money(s.revenue)} />
-            <Box label="Cost" value={money(s.cost)} muted />
+            <Box label="الدخل" value={money(s.revenue)} />
+            <Box label="التكلفة" value={money(s.cost)} muted />
             <Box
-              label="Profit"
+              label="الربح"
               value={money(s.profit)}
               tone={s.profit >= 0 ? "good" : "bad"}
             />
@@ -170,24 +170,24 @@ export default function Analytics() {
           )}
 
           <div className="grid grid-cols-2 gap-2">
-            <Box label="Orders" value={String(s.count)} small />
-            <Box label="Paid & delivered" value={String(s.paid)} small />
-            <Box label="Waiting for you" value={String(s.pending)} small />
-            <Box label="Cancelled" value={String(s.cancelled)} small />
-            <Box label="Average order" value={money(s.avg)} small />
-            <Box label="Given as discount" value={money(s.discount)} small />
+            <Box label="الطلبات" value={String(s.count)} small />
+            <Box label="مدفوع ومُسلَّم" value={String(s.paid)} small />
+            <Box label="ينتظرك" value={String(s.pending)} small />
+            <Box label="مُلغى" value={String(s.cancelled)} small />
+            <Box label="متوسّط الطلب" value={money(s.avg)} small />
+            <Box label="خُصم بالنقاط" value={money(s.discount)} small />
             <Box
-              label="Points given"
+              label="نقاط مُنحت"
               value={`${s.pointsGiven} · ${money(pointsToUsd(s.pointsGiven))}`}
               small
             />
           </div>
 
           <section>
-            <h3 className="mb-2 font-bold">Best sellers</h3>
+            <h3 className="mb-2 font-bold">الأكثر مبيعاً</h3>
             {s.top.length === 0 ? (
               <p className="rounded-card border border-dashed border-line p-5 text-center text-sm text-muted">
-                No paid orders in this period yet.
+                لا طلبات مدفوعة في هذه المدّة.
               </p>
             ) : (
               <ul className="flex flex-col gap-1.5">
@@ -266,9 +266,9 @@ function TrustBarBox() {
       </p>
 
       <div className="mt-3 grid grid-cols-2 gap-2">
-        <Box label="Delivered" value={String(done)} small />
+        <Box label="سُلّم" value={String(done)} small />
         <Box
-          label="Average delivery"
+          label="متوسّط التسليم"
           value={avg > 0 ? `${avg} min` : "—"}
           small
         />
@@ -291,7 +291,7 @@ function TrustBarBox() {
         disabled={busy}
         className="mt-3 min-h-11 rounded-card border border-line px-4 text-sm font-bold disabled:opacity-50"
       >
-        {busy ? "Counting…" : "Recount from old orders"}
+        {busy ? "جارٍ العدّ…" : "أعيدي الحساب من الطلبات القديمة"}
       </button>
     </section>
   );

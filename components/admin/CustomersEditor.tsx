@@ -79,7 +79,7 @@ export default function CustomersEditor() {
           onClick={() => void load()}
           className="min-h-12 shrink-0 rounded-card border border-line px-3 font-bold text-muted"
         >
-          Refresh
+          تحديث
         </button>
       </div>
 
@@ -96,7 +96,7 @@ export default function CustomersEditor() {
       )}
 
       {rows === null ? (
-        <p className="p-4 text-center text-sm text-muted">Loading…</p>
+        <p className="p-4 text-center text-sm text-muted">جارٍ التحميل…</p>
       ) : shown.length === 0 ? (
         <p className="rounded-card border border-dashed border-line p-6 text-center text-sm text-muted">
           {q ? "Nobody matches that search." : "No customers yet."}
@@ -154,7 +154,7 @@ export default function CustomersEditor() {
                       rel="noopener"
                       className="min-h-11 rounded-card bg-orange px-3 py-2.5 text-center font-bold text-onaccent"
                     >
-                      WhatsApp
+                      واتساب
                     </a>
                   )}
 
@@ -175,7 +175,7 @@ export default function CustomersEditor() {
                       onClick={() => void give(c, 1)}
                       className="min-h-12 shrink-0 rounded-card border border-line px-4 font-bold disabled:opacity-50"
                     >
-                      Give
+                      منح
                     </button>
                     <button
                       type="button"
@@ -183,7 +183,7 @@ export default function CustomersEditor() {
                       onClick={() => void give(c, -1)}
                       className="min-h-12 shrink-0 rounded-card border border-line px-4 font-bold text-danger disabled:opacity-50"
                     >
-                      Take
+                      استلام
                     </button>
                   </div>
                 </div>

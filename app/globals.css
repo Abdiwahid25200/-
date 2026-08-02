@@ -141,6 +141,72 @@ body {
   outline-offset: 2px;
 }
 
+/* ═══════════════════════════════════════════════════════════
+   لوحة الإدارة — لغة «العدّاد» (اختيار صاحبة المتجر)
+   ───────────────────────────────────────────────────────────
+   متجرها مالٌ يتحرّك، فاللوحة تُقرأ كتطبيق بنك: ورقٌ فاتح، حبرٌ
+   أزرق عميق، وأخضرُ للربح. والقيم تُعاد تعريفها **على الغلاف
+   وحده** فتتبعها كل أدوات Tailwind داخله (`bg-surface`،
+   `text-orange`، `border-line`…) بلا لمس ستّ عشرة شاشة.
+
+   ⚠️ فاتحةٌ في الوضعين عمداً: أداةُ عملٍ تُقرأ في الشمس وعلى
+      الطاولة، ولوحة الأرقام تفقد نصف وضوحها على أرضٍ سوداء.
+   ═══════════════════════════════════════════════════════════ */
+.adm {
+  --bg: #f6f7fb;
+  --surface: #ffffff;
+  --surface-2: #eef1f6;
+  --line: #e4e7ec;
+  --text: #101828;
+  --muted: #667085;
+  --accent: #123262;      /* الحبر — الأزرار والتحديد */
+  --accent-2: #b54708;    /* الانتباه */
+  --accent-3: #0f7a4d;    /* الربح */
+  --deep: #0b1c38;
+  --danger: #b42318;
+  --on-accent: #ffffff;
+
+  /* ⚠️ وتُعاد هنا بأسمائها في Tailwind أيضاً — وهذا **لازم**:
+     المُصرِّف يستبدل `var(--accent)` داخل `--color-orange` بقيمتها
+     عند `:root` وقتَ البناء، فتغييرُ `--accent` وحده لا يصل إلى
+     `bg-orange`. جرّبتُه فبقي الزرّ أخضر مائياً. */
+  --color-bg: #f6f7fb;
+  --color-surface: #ffffff;
+  --color-surface2: #eef1f6;
+  --color-line: #e4e7ec;
+  --color-text: #101828;
+  --color-muted: #667085;
+  --color-orange: #123262;
+  --color-yellow: #b54708;
+  --color-gold: #b54708;
+  --color-navy: #0b1c38;
+  --color-success: #0f7a4d;
+  --color-danger: #b42318;
+  --color-onaccent: #ffffff;
+
+  color-scheme: light;
+  background: var(--bg);
+  color: var(--text);
+}
+
+/* بطاقة الرقم الكبير — الحبر مصمتاً، فأوّل ما تقع عليه العين */
+.adm-hero {
+  background: var(--accent);
+  color: #fff;
+  border-radius: var(--radius-card);
+  padding: 1rem 1.1rem;
+}
+
+/* شريط التبويبات الأربعة — يجلس فوق حافة الشاشة ولا يغطّي المحتوى */
+.adm-nav {
+  position: sticky;
+  bottom: 0;
+  background: color-mix(in srgb, var(--surface) 92%, transparent);
+  backdrop-filter: blur(12px);
+  border-top: 1px solid var(--line);
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
 /* مساحة إضافية أسفل الصفحة عندما يظهر شريط تأكيد الطلب */
 body.has-buybar {
   padding-bottom: calc(10.75rem + env(safe-area-inset-bottom));
