@@ -201,6 +201,8 @@ export async function setOrderStatus(
         };
 
       let delta = 0;
+      /** مُنحت هديّة الترحيب في هذه المعاملة؟ تُختم مع الرصيد */
+      let gaveWelcome = false;
       let nextAwarded = awarded;
       let nextSpent = spent;
       const rows: { delta: number; reason: string; id?: string }[] = [];
@@ -228,6 +230,17 @@ export async function setOrderStatus(
                 نقاطاً جديدة، وإلا صنع أحدُهم حساباتٍ تتبادل النقاط. */
         const inviter = String(u.referredBy ?? "");
         const payable = Number(o.total) || 0;
+
+        /* ── هديّة الترحيب ──
+           ⚠️ **مرّة واحدة في العمر، وبعد طلبٍ بمالٍ حقيقي**: `welcomePaid`
+              يُختم مع الرصيد في نفس المعاملة، فلا تُمنح مرّتين ولو
+              أُلغي الطلب ثم أُعيد. وطلبٌ دُفع كلّه بالنقاط لا يستحقّها،
+              وإلا صنع أحدُهم حساباتٍ تُولّد النقاط من فراغ. */
+        if (settings.welcome > 0 && u.welcomePaid !== true && payable > 0) {
+          rows.push({ delta: settings.welcome, reason: "welcome", id: "welcome" });
+          delta += settings.welcome;
+          gaveWelcome = true;
+        }
 
         if (
           settings.refOn &&
@@ -296,7 +309,11 @@ export async function setOrderStatus(
         // `refPaid` يُختم مع الرصيد: لا جائزة دعوةٍ ثانية لنفس الزبون
         tx.set(
           uRef,
-          refRef ? { points: balance + delta, refPaid: true } : { points: balance + delta },
+          {
+            points: balance + delta,
+            ...(refRef ? { refPaid: true } : {}),
+            ...(gaveWelcome ? { welcomePaid: true } : {}),
+          },
           { merge: true },
         );
         for (const r of rows) {

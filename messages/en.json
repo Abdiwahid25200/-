@@ -383,7 +383,9 @@
       "sell": "Sold for cash",
       "manual": "From the store"
     },
-    "history": "Recent activity"
+    "history": "Recent activity",
+    "welcomeGift": "{n} {brand} points as a welcome gift",
+    "welcomeWhen": "Added to your balance with your first order"
   },
   "accountPage": {
     "title": "My account",
@@ -438,7 +440,8 @@
       "handedOver": "Handed over",
       "shipped": "Delivered"
     },
-    "earlier": "Earlier orders"
+    "earlier": "Earlier orders",
+    "nextTitle": "What happens after you pay?"
   },
   "tiktokFlow": {
     "title": "Contact details",
@@ -724,5 +727,14 @@
     "soonPack": "This pack is not available right now",
     "payingFor": "Paying for {name}",
     "payingForAnon": "Paying on someone's behalf"
+  },
+  "share": {
+    "title": "Share your top-up",
+    "note": "A ready-made image for your status — so friends know where you top up.",
+    "took": "in {n} minutes",
+    "alsoYou": "Top up too",
+    "send": "Share on WhatsApp",
+    "save": "Save image",
+    "open": "Share"
   }
 }

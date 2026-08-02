@@ -114,6 +114,14 @@ export type PointsSettings = {
   refInvitee: number;
   /** أقصى عدد دعواتٍ تُكافَأ للشخص الواحد — صفرٌ يعني بلا حدّ */
   refCap: number;
+
+  /* ── هديّة الترحيب ──
+     ⚠️ **بعد أوّل طلبٍ بمالٍ حقيقي، لا عند التسجيل** — بنفس منطق الدعوة
+        أعلاه وللسبب نفسه: من سجّل ولم يشترِ لم يكلّفك شيئاً، ومن اشترى
+        مُوِّلت هديّتُه من ربح بيعةٍ ما كانت لتوجد. والتسجيل عند فتحها
+        يصير **مربحاً** لا عائقاً: يراها الزبون في `/login` قبل أن يبدأ.
+     ⚠️ وصفرٌ افتراضاً — لا شيء يتغيّر حتى تفتحيها بيدك. */
+  welcome: number;
 };
 
 export const DEFAULT_POINTS: PointsSettings = {
@@ -129,6 +137,7 @@ export const DEFAULT_POINTS: PointsSettings = {
   refInviter: 10,
   refInvitee: 10,
   refCap: 50,
+  welcome: 0,
 };
 
 /**
@@ -164,6 +173,10 @@ export async function readPointsSettings(): Promise<PointsSettings> {
         v.refCap === undefined
           ? DEFAULT_POINTS.refCap
           : Math.max(0, Math.round(Number(v.refCap)) || 0),
+      welcome:
+        v.welcome === undefined
+          ? DEFAULT_POINTS.welcome
+          : Math.max(0, Math.round(Number(v.welcome)) || 0),
     };
   } catch {
     return DEFAULT_POINTS;

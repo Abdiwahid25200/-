@@ -76,6 +76,7 @@ export default function BuyFlow({
   const tc = useTranslations("common");
   const tClosed = useTranslations("closed");
   const tg = useTranslations("gift");
+  const tn = useTranslations("accountPage");
   const locale = useLocale();
   const waNum = useWhatsApp();
 
@@ -418,6 +419,15 @@ export default function BuyFlow({
                 redeem={redeem}
               />
             )}
+
+            {/* **ماذا يحدث بعد الدفع؟** — جوابٌ يخصّ هذا القسم، **قبل**
+                الدفع لا بعده. كان يُقرأ في «طلباتي» وحدها، أي بعد أن
+                يدفع؛ والخوف يسبق الدفع لا يتبعه. وفي الحسابات خاصّةً
+                يقتل هذا السطرُ ترددّاً كاملاً. */}
+            <p className="rounded-card border border-dashed border-line bg-surface2 px-4 py-3 text-sm text-muted">
+              <strong className="mb-0.5 block text-text">{tn("nextTitle")}</strong>
+              {tn.has(`next.${kind}`) ? tn(`next.${kind}`) : tn("next.elec")}
+            </p>
 
             {/* 🎁 البابُ الثاني — لمن اختار باقته ولا يملك بها دفعاً.
                 ⚠️ **بعد وسائل الدفع لا قبلها**: من معه EVC يدفع ويمضي،

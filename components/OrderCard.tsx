@@ -10,6 +10,7 @@ import { cancelMyOrder, canCancel } from "@/lib/orders";
 import { doneWord } from "@/lib/deliver";
 import { fmt } from "@/lib/format";
 import { useWhatsApp, waLink } from "@/lib/useWhatsApp";
+import ShareReceipt from "./ShareReceipt";
 import type { SavedOrder } from "@/lib/orders";
 import {
   IconBall,
@@ -17,6 +18,7 @@ import {
   IconCheckCircle,
   IconDevice,
   IconMusic,
+  IconShare,
   IconSpinner,
   IconUser,
   IconWhatsApp,
@@ -71,6 +73,7 @@ export default function OrderCard({
   const [reason, setReason] = useState("");
   const [busy, setBusy] = useState(false);
   const [failed, setFailed] = useState(false);
+  const [sharing, setSharing] = useState(false);
 
   async function cancel() {
     setBusy(true);
@@ -83,6 +86,7 @@ export default function OrderCard({
   }
 
   const t = useTranslations("accountPage");
+  const ts = useTranslations("share");
   const waNum = useWhatsApp();
   const tp = useTranslations("pages");
   const locale = useLocale();
@@ -110,6 +114,14 @@ export default function OrderCard({
       alive = false;
     };
   }, [page, isPoints]);
+
+  /** كم استغرق التسليم — للإيصال المشارَك. صفرٌ ⇒ لا يُذكر وقتٌ لا نعرفه */
+  const tookMinutes = (() => {
+    const from = order.createdAt?.getTime?.() ?? 0;
+    const to = order.updatedAt?.getTime?.() ?? 0;
+    const m = from && to ? Math.round((to - from) / 60_000) : 0;
+    return m > 0 && m < 60 * 24 ? m : 0;
+  })();
 
   const cancelled = order.status === "cancelled";
   const at = STEPS.indexOf(order.status as (typeof STEPS)[number]);
@@ -224,6 +236,38 @@ export default function OrderCard({
           <span className="min-w-0 break-words">{order.account}</span>
         </p>
       )}
+
+      {/* 📸 وصلت شحنته ⇒ **الآن** لحظة الفخر، فيُعرض ما يُشارَك.
+          ⚠️ ومطويّاً خلف زرّ: البطاقة تتكرّر بعدد طلباته، ولو فُتحت كلّها
+             لصارت صفحةُ الطلبات معرضَ صور. */}
+      {done &&
+        (sharing ? (
+          <div className="mt-3.5 flex flex-col gap-3 border-t border-line pt-3.5">
+            <span className="text-sm font-bold">{ts("title")}</span>
+            <span className="-mt-2 text-xs text-muted">{ts("note")}</span>
+            <ShareReceipt
+              kind={order.kind}
+              title={order.items?.[0]?.title ?? ""}
+              minutes={tookMinutes}
+            />
+            <button
+              type="button"
+              onClick={() => setSharing(false)}
+              className="min-h-11 text-sm font-bold text-muted"
+            >
+              {t("cancelBack")}
+            </button>
+          </div>
+        ) : (
+          <button
+            type="button"
+            onClick={() => setSharing(true)}
+            className="lift mt-3 flex min-h-11 w-full items-center justify-center gap-2 rounded-card border border-yellow text-sm font-bold text-yellow"
+          >
+            <IconShare className="size-4.5" />
+            {ts("open")}
+          </button>
+        ))}
 
       {/* "ماذا يحدث الآن؟" — جواب يخصّ هذا القسم لا جملة عامّة */}
       {!cancelled && !done && (

@@ -34,6 +34,7 @@ const payloadOf = (s: PointsSettings): Record<string, unknown> => ({
   refInviter: Math.max(0, Math.round(Number(s.refInviter) || 0)),
   refInvitee: Math.max(0, Math.round(Number(s.refInvitee) || 0)),
   refCap: Math.max(0, Math.round(Number(s.refCap) || 0)),
+  welcome: Math.max(0, Math.round(Number(s.welcome) || 0)),
 });
 
 export default function PointsEditor() {
@@ -248,6 +249,26 @@ export default function PointsEditor() {
           />
         </label>
       </div>
+
+      <label className="flex flex-col gap-1.5">
+        <span className="font-bold">Welcome gift</span>
+        <span className="text-sm text-muted">
+          Points a brand-new customer earns on their first paid order — not at
+          sign-up. Someone who signs up and never buys costs you nothing, and a
+          buyer&rsquo;s gift is funded by a sale that would not have existed.
+          Shown on the sign-in screen so registering pays off.{" "}
+          <strong className="num">0</strong> turns it off.
+        </span>
+        <input
+          type="number"
+          min={0}
+          step={1}
+          value={s.welcome}
+          onChange={(e) => setS({ ...s, welcome: Number(e.target.value) })}
+          dir="ltr"
+          className={`${field} num text-start`}
+        />
+      </label>
 
       <p className="rounded-card border border-dashed border-line p-3 text-sm text-muted">
         Each successful invite costs you{" "}

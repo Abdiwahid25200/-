@@ -383,7 +383,9 @@
       "sell": "Waxaad ku iibisay lacag",
       "manual": "Dukaanka"
     },
-    "history": "Dhaqdhaqaaqii u dambeeyay"
+    "history": "Dhaqdhaqaaqii u dambeeyay",
+    "welcomeGift": "{n} dhibcood oo {brand} hadiyad ah",
+    "welcomeWhen": "Waxaa lagu darayaa dalabkaaga koowaad"
   },
   "accountPage": {
     "title": "Akoonkayga",
@@ -438,7 +440,8 @@
       "handedOver": "La gudbiyay",
       "shipped": "La gaarsiiyay"
     },
-    "earlier": "Dalabyadii hore"
+    "earlier": "Dalabyadii hore",
+    "nextTitle": "Maxaa dhacaya markaad bixiso?"
   },
   "tiktokFlow": {
     "title": "Faahfaahinta xiriirka",
@@ -724,5 +727,14 @@
     "soonPack": "Xirmadani hadda ma diyaarsana",
     "payingFor": "Waxaad u bixinaysaa {name}",
     "payingForAnon": "Dalab qof kale loo bixinayo"
+  },
+  "share": {
+    "title": "La wadaag buuxintaada",
+    "note": "Sawir diyaar ah oo status-kaaga ah — saaxiibbadaa way ogaanayaan halka aad ka buuxsato.",
+    "took": "{n} daqiiqo gudahood",
+    "alsoYou": "Adiguna buuxso",
+    "send": "Ku wadaag WhatsApp",
+    "save": "Kaydi sawirka",
+    "open": "Wadaag"
   }
 }

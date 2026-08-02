@@ -14,9 +14,11 @@ import { applyRefCode, cleanCode } from "@/lib/referrals";
 import {
   IconArrow,
   IconCheckCircle,
+  IconGift,
   IconGoogle,
   IconShieldCheck,
 } from "@/components/icons";
+import { DEFAULT_POINTS, readPointsSettings } from "@/lib/points";
 import Logo from "@/components/Logo";
 
 /**
@@ -39,6 +41,25 @@ export default function LoginFlow() {
   const [code, setCode] = useState("");
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState<"none" | "signin" | "save">("none");
+
+  /* 🎁 هديّة الترحيب — تُقرأ من إعداداتك، وصفرٌ يعني لا تُذكر أصلاً.
+     ⚠️ وتُوعَد بما تُنفَّذ به بالضبط: «على أوّل طلب» لا «عند التسجيل» —
+        فمن قرأ الوعد ولم يجده في رصيده بعد التسجيل فقد ثقته مرّة واحدة. */
+  const [welcome, setWelcome] = useState(DEFAULT_POINTS.welcome);
+  const [brand, setBrand] = useState(DEFAULT_POINTS.brand);
+  useEffect(() => {
+    let alive = true;
+    void readPointsSettings()
+      .then((p) => {
+        if (!alive) return;
+        setWelcome(p.on ? p.welcome : 0);
+        setBrand(p.brand);
+      })
+      .catch(() => {});
+    return () => {
+      alive = false;
+    };
+  }, []);
 
   // بعد معرفة حالة الدخول نقرّر: هل نطلب جوجل أم نطلب الهاتف؟
   useEffect(() => {
@@ -123,11 +144,28 @@ export default function LoginFlow() {
           {t("subtitle")}
         </p>
 
+        {welcome > 0 && (
+          <p className="mt-5 flex items-center gap-3 rounded-card border-2 border-yellow bg-yellow/8 p-3">
+            <span
+              aria-hidden
+              className="flex size-10 shrink-0 items-center justify-center rounded-card bg-yellow/15 text-yellow"
+            >
+              <IconGift className="size-5" />
+            </span>
+            <span className="min-w-0 flex-1 leading-tight">
+              <span className="num block font-bold">
+                {tp("welcomeGift", { n: welcome, brand })}
+              </span>
+              <span className="block text-xs text-muted">{tp("welcomeWhen")}</span>
+            </span>
+          </p>
+        )}
+
         <button
           type="button"
           onClick={google}
           disabled={busy}
-          className="group mt-6 w-full overflow-hidden rounded-card border border-line bg-bg text-start transition-colors hover:border-orange disabled:opacity-60"
+          className="group mt-5 w-full overflow-hidden rounded-card border border-line bg-bg text-start transition-colors hover:border-orange disabled:opacity-60"
         >
           <span className="flex items-center gap-3 p-3">
             <span className="flex size-12 shrink-0 items-center justify-center rounded-card border border-line bg-surface">

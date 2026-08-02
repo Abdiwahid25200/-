@@ -60,6 +60,8 @@ export type SavedOrder = NewOrder & {
   email: string;
   status: "pending" | "paid" | "done" | "cancelled";
   createdAt: Date | null;
+  /** آخر تغيير حالة — به يُعرف كم استغرق التسليم */
+  updatedAt?: Date | null;
   /** سبب الإلغاء — إلزاميّ حين يُلغي الزبون بنفسه */
   cancelReason?: string;
   /** من ألغى: `customer` أم الإدارة */
@@ -183,6 +185,7 @@ export async function myOrders(user: User | null): Promise<SavedOrder[]> {
         id: d.id,
         ...v,
         createdAt: v.createdAt?.toDate?.() ?? null,
+        updatedAt: v.updatedAt?.toDate?.() ?? v.statusAt?.toDate?.() ?? null,
       } as SavedOrder;
     })
     // الأحدث أولاً · والطلب الذي لم يصله وقت الخادم بعد هو أحدثها جميعاً
