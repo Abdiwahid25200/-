@@ -197,6 +197,85 @@ body {
   padding: 1rem 1.1rem;
 }
 
+/* ═══════════════════════════════════════════════════════════
+   الدردشة — بشكل واتساب (طلب صاحبة المتجر)
+   الزبون يكتب لك من واتساب كل يوم، فأيّ شكلٍ آخر يحتاج تعلّماً.
+   ═══════════════════════════════════════════════════════════ */
+
+/* أرضُ المحادثة: ورقٌ دافئ خفيف النقش، فتبرز الفقاعات فوقه */
+.chat-ground {
+  background-color: #eae6df;
+  background-image:
+    radial-gradient(circle at 20% 30%, rgba(255, 255, 255, 0.55) 0 2px, transparent 2px),
+    radial-gradient(circle at 70% 70%, rgba(255, 255, 255, 0.45) 0 2px, transparent 2px);
+  background-size: 46px 46px, 62px 62px;
+}
+
+/* الفقاعة وذيلها — الذيل مثلّثٌ من الحدود، فلا صورة ولا SVG */
+.bub {
+  position: relative;
+  max-width: 82%;
+  border-radius: 12px;
+  padding: 6px 10px 4px;
+  font-size: 14px;
+  line-height: 1.45;
+  box-shadow: 0 1px 1px rgba(11, 20, 26, 0.13);
+  overflow-wrap: anywhere;
+}
+
+/* ⚠️ الذيل **لأوّل فقاعة في المجموعة وحدها** — كما في واتساب.
+   ذيلٌ لكل رسالة يصنع أسناناً على حافة الشاشة تبدو عطلاً. */
+.bub-tail::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  width: 0;
+  height: 0;
+  border: 8px solid transparent;
+}
+
+.bub-them { background: #fff; }
+.bub-them.bub-tail { border-start-start-radius: 0; }
+.bub-them.bub-tail::after {
+  inset-inline-start: -8px;
+  border-top-color: #fff;
+  border-inline-start-color: #fff;
+  border-inline-end: 0;
+  border-bottom: 0;
+}
+
+.bub-me { background: #d6f5e3; }
+.bub-me.bub-tail { border-start-end-radius: 0; }
+.bub-me.bub-tail::after {
+  inset-inline-end: -8px;
+  border-top-color: #d6f5e3;
+  border-inline-end-color: #d6f5e3;
+  border-inline-start: 0;
+  border-bottom: 0;
+}
+
+/* الوقت داخل الفقاعة — يجلس في زاويتها كما اعتاد الناس */
+.bub-time {
+  float: inline-end;
+  margin-inline-start: 8px;
+  margin-top: 4px;
+  font-size: 11px;
+  color: #667781;
+  line-height: 1;
+}
+
+/* فاصل التاريخ — قرصٌ في وسط المحادثة */
+.chat-day {
+  align-self: center;
+  background: #fff;
+  color: #54656f;
+  font-size: 11.5px;
+  font-weight: 600;
+  padding: 4px 12px;
+  border-radius: 999px;
+  box-shadow: 0 1px 1px rgba(11, 20, 26, 0.13);
+}
+
 /* شريط التبويبات الأربعة — يجلس فوق حافة الشاشة ولا يغطّي المحتوى */
 .adm-nav {
   position: sticky;

@@ -916,3 +916,26 @@ export function IconReceive({ className = "" }: IconProps) {
     </svg>
   );
 }
+
+/** الإرسال في الدردشة — طائرة ورقية، كما اعتادها الناس */
+export function IconPaperPlane({ className = "" }: IconProps) {
+  return (
+    <svg viewBox="0 0 24 24" strokeWidth="1.8" className={`${base} ${className}`} aria-hidden>
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        d="M21 3 10.5 13.5M21 3l-6.8 18-3.7-7.5L3 9.8 21 3Z"
+      />
+    </svg>
+  );
+}
+
+/** صحّان — «وصلت وقُرئت» في قوائم الدردشة */
+export function IconChecks({ className = "" }: IconProps) {
+  return (
+    <svg viewBox="0 0 24 24" strokeWidth="2" className={`${base} ${className}`} aria-hidden>
+      <path strokeLinecap="round" strokeLinejoin="round" d="m1.5 12.5 4 4 8-9" />
+      <path strokeLinecap="round" strokeLinejoin="round" d="m10 16.5 1 1 8-9" />
+    </svg>
+  );
+}
