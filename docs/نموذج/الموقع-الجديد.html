@@ -1,0 +1,1118 @@
+<title>رَمَعان — الموقع الجديد</title>
+
+<!-- ══════════════════════════════════════════════════════════════
+     الموقع الجديد — مبنيّ من النموذج نفسه:
+     ألوانه ومقاساته وأصنافه منقولة حرفاً بحرف من ورقة النموذج،
+     لكنّها هنا بالمقاس الحقيقي (٣٩٠px) لا مصغَّرة داخل إطار جوّال،
+     والشاشات تُفتح بالضغط بدل أن تُعرض جنباً إلى جنب.
+     ══════════════════════════════════════════════════════════════ -->
+
+<style>
+/* ── ألوان الشاشة — من النموذج حرفاً بحرف ─────────────────── */
+:root{
+  --s-bg:#eff7f7; --s-sur:#ffffff; --s-sur2:#e9f4f4; --s-line:#cde4e4;
+  --s-ink:#062730; --s-mut:#4d7580; --s-acc:#067a6e; --s-gold:#a56200;
+  --s-on:#ffffff; --s-dan:#c62633; --s-ok:#1c7a3a;
+  --s-wa:#25d366;
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){
+  :root{
+    --s-bg:#04121a; --s-sur:#0b2230; --s-sur2:#113044; --s-line:#1c4457;
+    --s-ink:#ecf6f5; --s-mut:#8fb3be; --s-acc:#4fe3d0; --s-gold:#ffc65c;
+    --s-on:#04121a; --s-dan:#ff6b73; --s-ok:#7be38b;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="light"]{
+  --s-bg:#eff7f7; --s-sur:#ffffff; --s-sur2:#e9f4f4; --s-line:#cde4e4;
+  --s-ink:#062730; --s-mut:#4d7580; --s-acc:#067a6e; --s-gold:#a56200;
+  --s-on:#ffffff; --s-dan:#c62633; --s-ok:#1c7a3a;
+  color-scheme:light;
+}
+:root[data-theme="dark"]{
+  --s-bg:#04121a; --s-sur:#0b2230; --s-sur2:#113044; --s-line:#1c4457;
+  --s-ink:#ecf6f5; --s-mut:#8fb3be; --s-acc:#4fe3d0; --s-gold:#ffc65c;
+  --s-on:#04121a; --s-dan:#ff6b73; --s-ok:#7be38b;
+  color-scheme:dark;
+}
+
+*{box-sizing:border-box}
+html,body{background:var(--s-bg)}
+
+/* ── الإطار: مسرحٌ بمقاس الجوّال ─────────────────────────────
+   النموذج مبنيّ على ٣٩٠×٨٤٤ — نفس المقاس هنا بلا تصغير.
+   كل شاشة عمودٌ مرن: الترويسة ثابتة، والجسم وحده يمرّ، والقائمة
+   السفلية آخر عنصر في العمود — فلا تعوم ولا تغطّي شيئاً. */
+.app{
+  direction:rtl;
+  width:100%; max-width:430px; height:844px; margin:0 auto;
+  position:relative; overflow:hidden;
+  background:var(--s-bg); color:var(--s-ink);
+  font-family:-apple-system,"SF Arabic","IBM Plex Sans Arabic","Segoe UI",system-ui,"Noto Sans Arabic",sans-serif;
+  font-size:15px; line-height:1.6;
+}
+@media (min-width:471px){
+  body{background:var(--s-sur2);padding:22px 0}
+  .app{border-radius:28px;box-shadow:0 0 0 1px var(--s-line), 0 30px 70px -34px rgba(6,39,48,.45)}
+}
+
+.scr{position:absolute;inset:0;display:none;flex-direction:column}
+.scr.on{display:flex}
+@media (prefers-reduced-motion: no-preference){
+  .scr.on{animation:fade .22s ease}
+  @keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+}
+
+.mono,.num{
+  font-family:ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+  font-variant-numeric:tabular-nums;
+  direction:ltr; unicode-bidi:isolate;
+}
+
+/* كل ما يُضغط زرٌّ حقيقي — لا نصٌّ يتظاهر */
+button{font:inherit;color:inherit;background:none;border:0;margin:0;padding:0;text-align:inherit;cursor:pointer}
+:focus-visible{outline:2px solid var(--s-acc);outline-offset:2px;border-radius:8px}
+
+/* ── ترويسة الشاشة ─────────────────────────────────────────── */
+.hdr{display:flex;align-items:center;gap:10px;padding:16px 16px 12px}
+.hdr .mk{width:34px;height:34px;color:var(--s-acc);flex:none}
+.hdr .mk svg{width:34px;height:34px}
+.hdr .bn{flex:1;min-width:0;line-height:1.2}
+.hdr .bn b{display:block;font-size:17px;font-weight:800}
+.hdr .bn i{display:block;font-size:11px;color:var(--s-mut);font-style:normal}
+.hdr .hi{display:flex;gap:6px;color:var(--s-ink)}
+.hdr .hi button{
+  width:38px;height:38px;border-radius:12px;display:grid;place-items:center;position:relative;
+}
+.hdr .hi svg{width:21px;height:21px}
+.dot{
+  position:absolute;top:6px;left:6px;min-width:15px;height:15px;padding:0 3px;
+  border-radius:999px;background:var(--s-acc);color:var(--s-on);
+  font-size:9.5px;font-weight:800;display:grid;place-items:center;
+  font-family:ui-monospace,Menlo,monospace;
+}
+
+/* شريط حالة المتجر */
+.openbar{
+  display:flex;align-items:center;gap:7px;margin:0 16px;
+  padding:7px 11px;border-radius:12px;
+  background:color-mix(in srgb,var(--s-ok) 12%,transparent);
+  color:var(--s-ok);font-size:12px;font-weight:700;
+}
+.beat{width:7px;height:7px;border-radius:50%;background:currentColor;flex:none;
+  box-shadow:0 0 0 0 currentColor;animation:beat 2.4s infinite}
+@keyframes beat{
+  0%{box-shadow:0 0 0 0 color-mix(in srgb,currentColor 55%,transparent)}
+  70%{box-shadow:0 0 0 7px transparent}
+  100%{box-shadow:0 0 0 0 transparent}
+}
+
+/* صفّ الرجوع */
+.back{padding:14px 16px 6px;display:flex;align-items:center;gap:7px;color:var(--s-mut);font-size:13px;width:fit-content}
+.back svg{width:15px;height:15px;transform:rotate(180deg)}
+
+.body{flex:1;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch;
+  padding:0 16px 22px;display:flex;flex-direction:column;gap:22px}
+.body.tight{gap:14px}
+
+/* ── التذكرة — بطل الرئيسية ────────────────────────────────── */
+.tik{position:relative;border-radius:18px;color:#fff;overflow:visible}
+.tik .in{
+  border-radius:18px;overflow:hidden;position:relative;
+  background:radial-gradient(120% 120% at 88% 0%,#0e8a7c 0,transparent 60%),
+             linear-gradient(155deg,#078578 0,#05655c 55%,#044f48 100%);
+}
+.tik .ring{position:absolute;border:1px solid rgba(255,255,255,.1);border-radius:50%}
+.pillw{
+  display:inline-flex;align-items:center;gap:6px;width:fit-content;
+  background:rgba(255,255,255,.16);border-radius:999px;
+  padding:4px 12px;font-size:12px;font-weight:800;letter-spacing:.1em;
+}
+.tear{position:relative;height:1px;margin:0 16px;background:
+  repeating-linear-gradient(to left,rgba(255,255,255,.4) 0 5px,transparent 5px 10px)}
+.tear::before,.tear::after{
+  content:"";position:absolute;top:-9px;width:18px;height:18px;border-radius:50%;
+  background:var(--s-bg);
+}
+.tear::before{right:-25px} .tear::after{left:-25px}
+
+/* ── البطاقات ──────────────────────────────────────────────── */
+.card{background:var(--s-sur);border:1px solid var(--s-line);border-radius:16px;padding:14px}
+.card.acc{border-color:var(--s-acc)}
+.row{display:flex;align-items:center;gap:11px}
+.col{display:flex;flex-direction:column}
+.gr{flex:1;min-width:0}
+.b{font-weight:700}
+.mu{color:var(--s-mut)}
+.f11{font-size:11px} .f12{font-size:12px} .f13{font-size:13px}
+.f17{font-size:17px} .f20{font-size:20px} .f28{font-size:28px}
+.plate{
+  width:44px;height:44px;flex:none;display:grid;place-items:center;
+  border-radius:13px;background:color-mix(in srgb,var(--s-acc) 11%,transparent);
+  color:var(--s-acc);
+}
+.plate svg{width:23px;height:23px}
+.plate.g{background:color-mix(in srgb,var(--s-gold) 14%,transparent);color:var(--s-gold)}
+.hex{clip-path:polygon(50% 0,93% 25%,93% 75%,50% 100%,7% 75%,7% 25%);border-radius:0}
+
+.btn{
+  display:flex;align-items:center;justify-content:center;gap:8px;
+  min-height:50px;border-radius:14px;background:var(--s-acc);color:var(--s-on);
+  font-weight:800;font-size:15px;padding:0 14px;
+}
+.btn.o{background:transparent;color:var(--s-ink);border:1px solid var(--s-line)}
+.btn.w{background:#fff;color:#05655c;border-radius:999px;min-height:46px;padding:0 20px;width:fit-content}
+.btn.gold{background:var(--s-gold);color:#fff}
+.btn.wa{background:var(--s-wa);color:#fff}
+
+.field{
+  min-height:48px;border:1px solid var(--s-line);border-radius:14px;background:var(--s-sur);
+  display:flex;align-items:center;padding:0 13px;gap:9px;color:var(--s-mut);font-size:14px;
+  width:100%;
+}
+input.field{color:var(--s-ink);font-family:inherit}
+input.field::placeholder{color:var(--s-mut)}
+
+.eyeS{font-family:ui-monospace,Menlo,monospace;font-size:10.5px;letter-spacing:.2em;color:var(--s-acc);text-transform:uppercase;margin:0}
+.h2S{font-size:21px;font-weight:800;line-height:1.25}
+
+/* ── بلاطات الأقسام ────────────────────────────────────────── */
+.tiles{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.tiles.two{grid-template-columns:1fr 1fr}
+.tile{display:flex;flex-direction:column;gap:7px;align-items:center}
+.tile .sq{
+  width:100%;aspect-ratio:1;border-radius:16px;display:grid;place-items:center;
+  background:linear-gradient(160deg,color-mix(in srgb,var(--s-acc) 20%,var(--s-sur)),var(--s-sur2));
+  border:1px solid var(--s-line);color:var(--s-acc);position:relative;
+}
+.tile .sq svg{width:30px;height:30px}
+.tile .nm{font-size:12px;font-weight:700;text-align:center;line-height:1.3}
+.bdg{
+  position:absolute;top:6px;inset-inline-start:6px;font-size:9px;font-weight:800;
+  padding:2px 6px;border-radius:999px;background:var(--s-gold);color:#fff;
+}
+
+/* شبكة المنتجات */
+.prods{display:grid;grid-template-columns:1fr 1fr;gap:11px}
+.prod{border:1px solid var(--s-line);border-radius:16px;background:var(--s-sur);overflow:hidden;text-align:start}
+.prod .ph{aspect-ratio:1.25;background:var(--s-sur2);display:grid;place-items:center;color:var(--s-mut)}
+.prod .ph svg{width:34px;height:34px}
+.prod .tx{padding:9px 10px;display:flex;flex-direction:column;gap:3px}
+
+/* ── قسيمة الباقة ─────────────────────────────────────────── */
+.vch{display:flex;align-items:stretch;border:1px solid var(--s-line);border-radius:16px;background:var(--s-sur);overflow:hidden;position:relative;width:100%;text-align:start}
+.vch.sel{border-color:var(--s-acc);box-shadow:0 0 0 1px var(--s-acc)}
+.vch .l{flex:1;padding:12px 14px;display:flex;flex-direction:column;gap:2px}
+.vch .r{
+  width:96px;flex:none;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:2px;border-inline-start:1px dashed var(--s-line);
+  background:color-mix(in srgb,var(--s-gold) 7%,transparent);
+}
+.hot{
+  display:inline-flex;align-items:center;gap:4px;width:fit-content;
+  font-size:10.5px;font-weight:800;padding:2px 8px;border-radius:999px;
+  background:color-mix(in srgb,var(--s-dan) 12%,transparent);color:var(--s-dan);
+}
+.hot svg{width:11px;height:11px}
+
+/* ── المسار والشريط ───────────────────────────────────────── */
+.path{display:flex;align-items:flex-start;gap:0}
+.path .st{flex:1;display:flex;flex-direction:column;align-items:center;gap:5px;position:relative}
+.path .bl{width:22px;height:22px;border-radius:50%;display:grid;place-items:center;background:var(--s-sur2);color:var(--s-mut)}
+.path .bl.on{background:var(--s-acc);color:var(--s-on)}
+.path .bl svg{width:13px;height:13px}
+.path .lb{font-size:10.5px;text-align:center;line-height:1.3}
+.path .ln{position:absolute;top:11px;height:2px;background:var(--s-line);width:100%;right:50%;z-index:-1}
+.path .ln.on{background:var(--s-acc)}
+.bar{height:7px;border-radius:999px;background:var(--s-sur2);overflow:hidden}
+.bar i{display:block;height:100%;border-radius:999px;background:linear-gradient(90deg,var(--s-acc),var(--s-gold))}
+
+/* الشريط الحيّ */
+.live{
+  display:flex;align-items:center;gap:9px;padding:10px 13px;border-radius:14px;
+  background:var(--s-sur);border:1px solid var(--s-line);font-size:12.5px;
+}
+.live .lg{width:7px;height:7px;border-radius:50%;background:var(--s-ok);animation:beat 2.4s infinite;color:var(--s-ok);flex:none}
+
+/* ── القائمة السفلية — ملتصقة بالأرض ──────────────────────── */
+.nav{
+  flex:none;display:flex;
+  background:var(--s-sur);border-top:1px solid var(--s-line);padding:8px 6px 14px;
+}
+.nav button{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;
+  color:var(--s-mut);font-size:11px;font-weight:600;padding:5px 0;border-radius:12px}
+.nav button svg{width:22px;height:22px}
+.nav button.on{color:var(--s-acc);background:color-mix(in srgb,var(--s-acc) 12%,transparent);font-weight:800}
+
+/* الشريط الثابت للشراء */
+.fbar{
+  flex:none;background:var(--s-sur);
+  border-top:1px solid var(--s-line);padding:12px 16px 20px;display:flex;align-items:center;gap:12px;
+}
+.fbar .btn{flex:1}
+
+
+/* ── القائمة الجانبية ─────────────────────────────────────── */
+.drawer{
+  position:absolute;inset:0;z-index:40;display:none;
+  background:rgba(4,18,26,.45);
+}
+.drawer.on{display:flex;justify-content:flex-start}
+.drawer .pn{
+  width:300px;max-width:82vw;background:var(--s-sur);height:100%;
+  padding:18px 16px;display:flex;flex-direction:column;gap:16px;overflow-y:auto;
+}
+@media (prefers-reduced-motion: no-preference){
+  .drawer.on .pn{animation:slide .24s ease}
+  @keyframes slide{from{transform:translateX(-100%)}to{transform:none}}
+}
+.chip{font-size:12px;padding:7px 13px;border-radius:999px;border:1px solid var(--s-line)}
+.chip.on{background:var(--s-acc);color:var(--s-on);border-color:var(--s-acc);font-weight:700}
+
+/* فقاعات المحادثة */
+.bub{max-width:78%;padding:9px 13px;border-radius:16px;font-size:13.5px;line-height:1.55}
+.bub.me{background:var(--s-acc);color:var(--s-on);align-self:flex-start;border-end-start-radius:5px}
+.bub.you{background:var(--s-sur);border:1px solid var(--s-line);align-self:flex-end;border-end-end-radius:5px}
+</style>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+<defs>
+<symbol id="i-home" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10.5 12 3l9 7.5"/><path d="M5.5 9.5V20h13V9.5"/><path d="M9.5 20v-5.5h5V20"/></symbol>
+<symbol id="i-grid" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7.5" height="7.5" rx="2"/><rect x="13.5" y="3" width="7.5" height="7.5" rx="2"/><rect x="3" y="13.5" width="7.5" height="7.5" rx="2"/><rect x="13.5" y="13.5" width="7.5" height="7.5" rx="2"/></symbol>
+<symbol id="i-drop" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2.8c3.6 4.1 5.7 7 5.7 9.9A5.7 5.7 0 0 1 12 18.4a5.7 5.7 0 0 1-5.7-5.7c0-2.9 2.1-5.8 5.7-9.9Z"/><path d="M8.9 13.4c.9.9 2 .9 3.1 0s2.2-.9 3.1 0" stroke-width="1.5"/></symbol>
+<symbol id="i-user" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="3.6"/><path d="M4.8 20c.9-3.6 3.7-5.6 7.2-5.6s6.3 2 7.2 5.6"/></symbol>
+<symbol id="i-help" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20.5 12.4c0 4.1-3.8 7.4-8.5 7.4-1 0-1.9-.2-2.8-.4L4 21l1.4-3.8a7 7 0 0 1-1.9-4.8C3.5 8.3 7.3 5 12 5s8.5 3.3 8.5 7.4Z"/><path d="M9.9 10.4c.2-1.1 1-1.9 2.1-1.9 1.2 0 2.1.8 2.1 1.9 0 1.4-2.1 1.4-2.1 3"/><circle cx="12" cy="16" r=".9" fill="currentColor" stroke="none"/></symbol>
+<symbol id="i-cart" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 4h2.2l2.3 10.6h9.6L19 7.2H6.2"/><circle cx="9.4" cy="19" r="1.5"/><circle cx="16.6" cy="19" r="1.5"/></symbol>
+<symbol id="i-menu" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h11"/></symbol>
+<symbol id="i-bolt" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"><path d="M13.3 2.5 5 13.4h5.4L9.9 21.5l8.6-11.2h-5.6l.4-7.8Z"/></symbol>
+<symbol id="i-ball" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="m12 7.2 4 2.9-1.5 4.7h-5L8 10.1 12 7.2Z"/><path d="M12 3v4.2M20.5 9.6 16 10.1M18.4 19l-3.9-4.2M5.6 19l3.9-4.2M3.5 9.6 8 10.1"/></symbol>
+<symbol id="i-music" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9.5 17.5V5.2l8.5-1.7v11.6"/><circle cx="6.8" cy="17.7" r="2.7"/><circle cx="15.3" cy="15.6" r="2.7"/></symbol>
+<symbol id="i-dev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="6.5" y="2.5" width="11" height="19" rx="2.6"/><path d="M10.6 5.4h2.8"/><path d="M10.4 18.6h3.2"/></symbol>
+<symbol id="i-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="m14.5 5.5-7 6.5 7 6.5"/></symbol>
+<symbol id="i-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12.6 4.6 4.4L19 6.8"/></symbol>
+<symbol id="i-wa" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.2A9.7 9.7 0 0 0 3.6 16.8L2.3 21.7l5-1.3A9.7 9.7 0 1 0 12 2.2Zm0 1.9a7.8 7.8 0 1 1-4 14.5l-.4-.2-2.6.7.7-2.5-.2-.4A7.8 7.8 0 0 1 12 4.1Zm-3.3 4c-.2 0-.5.1-.7.4-.3.3-.9.9-.9 2.1s.9 2.4 1.1 2.6c.1.2 1.8 2.9 4.5 3.9 2.2.9 2.7.7 3.2.7.5-.1 1.5-.6 1.7-1.2.2-.6.2-1.2.2-1.3-.1-.1-.3-.2-.6-.3l-2-1c-.3-.1-.5-.2-.7.1l-.7.9c-.1.2-.3.2-.5.1a6.4 6.4 0 0 1-3.2-2.8c-.2-.4 0-.5.2-.7l.4-.5c.1-.2.1-.3.2-.5v-.5l-.9-2.1c-.2-.5-.4-.4-.6-.4h-.4Z"/></symbol>
+<symbol id="i-clock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 6.8V12l3.4 2.2"/></symbol>
+<symbol id="i-gift" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3.6 11h16.8v9.4H3.6z"/><path d="M2.6 7.2h18.8V11H2.6zM12 7.2v13.2"/><path d="M12 7.2S10.8 3 8.6 3a2.1 2.1 0 0 0 0 4.2H12Zm0 0S13.2 3 15.4 3a2.1 2.1 0 0 1 0 4.2H12Z"/></symbol>
+<symbol id="i-share" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v7.4h16V12"/><path d="M12 15.4V3.4M8 7.2 12 3.2l4 4"/></symbol>
+<symbol id="i-flame" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"><path d="M12 2.6s5.6 4.2 5.6 9.4A5.6 5.6 0 0 1 12 21.4a5.6 5.6 0 0 1-5.6-5.6c0-2 1-3.2 1-3.2s.6 1.4 1.8 1.8c-.3-3.4 2.8-5.4 2.8-8.6a6 6 0 0 0 0-3.2Z"/></symbol>
+<symbol id="i-glob" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M3.3 9.6h17.4M3.3 14.4h17.4"/><path d="M12 3c-2.4 2.6-3.6 5.6-3.6 9s1.2 6.4 3.6 9c2.4-2.6 3.6-5.6 3.6-9S14.4 5.6 12 3Z"/></symbol>
+<symbol id="i-plus" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round"><path d="M12 6v12M6 12h12"/></symbol>
+<symbol id="i-minus" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round"><path d="M6 12h12"/></symbol>
+<symbol id="i-trash" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 6.4h15M9.4 6.4V4.2h5.2v2.2"/><path d="M6.6 6.4 7.6 20h8.8l1-13.6"/></symbol>
+<symbol id="i-doc" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h8l4 4v14H6z"/><path d="M14 3v4h4M9 12h6M9 16h4"/></symbol>
+<symbol id="i-x" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></symbol>
+<symbol id="i-bag" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4.8 7.6h14.4L18 20.6H6L4.8 7.6Z"/><path d="M8.8 7.6V5.9a3.2 3.2 0 0 1 6.4 0v1.7"/></symbol>
+</defs>
+</svg>
+
+<div class="app">
+
+<!-- ══════════ ① الرئيسية ══════════ -->
+<section class="scr on" id="home">
+  <div class="hdr">
+    <span class="mk"><svg viewBox="0 0 24 24"><use href="#i-bag"/></svg></span>
+    <span class="bn"><b>رَمَعان</b><i>شحن فوري</i></span>
+    <span class="hi">
+      <button data-go="cart" aria-label="السلّة"><svg><use href="#i-cart"/></svg><i class="dot">2</i></button>
+      <button data-drawer="open" aria-label="القائمة"><svg><use href="#i-menu"/></svg></button>
+    </span>
+  </div>
+  <div class="openbar"><span class="beat"></span> مفتوح · نردّ خلال ٤ دقائق</div>
+  <div class="body" style="padding-top:14px">
+
+    <button class="tik" data-go="pubg">
+      <span class="in" style="display:block">
+        <span class="ring" style="width:210px;height:210px;top:-64px;right:-40px"></span>
+        <span style="padding:16px 16px 12px;display:flex;flex-direction:column;gap:14px;position:relative">
+          <span class="pillw">أكمل شراءك</span>
+          <span class="row">
+            <span style="width:48px;height:48px;border-radius:14px;border:1px solid rgba(255,255,255,.22);background:rgba(255,255,255,.12);display:grid;place-items:center;flex:none">
+              <svg style="width:25px;height:25px"><use href="#i-bolt"/></svg>
+            </span>
+            <span class="gr" style="text-align:start">
+              <b class="f20" style="display:block">٦٦٠ شدّة</b>
+              <span class="num f11" style="opacity:.75">5123456789</span>
+            </span>
+          </span>
+        </span>
+        <span class="tear" style="display:block"></span>
+        <span style="padding:14px 16px 16px;display:flex;align-items:center;gap:12px;position:relative">
+          <span style="text-align:start">
+            <b class="num f28" style="display:block;line-height:1">$7.00</b>
+            <span class="f11" style="opacity:.7">للطلب الواحد</span>
+          </span>
+          <span class="btn w" style="margin-inline-start:auto">اشحن الآن
+            <svg style="width:15px;height:15px;transform:rotate(180deg)"><use href="#i-chev"/></svg>
+          </span>
+        </span>
+      </span>
+    </button>
+
+    <div class="live">
+      <span class="lg"></span>
+      <span class="gr">سُلِّم <b>٦٦٠ شدّة</b> قبل ٣ دقائق</span>
+      <span class="f11 mu"><span class="num">١٬٤٠٢</span> طلب</span>
+    </div>
+
+    <button class="card" style="padding:12px 14px;text-align:start" data-go="points">
+      <span class="row" style="margin-bottom:8px">
+        <span class="plate g hex" style="width:34px;height:34px"><svg style="width:18px;height:18px"><use href="#i-drop"/></svg></span>
+        <span class="gr"><b class="f13">بَرْواقو</b><span class="f11 mu" style="display:block">٤٠ نقطة تكفي لخصم $2</span></span>
+        <b class="num f17" style="color:var(--s-gold)">١٢٠</b>
+      </span>
+      <span class="bar" style="display:block"><i style="width:62%"></i></span>
+    </button>
+
+    <div>
+      <p class="eyeS" style="margin:0 0 6px">SECTIONS</p>
+      <div class="tiles">
+        <button class="tile" data-go="pubg"><span class="sq"><span class="bdg">فوري</span><svg><use href="#i-bolt"/></svg></span><span class="nm">شدات ببجي</span></button>
+        <button class="tile" data-go="soon"><span class="sq"><svg><use href="#i-ball"/></svg></span><span class="nm">eFootball</span></button>
+        <button class="tile" data-go="cart"><span class="sq"><svg><use href="#i-dev"/></svg></span><span class="nm">إلكترونيات</span></button>
+      </div>
+    </div>
+
+    <div>
+      <p class="eyeS" style="margin:0 0 3px">ELECTRONICS</p>
+      <div class="row" style="margin-bottom:9px"><b class="h2S gr">إلكترونيات</b><span class="f12 mu"><span class="num">٨</span> أصناف</span></div>
+      <div class="prods">
+        <button class="prod" data-go="cart"><span class="ph" style="display:grid"><svg><use href="#i-dev"/></svg></span>
+          <span class="tx"><b class="f13">سمّاعة لاسلكية</b><span class="num f13" style="color:var(--s-gold)">$24.00</span></span></button>
+        <button class="prod" data-go="cart"><span class="ph" style="display:grid"><svg><use href="#i-dev"/></svg></span>
+          <span class="tx"><b class="f13">شاحن سريع</b><span class="num f13" style="color:var(--s-gold)">$9.50</span></span></button>
+      </div>
+    </div>
+
+  </div>
+  <div data-nav></div>
+</section>
+
+<!-- ══════════ ② الألعاب ══════════ -->
+<section class="scr" id="games">
+  <div class="hdr">
+    <span class="mk"><svg viewBox="0 0 24 24"><use href="#i-bag"/></svg></span>
+    <span class="bn"><b>رَمَعان</b><i>شحن فوري</i></span>
+    <span class="hi">
+      <button data-go="cart" aria-label="السلّة"><svg><use href="#i-cart"/></svg></button>
+      <button data-drawer="open" aria-label="القائمة"><svg><use href="#i-menu"/></svg></button>
+    </span>
+  </div>
+  <div class="body" style="padding-top:16px">
+    <div>
+      <p class="eyeS" style="margin:0 0 4px">TOP-UP</p>
+      <b class="h2S" style="display:block">الألعاب</b>
+      <p class="f13 mu" style="margin:5px 0 0">اختر لعبتك، وسنشحن على آيديك مباشرة.</p>
+    </div>
+    <div class="tiles">
+      <button class="tile" data-go="pubg"><span class="sq"><span class="bdg">فوري</span><svg><use href="#i-bolt"/></svg></span><span class="nm">شدات ببجي</span></button>
+      <button class="tile" data-go="soon"><span class="sq"><svg><use href="#i-ball"/></svg></span><span class="nm">كوينز eFootball</span></button>
+      <button class="tile" data-go="soon" style="opacity:.55"><span class="sq"><svg><use href="#i-grid"/></svg></span><span class="nm">Free Fire<br><i class="f11" style="font-style:normal">قريباً</i></span></button>
+    </div>
+    <div class="card" style="display:flex;flex-direction:column;gap:9px">
+      <div class="row"><span class="plate" style="width:34px;height:34px"><svg style="width:18px;height:18px"><use href="#i-clock"/></svg></span>
+        <span class="gr f13"><b>متوسّط التسليم ٦ دقائق</b></span></div>
+      <div class="row"><span class="plate g" style="width:34px;height:34px"><svg style="width:18px;height:18px"><use href="#i-check"/></svg></span>
+        <span class="gr f13"><b class="num">١٬٤٠٢</b> طلب سُلِّم</span></div>
+    </div>
+  </div>
+  <div data-nav></div>
+</section>
+
+<!-- ══════════ ③ شدات ببجي ══════════ -->
+<section class="scr" id="pubg">
+  <button class="back" data-go="home"><svg><use href="#i-chev"/></svg> رجوع</button>
+  <div class="body tight">
+    <div>
+      <p class="eyeS" style="margin:0 0 4px">PUBG MOBILE</p>
+      <b class="h2S" style="display:block">شدات ببجي</b>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:7px">
+      <span class="f12 b">آيدي اللاعب</span>
+      <div class="field" style="border-color:var(--s-ok)">
+        <span class="num gr" style="color:var(--s-ink)">5123456789</span>
+        <span style="color:var(--s-ok);display:flex;align-items:center;gap:5px;font-size:12.5px;font-weight:700">
+          <svg style="width:15px;height:15px"><use href="#i-check"/></svg> Yuusuf_99</span>
+      </div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:9px" data-packs>
+      <span class="f12 b">اختر الباقة</span>
+      <button class="vch" data-price="$1.00">
+        <span class="l"><b class="f17"><span class="num">٦٠</span> شدّة</b><span class="f11 mu">تصل خلال دقائق</span></span>
+        <span class="r"><b class="num f17" style="color:var(--s-gold)">$1.00</b></span>
+      </button>
+      <button class="vch sel" data-price="$7.00">
+        <span class="l">
+          <span class="hot"><svg><use href="#i-flame"/></svg> ٤١ اشتروها اليوم</span>
+          <b class="f17" style="margin-top:3px"><span class="num">٦٦٠</span> شدّة</b>
+          <span class="f11 mu">الأكثر طلباً</span>
+        </span>
+        <span class="r">
+          <span class="num f11 mu" style="text-decoration:line-through">$8.00</span>
+          <b class="num f17" style="color:var(--s-gold)">$7.00</b>
+        </span>
+      </button>
+      <button class="vch" data-price="$18.00">
+        <span class="l"><b class="f17"><span class="num">١٨٠٠</span> شدّة</b><span class="f11 mu">تصل خلال دقائق</span></span>
+        <span class="r"><b class="num f17" style="color:var(--s-gold)">$18.00</b></span>
+      </button>
+    </div>
+  </div>
+  <div class="fbar">
+    <span><span class="f11 mu" style="display:block">المجموع</span><b class="num f20" style="color:var(--s-gold)" data-total>$7.00</b></span>
+    <button class="btn gr" data-go="pay">متابعة الدفع</button>
+  </div>
+</section>
+
+<!-- ══════════ ④ الدفع ══════════ -->
+<section class="scr" id="pay">
+  <button class="back" data-go="pubg"><svg><use href="#i-chev"/></svg> رجوع</button>
+  <div class="body tight">
+    <b class="h2S">الدفع</b>
+    <div class="card" style="display:flex;flex-direction:column;gap:8px;padding:12px 14px">
+      <div class="row f13"><span class="gr mu">٦٦٠ شدّة</span><b class="num">$7.00</b></div>
+      <div class="row f13"><span class="gr mu">خصم بَرْواقو</span><b class="num" style="color:var(--s-ok)">−$2.00</b></div>
+      <div style="height:1px;background:var(--s-line)"></div>
+      <div class="row"><b class="gr">المطلوب</b><b class="num f20" style="color:var(--s-gold)">$5.00</b></div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:8px" data-pays>
+      <span class="f12 b">وسيلة الدفع</span>
+      <button class="card acc row" style="padding:11px 13px">
+        <span class="plate" style="width:36px;height:36px;background:#0a7d3c;color:#fff"><b class="f11">EVC</b></span>
+        <span class="gr" style="text-align:start"><b class="f13">EVC Plus</b><span class="f11 mu" style="display:block">Hormuud · تحويل بكود</span></span>
+        <span style="color:var(--s-acc)" data-tick><svg style="width:18px;height:18px"><use href="#i-check"/></svg></span>
+      </button>
+      <button class="card row" style="padding:11px 13px">
+        <span class="plate" style="width:36px;height:36px;background:#e8b21c;color:#1a1a1a"><b class="f11">EDH</b></span>
+        <span class="gr" style="text-align:start"><b class="f13">E-Dahab</b><span class="f11 mu" style="display:block">Somtel</span></span>
+        <span style="color:var(--s-acc);display:none" data-tick><svg style="width:18px;height:18px"><use href="#i-check"/></svg></span>
+      </button>
+      <span class="card row" style="padding:11px 13px;opacity:.5">
+        <span class="plate" style="width:36px;height:36px;background:var(--s-sur2);color:var(--s-mut)"><b class="f11">PP</b></span>
+        <span class="gr"><b class="f13">PayPal</b><span class="f11 mu" style="display:block">قريباً</span></span>
+      </span>
+    </div>
+    <div class="card" style="background:var(--s-sur2);border-style:dashed">
+      <p class="f12 mu" style="margin:0 0 5px">حوّل إلى</p>
+      <b class="num f17" dir="ltr">*712*612345678*5#</b>
+    </div>
+
+    <div style="display:flex;align-items:center;gap:10px;margin:2px 0">
+      <span style="height:1px;background:var(--s-line);flex:1"></span>
+      <span class="f11 mu">ما معك وسيلة دفع؟</span>
+      <span style="height:1px;background:var(--s-line);flex:1"></span>
+    </div>
+
+    <button class="card acc row" style="padding:13px;background:linear-gradient(150deg,color-mix(in srgb,var(--s-acc) 12%,var(--s-sur)),var(--s-sur))" data-go="gift-share">
+      <span class="plate" style="width:42px;height:42px"><svg style="width:23px;height:23px"><use href="#i-gift"/></svg></span>
+      <span class="gr" style="text-align:start"><b class="f13">يدفع عنّي صديق</b>
+        <span class="f11 mu" style="display:block">أرسل الطلب لأخيك أو صاحبك ليدفعه</span></span>
+      <svg style="width:16px;height:16px;color:var(--s-acc)"><use href="#i-chev"/></svg>
+    </button>
+  </div>
+  <div class="fbar">
+    <button class="btn gr" data-go="done">أكّد الطلب</button>
+  </div>
+</section>
+
+<!-- ══════════ ⑤ تأكيد الطلب ══════════ -->
+<section class="scr" id="done">
+  <div class="body" style="padding-top:34px;gap:16px">
+    <div class="card" style="border-color:var(--s-gold);border-width:2px;text-align:center;padding:22px 16px">
+      <span style="width:60px;height:60px;margin:0 auto;border-radius:50%;display:grid;place-items:center;background:color-mix(in srgb,var(--s-gold) 15%,transparent);color:var(--s-gold)">
+        <svg style="width:33px;height:33px"><use href="#i-check"/></svg></span>
+      <b class="f20" style="display:block;margin-top:12px">تمّ استلام طلبك</b>
+      <p class="f13 mu" style="margin:5px 0 0">نراجعه الآن ونشحنه على آيديك.</p>
+      <span class="num f17 b" style="display:inline-block;margin-top:14px;padding:9px 18px;border-radius:14px;background:color-mix(in srgb,var(--s-gold) 12%,transparent);color:var(--s-gold)">M-482913</span>
+      <p class="f12" style="margin:11px 0 0;color:var(--s-ok);display:flex;align-items:center;justify-content:center;gap:6px">
+        <svg style="width:14px;height:14px"><use href="#i-check"/></svg> حُفظ في «طلباتي»</p>
+    </div>
+    <div class="card" style="display:flex;flex-direction:column;gap:8px">
+      <b class="f13" style="margin-bottom:2px">ملخّص الطلب</b>
+      <div class="row f12"><span class="gr mu">الصنف</span><b>٦٦٠ شدّة</b></div>
+      <div class="row f12"><span class="gr mu">المبلغ</span><b class="num">$5.00</b></div>
+      <div class="row f12"><span class="gr mu">الدفع</span><b>EVC Plus</b></div>
+      <div class="row f12"><span class="gr mu">الآيدي</span><b class="num">5123456789</b></div>
+    </div>
+    <span class="btn wa"><svg style="width:20px;height:20px"><use href="#i-wa"/></svg> أرسل الإيصال على واتساب</span>
+    <button class="btn o" data-go="orders">تابع طلبك</button>
+  </div>
+</section>
+
+<!-- ══════════ ⑥ طلباتي ══════════ -->
+<section class="scr" id="orders">
+  <button class="back" data-go="account"><svg><use href="#i-chev"/></svg> حسابي</button>
+  <div class="body tight">
+    <div><p class="eyeS" style="margin:0 0 4px">ORDERS</p><b class="h2S">طلباتي</b></div>
+
+    <div class="card acc" style="display:flex;flex-direction:column;gap:13px;padding:15px">
+      <div class="row">
+        <span class="plate"><svg><use href="#i-bolt"/></svg></span>
+        <span class="gr"><b class="f13">٦٦٠ شدّة</b><span class="num f11 mu" style="display:block">M-482913</span></span>
+        <b class="num f17" style="color:var(--s-gold)">$5.00</b>
+      </div>
+      <div class="path">
+        <span class="st"><span class="bl on"><svg><use href="#i-check"/></svg></span><span class="lb b">استُلم</span></span>
+        <span class="st"><span class="ln on"></span><span class="bl on"><svg><use href="#i-check"/></svg></span><span class="lb b">دُفع</span></span>
+        <span class="st"><span class="ln on"></span><span class="bl on"><svg><use href="#i-bolt"/></svg></span><span class="lb b">قيد الشحن</span></span>
+        <span class="st"><span class="ln"></span><span class="bl"></span><span class="lb mu">وصلت</span></span>
+      </div>
+      <div>
+        <div class="row f11 mu" style="margin-bottom:5px"><span class="gr">الوقت المتوقّع</span><b><span class="num">٤</span> دقائق</b></div>
+        <div class="bar"><i style="width:68%"></i></div>
+      </div>
+      <button class="btn o" style="min-height:42px;font-size:13px" data-go="chat"><svg style="width:17px;height:17px"><use href="#i-wa"/></svg> اسأل عن هذا الطلب</button>
+    </div>
+
+    <button class="card" style="display:flex;flex-direction:column;gap:10px;text-align:start" data-go="receipt">
+      <span class="row">
+        <span class="plate g"><svg><use href="#i-ball"/></svg></span>
+        <span class="gr"><b class="f13">١٢٠٠ كوينز</b><span class="num f11 mu" style="display:block">M-482744</span></span>
+        <b class="num f13" style="color:var(--s-gold)">$4.00</b>
+      </span>
+      <span class="row f12" style="color:var(--s-ok)">
+        <svg style="width:15px;height:15px"><use href="#i-check"/></svg>
+        <span class="gr b">شُحنت</span><span class="f11 mu">أمس <span class="num">٩:٤٢م</span></span>
+      </span>
+    </button>
+  </div>
+  <div data-nav></div>
+</section>
+
+<!-- ══════════ ⑦ بَرْواقو ══════════ -->
+<section class="scr" id="points">
+  <div class="body" style="padding-top:22px">
+    <div class="card" style="text-align:center;padding:22px 16px;background:linear-gradient(165deg,color-mix(in srgb,var(--s-acc) 13%,var(--s-sur)),var(--s-sur))">
+      <span class="plate hex" style="width:58px;height:58px;margin:0 auto"><svg style="width:32px;height:32px"><use href="#i-drop"/></svg></span>
+      <b class="f13" style="display:block;margin-top:10px">بَرْواقو</b>
+      <b class="num" style="display:block;font-size:44px;line-height:1.1;color:var(--s-gold)">١٢٠</b>
+      <p class="f12 mu" style="margin:2px 0 14px">نقطة · تساوي <b class="num">$1.20</b></p>
+      <div class="bar" style="margin-bottom:6px"><i style="width:62%"></i></div>
+      <p class="f11 mu" style="margin:0">٨٠ نقطة تفصلك عن خصم <b class="num">$2</b></p>
+    </div>
+    <div class="card" style="display:flex;flex-direction:column;gap:11px">
+      <b class="f13">ادعُ صديقاً واربح</b>
+      <p class="f12 mu" style="margin:0">لك ٢٠ نقطة، وله ٢٠ نقطة على أوّل طلب.</p>
+      <div class="field" style="justify-content:space-between">
+        <b class="num" style="color:var(--s-ink);letter-spacing:.1em">YUUSUF20</b>
+        <span class="f12 b" style="color:var(--s-acc)">نسخ</span>
+      </div>
+      <span class="btn wa" style="min-height:44px;font-size:14px">
+        <svg style="width:19px;height:19px"><use href="#i-wa"/></svg> شارك الكود</span>
+    </div>
+    <div class="card" style="display:flex;flex-direction:column;gap:9px">
+      <b class="f13">حركة النقاط</b>
+      <div class="row f12"><span class="gr">طلب M-482913</span><b class="num" style="color:var(--s-dan)">−٢٠</b></div>
+      <div class="row f12"><span class="gr">دعوة Cabdi</span><b class="num" style="color:var(--s-ok)">+٢٠</b></div>
+      <div class="row f12"><span class="gr">هدية أوّل طلب</span><b class="num" style="color:var(--s-ok)">+٢٠</b></div>
+    </div>
+  </div>
+  <div data-nav></div>
+</section>
+
+<!-- ══════════ ⑧ السلّة ══════════ -->
+<section class="scr" id="cart">
+  <button class="back" data-go="home"><svg><use href="#i-chev"/></svg> رجوع</button>
+  <div class="body tight">
+    <div class="row"><b class="h2S gr">السلّة</b><span class="f12 mu">صنفان</span></div>
+    <div class="card row" style="padding:11px">
+      <span class="plate"><svg><use href="#i-dev"/></svg></span>
+      <span class="gr"><b class="f13">سمّاعة لاسلكية</b><span class="num f12" style="display:block;color:var(--s-gold)">$24.00</span></span>
+      <span style="display:flex;align-items:center;gap:8px">
+        <button data-qty="-1" aria-label="أنقص" style="width:26px;height:26px;border:1px solid var(--s-line);border-radius:8px;display:grid;place-items:center"><svg style="width:13px;height:13px"><use href="#i-minus"/></svg></button>
+        <b class="num f13" data-qtyval>١</b>
+        <button data-qty="1" aria-label="زد" style="width:26px;height:26px;border:1px solid var(--s-line);border-radius:8px;display:grid;place-items:center"><svg style="width:13px;height:13px"><use href="#i-plus"/></svg></button>
+      </span>
+    </div>
+    <div class="card row" style="padding:11px">
+      <span class="plate"><svg><use href="#i-dev"/></svg></span>
+      <span class="gr"><b class="f13">شاحن سريع</b><span class="num f12" style="display:block;color:var(--s-gold)">$9.50</span></span>
+      <button style="color:var(--s-dan)" aria-label="احذف"><svg style="width:18px;height:18px"><use href="#i-trash"/></svg></button>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:8px">
+      <span class="f12 b">بيانات التسليم</span>
+      <input class="field" placeholder="الاسم الكامل">
+      <input class="field" placeholder="رقم الهاتف" inputmode="tel">
+      <input class="field" placeholder="العنوان">
+    </div>
+  </div>
+  <div class="fbar">
+    <span><span class="f11 mu" style="display:block">المجموع</span><b class="num f20" style="color:var(--s-gold)" data-cart-total>$33.50</b></span>
+    <button class="btn gr" data-go="done">إتمام الطلب</button>
+  </div>
+</section>
+
+<!-- ══════════ ⑨ حسابي ══════════ -->
+<section class="scr" id="account">
+  <div class="body" style="padding-top:26px">
+    <div style="display:flex;flex-direction:column;align-items:center;gap:8px">
+      <span style="width:70px;height:70px;border-radius:50%;background:var(--s-sur2);display:grid;place-items:center;color:var(--s-mut)">
+        <svg style="width:36px;height:36px"><use href="#i-user"/></svg></span>
+      <b class="f20">يوسف عبدي</b>
+      <span class="num f12 mu">+252 61 234 5678</span>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:9px">
+      <button class="card row" style="padding:13px" data-go="orders"><span class="plate" style="width:38px;height:38px"><svg style="width:20px;height:20px"><use href="#i-bag"/></svg></span>
+        <span class="gr b f13">طلباتي</span><span class="num f12 mu">٧</span>
+        <svg style="width:15px;height:15px;color:var(--s-mut)"><use href="#i-chev"/></svg></button>
+      <button class="card row" style="padding:13px" data-go="points"><span class="plate g" style="width:38px;height:38px"><svg style="width:20px;height:20px"><use href="#i-drop"/></svg></span>
+        <span class="gr b f13">بَرْواقو</span><b class="num f12" style="color:var(--s-gold)">١٢٠</b>
+        <svg style="width:15px;height:15px;color:var(--s-mut)"><use href="#i-chev"/></svg></button>
+      <button class="card row" style="padding:13px" data-drawer="open"><span class="plate" style="width:38px;height:38px"><svg style="width:20px;height:20px"><use href="#i-glob"/></svg></span>
+        <span class="gr b f13">اللغة</span><span class="f12 mu">العربية</span>
+        <svg style="width:15px;height:15px;color:var(--s-mut)"><use href="#i-chev"/></svg></button>
+      <button class="card row" style="padding:13px" data-go="policy"><span class="plate" style="width:38px;height:38px"><svg style="width:20px;height:20px"><use href="#i-doc"/></svg></span>
+        <span class="gr b f13">السياسات</span>
+        <svg style="width:15px;height:15px;color:var(--s-mut)"><use href="#i-chev"/></svg></button>
+    </div>
+    <button class="btn o" style="color:var(--s-dan);border-color:var(--s-line)" data-go="login">تسجيل الخروج</button>
+    <span class="f11 mu" style="text-align:center">حذف الحساب نهائياً</span>
+  </div>
+  <div data-nav></div>
+</section>
+
+<!-- ══════════ ⑩ تسجيل الدخول ══════════ -->
+<section class="scr" id="login">
+  <div class="body" style="padding-top:60px;gap:22px">
+    <div style="display:flex;flex-direction:column;align-items:center;gap:10px;text-align:center">
+      <span class="plate hex" style="width:64px;height:64px"><svg style="width:34px;height:34px"><use href="#i-bag"/></svg></span>
+      <b class="f20">أهلاً بك في رَمَعان</b>
+      <p class="f13 mu" style="margin:0;max-width:250px">سجّل دخولك لتتابع طلباتك وتجمع نقاط بَرْواقو.</p>
+    </div>
+
+    <div class="card" style="border-color:var(--s-gold);display:flex;align-items:center;gap:11px;background:color-mix(in srgb,var(--s-gold) 8%,var(--s-sur))">
+      <span class="plate g" style="width:40px;height:40px"><svg style="width:22px;height:22px"><use href="#i-gift"/></svg></span>
+      <span class="gr f13"><b>٢٠ نقطة هديّة</b><span class="f11 mu" style="display:block">تُضاف فور تسجيلك</span></span>
+    </div>
+
+    <div style="display:flex;flex-direction:column;gap:10px">
+      <button class="btn" style="background:var(--s-sur);color:var(--s-ink);border:1px solid var(--s-line)" data-go="account">
+        <span style="width:20px;height:20px;border-radius:50%;background:linear-gradient(135deg,#ea4335,#fbbc05 40%,#34a853 70%,#4285f4);flex:none"></span>
+        المتابعة بحساب جوجل</button>
+      <p class="f11 mu" style="text-align:center;margin:2px 0 0">الخطوة التالية: رقم هاتفك — نحتاجه للتسليم فقط.</p>
+    </div>
+
+    <div style="height:1px;background:var(--s-line);margin:4px 0"></div>
+    <button class="f12 mu" style="text-align:center;margin:0" data-go="home">
+      أو تابع بلا حساب — <b style="color:var(--s-ink)">الشراء لا يحتاج تسجيلاً</b>
+    </button>
+  </div>
+</section>
+
+<!-- ══════════ ⑪ المساعدة ══════════ -->
+<section class="scr" id="help">
+  <div class="body tight" style="padding-top:18px">
+    <div><p class="eyeS" style="margin:0 0 4px">SUPPORT</p><b class="h2S">المساعدة</b></div>
+    <div class="card" style="display:flex;flex-direction:column;gap:11px">
+      <b class="f13">كيف يعمل المتجر</b>
+      <div class="row f12"><span class="plate" style="width:28px;height:28px"><b class="num f11">١</b></span><span class="gr">اختر باقتك واكتب آيديك</span></div>
+      <div class="row f12"><span class="plate" style="width:28px;height:28px"><b class="num f11">٢</b></span><span class="gr">حوّل المبلغ وأكّد</span></div>
+      <div class="row f12"><span class="plate" style="width:28px;height:28px"><b class="num f11">٣</b></span><span class="gr">تصلك الشحنة على آيديك</span></div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:9px">
+      <button class="card" style="padding:12px;display:flex;flex-direction:column;gap:5px;align-items:center;text-align:center" data-go="chat">
+        <span style="color:var(--s-wa)"><svg style="width:24px;height:24px"><use href="#i-wa"/></svg></span>
+        <b class="f12">واتساب</b><span class="f11 mu">أسرع ردّ</span></button>
+      <span class="card" style="padding:12px;display:flex;flex-direction:column;gap:5px;align-items:center;text-align:center">
+        <span style="color:var(--s-acc)"><svg style="width:24px;height:24px"><use href="#i-clock"/></svg></span>
+        <b class="f12">الدوام</b><span class="f11 mu">٩ص – ١١م</span></span>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:7px">
+      <b class="f13">أسئلة متكرّرة</b>
+      <button class="card row f12" style="padding:11px 13px" data-go="chat"><span class="gr">كم تستغرق الشحنة؟</span><svg style="width:13px;height:13px;color:var(--s-mut);transform:rotate(-90deg)"><use href="#i-chev"/></svg></button>
+      <button class="card row f12" style="padding:11px 13px" data-go="chat"><span class="gr">هل أحتاج حساباً؟</span><svg style="width:13px;height:13px;color:var(--s-mut);transform:rotate(-90deg)"><use href="#i-chev"/></svg></button>
+      <button class="card row f12" style="padding:11px 13px" data-go="chat"><span class="gr">ماذا لو أخطأت في الآيدي؟</span><svg style="width:13px;height:13px;color:var(--s-mut);transform:rotate(-90deg)"><use href="#i-chev"/></svg></button>
+    </div>
+  </div>
+  <div data-nav></div>
+</section>
+
+<!-- ══════════ ⑫ المحادثة المباشرة ══════════ -->
+<section class="scr" id="chat">
+  <div class="hdr" style="border-bottom:1px solid var(--s-line);padding-bottom:12px">
+    <span class="plate" style="width:36px;height:36px"><svg style="width:19px;height:19px"><use href="#i-help"/></svg></span>
+    <span class="bn"><b style="font-size:15px">محادثة رَمَعان</b>
+      <i style="color:var(--s-ok);display:flex;align-items:center;gap:5px"><span class="beat" style="width:6px;height:6px"></span> Hodan تردّ الآن</i></span>
+    <span class="hi"><button data-go="help" aria-label="إغلاق"><svg><use href="#i-x"/></svg></button></span>
+  </div>
+  <div style="flex:1;padding:16px;display:flex;flex-direction:column;gap:10px">
+    <span class="bub you">أهلاً يوسف، كيف أقدر أساعدك؟</span>
+    <span class="bub me">طلبي M-482913 وصل؟</span>
+    <span class="bub you">شحنّاها قبل دقيقتين — تفقّد لعبتك الآن.</span>
+    <span class="bub me">وصلت، شكراً!</span>
+    <span class="f11 mu" style="text-align:center;margin-top:6px">تُقرأ الرسائل داخل متجرك — لا خدمةً خارجية</span>
+  </div>
+  <div style="padding:12px 16px 20px;display:flex;gap:9px;border-top:1px solid var(--s-line)">
+    <input class="field gr" placeholder="اكتب رسالتك…">
+    <span class="btn" style="width:48px;min-height:48px;padding:0;flex:none"><svg style="width:20px;height:20px;transform:rotate(90deg)"><use href="#i-share"/></svg></span>
+  </div>
+</section>
+
+<!-- ══════════ ⑭ الحسابات ══════════ -->
+<section class="scr" id="accounts">
+  <div class="hdr">
+    <span class="mk"><svg viewBox="0 0 24 24"><use href="#i-bag"/></svg></span>
+    <span class="bn"><b>رَمَعان</b><i>شحن فوري</i></span>
+    <span class="hi">
+      <button data-go="cart" aria-label="السلّة"><svg><use href="#i-cart"/></svg></button>
+      <button data-drawer="open" aria-label="القائمة"><svg><use href="#i-menu"/></svg></button>
+    </span>
+  </div>
+  <div class="body" style="padding-top:16px">
+    <div><p class="eyeS" style="margin:0 0 4px">ACCOUNTS</p><b class="h2S">الحسابات</b>
+      <p class="f13 mu" style="margin:5px 0 0">حسابات جاهزة تُسلَّم بياناتها على واتساب.</p></div>
+    <div class="tiles two">
+      <button class="tile" data-go="tiktok"><span class="sq"><svg><use href="#i-music"/></svg></span><span class="nm">حسابات تيك توك</span></button>
+      <button class="tile" data-go="efoot"><span class="sq"><svg><use href="#i-ball"/></svg></span><span class="nm">حسابات eFootball</span></button>
+    </div>
+    <div class="card" style="border-style:dashed;display:flex;flex-direction:column;gap:6px">
+      <b class="f13">التسليم يدويّ</b>
+      <p class="f12 mu" style="margin:0">بعد الدفع نراسلك على واتساب ونسلّمك البيانات، ونتأكّد أنّك دخلت قبل إغلاق الطلب.</p>
+    </div>
+  </div>
+  <div data-nav></div>
+</section>
+
+<!-- ══════════ ⑮ حسابات تيك توك ══════════ -->
+<section class="scr" id="tiktok">
+  <button class="back" data-go="accounts"><svg><use href="#i-chev"/></svg> الحسابات</button>
+  <div class="body tight">
+    <div><p class="eyeS" style="margin:0 0 4px">TIKTOK</p><b class="h2S">حسابات تيك توك</b></div>
+    <div style="display:flex;flex-direction:column;gap:9px" data-packs>
+      <button class="vch" data-price="$15.00">
+        <span class="l"><b class="f17"><span class="num">١٠</span> آلاف متابع</b><span class="f11 mu">حساب عربي · نشِط</span></span>
+        <span class="r"><b class="num f17" style="color:var(--s-gold)">$15</b></span>
+      </button>
+      <button class="vch sel" data-price="$60.00">
+        <span class="l"><b class="f17"><span class="num">٥٠</span> ألف متابع</b><span class="f11 mu">حساب عربي · موثّق</span></span>
+        <span class="r"><b class="num f17" style="color:var(--s-gold)">$60</b></span>
+      </button>
+      <span class="vch" style="opacity:.55">
+        <span class="l"><b class="f17"><span class="num">١٠٠</span> ألف متابع</b><span class="f11 mu">قريباً</span></span>
+        <span class="r"><b class="num f17 mu">$110</b></span>
+      </span>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:7px">
+      <span class="f12 b">رقم واتسابك</span>
+      <input class="field" placeholder="لنسلّمك بيانات الحساب" inputmode="tel">
+    </div>
+  </div>
+  <div class="fbar">
+    <span><span class="f11 mu" style="display:block">المجموع</span><b class="num f20" style="color:var(--s-gold)" data-total>$60.00</b></span>
+    <button class="btn gr" data-go="pay">متابعة</button>
+  </div>
+</section>
+
+<!-- ══════════ ⑯ حسابات eFootball ══════════ -->
+<section class="scr" id="efoot">
+  <button class="back" data-go="accounts"><svg><use href="#i-chev"/></svg> الحسابات</button>
+  <div class="body tight">
+    <div><p class="eyeS" style="margin:0 0 4px">EFOOTBALL</p><b class="h2S">حسابات eFootball</b></div>
+    <div style="display:flex;flex-direction:column;gap:9px" data-packs>
+      <button class="vch sel" data-price="$25.00">
+        <span class="l"><b class="f17">حساب مميّز</b><span class="f11 mu">لاعبون أساطير · GP عالي</span></span>
+        <span class="r"><b class="num f17" style="color:var(--s-gold)">$25</b></span>
+      </button>
+      <button class="vch" data-price="$12.00">
+        <span class="l"><b class="f17">حساب متوسّط</b><span class="f11 mu">تشكيلة جاهزة</span></span>
+        <span class="r"><b class="num f17" style="color:var(--s-gold)">$12</b></span>
+      </button>
+    </div>
+    <div class="card" style="background:var(--s-sur2);border:0;display:flex;flex-direction:column;gap:5px">
+      <b class="f12">ماذا يحدث بعد الدفع؟</b>
+      <p class="f11 mu" style="margin:0">نراسلك على واتساب ونسلّمك البريد وكلمة المرور، ونساعدك في تغييرها.</p>
+    </div>
+  </div>
+  <div class="fbar">
+    <span><span class="f11 mu" style="display:block">المجموع</span><b class="num f20" style="color:var(--s-gold)" data-total>$25.00</b></span>
+    <button class="btn gr" data-go="pay">متابعة</button>
+  </div>
+</section>
+
+<!-- ══════════ ⑱ قريباً ══════════ -->
+<section class="scr" id="soon">
+  <div class="hdr">
+    <span class="mk"><svg viewBox="0 0 24 24"><use href="#i-bag"/></svg></span>
+    <span class="bn"><b>رَمَعان</b><i>شحن فوري</i></span>
+    <span class="hi"><button data-drawer="open" aria-label="القائمة"><svg><use href="#i-menu"/></svg></button></span>
+  </div>
+  <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;padding:0 34px 40px;text-align:center">
+    <span class="plate g hex" style="width:62px;height:62px"><svg style="width:31px;height:31px"><use href="#i-clock"/></svg></span>
+    <b class="f20">Free Fire — قريباً</b>
+    <p class="f13 mu" style="margin:0">نجهّز هذا القسم الآن. اتركي بريدك أو راسلينا وسنخبرك أوّل ما يفتح.</p>
+    <button class="btn o" style="width:100%" data-go="games">تصفّح الأقسام المفتوحة</button>
+  </div>
+  <div data-nav></div>
+</section>
+
+<!-- ══════════ ⑲ السياسات ══════════ -->
+<section class="scr" id="policy">
+  <button class="back" data-go="account"><svg><use href="#i-chev"/></svg> رجوع</button>
+  <div class="body tight" style="padding-top:6px">
+    <div><p class="eyeS" style="margin:0 0 4px">POLICY</p><b class="h2S">السياسات</b></div>
+    <div style="display:flex;gap:7px" data-chips>
+      <button class="chip on b">الخصوصية</button>
+      <button class="chip">الشروط</button>
+      <button class="chip">الاسترجاع</button>
+    </div>
+    <div class="card" style="display:flex;flex-direction:column;gap:9px">
+      <b class="f13">ما الذي نحفظه؟</b>
+      <p class="f12 mu" style="margin:0;line-height:1.8">اسمك ورقم هاتفك وطلباتك — لا غير. لا نبيع بياناتك ولا نشاركها مع أحد.</p>
+      <div style="height:1px;background:var(--s-line)"></div>
+      <b class="f13">هل أستطيع حذف حسابي؟</b>
+      <p class="f12 mu" style="margin:0;line-height:1.8">نعم، من «حسابي» بثلاث ضغطات. يُحذف كل شيء ولا يبقى منه أثر.</p>
+    </div>
+  </div>
+  <div data-nav></div>
+</section>
+
+<!-- ══════════ رسالة الطلب — «يدفع عنّي صديق» ══════════ -->
+<section class="scr" id="gift-share">
+  <button class="back" data-go="pay"><svg><use href="#i-chev"/></svg> رجوع</button>
+  <div class="body" style="padding-top:14px;gap:18px">
+    <div style="text-align:center;display:flex;flex-direction:column;align-items:center;gap:9px">
+      <span class="plate hex" style="width:58px;height:58px"><svg style="width:30px;height:30px"><use href="#i-gift"/></svg></span>
+      <b class="f20">أرسله لمن يدفع عنك</b>
+      <p class="f13 mu" style="margin:0;max-width:250px">يفتح الرابط، يرى طلبك، ويدفع. الشدّات تصل على آيديك أنت.</p>
+    </div>
+
+    <div class="card" style="border-color:var(--s-gold);border-width:2px;background:color-mix(in srgb,var(--s-gold) 6%,var(--s-sur));display:flex;flex-direction:column;gap:9px">
+      <span class="f11 mu">رسالتك جاهزة</span>
+      <p class="f13" style="margin:0;line-height:1.85">
+        <b>يوسف يريد ٦٦٠ شدّة</b><br>
+        <span class="f12 mu">على آيدي <span class="num">5123456789</span> — بسعر <span class="num">$7</span></span><br>
+        <span class="f12" style="color:var(--s-acc)">اضغط لتُهديها له · متجر رَمَعان</span>
+      </p>
+    </div>
+
+    <div style="display:flex;flex-direction:column;gap:10px">
+      <button class="btn wa" data-go="gift-page"><svg style="width:20px;height:20px"><use href="#i-wa"/></svg> أرسل على واتساب</button>
+      <button class="btn o" data-go="gift-page"><svg style="width:19px;height:19px"><use href="#i-share"/></svg> انسخ الرابط</button>
+    </div>
+
+    <div class="card row" style="padding:11px 13px;background:var(--s-sur2);border:0">
+      <svg style="width:17px;height:17px;color:var(--s-mut);flex:none"><use href="#i-clock"/></svg>
+      <span class="gr f12 mu">الرابط صالح ٢٤ ساعة — وسنُعلمك لحظة يُدفع.</span>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════ صفحة الهديّة — يراها من يدفع ══════════ -->
+<section class="scr" id="gift-page">
+  <div class="hdr">
+    <span class="mk"><svg viewBox="0 0 24 24"><use href="#i-bag"/></svg></span>
+    <span class="bn"><b>رَمَعان</b><i>هديّة بانتظارك</i></span>
+    <span class="hi"><button data-go="gift-share" aria-label="رجوع"><svg><use href="#i-x"/></svg></button></span>
+  </div>
+  <div class="body" style="padding-top:12px">
+    <div class="tik">
+      <div class="in">
+        <span class="ring" style="width:190px;height:190px;bottom:-70px;left:-50px"></span>
+        <div style="padding:18px 16px 13px;display:flex;flex-direction:column;gap:12px;align-items:center;text-align:center;position:relative">
+          <span class="pillw">يوسف يريد هذه</span>
+          <span style="width:56px;height:56px;border-radius:16px;border:1px solid rgba(255,255,255,.22);background:rgba(255,255,255,.12);display:grid;place-items:center">
+            <svg style="width:29px;height:29px"><use href="#i-bolt"/></svg></span>
+          <span>
+            <b class="f28" style="display:block;line-height:1.15">٦٦٠ شدّة</b>
+            <span class="f12" style="opacity:.78">على آيدي <span class="num">5123456789</span> · <span class="num">Yuusuf_99</span></span>
+          </span>
+        </div>
+        <div class="tear"></div>
+        <div style="padding:14px 16px 17px;display:flex;align-items:center;gap:12px;position:relative">
+          <span><b class="num f28" style="display:block;line-height:1">$7.00</b>
+            <span class="f11" style="opacity:.7">مرّة واحدة</span></span>
+          <button class="btn w" style="margin-inline-start:auto" data-go="receipt">أهديها له</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="card" style="display:flex;flex-direction:column;gap:10px">
+      <b class="f13">من نحن؟</b>
+      <div class="row f12"><svg style="width:16px;height:16px;color:var(--s-ok);flex:none"><use href="#i-check"/></svg>
+        <span class="gr"><b class="num">١٬٤٠٢</b> طلب سُلِّم</span></div>
+      <div class="row f12"><svg style="width:16px;height:16px;color:var(--s-ok);flex:none"><use href="#i-clock"/></svg>
+        <span class="gr">متوسّط التسليم <b class="num">٦ دقائق</b></span></div>
+      <div class="row f12"><span class="beat" style="color:var(--s-ok);width:8px;height:8px;margin-inline:4px"></span>
+        <span class="gr">مفتوح الآن · نردّ خلال ٤ دقائق</span></div>
+    </div>
+
+    <button class="btn o" style="min-height:44px;font-size:13px" data-go="chat">
+      <svg style="width:18px;height:18px"><use href="#i-wa"/></svg> اسأل قبل أن تدفع</button>
+  </div>
+</section>
+
+<!-- ══════════ إيصالٌ يُشارَك ══════════ -->
+<section class="scr" id="receipt">
+  <button class="back" data-go="orders"><svg><use href="#i-chev"/></svg> طلباتي</button>
+  <div class="body" style="padding-top:10px;gap:16px">
+    <div style="text-align:center">
+      <b class="f20">وصلت شحنتك</b>
+      <p class="f13 mu" style="margin:5px 0 0">شاركها مع أصدقائك — ولك ٥ نقاط على كل مشاركة.</p>
+    </div>
+
+    <div style="border-radius:20px;overflow:hidden;position:relative;color:#fff;
+                background:radial-gradient(130% 120% at 15% 0%,#0e8a7c 0,transparent 62%),
+                           linear-gradient(160deg,#078578 0,#04443f 100%);padding:22px 18px">
+      <span class="ring" style="width:180px;height:180px;bottom:-80px;right:-40px;position:absolute;border:1px solid rgba(255,255,255,.1);border-radius:50%"></span>
+      <div style="position:relative;display:flex;flex-direction:column;gap:14px;align-items:center;text-align:center">
+        <span class="pillw" style="letter-spacing:.14em">RAMAAN · شُحنت</span>
+        <span style="width:52px;height:52px;border-radius:15px;background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.22);display:grid;place-items:center">
+          <svg style="width:27px;height:27px"><use href="#i-bolt"/></svg></span>
+        <b style="font-size:30px;line-height:1.15">٦٦٠ شدّة</b>
+        <span class="f12" style="opacity:.8"><span class="num">Yuusuf_99</span> · في <span class="num">٤</span> دقائق</span>
+        <div style="width:100%;height:1px;background:repeating-linear-gradient(to left,rgba(255,255,255,.4) 0 5px,transparent 5px 10px)"></div>
+        <span class="f12" style="opacity:.9">اشحن أنت أيضاً · <b class="num">eramaan.com</b></span>
+      </div>
+    </div>
+
+    <div style="display:flex;flex-direction:column;gap:10px">
+      <span class="btn wa"><svg style="width:20px;height:20px"><use href="#i-wa"/></svg> شارك على واتساب</span>
+      <span class="btn o"><svg style="width:19px;height:19px"><use href="#i-share"/></svg> احفظ الصورة</span>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════ ⑬ القائمة الجانبية ══════════ -->
+<div class="drawer" id="drawer">
+  <div class="pn">
+    <div class="row">
+      <span class="mk" style="width:34px;height:34px;color:var(--s-acc);flex:none"><svg viewBox="0 0 24 24" style="width:34px;height:34px"><use href="#i-bag"/></svg></span>
+      <span class="gr"><b>رَمَعان</b><span class="f11 mu" style="display:block">شحن فوري</span></span>
+      <button data-drawer="close" aria-label="إغلاق"><svg style="width:20px;height:20px;color:var(--s-mut)"><use href="#i-x"/></svg></button>
+    </div>
+    <button class="card row" style="padding:11px;background:var(--s-sur2);border:0" data-go="account">
+      <span class="plate" style="width:36px;height:36px"><svg style="width:19px;height:19px"><use href="#i-user"/></svg></span>
+      <span class="gr" style="text-align:start"><b class="f13">يوسف عبدي</b><span class="f11 mu" style="display:block">حسابي وطلباتي</span></span>
+    </button>
+    <div style="display:flex;flex-direction:column;gap:3px">
+      <button class="row" style="padding:11px 6px" data-go="pubg"><span class="plate" style="width:32px;height:32px;background:0;color:var(--s-acc)"><svg style="width:19px;height:19px"><use href="#i-bolt"/></svg></span><span class="gr f13 b">شدات ببجي</span></button>
+      <button class="row" style="padding:11px 6px" data-go="soon"><span class="plate" style="width:32px;height:32px;background:0;color:var(--s-acc)"><svg style="width:19px;height:19px"><use href="#i-ball"/></svg></span><span class="gr f13 b">كوينز eFootball</span></button>
+      <button class="row" style="padding:11px 6px" data-go="tiktok"><span class="plate" style="width:32px;height:32px;background:0;color:var(--s-acc)"><svg style="width:19px;height:19px"><use href="#i-music"/></svg></span><span class="gr f13 b">حسابات تيك توك</span></button>
+      <button class="row" style="padding:11px 6px" data-go="points"><span class="plate" style="width:32px;height:32px;background:0;color:var(--s-gold)"><svg style="width:19px;height:19px"><use href="#i-drop"/></svg></span><span class="gr f13 b">بَرْواقو</span><b class="num f12" style="color:var(--s-gold)">١٢٠</b></button>
+      <button class="row" style="padding:11px 6px" data-go="cart"><span class="plate" style="width:32px;height:32px;background:0;color:var(--s-acc)"><svg style="width:19px;height:19px"><use href="#i-dev"/></svg></span><span class="gr f13 b">إلكترونيات</span></button>
+    </div>
+    <div style="height:1px;background:var(--s-line)"></div>
+    <div class="row" style="gap:7px" data-chips>
+      <button class="chip on b">العربية</button>
+      <button class="chip">EN</button>
+      <button class="chip">SO</button>
+    </div>
+    <span class="btn wa" style="margin-top:auto;min-height:46px;font-size:14px">
+      <svg style="width:19px;height:19px"><use href="#i-wa"/></svg> راسلنا على واتساب</span>
+  </div>
+</div>
+
+</div>
+
+<script>
+(function(){
+  "use strict";
+  var drawer = document.getElementById('drawer');
+
+  /* أيّ تبويب يُضيء في كل شاشة — الشاشة الداخلية تُبقي بابَها مضيئاً */
+  var TAB = {home:'home', games:'games', pubg:'games', soon:'games',
+             accounts:'accounts', tiktok:'accounts', efoot:'accounts',
+             help:'help', chat:'help', policy:'help'};
+
+  /* القائمة السفلية — الموقع: الحسابات. (التطبيق يضع بَرْواقو مكانها) */
+  var TABS = [['home','i-home','الرئيسية'],['games','i-grid','الألعاب'],
+              ['accounts','i-user','الحسابات'],['help','i-help','الدعم']];
+
+  Array.prototype.forEach.call(document.querySelectorAll('[data-nav]'), function(slot){
+    var n = document.createElement('nav');
+    n.className = 'nav';
+    n.innerHTML = TABS.map(function(t){
+      return '<button data-go="' + t[0] + '"><svg><use href="#' + t[1] + '"/></svg>' + t[2] + '</button>';
+    }).join('');
+    slot.replaceWith(n);
+  });
+
+  function show(id){
+    var el = document.getElementById(id);
+    if (!el) return;
+    var cur = document.querySelector('.scr.on');
+    if (cur === el) { closeDrawer(); return; }
+    if (cur) cur.classList.remove('on');
+    el.classList.add('on');
+
+    var tab = TAB[id];
+    var nav = el.querySelector('.nav');
+    if (nav) Array.prototype.forEach.call(nav.children, function(b){
+      b.classList.toggle('on', b.getAttribute('data-go') === tab);
+    });
+
+    var body = el.querySelector('.body');
+    if (body) body.scrollTop = 0;
+
+    closeDrawer();
+    if (location.hash.slice(1) !== id) history.replaceState(null, '', '#' + id);
+  }
+
+  function openDrawer(){ drawer.classList.add('on'); }
+  function closeDrawer(){ drawer.classList.remove('on'); }
+
+  document.addEventListener('click', function(e){
+    var d = e.target.closest('[data-drawer]');
+    if (d) { d.getAttribute('data-drawer') === 'open' ? openDrawer() : closeDrawer(); return; }
+    if (e.target === drawer) { closeDrawer(); return; }
+
+    var g = e.target.closest('[data-go]');
+    if (g) { show(g.getAttribute('data-go')); return; }
+
+    /* اختيار الباقة — يُحدّث المجموع في الشريط السفلي */
+    var v = e.target.closest('.vch[data-price]');
+    if (v) {
+      var box = v.closest('[data-packs]');
+      Array.prototype.forEach.call(box.querySelectorAll('.vch'), function(x){ x.classList.remove('sel'); });
+      v.classList.add('sel');
+      var total = v.closest('.scr').querySelector('[data-total]');
+      if (total) total.textContent = v.getAttribute('data-price');
+      return;
+    }
+
+    /* وسيلة الدفع — علامةٌ واحدة لا علامتان */
+    var pay = e.target.closest('[data-pays] button.card');
+    if (pay) {
+      var pbox = pay.closest('[data-pays]');
+      Array.prototype.forEach.call(pbox.querySelectorAll('button.card'), function(x){
+        x.classList.remove('acc');
+        var tk = x.querySelector('[data-tick]');
+        if (tk) tk.style.display = 'none';
+      });
+      pay.classList.add('acc');
+      var tick = pay.querySelector('[data-tick]');
+      if (tick) tick.style.display = 'block';
+      return;
+    }
+
+    /* الأقراص: السياسات · اللغات */
+    var chip = e.target.closest('[data-chips] .chip');
+    if (chip) {
+      Array.prototype.forEach.call(chip.parentElement.children, function(x){ x.classList.remove('on','b'); });
+      chip.classList.add('on','b');
+      return;
+    }
+
+    /* كمّية السلّة */
+    var q = e.target.closest('[data-qty]');
+    if (q) {
+      var val = q.parentElement.querySelector('[data-qtyval]');
+      var AR = ['٠','١','٢','٣','٤','٥','٦','٧','٨','٩'];
+      var n = AR.indexOf(val.textContent.trim());
+      n = Math.min(9, Math.max(1, n + Number(q.getAttribute('data-qty'))));
+      val.textContent = AR[n];
+      var t = document.querySelector('[data-cart-total]');
+      if (t) t.textContent = '$' + (24 * n + 9.5).toFixed(2);
+      return;
+    }
+  });
+
+  window.addEventListener('hashchange', function(){
+    var id = location.hash.slice(1);
+    if (id && document.getElementById(id)) show(id);
+  });
+
+  var start = location.hash.slice(1);
+  show(document.getElementById(start) ? start : 'home');
+})();
+</script>
