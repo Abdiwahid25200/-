@@ -18,7 +18,8 @@
     "games": "Ciyaaraha",
     "accounts": "Akoonnada",
     "support": "Caawimaad",
-    "help": "Caawin"
+    "help": "Caawin",
+    "barwaaqo": "Barwaaqo"
   },
   "footer": {
     "quick": "Xiriirro degdeg ah",
@@ -618,5 +619,11 @@
     "games": "Buuxinta ciyaaraha meel keliya: PUBG UC iyo lacagta eFootball — qiimo cad, gaarsiin degdeg ah, taageero WhatsApp.",
     "help": "Sida dukaanku u shaqeeyo, habab lacag-bixin, su'aalaha badan la is weydiiyo, iyo siday noola soo xiriiri karaan.",
     "policy": "Siyaasadaha celinta lacagta, qarsoodiga iyo isticmaalka — si cad loo qoray si aad u ogaato xuquuqdaada."
+  },
+  "webOnly": {
+    "title": "Qaybtan waxay ku taallaa websaydka",
+    "note": "Iibsashada akoonnada waxaa lagu qabtaa eramaan.com, halkaas oo aan ka hubinno akoon kasta ka hor inta uusan kuu gaarin.",
+    "open": "Fur websaydka",
+    "ask": "Nagu weydii WhatsApp"
   }
 }

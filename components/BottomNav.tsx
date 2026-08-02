@@ -2,19 +2,35 @@
 
 import { useTranslations } from "next-intl";
 import { Link, usePathname } from "@/i18n/navigation";
+import { useIsApp } from "@/lib/platform";
 import {
+  IconGift,
   IconNavAccounts,
   IconNavGames,
   IconNavHelp,
   IconNavHome,
 } from "./icons";
 
-const tabs = [
-  { key: "home", href: "/", Icon: IconNavHome },
-  { key: "games", href: "/games", Icon: IconNavGames },
-  { key: "accounts", href: "/accounts", Icon: IconNavAccounts },
-  { key: "help", href: "/help", Icon: IconNavHelp },
-] as const;
+/**
+ * ⚠️ **الخانة الثالثة تختلف بين الموقع والتطبيق** — قرار صاحبة المتجر:
+ *
+ *    الموقع:  Home · Games · **Accounts** · Help
+ *    التطبيق: Home · Games · **Barwaaqo** · Help
+ *
+ *    لأن بيع الحسابات يبقى على الموقع وحده، فمكانُه في التطبيق يأخذه
+ *    برنامج النقاط. وما عدا الخانة الثالثة فواحدٌ في السطحين — فلا
+ *    يتعلّم الزبون تنقّلين لمتجرٍ واحد.
+ */
+const WEB_THIRD = { key: "accounts", href: "/accounts", Icon: IconNavAccounts } as const;
+const APP_THIRD = { key: "barwaaqo", href: "/points", Icon: IconGift } as const;
+
+const tabsFor = (isApp: boolean) =>
+  [
+    { key: "home", href: "/", Icon: IconNavHome },
+    { key: "games", href: "/games", Icon: IconNavGames },
+    isApp ? APP_THIRD : WEB_THIRD,
+    { key: "help", href: "/help", Icon: IconNavHelp },
+  ] as const;
 
 /**
  * القائمة السفلية — مطابقة للمعاينة التي اعتمدتها صاحبة المشروع:
@@ -24,6 +40,8 @@ const tabs = [
 export default function BottomNav() {
   const pathname = usePathname();
   const t = useTranslations("nav");
+  const isApp = useIsApp();
+  const tabs = tabsFor(isApp);
 
   return (
     /**

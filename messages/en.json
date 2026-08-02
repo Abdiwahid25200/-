@@ -18,7 +18,8 @@
     "games": "Games",
     "accounts": "Accounts",
     "support": "Support",
-    "help": "Help"
+    "help": "Help",
+    "barwaaqo": "Barwaaqo"
   },
   "footer": {
     "quick": "Quick links",
@@ -618,5 +619,11 @@
     "games": "Game top-ups in one place: PUBG UC and eFootball coins — clear prices, instant delivery and WhatsApp support.",
     "help": "How the store works, payment methods, frequent questions and every way to reach us — before and after your order.",
     "policy": "Refund, privacy and usage policies — written plainly so you know where you stand before and after buying."
+  },
+  "webOnly": {
+    "title": "This part is on the website",
+    "note": "Buying accounts is handled on eramaan.com, where we can verify every account before it reaches you.",
+    "open": "Open the website",
+    "ask": "Ask us on WhatsApp"
   }
 }

@@ -9,6 +9,7 @@ import { ThemeChoice } from "./ThemeToggle";
 import Logo from "./Logo";
 import { IconCart, IconDoc, IconMenu, IconSupport, IconUser } from "./icons";
 import SectionIcon, { type SectionIconKey } from "./SectionIcon";
+import { showsGroup, useIsApp } from "@/lib/platform";
 import { sections } from "@/lib/content";
 import { customSections, readSections } from "@/lib/overrides";
 import { POINTS_BRAND, POINTS_ICON, readPointsSettings } from "@/lib/points";
@@ -27,12 +28,14 @@ const shop = [
       href: s.href,
       icon: s.icon as SectionIconKey,
       img: s.img,
+      group: s.group as string | undefined,
     })),
   {
     key: "games",
     href: "/games",
     icon: "games" as SectionIconKey,
     img: undefined as string | undefined,
+    group: "games" as string | undefined,
   },
 ];
 
@@ -51,10 +54,18 @@ const info = [
 
 export default function MenuDrawer({ phone }: { phone?: string }) {
   const active = useLocale();
+  const isApp = useIsApp();
   const [open, setOpen] = useState(false);
   /** الأقسام التي أضافتها صاحبة المتجر — تُقرأ مرّة عند أول فتح للقائمة */
   const [added, setAdded] = useState<
-    { key: string; href: string; icon: SectionIconKey; img?: string; label: string }[]
+    {
+      key: string;
+      href: string;
+      icon: SectionIconKey;
+      img?: string;
+      label: string;
+      group?: string;
+    }[]
   >([]);
   /** الأقسام الأصلية بعد تطبيق صور اللوحة عليها */
   const [base, setBase] = useState(shop);
@@ -93,6 +104,7 @@ export default function MenuDrawer({ phone }: { phone?: string }) {
             href: c.href,
             icon: (c.over?.icon ?? "games") as SectionIconKey,
             img: c.over?.img,
+            group: c.over?.group ?? "games",
             label:
               c.over?.title?.[active as "ar" | "en" | "so"] ||
               c.over?.title?.en ||
@@ -209,7 +221,14 @@ export default function MenuDrawer({ phone }: { phone?: string }) {
             </div>
 
             <nav className="flex flex-col gap-5 p-3">
-              <Group title={t("shop")} items={[...base, ...added]} />
+              <Group
+                title={t("shop")}
+                /* 🚫 أقسام الحسابات لا تظهر في التطبيق — قرارها.
+                   والتصفية بالمجموعة، فقسمٌ جديد فيها يُخفى وحده. */
+                items={[...base, ...added].filter((x) =>
+                  showsGroup(x.group, isApp),
+                )}
+              />
               <Group
                 title={t("mine")}
                 items={

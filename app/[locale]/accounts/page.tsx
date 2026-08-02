@@ -3,6 +3,7 @@ import { pageMeta } from "@/lib/seo";
 import SectionHead from "@/components/SectionHead";
 import GameTile from "@/components/GameTile";
 import BackLink from "@/components/BackLink";
+import WebOnly from "@/components/WebOnly";
 import { mergedSections } from "@/lib/overrides";
 import { pick } from "@/lib/overrides";
 
@@ -38,6 +39,8 @@ export default async function AccountsPage({
 
   return (
     <main className="seq page-w flex flex-col gap-4 px-4 py-6">
+      {/* 🚫 قسمُ الحسابات للموقع وحده — يُقال ذلك لمن فتحه في التطبيق */}
+      <WebOnly path="/accounts" />
       <BackLink />
       <SectionHead
         eyebrow={te("accounts")} title={t("title")} note={t("note")} />
