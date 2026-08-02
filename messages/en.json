@@ -373,7 +373,7 @@
   },
   "accountPage": {
     "title": "My account",
-    "note": "Your details and quick links",
+    "note": "Your details",
     "guest": "You are browsing as a guest",
     "guestNote": "Sign in to track your orders and save your details",
     "login": "Sign in",
