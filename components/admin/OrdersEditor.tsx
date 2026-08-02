@@ -8,6 +8,7 @@ import Choose from "./Choose";
 import { IconDownload } from "@/components/icons";
 import { csvDate, csvName, downloadCsv } from "@/lib/csv";
 import { inSpan, spanLabel, today, type Span } from "@/lib/span";
+import { DONE_GROUP, DONE_GROUP_NOTE, doneLabel } from "@/lib/deliver";
 import {
   allOrders,
   claimOrder,
@@ -45,8 +46,10 @@ import {
 const FILTERS = [
   { v: "all", label: "All orders" },
   { v: "pending", label: "Waiting — not confirmed yet" },
-  { v: "paid", label: "Accepted — paid, to deliver" },
-  { v: "done", label: "Delivered — finished" },
+  { v: "paid", label: "Accepted — paid, not sent yet" },
+  /* ⚠️ المجموعة لا تُسمّى بإحدى الكلمات الثلاث: فيها شحنٌ وتسليمٌ
+     وتوصيلٌ معاً، فتُسمّى بما يجمعها ويُشرح تحته. */
+  { v: "done", label: `${DONE_GROUP} — ${DONE_GROUP_NOTE}` },
   { v: "cancelled", label: "Rejected — cancelled" },
 ] as const;
 
@@ -55,7 +58,7 @@ const SHORT: Record<(typeof FILTERS)[number]["v"], string> = {
   all: "All orders",
   pending: "Waiting",
   paid: "Accepted",
-  done: "Delivered",
+  done: DONE_GROUP,
   cancelled: "Rejected",
 };
 
@@ -66,13 +69,22 @@ const STATUS_STYLE: Record<OrderStatus, string> = {
   cancelled: "bg-danger/10 text-danger",
 };
 
-/** كلماتٌ لا مصطلحات: «New» أوضح من `pending` لمن يفتح اللوحة أوّل مرّة */
-const STATUS_WORD: Record<OrderStatus, string> = {
-  pending: "New",
-  paid: "Paid",
-  done: "Delivered",
-  cancelled: "Cancelled",
+/**
+ * كلماتٌ لا مصطلحات: «Waiting» أوضح من `pending` لمن يفتح اللوحة أوّل مرّة.
+ *
+ * ⚠️ و`done` **تتبع القسم**: شدّات ببجي «Topped up»، وحساب تيك توك
+ *    «Handed over»، والجهاز «Delivered». فتُطلب بـ`statusWord(o)` لا
+ *    من هذا الجدول — والجدول يترك `done` فارغاً عمداً لئلّا يُستعمل سهواً.
+ */
+const STATUS_WORD: Record<Exclude<OrderStatus, "done">, string> = {
+  pending: "Waiting",
+  paid: "Accepted",
+  cancelled: "Rejected",
 };
+
+/** كلمة الحالة لهذا الطلب — ونهايتُه بكلمة قسمه */
+const statusWord = (o: AdminOrder): string =>
+  o.status === "done" ? doneLabel(o.kind) : (STATUS_WORD[o.status] ?? o.status);
 
 const fmtDate = (d: Date | null) =>
   d ? d.toLocaleString("en-GB", { dateStyle: "short", timeStyle: "short" }) : "—";
@@ -271,7 +283,7 @@ export default function OrdersEditor() {
         o.name || "",
         o.email || "",
         o.account || "",
-        STATUS_WORD[o.status] ?? o.status,
+        statusWord(o),
         (Number(o.total) || 0).toFixed(2),
         o.payMethod || "",
         Number(o.pointsSpent) || Number(o.usePoints) || 0,
@@ -464,7 +476,7 @@ export default function OrdersEditor() {
                       STATUS_STYLE[o.status] ?? ""
                     }`}
                   >
-                    {STATUS_WORD[o.status] ?? o.status}
+                    {statusWord(o)}
                   </span>
                   {/* حجزٌ وصل خارج الدوام — يُنفَّذ أوّل ما تفتحين */}
                   {o.reserved && (
@@ -603,12 +615,22 @@ export default function OrdersEditor() {
                     </a>
                   )}
 
+                  {/* ⚠️ الخياران **مفصولان سطرَين**: كانا جملةً واحدة تخلط
+                      «شحنتِ» بـ«Mark paid» — والشحن غيرُ الدفع. */}
                   {unsettled && (
-                    <p className="rounded-card border border-danger/40 bg-danger/5 p-2.5 text-sm">
-                      The customer cancelled — press <strong>Settle points</strong>{" "}
-                      to return what was used and take back what was given. Already
-                      topped up? Press <strong>Mark paid</strong> instead.
-                    </p>
+                    <div className="rounded-card border border-danger/40 bg-danger/5 p-2.5 text-sm">
+                      <p className="font-bold">The customer cancelled this order.</p>
+                      <ul className="mt-1.5 flex flex-col gap-1">
+                        <li>
+                          Nothing sent yet → press <strong>Settle points</strong> —
+                          it returns what was used and takes back what was given.
+                        </li>
+                        <li>
+                          Already sent it → press <strong>Mark paid</strong>, then{" "}
+                          <strong>{doneLabel(o.kind)}</strong>.
+                        </li>
+                      </ul>
+                    </div>
                   )}
 
                   {/* القبول أوّلاً: لا يعمل مساعدٌ على طلبٍ لم يقبله */}
@@ -651,13 +673,16 @@ export default function OrdersEditor() {
                     >
                       Mark paid
                     </button>
+                    {/* ⚠️ الزرّ بكلمة قسمه: «Topped up» لشدّات ببجي،
+                        و«Handed over» لحساب تيك توك، و«Delivered» للجهاز.
+                        زرٌّ يقول «Delivered» عن شحن شدّاتٍ يُربك من يقرؤه. */}
                     <button
                       type="button"
                       disabled={busy === o.id || o.status === "done" || (!owner && !o.claimedBy)}
                       onClick={() => void move(o, "done")}
                       className={btn}
                     >
-                      Delivered
+                      {doneLabel(o.kind)}
                     </button>
                     <button
                       type="button"

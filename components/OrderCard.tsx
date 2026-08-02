@@ -7,6 +7,7 @@ import PointsBrand from "./PointsBrand";
 import { readSections } from "@/lib/overrides";
 import { sections as staticSections } from "@/lib/content";
 import { cancelMyOrder, canCancel } from "@/lib/orders";
+import { doneWord } from "@/lib/deliver";
 import { fmt } from "@/lib/format";
 import { wa } from "@/lib/data";
 import type { SavedOrder } from "@/lib/orders";
@@ -34,20 +35,22 @@ import {
  */
 
 /**
- * لكل قسم أيقونته واسمه — و**كلمة نهايته**.
- * "تم التسليم" لا تصف شحن شدات: الألعاب تُشحن، والحسابات تُسلَّم،
- * والإلكترونيات تُوصَّل. كلمة واحدة لكل الأقسام تجعل الجملة غريبة.
+ * لكل قسم أيقونته وصفحته.
+ *
+ * ⚠️ و**كلمة نهايته في `lib/deliver.ts`** لا هنا: تقرؤها اللوحة أيضاً،
+ *    فبقاؤها هنا وحدها هو ما جعل اللوحة تقول «Delivered» لشدّات ببجي
+ *    بينما يقرأ الزبون «Topped up».
  */
 const kinds = {
-  pubg: { Icon: IconBolt, page: "pubg", done: "toppedUp" },
-  efootball: { Icon: IconBall, page: "efootball", done: "toppedUp" },
-  tiktok: { Icon: IconMusic, page: "tiktok", done: "handedOver" },
-  accounts: { Icon: IconBall, page: "efootballAccounts", done: "handedOver" },
-  elec: { Icon: IconDevice, page: "electronics", done: "shipped" },
+  pubg: { Icon: IconBolt, page: "pubg" },
+  efootball: { Icon: IconBall, page: "efootball" },
+  tiktok: { Icon: IconMusic, page: "tiktok" },
+  accounts: { Icon: IconBall, page: "efootballAccounts" },
+  elec: { Icon: IconDevice, page: "electronics" },
   // شراء نقاط — كان يظهر «إلكترونيات» بأيقونة جهاز، وهو ليس منتجاً أصلاً
-  points: { Icon: IconDevice, page: "points", done: "toppedUp" },
-  "points-send": { Icon: IconDevice, page: "points", done: "handedOver" },
-  "points-sell": { Icon: IconDevice, page: "points", done: "handedOver" },
+  points: { Icon: IconDevice, page: "points" },
+  "points-send": { Icon: IconDevice, page: "points" },
+  "points-sell": { Icon: IconDevice, page: "points" },
 } as const;
 
 type KindKey = keyof typeof kinds;
@@ -84,7 +87,8 @@ export default function OrderCard({
   const locale = useLocale();
 
   const kind = (order.kind in kinds ? order.kind : "elec") as KindKey;
-  const { Icon, page, done: doneKey } = kinds[kind];
+  const { Icon, page } = kinds[kind];
+  const doneKey = doneWord(order.kind);
   const isPoints = kind.startsWith("points");
 
   /**

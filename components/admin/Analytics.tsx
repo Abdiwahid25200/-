@@ -8,6 +8,7 @@ import { IconCheckCircle, IconDownload } from "@/components/icons";
 import DateRange from "./DateRange";
 import { csvDate, csvName, downloadCsv } from "@/lib/csv";
 import { daysAgo, inSpan, today, type Span } from "@/lib/span";
+import { DONE_GROUP } from "@/lib/deliver";
 import {
   MIN_ORDERS,
   avgMinutes,
@@ -207,7 +208,7 @@ export default function Analytics() {
 
           <div className="grid grid-cols-2 gap-2">
             <Box label="Orders" value={String(s.count)} small />
-            <Box label="Paid & delivered" value={String(s.paid)} small />
+            <Box label={`Paid & ${DONE_GROUP.toLowerCase()}`} value={String(s.paid)} small />
             <Box label="Waiting for you" value={String(s.pending)} small />
             <Box label="Cancelled" value={String(s.cancelled)} small />
             <Box label="Average order" value={money(s.avg)} small />
@@ -309,14 +310,14 @@ function TrustBarBox() {
       <h3 className="font-bold">Trust bar on the home page</h3>
       <p className="mt-1 text-sm text-muted">
         Real numbers from your own orders. It stays hidden until you have{" "}
-        <strong className="num">{MIN_ORDERS}</strong> delivered orders — a small
+        <strong className="num">{MIN_ORDERS}</strong> finished orders — a small
         number weakens trust instead of building it.
       </p>
 
       <div className="mt-3 grid grid-cols-2 gap-2">
-        <Box label="Delivered" value={String(done)} small />
+        <Box label={DONE_GROUP} value={String(done)} small />
         <Box
-          label="Average delivery"
+          label="Average time"
           value={avg > 0 ? `${avg} min` : "—"}
           small
         />
@@ -328,7 +329,7 @@ function TrustBarBox() {
         ) : (
           <span className="text-muted">
             Hidden — <strong className="num">{MIN_ORDERS - done}</strong> more
-            delivered orders to go.
+            finished orders to go.
           </span>
         )}
       </p>

@@ -6,6 +6,7 @@ import { allOrders, type AdminOrder } from "@/lib/adminOrders";
 import DateRange from "./DateRange";
 import Choose from "./Choose";
 import { csvDate, csvName, downloadCsv } from "@/lib/csv";
+import { doneLabel } from "@/lib/deliver";
 import { daysAgo, inSpan, spanLabel, today, type Span } from "@/lib/span";
 
 /**
@@ -36,6 +37,19 @@ function itemLine(o: AdminOrder): string {
   const head = `${first.title}${qty > 1 ? ` ×${qty}` : ""}`;
   return items.length > 1 ? `${head} +${items.length - 1}` : head;
 }
+
+/**
+ * كلمة الحالة — و`done` **بكلمة قسمها**: شدّاتٌ تُشحن، وحسابٌ يُسلَّم،
+ * وجهازٌ يُوصَّل. (كانت تُطبع `done` خاماً بحروفٍ كبيرة.)
+ */
+const statusWord = (o: AdminOrder): string =>
+  o.status === "done"
+    ? doneLabel(o.kind)
+    : o.status === "paid"
+      ? "Accepted"
+      : o.status === "cancelled"
+        ? "Rejected"
+        : "Waiting";
 
 const handlerOf = (o: AdminOrder) =>
   (o.claimedName || o.claimedBy || "").trim() || "Owner";
@@ -112,7 +126,7 @@ export default function Report() {
         itemLine(o),
         o.name || "",
         o.email || "",
-        o.status,
+        statusWord(o),
         (Number(o.total) || 0).toFixed(2),
         o.cancelReason || "",
       ]),
@@ -128,7 +142,7 @@ export default function Report() {
     { v: "", label: "Choose one…" },
     {
       v: "accepted",
-      label: `Accepted — paid & delivered · ${money(split.acceptedSum)}`,
+      label: `Accepted — paid or done · ${money(split.acceptedSum)}`,
       count: split.accepted.length,
     },
     {
@@ -281,7 +295,7 @@ export default function Report() {
                   <span>
                     by <strong className="text-text">{handlerOf(o)}</strong>
                   </span>
-                  <span className="uppercase">{o.status}</span>
+                  <span>{statusWord(o)}</span>
                   {o.cancelReason && (
                     <span className="min-w-0 flex-1 truncate">
                       {o.cancelledBy === "customer" ? "customer: " : ""}

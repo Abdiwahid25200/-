@@ -8,6 +8,7 @@ import { readCosts, type Costs } from "@/lib/costs";
 import { mergedPay } from "@/lib/payments";
 import { isBuyable } from "@/lib/data";
 import { useAccess } from "@/lib/adminAccess";
+import { doneLabel } from "@/lib/deliver";
 
 /**
  * الرئيسية — **المال أوّلاً** (لغة «العدّاد»).
@@ -251,10 +252,11 @@ function Row({ o, onOpen }: { o: AdminOrder; onOpen: () => void }) {
     o.status === "pending"
       ? { t: "Waiting", c: "bg-orange/10 text-orange" }
       : o.status === "paid"
-        ? { t: "Paid", c: "bg-success/10 text-success" }
+        ? { t: "Accepted", c: "bg-success/10 text-success" }
         : o.status === "done"
-          ? { t: "Delivered", c: "bg-surface2 text-muted" }
-          : { t: "Cancelled", c: "bg-danger/10 text-danger" };
+          ? // كلمة القسم لا كلمةٌ واحدة للجميع — `lib/deliver.ts`
+            { t: doneLabel(o.kind), c: "bg-surface2 text-muted" }
+          : { t: "Rejected", c: "bg-danger/10 text-danger" };
 
   return (
     <button
