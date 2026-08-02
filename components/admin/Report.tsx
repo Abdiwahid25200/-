@@ -3,6 +3,9 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { IconChevron } from "@/components/icons";
 import { allOrders, type AdminOrder } from "@/lib/adminOrders";
+import DateRange from "./DateRange";
+import { csvDate, csvName, downloadCsv } from "@/lib/csv";
+import { daysAgo, inSpan, spanLabel, today, type Span } from "@/lib/span";
 
 /**
  * التقرير — **من عمل ماذا**.
@@ -16,13 +19,6 @@ import { allOrders, type AdminOrder } from "@/lib/adminOrders";
  */
 
 type Gate = "accepted" | "rejected" | null;
-
-const RANGES = [
-  { v: 7, label: "7 days" },
-  { v: 30, label: "30 days" },
-  { v: 90, label: "90 days" },
-  { v: 0, label: "All" },
-] as const;
 
 const money = (n: number) => `$${(Math.round(n * 100) / 100).toFixed(2)}`;
 
@@ -46,9 +42,9 @@ const handlerOf = (o: AdminOrder) =>
 export default function Report() {
   const [orders, setOrders] = useState<AdminOrder[] | null>(null);
   const [gate, setGate] = useState<Gate>(null);
-  const [days, setDays] = useState<number>(30);
-  /** يومٌ بعينه من التقويم — يتقدّم على المدى متى اختير */
-  const [oneDay, setOneDay] = useState("");
+  /* يفتح على آخر ثلاثين يوماً — **بتاريخَين ظاهرَين** لا بزرّ «30 days»:
+     الرقم الذي تقرئينه اليوم يبقى كما هو غداً، ويُنزَّل بالمدى نفسه. */
+  const [span, setSpan] = useState<Span>(() => ({ from: daysAgo(30), to: today() }));
   const [err, setErr] = useState(false);
 
   const load = useCallback(async () => {
@@ -65,28 +61,8 @@ export default function Report() {
     void load();
   }, [load]);
 
-  /**
-   * ⚠️ يومٌ بعينه **يتقدّم على المدى**: من اختارت ٢٨ يوليو لا تريد
-   *    «آخر ٣٠ يوماً» معه. والمقارنة بالتاريخ المحلّي لا بالتوقيت
-   *    العالمي، فاليوم الذي تختاره هو اليوم الذي تراه في تقويمها.
-   */
-  const inRange = useCallback(
-    (o: AdminOrder) => {
-      const d = o.createdAt;
-      if (oneDay) {
-        if (!d) return false;
-        const [y, m, day] = oneDay.split("-").map(Number);
-        return d.getFullYear() === y && d.getMonth() + 1 === m && d.getDate() === day;
-      }
-      if (!days) return true;
-      const t = d?.getTime();
-      return t ? t >= Date.now() - days * 86_400_000 : false;
-    },
-    [days, oneDay],
-  );
-
   const split = useMemo(() => {
-    const list = (orders ?? []).filter(inRange);
+    const list = (orders ?? []).filter((o) => inSpan(o.createdAt, span));
     const accepted = list.filter((o) => o.status === "paid" || o.status === "done");
     const rejected = list.filter((o) => o.status === "cancelled");
     const sum = (a: AdminOrder[]) => a.reduce((n, o) => n + (Number(o.total) || 0), 0);
@@ -97,7 +73,7 @@ export default function Report() {
       rejectedSum: sum(rejected),
       waiting: list.filter((o) => o.status === "pending").length,
     };
-  }, [orders, inRange]);
+  }, [orders, span]);
 
   const rows = gate === "accepted" ? split.accepted : gate === "rejected" ? split.rejected : [];
 
@@ -116,67 +92,45 @@ export default function Report() {
       .sort((a, b) => b.n - a.n);
   }, [rows]);
 
-  const chip =
-    "min-h-10 rounded-full border px-3 text-sm font-bold transition-colors";
-
   /** المدى المختار بالكلمات — يُطبع في الترويسة وفوق الجداول */
-  const rangeLabel = oneDay
-    ? oneDay
-    : (RANGES.find((r) => r.v === days)?.label ?? "");
+  const rangeLabel = spanLabel(span);
+
+  /**
+   * تنزيل التقرير — **من عمل ماذا** في جدول.
+   * ⚠️ عمودُ «المساعد» أوّل ما يُفرَز عليه في إكسل، فهو أوّل الأعمدة بعد
+   *    التاريخ: السؤال هنا «من اشتغل؟» لا «ماذا بِيع؟».
+   */
+  function download(rows: AdminOrder[], what: string) {
+    downloadCsv(
+      csvName(what, span.from, span.to),
+      ["Date", "Handled by", "Code", "Item", "Customer", "Email", "Status", "Amount USD", "Cancel reason"],
+      rows.map((o) => [
+        csvDate(o.createdAt),
+        handlerOf(o),
+        o.code,
+        itemLine(o),
+        o.name || "",
+        o.email || "",
+        o.status,
+        (Number(o.total) || 0).toFixed(2),
+        o.cancelReason || "",
+      ]),
+    );
+  }
 
   const ranges = (
-    <div className="flex flex-col gap-2">
-      {/* ⚠️ صفٌّ واحد يُمرَّر أفقياً — أربعة مدىً وزرّ تحديث لا يلتفّون */}
-      <div className="-mx-4 flex items-center gap-2 overflow-x-auto px-4 pb-1">
-        {RANGES.map((r) => (
-          <button
-            key={r.v}
-            type="button"
-            onClick={() => {
-              setDays(r.v);
-              setOneDay("");
-            }}
-            className={`${chip} shrink-0 ${
-              !oneDay && days === r.v
-                ? "border-orange bg-orange/10 text-orange"
-                : "border-line text-muted"
-            }`}
-          >
-            {r.label}
-          </button>
-        ))}
-        <button
-          type="button"
-          onClick={() => void load()}
-          className={`${chip} shrink-0 border-line text-muted`}
-        >
-          Refresh
-        </button>
-      </div>
-
-      {/* يومٌ بعينه من التقويم */}
-      <label className="flex items-center gap-2 text-sm text-muted">
-        <span className="shrink-0">Or pick a date</span>
-        <input
-          type="date"
-          value={oneDay}
-          onChange={(e) => setOneDay(e.target.value)}
-          dir="ltr"
-          className={`num min-h-11 min-w-0 flex-1 rounded-card border px-3 text-start outline-none ${
-            oneDay ? "border-orange text-orange" : "border-line"
-          }`}
-        />
-        {oneDay && (
-          <button
-            type="button"
-            onClick={() => setOneDay("")}
-            className="shrink-0 text-sm font-bold text-orange"
-          >
-            Clear
-          </button>
-        )}
-      </label>
-    </div>
+    <DateRange
+      span={span}
+      onChange={setSpan}
+      onRefresh={() => void load()}
+      onDownload={() =>
+        download(
+          gate ? rows : [...split.accepted, ...split.rejected],
+          gate ? `report-${gate}` : "report",
+        )
+      }
+      canDownload={(gate ? rows.length : split.accepted.length + split.rejected.length) > 0}
+    />
   );
 
   if (err)

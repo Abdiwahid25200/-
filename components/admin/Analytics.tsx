@@ -4,7 +4,10 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { allOrders, type AdminOrder } from "@/lib/adminOrders";
 import { readCosts, type Costs } from "@/lib/costs";
 import { pointsToUsd } from "@/lib/points";
-import { IconCheckCircle } from "@/components/icons";
+import { IconCheckCircle, IconDownload } from "@/components/icons";
+import DateRange from "./DateRange";
+import { csvDate, csvName, downloadCsv } from "@/lib/csv";
+import { daysAgo, inSpan, today, type Span } from "@/lib/span";
 import {
   MIN_ORDERS,
   avgMinutes,
@@ -26,19 +29,16 @@ import {
  *    محسوبٌ في الربح تلقائياً، ونعرضه منفصلاً لتعرفي كم كلّفك.
  */
 
-const RANGES = [
-  { v: 7, label: "7 days" },
-  { v: 30, label: "30 days" },
-  { v: 90, label: "90 days" },
-  { v: 0, label: "All time" },
-] as const;
-
 const money = (n: number) => `$${(Math.round(n * 100) / 100).toFixed(2)}`;
+
+/** رقمٌ خامٌ لإكسل — بلا `$` ولا فواصل، وإلا صار نصّاً لا يُجمع */
+const raw = (n: number) => (Math.round(n * 100) / 100).toFixed(2);
 
 export default function Analytics() {
   const [orders, setOrders] = useState<AdminOrder[] | null>(null);
   const [costs, setCosts] = useState<Costs>({});
-  const [days, setDays] = useState<number>(30);
+  /* يفتح على آخر ثلاثين يوماً — بتاريخَين ظاهرَين لا بزرّ «30 days» */
+  const [span, setSpan] = useState<Span>(() => ({ from: daysAgo(30), to: today() }));
   const [err, setErr] = useState(false);
 
   const load = useCallback(async () => {
@@ -58,11 +58,7 @@ export default function Analytics() {
   }, [load]);
 
   const s = useMemo(() => {
-    const list = (orders ?? []).filter((o) => {
-      if (!days) return true;
-      const t = o.createdAt?.getTime();
-      return t ? t >= Date.now() - days * 86_400_000 : false;
-    });
+    const list = (orders ?? []).filter((o) => inSpan(o.createdAt, span));
 
     const earned = list.filter((o) => o.status === "paid" || o.status === "done");
 
@@ -97,6 +93,8 @@ export default function Analytics() {
     const pointsGiven = earned.reduce((n, o) => n + (Number(o.pointsAwarded) || 0), 0);
 
     return {
+      list,
+      earned,
       count: list.length,
       pending: list.filter((o) => o.status === "pending").length,
       cancelled: list.filter((o) => o.status === "cancelled").length,
@@ -110,36 +108,73 @@ export default function Analytics() {
       pointsGiven,
       top,
     };
-  }, [orders, costs, days]);
+  }, [orders, costs, span]);
 
-  const chip =
-    "min-h-10 rounded-full border px-3 text-sm font-bold transition-colors";
+  /**
+   * تنزيل الحساب — **صفٌّ لكل طلب**، وفيه الدخل والتكلفة والربح.
+   *
+   * ⚠️ الأعمدة أرقامٌ خام بلا `$`: إكسل لا يجمع نصّاً، وعمودٌ فيه
+   *    «$2.45» يبقى كلاماً مهما ضغطتِ «مجموع».
+   * ⚠️ والتكلفةُ المجهولة تُترك **فارغة** لا صفراً: صفرٌ يعني «بلا
+   *    تكلفة» فيتضخّم الربح في الجدول كما يتضخّم في الشاشة.
+   */
+  function downloadOrders() {
+    downloadCsv(
+      csvName("profit", span.from, span.to),
+      ["Date", "Code", "Item", "Customer", "Status", "Revenue", "Cost", "Profit", "Discount", "Points given"],
+      s.earned.map((o) => {
+        let cost = 0;
+        let known = true;
+        for (const it of o.items ?? []) {
+          const c = costs[it.id];
+          if (c === undefined) known = false;
+          else cost += c * Math.max(1, it.qty ?? 1);
+        }
+        const rev = Number(o.total) || 0;
+        const first = (o.items ?? [])[0];
+        return [
+          csvDate(o.createdAt),
+          o.code,
+          first ? `${first.title}${(o.items ?? []).length > 1 ? ` +${(o.items ?? []).length - 1}` : ""}` : o.kind || "",
+          o.name || o.email || "",
+          o.status,
+          raw(rev),
+          known ? raw(cost) : "",
+          known ? raw(rev - cost) : "",
+          raw(Number(o.discount) || 0),
+          Number(o.pointsAwarded) || 0,
+        ];
+      }),
+    );
+  }
+
+  /** وجدولٌ ثانٍ: الأكثر مبيعاً — ما يُبنى عليه قرار «ماذا أزيد؟» */
+  function downloadItems() {
+    downloadCsv(
+      csvName("best-sellers", span.from, span.to),
+      ["Item", "Sold", "Revenue", "Cost each", "Profit"],
+      s.top.map((x) => {
+        const c = costs[x.id];
+        return [
+          x.title,
+          x.qty,
+          raw(x.revenue),
+          c === undefined ? "" : raw(c),
+          c === undefined ? "" : raw(x.revenue - c * x.qty),
+        ];
+      }),
+    );
+  }
 
   return (
     <div className="flex flex-col gap-4">
-      <div className="flex flex-wrap items-center gap-2">
-        {RANGES.map((r) => (
-          <button
-            key={r.v}
-            type="button"
-            onClick={() => setDays(r.v)}
-            className={`${chip} ${
-              days === r.v
-                ? "border-orange bg-orange/10 text-orange"
-                : "border-line text-muted"
-            }`}
-          >
-            {r.label}
-          </button>
-        ))}
-        <button
-          type="button"
-          onClick={() => void load()}
-          className={`${chip} ms-auto border-line text-muted`}
-        >
-          Refresh
-        </button>
-      </div>
+      <DateRange
+        span={span}
+        onChange={setSpan}
+        onRefresh={() => void load()}
+        onDownload={downloadOrders}
+        canDownload={s.earned.length > 0}
+      />
 
       {err && (
         <p className="rounded-card border border-danger/40 bg-danger/5 p-3 text-sm">
@@ -185,7 +220,19 @@ export default function Analytics() {
           </div>
 
           <section>
-            <h3 className="mb-2 font-bold">Best sellers</h3>
+            <div className="mb-2 flex items-center gap-2">
+              <h3 className="min-w-0 flex-1 font-bold">Best sellers</h3>
+              {s.top.length > 0 && (
+                <button
+                  type="button"
+                  onClick={downloadItems}
+                  className="flex min-h-10 shrink-0 items-center gap-1.5 rounded-full border border-orange/50 px-3 text-sm font-bold text-orange"
+                >
+                  <IconDownload className="size-4" />
+                  Excel
+                </button>
+              )}
+            </div>
             {s.top.length === 0 ? (
               <p className="rounded-card border border-dashed border-line p-5 text-center text-sm text-muted">
                 No paid orders in this period yet.

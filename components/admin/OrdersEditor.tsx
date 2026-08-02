@@ -3,6 +3,10 @@
 import { useCallback, useEffect, useState } from "react";
 import { useAuth } from "@/lib/auth";
 import { useAccess } from "@/lib/adminAccess";
+import DateRange from "./DateRange";
+import { IconDownload } from "@/components/icons";
+import { csvDate, csvName, downloadCsv } from "@/lib/csv";
+import { inSpan, spanLabel, today, type Span } from "@/lib/span";
 import {
   allOrders,
   claimOrder,
@@ -93,39 +97,11 @@ function amountOf(o: AdminOrder): string {
  * ⚠️ قائمةٌ تفتح على كل الطلبات منذ الأزل تُغرق صاحبتها: مئتا طلبٍ
  *    تبحث فيها عن طلبِ اليوم. فالشاشة تسأل أوّلاً: **متى** و**أيّها**،
  *    ثم تعرض ما طلبته وحده.
+ *
+ * ⚠️ و«متى» صارت **من … إلى** لا أزراراً جاهزة (قرارها): «آخر ٧ أيام»
+ *    مدىً يتحرّك تحت قدمها، ورقمُ اليوم فيه لا يساوي رقم أمس، فلا يُقارَن
+ *    بشيء ولا يُطابق ما ينزل في إكسل. والتفصيل في `lib/span.ts`.
  */
-const RANGES = [
-  { v: "today", label: "Today" },
-  { v: "yesterday", label: "Yesterday" },
-  { v: "7", label: "Last 7 days" },
-  { v: "30", label: "Last 30 days" },
-  { v: "all", label: "All time" },
-] as const;
-
-type Range = (typeof RANGES)[number]["v"];
-
-const DAY_MS = 86_400_000;
-
-/** هل يقع هذا الطلب في المدى المختار؟ ويومٌ بعينه يتقدّم على المدى */
-function inRange(d: Date | null, range: Range, oneDay: string): boolean {
-  if (oneDay) {
-    if (!d) return false;
-    const [y, m, day] = oneDay.split("-").map(Number);
-    return (
-      d.getFullYear() === y && d.getMonth() + 1 === m && d.getDate() === day
-    );
-  }
-  if (range === "all") return true;
-  if (!d) return false;
-
-  const now = new Date();
-  const midnight = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
-
-  if (range === "today") return d.getTime() >= midnight;
-  if (range === "yesterday")
-    return d.getTime() >= midnight - DAY_MS && d.getTime() < midnight;
-  return d.getTime() >= midnight - Number(range) * DAY_MS;
-}
 
 /** فاصل اليوم — «Today» و«Yesterday» ثم التاريخ */
 function dayOf(d: Date | null): string {
@@ -148,9 +124,8 @@ export default function OrdersEditor() {
   const [filter, setFilter] = useState<(typeof FILTERS)[number]["v"]>("pending");
   /** الشاشة الأولى: تسأل عن المدى والحالة قبل أن تعرض شيئاً */
   const [asking, setAsking] = useState(true);
-  const [range, setRange] = useState<Range>("today");
-  /** يومٌ بعينه من التقويم — يتقدّم على المدى متى اختير */
-  const [oneDay, setOneDay] = useState("");
+  /* تفتح على **اليوم**: الطرفان تاريخُ اليوم نفسه، كما كانت تماماً */
+  const [span, setSpan] = useState<Span>(() => ({ from: today(), to: today() }));
   const [open, setOpen] = useState<string | null>(null);
   const [busy, setBusy] = useState<string | null>(null);
   const [note, setNote] = useState<string | null>(null);
@@ -252,13 +227,47 @@ export default function OrdersEditor() {
   });
 
   /** ما وقع في المدى المختار — منه تُحسب أعداد الشاشة الأولى */
-  const inWindow = mine.filter((o) => inRange(o.createdAt, range, oneDay));
+  const inWindow = mine.filter((o) => inSpan(o.createdAt, span));
 
   const shown = inWindow.filter((o) => filter === "all" || o.status === filter);
 
-  const rangeLabel = oneDay
-    ? oneDay
-    : (RANGES.find((r) => r.v === range)?.label ?? "");
+  const rangeLabel = spanLabel(span);
+
+  /**
+   * تنزيل ما يُعرض الآن جدولاً لإكسل.
+   *
+   * ⚠️ **ما يُعرض لا كل شيء**: من اختارت «المرفوضة في يوليو» تريد ملفاً
+   *    بها وحدها. وملفٌ يحمل كل الطلبات يُلغي التصفية التي تعبت عليها.
+   */
+  function download(rows: AdminOrder[], what: string) {
+    downloadCsv(
+      csvName(what, span.from, span.to),
+      [
+        "Date", "Code", "Item", "Qty", "Section", "Customer", "Email",
+        "Account / ID", "Status", "Amount USD", "Payment", "Points used",
+        "Points given", "Discount USD", "Reserved", "Handled by", "Cancel reason",
+      ],
+      rows.map((o) => [
+        csvDate(o.createdAt),
+        o.code,
+        itemLine(o),
+        (o.items ?? []).reduce((n, i) => n + Math.max(1, i.qty ?? 1), 0) || 1,
+        o.kind || "",
+        o.name || "",
+        o.email || "",
+        o.account || "",
+        STATUS_WORD[o.status] ?? o.status,
+        (Number(o.total) || 0).toFixed(2),
+        o.payMethod || "",
+        Number(o.pointsSpent) || Number(o.usePoints) || 0,
+        Number(o.pointsAwarded) || 0,
+        (Number(o.discount) || 0).toFixed(2),
+        o.reserved ? "yes" : "",
+        o.claimedName || o.claimedBy || "Owner",
+        o.cancelReason || "",
+      ]),
+    );
+  }
 
   const chip =
     "min-h-10 rounded-full border px-3 text-sm font-bold transition-colors";
@@ -285,41 +294,16 @@ export default function OrdersEditor() {
           </p>
         )}
 
-        {/* ① متى */}
+        {/* ① متى — من … إلى، وبإمكانها تنزيل المدى كلّه لإكسل من هنا */}
         <section className="flex flex-col gap-2">
-          <h3 className="font-bold">Which day?</h3>
-          <div className="flex flex-wrap gap-2">
-            {RANGES.map((r) => (
-              <button
-                key={r.v}
-                type="button"
-                onClick={() => {
-                  setRange(r.v);
-                  setOneDay("");
-                }}
-                className={`${chip} ${
-                  !oneDay && range === r.v
-                    ? "border-orange bg-orange/10 text-orange"
-                    : "border-line text-muted"
-                }`}
-              >
-                {r.label}
-              </button>
-            ))}
-          </div>
-
-          <label className="flex items-center gap-2 text-sm text-muted">
-            <span className="shrink-0">Or pick a date</span>
-            <input
-              type="date"
-              value={oneDay}
-              onChange={(e) => setOneDay(e.target.value)}
-              dir="ltr"
-              className={`num min-h-11 min-w-0 flex-1 rounded-card border px-3 text-start outline-none ${
-                oneDay ? "border-orange text-orange" : "border-line"
-              }`}
-            />
-          </label>
+          <h3 className="font-bold">Which dates?</h3>
+          <DateRange
+            span={span}
+            onChange={setSpan}
+            onRefresh={() => void load()}
+            onDownload={() => download(inWindow, "orders")}
+            canDownload={inWindow.length > 0}
+          />
         </section>
 
         {/* ② أيّها — والعدد يتبع المدى المختار فوق */}
@@ -412,6 +396,18 @@ export default function OrdersEditor() {
           className={`${chip} shrink-0 border-line text-muted`}
         >
           Refresh
+        </button>
+        {/* ⚠️ ينزّل **المعروض** — بحالته ومداه معاً، لا كل الطلبات */}
+        <button
+          type="button"
+          disabled={shown.length === 0}
+          onClick={() =>
+            download(shown, `orders-${filter === "all" ? "all" : filter}`)
+          }
+          className={`${chip} flex shrink-0 items-center gap-1.5 border-orange/50 text-orange disabled:opacity-45`}
+        >
+          <IconDownload className="size-4" />
+          Excel
         </button>
       </div>
 

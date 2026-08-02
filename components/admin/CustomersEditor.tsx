@@ -8,6 +8,9 @@ import {
 } from "@/lib/customers";
 import { adjustPoints } from "@/lib/adminOrders";
 import { pointsToUsd } from "@/lib/points";
+import { IconDownload } from "@/components/icons";
+import { csvDate, downloadCsv } from "@/lib/csv";
+import { today } from "@/lib/span";
 
 /**
  * شاشة الزبائن — **كل الأرقام في مكان واحد**.
@@ -62,6 +65,32 @@ export default function CustomersEditor() {
   }
 
   const shown = (rows ?? []).filter((c) => matchCustomer(c, q));
+
+  /**
+   * تنزيل دليل الزبائن — **ما يُعرض بعد البحث**، فبحثٌ بكلمة يعطي ملفاً بها.
+   *
+   * ⚠️ ورقمُ الهاتف قد يظهر في إكسل هكذا `2.52615E+11` حتى تُوسَّع خانتُه
+   *    — رقمٌ سليم بعرضٍ ضيّق، لا بيانات ضائعة. وBOM في أوّل الملف يُبقي
+   *    الأسماء العربية أسماءً لا طلاسم (`lib/csv.ts`).
+   */
+  function download() {
+    downloadCsv(
+      `ramaan-customers-${today()}`,
+      ["Name", "Phone", "Email", "Points", "Points USD", "Invite code", "Invited", "Earned from invites", "Last seen"],
+      shown.map((c) => [
+        c.name,
+        c.phone,
+        c.email,
+        c.points,
+        pointsToUsd(c.points).toFixed(2),
+        c.ref,
+        c.refCount,
+        c.refEarned,
+        csvDate(c.at),
+      ]),
+    );
+  }
+
   const field =
     "min-h-12 w-full rounded-card border border-line bg-bg px-3 outline-none focus:border-orange";
 
@@ -82,6 +111,17 @@ export default function CustomersEditor() {
           Refresh
         </button>
       </div>
+
+      <button
+        type="button"
+        disabled={shown.length === 0}
+        onClick={download}
+        className="flex min-h-11 items-center justify-center gap-2 rounded-card border border-orange/50 px-3 font-bold text-orange disabled:opacity-45"
+      >
+        <IconDownload className="size-4" />
+        Download for Excel
+        {shown.length > 0 && <span className="num opacity-70">({shown.length})</span>}
+      </button>
 
       {note && (
         <p className="rounded-card border border-line bg-surface p-2.5 text-sm font-medium">

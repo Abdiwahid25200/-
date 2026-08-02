@@ -930,6 +930,26 @@ export function IconPaperPlane({ className = "" }: IconProps) {
   );
 }
 
+/** التنزيل — سهمٌ ينزل إلى صينية. لزرّ «حمّليها لإكسل» في اللوحة */
+export function IconDownload({ className = "" }: IconProps) {
+  return (
+    <svg viewBox="0 0 24 24" strokeWidth="1.9" className={`${base} ${className}`} aria-hidden>
+      <path strokeLinecap="round" strokeLinejoin="round" d="M12 3.5v11m0 0 4-4m-4 4-4-4" />
+      <path strokeLinecap="round" d="M4 16v2.5A2 2 0 0 0 6 20.5h12a2 2 0 0 0 2-2V16" />
+    </svg>
+  );
+}
+
+/** التقويم — لحقلَي «من» و«إلى» */
+export function IconCalendar({ className = "" }: IconProps) {
+  return (
+    <svg viewBox="0 0 24 24" strokeWidth="1.8" className={`${base} ${className}`} aria-hidden>
+      <rect x="3.2" y="5" width="17.6" height="15.5" rx="3" />
+      <path strokeLinecap="round" d="M3.2 9.8h17.6M8 2.8v3.6M16 2.8v3.6" />
+    </svg>
+  );
+}
+
 /** صحّان — «وصلت وقُرئت» في قوائم الدردشة */
 export function IconChecks({ className = "" }: IconProps) {
   return (
