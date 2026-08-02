@@ -425,6 +425,46 @@ export default function BuyFlow({
           <div ref={accountRef}>{accountForm}</div>
         ) : (
           <div ref={payRef} className="flex flex-col gap-5">
+            {/* ⚠️ **ملخّصٌ قبل الدفع** — كما في النموذج، وكان غائباً.
+                المبلغ كان في الشريط السفلي وحده: يفتح الزبون قائمة الدفع
+                ولا يرى **ماذا** يدفع ولا **على أيّ آيدي**. ولحظةُ إخراج
+                المال هي آخرُ لحظةٍ يُراجع فيها، فلا تُترك بلا مراجعة. */}
+            <div className="flex flex-col gap-2 rounded-card border border-line bg-surface p-3.5">
+              <div className="flex items-center gap-3 text-sm">
+                <span className="min-w-0 flex-1 truncate text-muted">{pack.title}</span>
+                <span className="num shrink-0 font-bold">{fmt(total)}</span>
+              </div>
+
+              {accountSummary && (
+                <div className="flex items-center gap-3 text-sm">
+                  <span className="shrink-0 text-muted">{t("account")}</span>
+                  <span className="num min-w-0 flex-1 truncate text-end" dir="ltr">
+                    {accountSummary}
+                  </span>
+                </div>
+              )}
+
+              {redeem.discount > 0 && (
+                <div className="flex items-center gap-3 text-sm">
+                  <span className="min-w-0 flex-1 truncate text-muted">
+                    {redeem.settings.brand}
+                  </span>
+                  <span className="num shrink-0 font-bold text-success">
+                    −{fmt(redeem.discount)}
+                  </span>
+                </div>
+              )}
+
+              <span aria-hidden className="h-px bg-line" />
+
+              <div className="flex items-center gap-3">
+                <span className="min-w-0 flex-1 font-bold">{t("total")}</span>
+                <span className="num shrink-0 text-xl font-bold text-yellow">
+                  {fmt(redeem.payable)}
+                </span>
+              </div>
+            </div>
+
             {payNeeded && (
               <PaySection
                 amount={redeem.payable}
