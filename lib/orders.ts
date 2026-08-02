@@ -22,6 +22,7 @@ import {
 } from "firebase/firestore";
 import type { User } from "firebase/auth";
 import { fbDb } from "./firebase";
+import { saveLast } from "./lastOrder";
 import { withTimeout } from "./timeout";
 
 export type OrderItem = {
@@ -108,6 +109,23 @@ function notifyOwner(order: NewOrder, user: User) {
   }).catch(() => {});
 }
 
+/**
+ * يُحفظ ما اشتراه ليجده جاهزاً في الرئيسية (`lib/lastOrder.ts`).
+ * ⚠️ ولا يُفشل الطلبَ أبداً لو تعثّر: راحةٌ لا ركن.
+ */
+function rememberLast(order: NewOrder): void {
+  try {
+    const first = order.items?.[0];
+    if (!first) return;
+    saveLast({
+      kind: order.kind,
+      title: first.title,
+      price: Number(first.price) || 0,
+      account: order.account,
+    });
+  } catch {}
+}
+
 export async function saveOrder(
   user: User | null,
   order: NewOrder,
@@ -126,6 +144,9 @@ export async function saveOrder(
       // serverTimestamp لا يقبل التزوير — القواعد تشترط أنه وقت الخادم
       createdAt: serverTimestamp(),
     });
+
+    /* ⚠️ **بعد النجاح لا قبله**: طلبٌ رُفض لا يُعرض «أكمل من حيث وقفت» */
+    rememberLast(order);
 
     notifyOwner(order, user);
     return { ok: true, id: ref.id };
@@ -241,6 +262,7 @@ export async function payWithPoints(
       paidBy: "points",
       createdAt: serverTimestamp(),
     });
+    rememberLast(order);
   } catch {
     return { ok: false, reason: "error" };
   }

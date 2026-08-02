@@ -676,5 +676,14 @@
   "emptyOrders": {
     "note": "Your first top-up lands in minutes. Start with one of these:",
     "uc": "UC"
+  },
+  "resume": {
+    "again": "Pick up where you left off",
+    "start": "Start here",
+    "go": "Top up now · 3 seconds",
+    "goNew": "Top up now",
+    "popular": "Our most popular pack",
+    "other": "Or choose another pack",
+    "uc": "{n} UC"
   }
 }

@@ -19,6 +19,7 @@ import {
 } from "firebase/auth";
 import { createContext, useContext, useEffect, useState } from "react";
 import { fbAuth, firebaseReady } from "./firebase";
+import { clearLast } from "./lastOrder";
 
 type Ctx = {
   user: User | null;
@@ -118,6 +119,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }
 
   async function signOut() {
+    /* ⚠️ آخر طلبٍ يُمحى مع الخروج: الجهاز يتشاركه إخوة، ولا يُعرض
+       على الداخل الجديد ما اشتراه من قبله. */
+    clearLast();
     const auth = fbAuth();
     if (auth) await fbSignOut(auth);
   }

@@ -1,5 +1,7 @@
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import HeroSlider from "@/components/HeroSlider";
+import ResumeHero from "@/components/ResumeHero";
+import HomeBarwaaqo from "@/components/HomeBarwaaqo";
 import ProductCard from "@/components/ProductCard";
 import TrustBar from "@/components/TrustBar";
 import { IconDevice } from "@/components/icons";
@@ -31,11 +33,19 @@ export default async function Home({
   const items = await mergedItems("elec");
 
   return (
-    <main className="seq page-w flex flex-col gap-9 px-4 py-6">
-      <HeroSlider slides={await mergedSlides(locale)} />
+    <main className="seq page-w flex flex-col gap-7 px-4 py-6">
+      {/* ⚠️ **البطل هو الشراء لا صورة**: من فتح المتجر يريد شحنةً، فيجد
+          طلبه الأخير جاهزاً قبل أن يفكّر. والبانر ينزل تحته — يبقى
+          للعروض ولا يسبق ما جاء الزبون من أجله. */}
+      <ResumeHero />
 
       {/* أرقام حقيقية قبل السعر — الغريب يخاف ألّا يصله شيء لا أن يدفع */}
       <TrustBar />
+
+      {/* الخيط الذي يشدّه للعودة — يظهر لمن له رصيد وحده */}
+      <HomeBarwaaqo />
+
+      <HeroSlider slides={await mergedSlides(locale)} />
 
       <section>
         <div className="coast-glow mb-3.5 flex flex-col gap-1">

@@ -676,5 +676,14 @@
   "emptyOrders": {
     "note": "Buuxintaada koowaad daqiiqado gudahood bay kuu imanaysaa. Ku bilow mid ka mid ah:",
     "uc": "UC"
+  },
+  "resume": {
+    "again": "Ka sii wad meeshii aad joojisay",
+    "start": "Halkan ka bilow",
+    "go": "Hadda buuxi · 3 ilbiriqsi",
+    "goNew": "Hadda buuxi",
+    "popular": "Xirmadeenna ugu caansan",
+    "other": "Ama dooro xirmo kale",
+    "uc": "{n} UC"
   }
 }
