@@ -39,9 +39,21 @@ export type PublicStats = {
   done: number;
   /** مجموع دقائق التسليم — المتوسّط يُقسم عند العرض */
   minutes: number;
+
+  /* ── آخر تسليم — للشريط الحيّ في الرئيسية ──
+     🔒 **اسمُ الصنف ووقتُه لا غير.** الوثيقة يقرأها كل زائر، فلا يدخلها
+        اسمٌ ولا رقمٌ ولا آيدي لعبة ولا رمز طلب. «٦٦٠ شدّة قبل ٣ دقائق»
+        تُثبت أن المتجر يعمل، ولا تكشف من اشترى. */
+  lastItem: string;
+  lastAt: Date | null;
 };
 
-export const EMPTY_STATS: PublicStats = { done: 0, minutes: 0 };
+export const EMPTY_STATS: PublicStats = {
+  done: 0,
+  minutes: 0,
+  lastItem: "",
+  lastAt: null,
+};
 
 /** متوسّط دقائق التسليم — صفرٌ إن لم يُقَس شيء بعد */
 export function avgMinutes(s: PublicStats): number {
@@ -57,6 +69,8 @@ export async function readStats(): Promise<PublicStats> {
     return {
       done: Math.max(0, Number(v.done) || 0),
       minutes: Math.max(0, Number(v.minutes) || 0),
+      lastItem: String(v.lastItem ?? "").slice(0, 60),
+      lastAt: v.lastAt?.toDate?.() ?? null,
     };
   } catch {
     return EMPTY_STATS;
@@ -67,7 +81,11 @@ export async function readStats(): Promise<PublicStats> {
  * يُنادى بعد تسليم طلب — **خارج معاملة الحالة عمداً**.
  * عدّادُ عرضٍ لا يستحقّ أن يُفشل تسليم طلبٍ لو رُفضت كتابته.
  */
-export async function bumpDelivered(createdAt: unknown): Promise<void> {
+export async function bumpDelivered(
+  createdAt: unknown,
+  /** ما سُلّم — يُنشر في الشريط الحيّ. بلاه يُحدَّث العدّاد وحده */
+  item?: string,
+): Promise<void> {
   const db = fbDb();
   if (!db) return;
 
@@ -82,9 +100,19 @@ export async function bumpDelivered(createdAt: unknown): Promise<void> {
   const counted = mins > 0 && mins <= MAX_MINUTES ? mins : 0;
 
   try {
+    /* ⚠️ اسمُ الصنف يُقصّ إلى ٦٠ حرفاً: عنوانٌ طويل كتبتِه من اللوحة
+       يكسر سطر الشريط على الجوّال، والقصّ عند الكتابة أضمنُ من القصّ
+       عند العرض — فلا تُخزَّن في وثيقةٍ عامّة نصوصٌ لا داعي لها. */
+    const clean = String(item ?? "").trim().slice(0, 60);
+
     await setDoc(
       doc(db, "settings", "stats"),
-      { done: increment(1), minutes: increment(counted), updatedAt: serverTimestamp() },
+      {
+        done: increment(1),
+        minutes: increment(counted),
+        ...(clean ? { lastItem: clean, lastAt: serverTimestamp() } : {}),
+        updatedAt: serverTimestamp(),
+      },
       { merge: true },
     );
   } catch {
@@ -109,11 +137,19 @@ export async function recalcStats(n = 1000): Promise<PublicStats | null> {
 
     let done = 0;
     let minutes = 0;
+    /* الطلبات مرتّبةٌ بالأحدث، فأوّلُ مسلَّمٍ نلقاه هو آخرُ تسليم */
+    let lastItem = "";
+    let lastAt: Date | null = null;
 
     for (const d of snap.docs) {
       const v = d.data();
       if (v.status !== "done") continue;
       done += 1;
+
+      if (!lastItem) {
+        lastItem = String(v.items?.[0]?.title ?? "").trim().slice(0, 60);
+        lastAt = v.updatedAt?.toDate?.() ?? v.createdAt?.toDate?.() ?? null;
+      }
 
       const from = v.createdAt?.toDate?.()?.getTime?.() ?? 0;
       const to = v.updatedAt?.toDate?.()?.getTime?.() ?? 0;
@@ -123,10 +159,15 @@ export async function recalcStats(n = 1000): Promise<PublicStats | null> {
 
     await setDoc(
       doc(db, "settings", "stats"),
-      { done, minutes, updatedAt: serverTimestamp() },
+      {
+        done,
+        minutes,
+        ...(lastItem ? { lastItem, ...(lastAt ? { lastAt } : {}) } : {}),
+        updatedAt: serverTimestamp(),
+      },
       { merge: true },
     );
-    return { done, minutes };
+    return { done, minutes, lastItem, lastAt };
   } catch {
     return null;
   }

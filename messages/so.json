@@ -685,5 +685,11 @@
     "popular": "Xirmadeenna ugu caansan",
     "other": "Ama dooro xirmo kale",
     "uc": "{n} UC"
+  },
+  "ticker": {
+    "delivered": "waa la gaarsiiyay",
+    "justNow": "hadda",
+    "minsAgo": "{n} daqiiqo ka hor",
+    "hoursAgo": "{n} saac ka hor"
   }
 }

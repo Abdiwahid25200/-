@@ -139,7 +139,7 @@ export async function setOrderStatus(
 
   /* عدّاد الثقة يُحدَّث **بعد** المعاملة لا داخلها: رقمُ عرضٍ لا يستحقّ
      أن يُفشل تسليم طلب لو رُفضت كتابته أو تعثّرت. */
-  let delivered: { at: unknown } | null = null;
+  let delivered: { at: unknown; item: string } | null = null;
 
   try {
     const res = await runTransaction(db, async (tx) => {
@@ -193,7 +193,12 @@ export async function setOrderStatus(
       const spent = Number(o.pointsSpent) || 0;
 
       // يُعدّ مرّة واحدة: عند **الانتقال** إلى التسليم لا عند كل حفظ
-      if (next === "done" && o.status !== "done") delivered = { at: o.createdAt };
+      if (next === "done" && o.status !== "done")
+        delivered = {
+          at: o.createdAt,
+          // ما سُلّم — يُنشر في الشريط الحيّ بلا اسمٍ ولا رقم
+          item: String(o.items?.[0]?.title ?? ""),
+        };
 
       let delta = 0;
       let nextAwarded = awarded;
@@ -335,7 +340,10 @@ export async function setOrderStatus(
       return { ok: true as const, delta, balance: balance + delta };
     });
 
-    if (res.ok && delivered) await bumpDelivered((delivered as { at: unknown }).at);
+    if (res.ok && delivered) {
+      const d = delivered as { at: unknown; item: string };
+      await bumpDelivered(d.at, d.item);
+    }
     return res;
   } catch {
     return { ok: false, reason: "error" };

@@ -685,5 +685,11 @@
     "popular": "Our most popular pack",
     "other": "Or choose another pack",
     "uc": "{n} UC"
+  },
+  "ticker": {
+    "delivered": "delivered",
+    "justNow": "just now",
+    "minsAgo": "{n} min ago",
+    "hoursAgo": "{n} h ago"
   }
 }

@@ -2,6 +2,7 @@ import { getTranslations, setRequestLocale } from "next-intl/server";
 import HeroSlider from "@/components/HeroSlider";
 import ResumeHero from "@/components/ResumeHero";
 import HomeBarwaaqo from "@/components/HomeBarwaaqo";
+import LiveTicker from "@/components/LiveTicker";
 import ProductCard from "@/components/ProductCard";
 import TrustBar from "@/components/TrustBar";
 import { IconDevice } from "@/components/icons";
@@ -41,6 +42,9 @@ export default async function Home({
 
       {/* أرقام حقيقية قبل السعر — الغريب يخاف ألّا يصله شيء لا أن يدفع */}
       <TrustBar />
+
+      {/* دليلُ حياة: آخر تسليمٍ حقيقيّ — ويُخفي نفسه إن قدُم */}
+      <LiveTicker />
 
       {/* الخيط الذي يشدّه للعودة — يظهر لمن له رصيد وحده */}
       <HomeBarwaaqo />
