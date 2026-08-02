@@ -263,7 +263,7 @@ export default function PointsEditor() {
         disabled={busy}
         className="min-h-12 rounded-card bg-orange px-4 font-bold text-onaccent disabled:opacity-50"
       >
-        {busy ? "Saving…" : saved ? "Saved ✓" : "Save"}
+        {busy ? "Saving…" : saved ? "Saved" : "Save"}
       </button>
 
       <p className="text-sm text-muted">

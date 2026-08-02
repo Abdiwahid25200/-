@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useTranslations } from "next-intl";
 import BuyFlow, { type Pack } from "@/components/BuyFlow";
 import { toPack, type ShopItem } from "@/lib/items";
-import { IconBall } from "@/components/icons";
+import { IconBall, IconCheckCircle } from "@/components/icons";
 import { icons, isBuyable, live } from "@/lib/data";
 
 /** `items` تأتي من الصفحة بعد دمج تعديلات الإدارة — وبلاها يعمل بالأصل */
@@ -66,7 +66,14 @@ export default function EfootFlow({ items }: { items?: ShopItem[] }) {
           </div>
 
           <p className="mt-2 text-sm text-muted">
-            {ready ? "✓ " + t("ready") : t("hint")}
+            {ready ? (
+              <>
+                <IconCheckCircle className="size-4" />
+                {t("ready")}
+              </>
+            ) : (
+              t("hint")
+            )}
           </p>
         </section>
       }

@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { allOrders, type AdminOrder } from "@/lib/adminOrders";
 import { readCosts, type Costs } from "@/lib/costs";
 import { pointsToUsd } from "@/lib/points";
+import { IconCheckCircle } from "@/components/icons";
 import {
   MIN_ORDERS,
   avgMinutes,
@@ -276,7 +277,7 @@ function TrustBarBox() {
 
       <p className="mt-2 text-sm">
         {done >= MIN_ORDERS ? (
-          <span className="text-orange">✓ Showing on the home page now.</span>
+          <span className="inline-flex items-center gap-1 text-orange"><IconCheckCircle className="size-4" />Showing on the home page now.</span>
         ) : (
           <span className="text-muted">
             Hidden — <strong className="num">{MIN_ORDERS - done}</strong> more

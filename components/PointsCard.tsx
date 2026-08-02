@@ -48,7 +48,11 @@ export default function PointsCard() {
   const [phone, setPhone] = useState("");
   const [busy, setBusy] = useState(false);
   const [copied, setCopied] = useState(false);
+  /** عنوان الموقع — بعد التركيب لا أثناء الرسم، فلا يختلف الخادم عن المتصفّح */
+  const [origin, setOrigin] = useState("");
   const [msg, setMsg] = useState<string | null>(null);
+
+  useEffect(() => setOrigin(window.location.origin), []);
 
   /** نسخ رقم الاستلام — ومن منعه متصفّحه فالرقم أمامه يقرؤه */
   async function copyPhone() {
@@ -166,7 +170,7 @@ export default function PointsCard() {
       {/* هويّة البرنامج: الشعار واسمه — لا كلمة «نقاط» مجرّدة */}
       <div className="flex items-center justify-between gap-2">
         <PointsBrand settings={settings} size={30} />
-        <span className="text-[0.7rem] font-bold uppercase tracking-wide text-muted rtl:tracking-normal">
+        <span className="text-xs font-bold uppercase tracking-wide text-muted rtl:tracking-normal">
           {t("eyebrow")}
         </span>
       </div>
@@ -327,7 +331,7 @@ export default function PointsCard() {
                   t("receiveMsg", {
                     brand: settings.brand,
                     phone,
-                    url: typeof window === "undefined" ? "" : window.location.origin,
+                    url: origin,
                   }),
                 )}`}
                 target="_blank"

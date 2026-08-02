@@ -73,7 +73,7 @@ export default function GameTile({
       </span>
 
       <span
-        className={`mt-0.5 block text-center text-[0.62rem] font-bold uppercase tracking-[0.14em] rtl:tracking-normal ${
+        className={`mt-0.5 block text-center text-xs font-bold uppercase tracking-[0.14em] rtl:tracking-normal ${
           soon ? "text-yellow" : "text-muted"
         }`}
       >

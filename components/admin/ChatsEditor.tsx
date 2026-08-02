@@ -312,7 +312,7 @@ export default function ChatsEditor() {
                       </span>
 
                       {c.needsHuman ? (
-                        <span className="shrink-0 rounded-full bg-danger px-2 py-0.5 text-[0.7rem] font-bold text-white">
+                        <span className="shrink-0 rounded-full bg-danger px-2 py-0.5 text-xs font-bold text-white">
                           Wants a person
                         </span>
                       ) : unread ? (

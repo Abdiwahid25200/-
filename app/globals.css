@@ -41,6 +41,12 @@
     "Helvetica Neue", Arial, sans-serif;
   /* خطّ الأرقام — أسعار وآيديات ورموز طلبات تصطفّ كإيصال */
   --font-data: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+
+  /* ⚠️ **لا خطّ دون ١٢٫٥px** — قاعدة ثابتة في المشروع، والعربية تحتاج
+     حجماً أكبر من اللاتينية أصلاً. مقاس Tailwind الافتراضي `text-xs`
+     هو ١٢px، فرُفع هنا مرّةً واحدة بدل ملاحقته في مئة موضع. */
+  --text-xs: 0.79rem;
+  --text-xs--line-height: 1.45;
 }
 
 /* ── الوضع النهاري (الافتراضي) ── */
@@ -327,7 +333,8 @@ body.has-buybar {
 
 /* ── الوسم العلوي فوق عنوان كل صفحة ──────────────────────── */
 .eyebrow {
-  font-size: 0.72rem;
+  /* ⚠️ لا دون ١٢٫٥px — كانت ١١٫٥ */
+  font-size: 0.79rem;
   font-weight: 700;
   letter-spacing: 0.18em;
   text-transform: uppercase;

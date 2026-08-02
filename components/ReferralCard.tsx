@@ -22,6 +22,10 @@ export default function ReferralCard({ settings: given }: { settings?: PointsSet
   const [loaded, setLoaded] = useState<PointsSettings | null>(given ?? null);
   const [r, setR] = useState<MyReferral | null>(null);
   const [copied, setCopied] = useState(false);
+  /** عنوان الموقع — يُقرأ بعد التركيب لا أثناء الرسم (وإلا اختلف الرسمان) */
+  const [url, setUrl] = useState("");
+
+  useEffect(() => setUrl(window.location.origin), []);
 
   const settings = given ?? loaded;
 
@@ -46,7 +50,6 @@ export default function ReferralCard({ settings: given }: { settings?: PointsSet
 
   if (!user || !settings?.refOn || !r?.code) return null;
 
-  const url = typeof window === "undefined" ? "" : window.location.origin;
   const msg = t("inviteMsg", {
     brand: settings.brand,
     code: r.code,

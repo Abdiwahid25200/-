@@ -118,7 +118,7 @@ export default function SectionHero({
 
           <span className="min-w-0 flex-1">
             {eyebrow && (
-              <span className="block text-[0.68rem] font-bold uppercase tracking-[0.18em] text-white/70 rtl:tracking-normal">
+              <span className="block text-xs font-bold uppercase tracking-[0.18em] text-white/70 rtl:tracking-normal">
                 {eyebrow}
               </span>
             )}

@@ -36,7 +36,7 @@ const STYLES: { v: ClosedStyle; label: string; note: string; art: React.ReactEle
     note: "Paper sign on the door",
     art: (
       <span className="flex h-12 items-center justify-center rounded-[8px] bg-surface2">
-        <span className="-rotate-3 rounded-[3px] border-2 border-text bg-bg px-2 py-1 text-[0.55rem] font-bold">
+        <span className="-rotate-3 rounded-[3px] border-2 border-text bg-bg px-2 py-1 text-xs font-bold">
           CLOSED
         </span>
       </span>
@@ -295,7 +295,7 @@ export default function SiteEditor() {
             >
               {st.art}
               <span className="mt-1.5 block text-xs font-bold">{st.label}</span>
-              <span className="block text-[0.7rem] leading-tight text-muted">
+              <span className="block text-xs leading-tight text-muted">
                 {st.note}
               </span>
             </button>
@@ -452,7 +452,7 @@ export default function SiteEditor() {
         disabled={busy}
         className="min-h-12 rounded-card bg-orange px-4 font-bold text-onaccent disabled:opacity-50"
       >
-        {busy ? "Saving…" : saved ? "Saved ✓" : "Save"}
+        {busy ? "Saving…" : saved ? "Saved" : "Save"}
       </button>
     </div>
   );

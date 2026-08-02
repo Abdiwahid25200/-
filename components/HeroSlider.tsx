@@ -106,7 +106,7 @@ export default function HeroSlider({ slides }: { slides: MergedSlide[] }) {
               )}
 
               <div className="relative flex flex-col items-start gap-2">
-                <p className="text-[0.7rem] font-bold uppercase tracking-[0.18em] text-white/85 rtl:tracking-normal">
+                <p className="text-xs font-bold uppercase tracking-[0.18em] text-white/85 rtl:tracking-normal">
                   {s.kicker || (t.has(`${s.key}.kicker`) ? t(`${s.key}.kicker`) : "")}
                 </p>
                 <h2 className="text-2xl font-bold leading-tight text-balance text-white sm:text-3xl">
@@ -126,7 +126,9 @@ export default function HeroSlider({ slides }: { slides: MergedSlide[] }) {
       </div>
 
       {n > 1 && (
-        <div className="mt-3 flex justify-center gap-2">
+        /* ⚠️ النقطة ٨ بكسل، وهدف اللمس لا يقلّ عن ٤٤ — فالزرّ كبيرٌ
+           شفّاف والنقطة مرسومةٌ في وسطه. الإبهام يصيب، والعين ترى نقطة. */
+        <div className="mt-1 flex justify-center">
           {slides.map((s, k) => (
             <button
               key={s.key}
@@ -134,10 +136,15 @@ export default function HeroSlider({ slides }: { slides: MergedSlide[] }) {
               onClick={() => go(k)}
               aria-label={`${k + 1} / ${n}`}
               aria-current={k === i ? "true" : undefined}
-              className={`h-2 rounded-full transition-all ${
-                k === i ? "w-6 bg-orange" : "w-2 bg-line hover:bg-muted"
-              }`}
-            />
+              className="flex h-11 w-6 items-center justify-center"
+            >
+              <span
+                aria-hidden
+                className={`block h-2 rounded-full transition-all ${
+                  k === i ? "w-6 bg-orange" : "w-2 bg-line"
+                }`}
+              />
+            </button>
           ))}
         </div>
       )}

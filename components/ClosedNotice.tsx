@@ -137,7 +137,7 @@ function Box({ n, label }: { n: number; label: string }) {
       <strong className="num block text-2xl font-bold leading-none">
         {String(n).padStart(2, "0")}
       </strong>
-      <span className="text-[0.7rem] opacity-70">{label}</span>
+      <span className="text-xs opacity-70">{label}</span>
     </span>
   );
 }

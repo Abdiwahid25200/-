@@ -48,7 +48,15 @@ export default async function Home({
           </div>
         </div>
 
-        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
+        {/* ⚠️ صنفٌ واحد في شبكةٍ من عمودين يترك نصف الصفّ فارغاً فتبدو
+            الصفحة مكسورة. الواحد يأخذ عرضه كاملاً، والاثنان فأكثر شبكة. */}
+        <div
+          className={
+            items.length === 1
+              ? "grid grid-cols-1 gap-3 sm:max-w-xs"
+              : "grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4"
+          }
+        >
           {items.map((p) => (
             <ProductCard
               key={p.id}

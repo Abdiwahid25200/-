@@ -467,7 +467,7 @@ export default function OrdersEditor() {
                   <span className="block truncate text-xs text-muted">
                     {o.name || o.email || "—"} · {clockOf(o.createdAt)}
                   </span>
-                  <span className="num block truncate text-[0.7rem] text-muted">
+                  <span className="num block truncate text-xs text-muted">
                     {o.code}
                   </span>
                 </span>
@@ -476,7 +476,7 @@ export default function OrdersEditor() {
                   {/* مبلغٌ صفريّ ليس عطلاً: طلبٌ دُفع بالنقاط. فيُقال */}
                   <span className="num font-bold">{amountOf(o)}</span>
                   <span
-                    className={`rounded-full px-2 py-0.5 text-[0.7rem] font-bold ${
+                    className={`rounded-full px-2 py-0.5 text-xs font-bold ${
                       STATUS_STYLE[o.status] ?? ""
                     }`}
                   >
@@ -484,12 +484,12 @@ export default function OrdersEditor() {
                   </span>
                   {/* حجزٌ وصل خارج الدوام — يُنفَّذ أوّل ما تفتحين */}
                   {o.reserved && (
-                    <span className="rounded-full bg-orange/15 px-2 py-0.5 text-[0.7rem] font-bold text-orange">
+                    <span className="rounded-full bg-orange/15 px-2 py-0.5 text-xs font-bold text-orange">
                       Reserved
                     </span>
                   )}
                   {o.claimedBy && (
-                    <span className="max-w-24 truncate text-[0.65rem] text-muted">
+                    <span className="max-w-24 truncate text-xs text-muted">
                       {String(o.claimedBy).toLowerCase() === me
                         ? "yours"
                         : o.claimedName || o.claimedBy}

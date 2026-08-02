@@ -379,7 +379,7 @@ export default function CartView() {
           <span className="leading-tight">
             <span className="flex items-center gap-1.5 text-xs text-muted">
               {tb("total")}
-              <span className="num rounded-full bg-orange/12 px-1.5 py-0.5 text-[0.65rem] font-bold text-orange">
+              <span className="num rounded-full bg-orange/12 px-1.5 py-0.5 text-xs font-bold text-orange">
                 {count}
               </span>
             </span>

@@ -32,7 +32,7 @@ export default async function Header() {
             <span className="block truncate text-[1.05rem] font-bold">
               {store.brand || t("brand")}
             </span>
-            <span className="block truncate text-[0.62rem] font-semibold uppercase tracking-[0.16em] text-muted rtl:tracking-normal">
+            <span className="block truncate text-xs font-semibold uppercase tracking-[0.16em] text-muted rtl:tracking-normal">
               {store.taglineOf(hLocale) || t("tagline")}
             </span>
           </span>

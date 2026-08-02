@@ -1,6 +1,7 @@
 "use client";
 
 import Badge from "./Badge";
+import { IconCheckCircle } from "./icons";
 import Thumb from "./Thumb";
 import { fin, fmt } from "@/lib/format";
 
@@ -104,7 +105,7 @@ export default function PackageCard({
               {amount}
             </span>
             {unit && (
-              <span className="mt-1.5 block text-[0.66rem] font-bold uppercase tracking-[0.16em] text-white/85 rtl:tracking-normal">
+              <span className="mt-1.5 block text-xs font-bold uppercase tracking-[0.16em] text-white/85 rtl:tracking-normal">
                 {unit}
               </span>
             )}
@@ -133,7 +134,7 @@ export default function PackageCard({
               {amount}
             </span>
             {unit && (
-              <span className="mt-1.5 block text-[0.68rem] font-bold uppercase tracking-[0.16em] text-muted rtl:tracking-normal">
+              <span className="mt-1.5 block text-xs font-bold uppercase tracking-[0.16em] text-muted rtl:tracking-normal">
                 {unit}
               </span>
             )}
@@ -155,17 +156,24 @@ export default function PackageCard({
         style={{ "--notch-y": "-7px" } as React.CSSProperties}
       />
 
-      <span className="mt-3 flex flex-wrap items-baseline gap-2">
-        <span className="num text-lg font-bold">{fmt(final)}</span>
+      {/* ⚠️ بلا `flex-wrap`: السعر القديم كان ينزل سطراً في البطاقات
+          الغالية وحدها ($108 مع $120) فتختلّ البطاقات في الشبكة. */}
+      <span className="mt-3 flex items-baseline gap-1.5">
+        <span className="num shrink-0 text-lg font-bold">{fmt(final)}</span>
         {before && before > final && (
-          <span className="num text-sm text-muted line-through">{fmt(before)}</span>
+          <span className="num min-w-0 truncate text-xs text-muted line-through">
+            {fmt(before)}
+          </span>
         )}
         {soon && (
-          <span className="ms-auto text-xs font-bold text-muted">{labels.soon}</span>
+          <span className="ms-auto shrink-0 text-xs font-bold text-muted">
+            {labels.soon}
+          </span>
         )}
         {selected && !soon && (
-          <span className="ms-auto text-xs font-bold text-orange">
-            ✓ {labels.selected}
+          <span className="ms-auto flex shrink-0 items-center gap-1 text-xs font-bold text-orange">
+            <IconCheckCircle className="size-4" />
+            {labels.selected}
           </span>
         )}
       </span>

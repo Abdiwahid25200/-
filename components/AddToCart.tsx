@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useTranslations } from "next-intl";
 import { useCart } from "@/lib/cart";
+import { IconCheckCircle } from "./icons";
 
 /** زر إضافة منتج للسلة — يعطي تأكيداً بصرياً قصيراً بعد الضغط */
 export default function AddToCart({
@@ -32,7 +33,14 @@ export default function AddToCart({
         done ? "bg-yellow text-onaccent" : "bg-orange text-onaccent hover:opacity-90"
       }`}
     >
-      {done ? "✓ " + t("added") : t("add")}
+      {done ? (
+        <>
+          <IconCheckCircle className="size-4" />
+          {t("added")}
+        </>
+      ) : (
+        t("add")
+      )}
     </button>
   );
 }

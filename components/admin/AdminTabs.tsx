@@ -253,7 +253,7 @@ export default function AdminTabs() {
                 setScreen(null);
               }}
               aria-current={on ? "page" : undefined}
-              className={`flex min-h-14 flex-1 flex-col items-center justify-center gap-1 text-[0.7rem] font-bold ${
+              className={`flex min-h-14 flex-1 flex-col items-center justify-center gap-1 text-xs font-bold ${
                 on ? "text-orange" : "text-muted"
               }`}
             >

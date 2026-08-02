@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { IconChevron } from "@/components/icons";
 import { allOrders, type AdminOrder } from "@/lib/adminOrders";
 
 /**
@@ -205,7 +206,7 @@ export default function Report() {
             onClick={() => setGate("accepted")}
             className="lift flex flex-col gap-1 rounded-card border-2 border-orange/60 bg-orange/5 p-4 text-start"
           >
-            <span className="text-[0.7rem] font-bold uppercase tracking-wide text-orange rtl:tracking-normal">
+            <span className="text-xs font-bold uppercase tracking-wide text-orange rtl:tracking-normal">
               Accepted
             </span>
             <span className="num text-3xl font-bold leading-none">
@@ -220,7 +221,7 @@ export default function Report() {
             onClick={() => setGate("rejected")}
             className="lift flex flex-col gap-1 rounded-card border-2 border-danger/50 bg-danger/5 p-4 text-start"
           >
-            <span className="text-[0.7rem] font-bold uppercase tracking-wide text-danger rtl:tracking-normal">
+            <span className="text-xs font-bold uppercase tracking-wide text-danger rtl:tracking-normal">
               Rejected
             </span>
             <span className="num text-3xl font-bold leading-none">
@@ -247,9 +248,10 @@ export default function Report() {
         <button
           type="button"
           onClick={() => setGate(null)}
-          className="min-h-11 rounded-card border border-line px-3 font-bold"
+          className="flex min-h-11 items-center gap-1.5 rounded-card border border-line px-3 font-bold"
         >
-          ← Back
+          <IconChevron className="size-4 rotate-180 rtl:rotate-0" />
+          Back
         </button>
         <h3
           className={`text-lg font-bold ${
@@ -308,7 +310,7 @@ export default function Report() {
                     <span className="block truncate text-xs text-muted">
                       {o.name || o.email || "—"} · {fmtDate(o.createdAt)}
                     </span>
-                    <span className="num block truncate text-[0.7rem] text-muted">
+                    <span className="num block truncate text-xs text-muted">
                       {o.code}
                     </span>
                   </span>
