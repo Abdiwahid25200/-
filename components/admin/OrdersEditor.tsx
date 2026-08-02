@@ -87,6 +87,46 @@ function amountOf(o: AdminOrder): string {
   return "$0.00";
 }
 
+/**
+ * مدى التاريخ — تُسأل عنه **قبل** فتح القائمة.
+ *
+ * ⚠️ قائمةٌ تفتح على كل الطلبات منذ الأزل تُغرق صاحبتها: مئتا طلبٍ
+ *    تبحث فيها عن طلبِ اليوم. فالشاشة تسأل أوّلاً: **متى** و**أيّها**،
+ *    ثم تعرض ما طلبته وحده.
+ */
+const RANGES = [
+  { v: "today", label: "Today" },
+  { v: "yesterday", label: "Yesterday" },
+  { v: "7", label: "Last 7 days" },
+  { v: "30", label: "Last 30 days" },
+  { v: "all", label: "All time" },
+] as const;
+
+type Range = (typeof RANGES)[number]["v"];
+
+const DAY_MS = 86_400_000;
+
+/** هل يقع هذا الطلب في المدى المختار؟ ويومٌ بعينه يتقدّم على المدى */
+function inRange(d: Date | null, range: Range, oneDay: string): boolean {
+  if (oneDay) {
+    if (!d) return false;
+    const [y, m, day] = oneDay.split("-").map(Number);
+    return (
+      d.getFullYear() === y && d.getMonth() + 1 === m && d.getDate() === day
+    );
+  }
+  if (range === "all") return true;
+  if (!d) return false;
+
+  const now = new Date();
+  const midnight = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
+
+  if (range === "today") return d.getTime() >= midnight;
+  if (range === "yesterday")
+    return d.getTime() >= midnight - DAY_MS && d.getTime() < midnight;
+  return d.getTime() >= midnight - Number(range) * DAY_MS;
+}
+
 /** فاصل اليوم — «Today» و«Yesterday» ثم التاريخ */
 function dayOf(d: Date | null): string {
   if (!d) return "Earlier";
@@ -106,6 +146,11 @@ export default function OrdersEditor() {
 
   const [orders, setOrders] = useState<AdminOrder[] | null>(null);
   const [filter, setFilter] = useState<(typeof FILTERS)[number]["v"]>("pending");
+  /** الشاشة الأولى: تسأل عن المدى والحالة قبل أن تعرض شيئاً */
+  const [asking, setAsking] = useState(true);
+  const [range, setRange] = useState<Range>("today");
+  /** يومٌ بعينه من التقويم — يتقدّم على المدى متى اختير */
+  const [oneDay, setOneDay] = useState("");
   const [open, setOpen] = useState<string | null>(null);
   const [busy, setBusy] = useState<string | null>(null);
   const [note, setNote] = useState<string | null>(null);
@@ -200,20 +245,145 @@ export default function OrdersEditor() {
    * ⚠️ **المساعد لا يرى ما قَبِله غيره.** بدون هذا يفتح اثنان الطلب
    *    نفسه فيشحنه كلاهما. وصاحبة المتجر ترى الكل ومعه اسم من قبله.
    */
-  const shown = (orders ?? [])
-    .filter((o) => filter === "all" || o.status === filter)
-    .filter((o) => {
-      const c = String(o.claimedBy ?? "").toLowerCase();
-      return owner || !c || c === me;
-    });
+  /** ما يخصّني من الطلبات — قبل أي تصفية بالتاريخ أو الحالة */
+  const mine = (orders ?? []).filter((o) => {
+    const c = String(o.claimedBy ?? "").toLowerCase();
+    return owner || !c || c === me;
+  });
+
+  /** ما وقع في المدى المختار — منه تُحسب أعداد الشاشة الأولى */
+  const inWindow = mine.filter((o) => inRange(o.createdAt, range, oneDay));
+
+  const shown = inWindow.filter((o) => filter === "all" || o.status === filter);
+
+  const rangeLabel = oneDay
+    ? oneDay
+    : (RANGES.find((r) => r.v === range)?.label ?? "");
 
   const chip =
     "min-h-10 rounded-full border px-3 text-sm font-bold transition-colors";
   const btn =
     "min-h-11 flex-1 rounded-card border border-line px-3 text-sm font-bold transition-colors hover:bg-bg disabled:opacity-50";
 
+  /* ═══ الشاشة الأولى: متى؟ وأيّها؟ ═══ */
+  if (asking) {
+    const count = (v: (typeof FILTERS)[number]["v"]) =>
+      v === "all" ? inWindow.length : inWindow.filter((o) => o.status === v).length;
+
+    const CARDS = [
+      { v: "pending" as const, label: "Waiting", note: "Not confirmed yet", tone: "bg-yellow/12 text-yellow border-yellow/40" },
+      { v: "paid" as const, label: "Accepted", note: "Paid, to deliver", tone: "bg-success/12 text-success border-success/40" },
+      { v: "done" as const, label: "Delivered", note: "Finished", tone: "bg-surface2 text-muted border-line" },
+      { v: "cancelled" as const, label: "Rejected", note: "Cancelled orders", tone: "bg-danger/10 text-danger border-danger/40" },
+    ];
+
+    return (
+      <div className="flex flex-col gap-5">
+        {err && (
+          <p className="rounded-card border border-danger/40 bg-danger/5 p-3 text-sm">
+            Could not read orders. Check your connection, then press Refresh.
+          </p>
+        )}
+
+        {/* ① متى */}
+        <section className="flex flex-col gap-2">
+          <h3 className="font-bold">Which day?</h3>
+          <div className="flex flex-wrap gap-2">
+            {RANGES.map((r) => (
+              <button
+                key={r.v}
+                type="button"
+                onClick={() => {
+                  setRange(r.v);
+                  setOneDay("");
+                }}
+                className={`${chip} ${
+                  !oneDay && range === r.v
+                    ? "border-orange bg-orange/10 text-orange"
+                    : "border-line text-muted"
+                }`}
+              >
+                {r.label}
+              </button>
+            ))}
+          </div>
+
+          <label className="flex items-center gap-2 text-sm text-muted">
+            <span className="shrink-0">Or pick a date</span>
+            <input
+              type="date"
+              value={oneDay}
+              onChange={(e) => setOneDay(e.target.value)}
+              dir="ltr"
+              className={`num min-h-11 min-w-0 flex-1 rounded-card border px-3 text-start outline-none ${
+                oneDay ? "border-orange text-orange" : "border-line"
+              }`}
+            />
+          </label>
+        </section>
+
+        {/* ② أيّها — والعدد يتبع المدى المختار فوق */}
+        <section className="flex flex-col gap-2">
+          <h3 className="font-bold">Which orders?</h3>
+          <p className="-mt-1 text-sm text-muted">
+            {rangeLabel} · <strong className="num">{inWindow.length}</strong> in
+            total
+          </p>
+
+          <div className="grid grid-cols-2 gap-2.5">
+            {CARDS.map((c) => (
+              <button
+                key={c.v}
+                type="button"
+                onClick={() => {
+                  setFilter(c.v);
+                  setAsking(false);
+                }}
+                className={`rounded-card border-2 p-3 text-start ${c.tone}`}
+              >
+                <span className="num block text-2xl font-bold leading-none">
+                  {orders === null ? "…" : count(c.v)}
+                </span>
+                <span className="mt-1 block font-bold">{c.label}</span>
+                <span className="block text-xs opacity-75">{c.note}</span>
+              </button>
+            ))}
+          </div>
+
+          <button
+            type="button"
+            onClick={() => {
+              setFilter("all");
+              setAsking(false);
+            }}
+            className="min-h-12 rounded-card border border-line font-bold"
+          >
+            Show all {orders !== null && <span className="num">({inWindow.length})</span>}
+          </button>
+        </section>
+      </div>
+    );
+  }
+
   return (
     <div className="flex flex-col gap-3">
+      {/* سطرُ ما اخترتِه، وزرٌّ يعيدك للسؤال — فلا تُنسى التصفية القائمة */}
+      <button
+        type="button"
+        onClick={() => setAsking(true)}
+        className="flex items-center gap-2 rounded-card border border-line bg-surface p-3 text-start"
+      >
+        <span className="min-w-0 flex-1">
+          <span className="block truncate font-bold">
+            {FILTERS.find((f) => f.v === filter)?.label} · {rangeLabel}
+          </span>
+          <span className="num block text-xs text-muted">
+            {shown.length} orders
+          </span>
+        </span>
+        <span className="shrink-0 text-sm font-bold text-orange">Change</span>
+      </button>
+
       {/* ⚠️ صفٌّ واحد يُمرَّر أفقياً: خمسة مرشّحات ملفوفة على سطرين
           تسرق ثلث الشاشة وتُنزل الطلبات تحت الطيّ. */}
       <div className="-mx-4 flex items-center gap-2 overflow-x-auto px-4 pb-1">
@@ -231,7 +401,7 @@ export default function OrdersEditor() {
             {f.label}
             {f.v !== "all" && orders && (
               <span className="num ms-1.5 opacity-70">
-                {orders.filter((o) => o.status === f.v).length}
+                {inWindow.filter((o) => o.status === f.v).length}
               </span>
             )}
           </button>
@@ -261,7 +431,7 @@ export default function OrdersEditor() {
         <p className="p-4 text-center text-sm text-muted">Loading…</p>
       ) : shown.length === 0 ? (
         <p className="rounded-card border border-dashed border-line p-6 text-center text-sm text-muted">
-          No orders here yet.
+          No {filter === "all" ? "" : FILTERS.find((f) => f.v === filter)?.label.toLowerCase()} orders in {rangeLabel.toLowerCase()}.
         </p>
       ) : (
         shown.map((o, idx) => {
