@@ -228,11 +228,28 @@ export default function PointsCard() {
         </p>
       </div>
 
-      <p className="text-sm text-muted">
-        {short > 0
-          ? t("toRedeem", { n: short, min: settings.minRedeem })
-          : t("canRedeem")}
-      </p>
+      {/* ⚠️ **شريط التقدّم** — قلبُ البطاقة في النموذج، وكان غائباً.
+          «باقٍ ٨٠ نقطة» رقمٌ يُقرأ ويُنسى، والشريطُ يُرى بطرف العين:
+          يعرف الزبون كم قطع وكم بقي بلا أن يحسب. وهو ما يعيده. */}
+      <div className="flex flex-col gap-1.5">
+        <p className="text-sm text-muted">
+          {short > 0
+            ? t("toRedeem", { n: short, min: settings.minRedeem })
+            : t("canRedeem")}
+        </p>
+        <span aria-hidden className="block h-2 overflow-hidden rounded-full bg-surface2">
+          <span
+            className="block h-full rounded-full bg-gradient-to-r from-orange to-yellow transition-[width] duration-700"
+            style={{
+              width: `${
+                settings.minRedeem > 0
+                  ? Math.min(100, Math.round((points / settings.minRedeem) * 100))
+                  : 100
+              }%`,
+            }}
+          />
+        </span>
+      </div>
 
       {/* أربعة أبواب كالمحفظة: شراء · إرسال · استلام · بيع */}
       <div className="grid grid-cols-4 gap-2">
