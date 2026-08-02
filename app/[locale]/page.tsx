@@ -1,12 +1,9 @@
 import { getTranslations, setRequestLocale } from "next-intl/server";
-import HeroSlider from "@/components/HeroSlider";
 import ResumeHero from "@/components/ResumeHero";
 import HomeBarwaaqo from "@/components/HomeBarwaaqo";
 import LiveTicker from "@/components/LiveTicker";
 import ProductCard from "@/components/ProductCard";
-import TrustBar from "@/components/TrustBar";
 import { IconDevice } from "@/components/icons";
-import { mergedSlides } from "@/lib/overrides";
 import { mergedItems } from "@/lib/items";
 
 /**
@@ -40,16 +37,13 @@ export default async function Home({
           للعروض ولا يسبق ما جاء الزبون من أجله. */}
       <ResumeHero />
 
-      {/* أرقام حقيقية قبل السعر — الغريب يخاف ألّا يصله شيء لا أن يدفع */}
-      <TrustBar />
-
-      {/* دليلُ حياة: آخر تسليمٍ حقيقيّ — ويُخفي نفسه إن قدُم */}
+      {/* دليلُ حياة: آخر تسليمٍ حقيقيّ وعددُ ما سُلّم — ويُخفي نفسه إن قدُم.
+          ⚠️ كان فوقه شريطُ أرقامٍ يقول الشيء نفسه، فدُمج فيه. وحالةُ
+             الدوام صعدت إلى الترويسة لتُقرأ في كل صفحة لا هنا وحدها. */}
       <LiveTicker />
 
       {/* الخيط الذي يشدّه للعودة — يظهر لمن له رصيد وحده */}
       <HomeBarwaaqo />
-
-      <HeroSlider slides={await mergedSlides(locale)} />
 
       <section>
         <div className="coast-glow mb-3.5 flex flex-col gap-1">

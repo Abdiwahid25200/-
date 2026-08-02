@@ -5,7 +5,7 @@ import Logo from "./Logo";
 import CartButton from "./CartButton";
 import SearchButton from "./SearchButton";
 import MenuDrawer from "./MenuDrawer";
-import { site as store } from "@/lib/content";
+import OpenBar from "./OpenBar";
 
 /**
  * الهيدر — كما بالمعاينة التي اعتمدتها صاحبة المشروع بالضبط:
@@ -47,6 +47,9 @@ export default async function Header() {
           <MenuDrawer phone={store.whatsapp} />
         </div>
       </div>
+
+      {/* حالة المتجر وسرعته — أوّل ما يسأل عنه الغريب، في كل صفحة */}
+      <OpenBar />
     </header>
   );
 }
