@@ -301,11 +301,11 @@ body.has-buybar {
    الزرّ عائم على اليمين وشريط التأكيد يمرّ تحته، فكان يغطّي طرفه.
    المتغيّر هنا لا في المكوّن، فيرتفع الزرّ وحده متى ظهر الشريط. */
 :root {
-  --chat-bottom: calc(4.85rem + env(safe-area-inset-bottom));
+  --chat-bottom: calc(4.6rem + env(safe-area-inset-bottom));
 }
 
 body.has-buybar {
-  --chat-bottom: calc(9.55rem + env(safe-area-inset-bottom));
+  --chat-bottom: calc(9.3rem + env(safe-area-inset-bottom));
 }
 
 /* ── دخول شريط التأكيد ─────────────────────────────────────
@@ -566,4 +566,33 @@ body.has-buybar {
 @media (prefers-reduced-motion: reduce) {
   .live-beat, .live-now::after { animation: none; }
   .live-now::after { opacity: .5; }
+}
+
+/* ── تذكرة الرئيسية ──────────────────────────────────────
+   استُلهمت من تطبيق Namari الذي أرَته صاحبة المتجر — والفكرة أصلاً في
+   هويّتها: بطاقات الباقات قسائمُ ممزّقة. فالبطل صار تذكرةً بلون العلامة
+   لها ثقبان وخطُّ تقطيع، بدل بطاقةٍ داكنة صمّاء.
+
+   ⚠️ الثقبان **بلون الأرضية لا بالأبيض**: أبيضُ فوق أرضٍ مائلة للأخضر
+      يظهر قرصين لا فراغَين — وينكشف أنهما رسمٌ لا قصّ. */
+.ticket { position: relative; }
+
+.ticket::before,
+.ticket::after {
+  content: "";
+  position: absolute;
+  top: var(--tear-y, 50%);
+  width: 26px;
+  height: 26px;
+  margin-top: -13px;
+  border-radius: 9999px;
+  background: var(--bg);
+  z-index: 2;
+}
+.ticket::before { inset-inline-start: -13px; }
+.ticket::after  { inset-inline-end: -13px; }
+
+/* خطّ التقطيع بين نصفَي التذكرة */
+.ticket-tear {
+  border-top: 2px dashed rgba(255, 255, 255, 0.28);
 }

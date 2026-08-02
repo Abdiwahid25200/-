@@ -59,45 +59,50 @@ export default function BottomNav() {
      * `--chat-bottom` في `globals.css` و`FixedBar` — وإلا اتّسعت الفجوة
      * أو تراكبا. وهي `fixed` فلا تتحرّك مع التمرير أصلاً.
      */
-    <div className="fixed inset-x-0 bottom-0 z-40 pb-[calc(0.25rem+env(safe-area-inset-bottom))]">
-      <span
-        aria-hidden
-        className="pointer-events-none absolute inset-x-0 bottom-full h-6 bg-gradient-to-t from-bg to-transparent"
-      />
-      <span aria-hidden className="absolute inset-0 bg-bg" />
-
-      <nav
-        aria-label={t("label")}
-        className="relative mx-3 rounded-[26px] border border-line bg-surface shadow-[0_6px_28px_rgba(0,0,0,0.12)]"
-      >
-        <div className="page-w flex px-1.5 py-1">
-        {tabs.map(({ key, href, Icon }) => {
-          const isActive =
-            href === "/" ? pathname === "/" : pathname.startsWith(href);
-          return (
-            <Link
-              key={key}
-              href={href}
-              aria-current={isActive ? "page" : undefined}
-              // الحركة عند الضغط: انكماش خفيف يعود فوراً — إحساس زرّ حقيقي
-              className={`nav-tap relative flex min-h-14 flex-1 flex-col items-center justify-center gap-1.5 rounded-[18px] py-1.5 ${
-                isActive ? "text-orange" : "text-muted hover:text-text"
-              }`}
-            >
-              {/* المؤشّر — يظهر بحجمه الكامل على النشط ويتلاشى على غيره */}
-              <span
-                aria-hidden
-                className={`h-[3px] rounded-full bg-orange transition-all duration-200 ${
-                  isActive ? "w-5 opacity-100" : "w-0 opacity-0"
+    /**
+     * 🧱 **ملتصقٌ بالأرض** — قرارها بعد أن أرَتني تطبيق Namari.
+     *
+     * كان شريطاً عائماً مدوّراً بهامشٍ من الجانبين وظلٍّ تحته. صار
+     * يمتدّ من حافةٍ إلى حافة ويجلس على أسفل الشاشة: أثبتُ في العين،
+     * ولا تبقى فجوةٌ تحته تُظهر المحتوى فيبدو الشريط طافياً.
+     *
+     * ⚠️ وارتفاعُه يحكم ما يجلس فوقه: `--chat-bottom` في `globals.css`
+     *    و`FixedBar`. تغييرُ الحشوة هنا وحدها يفتح فجوةً أو يُحدث تراكباً.
+     */
+    <div className="fixed inset-x-0 bottom-0 z-40 border-t border-line bg-surface pb-[env(safe-area-inset-bottom)]">
+      <nav aria-label={t("label")}>
+        <div className="page-w flex px-1.5 py-1.5">
+          {tabs.map(({ key, href, Icon }) => {
+            const isActive =
+              href === "/" ? pathname === "/" : pathname.startsWith(href);
+            return (
+              <Link
+                key={key}
+                href={href}
+                aria-current={isActive ? "page" : undefined}
+                // الحركة عند الضغط: انكماش خفيف يعود فوراً — إحساس زرّ حقيقي
+                className={`nav-tap flex min-h-13 flex-1 flex-col items-center justify-center gap-1 rounded-[16px] py-1 ${
+                  isActive ? "text-orange" : "text-muted hover:text-text"
                 }`}
-              />
-              <Icon className="nav-ico size-6" />
-              <span className="text-[0.8rem] font-bold uppercase tracking-[0.08em] rtl:tracking-normal">
-                {t(key)}
-              </span>
-            </Link>
-          );
-        })}
+              >
+                {/**
+                 * ⚠️ **قرصٌ خلف أيقونة التبويب النشط** بدل الخطّ فوقه:
+                 *    الخطّ شعرةٌ تُرى بالتدقيق، والقرص يُرى بطرف العين —
+                 *    فتعرف أين أنت بلا أن تبحث.
+                 */}
+                <span
+                  className={`flex items-center justify-center rounded-full px-4 py-1 transition-colors ${
+                    isActive ? "bg-orange/12" : ""
+                  }`}
+                >
+                  <Icon className="nav-ico size-6" />
+                </span>
+                <span className="text-[0.78rem] font-bold uppercase tracking-[0.06em] rtl:tracking-normal">
+                  {t(key)}
+                </span>
+              </Link>
+            );
+          })}
         </div>
       </nav>
     </div>

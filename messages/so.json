@@ -684,7 +684,8 @@
     "goNew": "Hadda buuxi",
     "popular": "Xirmadeenna ugu caansan",
     "other": "Ama dooro xirmo kale",
-    "uc": "{n} UC"
+    "uc": "{n} UC",
+    "perOrder": "dalabkiiba"
   },
   "ticker": {
     "delivered": "waa la gaarsiiyay",

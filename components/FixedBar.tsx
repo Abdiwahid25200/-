@@ -24,7 +24,7 @@ export default function FixedBar({ children }: { children: React.ReactNode }) {
     // ⚠️ `max-w-4xl` = ٨٩٦ = عرض `.page-w` نفسه، فيحاذي الشريطُ المحتوى.
     // لا يصلح `page-w` هنا: العنصر `fixed` بـ`inset-x-3`، و`width: 100%`
     // معهما يجعله يتجاوز الحافة اليمنى على الجوال.
-    <div className="buybar fixed inset-x-3 bottom-[calc(5.05rem+env(safe-area-inset-bottom))] z-30 mx-auto max-w-4xl">
+    <div className="buybar fixed inset-x-3 bottom-[calc(4.8rem+env(safe-area-inset-bottom))] z-30 mx-auto max-w-4xl">
       {children}
     </div>,
     document.body,

@@ -35,63 +35,92 @@ export default function ResumeHero() {
   const href = last ? pathOf(last.kind) : "/pubg";
 
   return (
+    /**
+     * 🎟️ **تذكرة** لا بطاقة صمّاء — بعد أن أرَتني Namari.
+     *
+     * والفكرة من هويّتها أصلاً: بطاقات الباقات قسائمُ ممزّقة. فالبطل
+     * تذكرةٌ بلون العلامة لها ثقبان وخطُّ تقطيع — النصف الأعلى **ما**
+     * يشتريه، والأسفل **كم** وزرُّ الشراء.
+     *
+     * ⚠️ و`--tear-y` يضبط ارتفاع الثقبين ليقعا على خطّ التقطيع بالضبط.
+     */
     <section
-      className="relative flex flex-col gap-3.5 overflow-hidden rounded-card p-4 text-white"
-      style={{
-        background:
-          "radial-gradient(130% 100% at 90% 0%, rgba(224,174,86,.30) 0%, transparent 55%), radial-gradient(90% 80% at 5% 100%, rgba(6,122,110,.50) 0%, transparent 60%), linear-gradient(160deg, #0a3b45 0%, #062730 100%)",
-      }}
+      className="ticket relative flex flex-col overflow-visible rounded-card text-white"
+      style={{ ["--tear-y" as string]: "58%" }}
     >
-      <span
-        aria-hidden
-        className="pointer-events-none absolute -bottom-28 -end-16 size-52 rounded-full border border-white/10"
-      />
-
-      <span className="relative text-xs font-bold uppercase tracking-[0.14em] text-yellow rtl:tracking-normal">
-        {last ? t("again") : t("start")}
-      </span>
-
-      <div className="relative flex items-center gap-3">
+      <div
+        className="relative flex flex-col gap-3.5 overflow-hidden rounded-card"
+        style={{
+          background:
+            "radial-gradient(120% 120% at 88% 0%, #0e8a7c 0%, transparent 60%), linear-gradient(155deg, #078578 0%, #05655c 55%, #044f48 100%)",
+        }}
+      >
+        {/* قوسان باهتان — كأثر ختمٍ على ورق التذكرة */}
         <span
           aria-hidden
-          className="flex size-12 shrink-0 items-center justify-center rounded-card border border-white/15 bg-white/10 text-yellow"
-        >
-          <IconBolt className="size-6" />
-        </span>
+          className="pointer-events-none absolute -top-16 -start-10 size-52 rounded-full border border-white/10"
+        />
+        <span
+          aria-hidden
+          className="pointer-events-none absolute -bottom-24 -end-14 size-56 rounded-full border border-white/10"
+        />
 
-        <span className="min-w-0 flex-1">
-          <span className="block truncate text-lg font-bold">{title}</span>
-          {last?.account ? (
-            <span className="num block truncate text-xs opacity-70" dir="ltr">
-              {last.account}
-            </span>
-          ) : (
-            <span className="block truncate text-xs opacity-70">
-              {t("popular")}
-            </span>
-          )}
-        </span>
+        {/* ── النصف الأعلى: ماذا يشتري ── */}
+        <div className="relative flex flex-col gap-3.5 p-4 pb-3">
+          <span className="inline-flex w-fit items-center gap-1.5 rounded-full bg-white/15 px-3 py-1 text-xs font-bold tracking-[0.12em] rtl:tracking-normal">
+            {last ? t("again") : t("start")}
+          </span>
 
-        <span className="num shrink-0 text-lg font-bold">{fmt(price)}</span>
+          <div className="flex items-center gap-3">
+            <span
+              aria-hidden
+              className="flex size-12 shrink-0 items-center justify-center rounded-card border border-white/20 bg-white/12"
+            >
+              <IconBolt className="size-6" />
+            </span>
+            <span className="min-w-0 flex-1">
+              <span className="block truncate text-xl font-bold">{title}</span>
+              {/* ⚠️ الآيدي وحده يُجبَر على `ltr` و`num`: نصٌّ عربيّ داخلهما
+                  يتباعد حروفُه ويُقرأ مقلوباً — «أشهر باقاتنا» ظهرت
+                  متقطّعةً هكذا. فلكلٍّ اتّجاهُه. */}
+              {last?.account ? (
+                <span className="num block truncate text-xs opacity-75" dir="ltr">
+                  {last.account}
+                </span>
+              ) : (
+                <span className="block truncate text-xs opacity-75">
+                  {t("popular")}
+                </span>
+              )}
+            </span>
+          </div>
+        </div>
+
+        {/* ── خطّ التقطيع ── */}
+        <div aria-hidden className="ticket-tear relative mx-4" />
+
+        {/* ── النصف الأسفل: بكم، وزرُّ الشراء ── */}
+        <div className="relative flex items-center gap-3 p-4 pt-3.5">
+          <span className="min-w-0">
+            <span className="num block text-3xl font-bold leading-none">
+              {fmt(price)}
+            </span>
+            <span className="block text-xs opacity-70">{t("perOrder")}</span>
+          </span>
+
+          <Link
+            href={href}
+            className="lift ms-auto flex min-h-12 shrink-0 items-center gap-2 rounded-full bg-surface px-5 font-bold text-orange"
+          >
+            {last ? t("go") : t("goNew")}
+            <IconChevron className="size-4 rtl:rotate-180" />
+          </Link>
+        </div>
       </div>
-
-      {/* ⚠️ الزرّ يعد بما يستطيع: «ثلاث ثوانٍ» تصف الطريق إلى الدفع لا
-          التسليم — والتسليم رقمُه في شريط الثقة تحته. */}
-      {/* ⚠️ **ذهبٌ فاتح هنا لا `bg-yellow`**: ذهب اللوحة (`#a56200`) رمليٌّ
-          يُقرأ على الأبيض، وفوق هذه الأرض الداكنة يصير بنّياً موحلاً
-          والنصُّ عليه لا يُقرأ. ولا يُضاف لوناً عامّاً — موضعُه هذا وحده. */}
-      <Link
-        href={href}
-        className="lift relative flex min-h-13 items-center justify-center gap-2 rounded-card px-4 text-base font-bold"
-        style={{ background: "#e0ae56", color: "#08222a" }}
-      >
-        <IconBolt className="size-5" />
-        {last ? t("go") : t("goNew")}
-      </Link>
 
       <Link
         href="/games"
-        className="relative flex items-center justify-center gap-1.5 text-xs opacity-70"
+        className="mt-2.5 flex items-center justify-center gap-1.5 text-xs text-muted"
       >
         {t("other")}
         <IconChevron className="size-3.5 rotate-90" />

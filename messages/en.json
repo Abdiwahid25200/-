@@ -684,7 +684,8 @@
     "goNew": "Top up now",
     "popular": "Our most popular pack",
     "other": "Or choose another pack",
-    "uc": "{n} UC"
+    "uc": "{n} UC",
+    "perOrder": "per order"
   },
   "ticker": {
     "delivered": "delivered",
