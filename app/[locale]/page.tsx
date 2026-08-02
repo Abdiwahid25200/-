@@ -1,11 +1,8 @@
-import { getTranslations, setRequestLocale } from "next-intl/server";
+import { setRequestLocale } from "next-intl/server";
 import ResumeHero from "@/components/ResumeHero";
 import HomeBarwaaqo from "@/components/HomeBarwaaqo";
 import LiveTicker from "@/components/LiveTicker";
 import SectionTiles from "@/components/SectionTiles";
-import ProductCard from "@/components/ProductCard";
-import { IconDevice } from "@/components/icons";
-import { mergedItems } from "@/lib/items";
 
 /**
  * الرئيسية = **الإلكترونيات وحدها** — بأمر صاحبة المشروع:
@@ -25,11 +22,6 @@ export default async function Home({
   const { locale } = await params;
   setRequestLocale(locale);
 
-  const t = await getTranslations("home");
-  const te = await getTranslations("eyebrow");
-  const tc = await getTranslations("common");
-
-  const items = await mergedItems("elec");
 
   return (
     <main className="seq page-w flex flex-col gap-7 px-4 py-6">
@@ -46,43 +38,13 @@ export default async function Home({
       {/* الخيط الذي يشدّه للعودة — يظهر لمن له رصيد وحده */}
       <HomeBarwaaqo />
 
-      {/* أبوابُ الألعاب — اختصارٌ لا قسم: الرئيسية تبقى للإلكترونيات،
-          لكن من فتح المتجر يريد شحنةً فلا يُطالَب بالبحث عن بابها */}
-      <SectionTiles />
+      {/* ⚠️ **كل قسمٍ خلف بابه** — قرار صاحبة المتجر: لا تظهر
+          الإلكترونيات حتى يُضغط «إلكترونيات». فالرئيسية صارت طلبَه
+          الأخير ثمّ أبوابَ الأقسام، ولا رفَّ منتجاتٍ فيها.
+          والألعاب أوّلاً: من فتح المتجر جاء يشحن لعبته. */}
+      <SectionTiles group="games" />
+      <SectionTiles group="home" />
 
-      <section>
-        <div className="coast-glow mb-3.5 flex flex-col gap-1">
-          <p className="eyebrow">{te("home")}</p>
-          <div className="flex flex-wrap items-baseline justify-between gap-x-3">
-            <h2 className="text-xl font-bold">{t("elecTitle")}</h2>
-            <p className="num text-sm text-muted">
-              {tc("count", { n: items.length })}
-            </p>
-          </div>
-        </div>
-
-        {/* ⚠️ **لا تجعل الصنف الواحد بعرض الصفّ.** جُرّب فصارت البطاقة
-            عملاقة على الجوّال — نصفُ صفٍّ فارغ أهونُ من بطاقةٍ بطول
-            الشاشة. البطاقة تبقى بمقاسها في كل الأحوال. */}
-        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
-          {items.map((p) => (
-            <ProductCard
-              key={p.id}
-              id={p.id}
-              name={p.title}
-              price={p.price}
-              old={p.old}
-              disc={p.disc}
-              desc={p.sub}
-              img={p.img}
-              Icon={IconDevice}
-              discLabel={tc("discount")}
-              soon={p.status !== "on"}
-              soonLabel={tc("soon")}
-            />
-          ))}
-        </div>
-      </section>
     </main>
   );
 }

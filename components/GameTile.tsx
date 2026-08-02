@@ -52,11 +52,14 @@ export default function GameTile({
           <SectionIcon name={icon} mono className="w-[46%]" />
         </span>
 
+        {/* ⚠️ **`alt` فارغ عمداً**: الاسم مكتوبٌ تحت البلاطة، فالصورة
+            زينةٌ لا خبر. ولولا ذلك لظهر الاسم **فوقها** نصّاً بديلاً
+            حين يتعذّر تحميلها، فيُقرأ مرّتين ويقع على الأيقونة. */}
         {img ? (
           optimizable(img) ? (
             <Image
               src={img}
-              alt={title}
+              alt=""
               fill
               sizes="(max-width: 640px) 30vw, 180px"
               className="object-cover transition-transform group-hover:scale-105"
@@ -65,7 +68,7 @@ export default function GameTile({
             // eslint-disable-next-line @next/next/no-img-element
             <img
               src={img}
-              alt={title}
+              alt=""
               className="absolute inset-0 size-full object-cover transition-transform group-hover:scale-105"
             />
           )

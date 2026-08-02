@@ -23,16 +23,25 @@ export default async function SectionTiles({
   const te = await getTranslations("eyebrow");
   const tp = await getTranslations("short");
   const tc = await getTranslations("common");
-  const t = await getTranslations("games");
+  const tGames = await getTranslations("games");
+  const tHome = await getTranslations("home");
+  const tAcc = await getTranslations("accountsPage");
 
   const list = await mergedSections(group);
   if (!list.length) return null;
 
+  /* لكل مجموعةٍ عنوانُها — وإلا قرأ الزبون «الألعاب» فوق سمّاعةٍ وشاحن */
+  const head = {
+    games: { eyebrow: te("games"), title: tGames("title") },
+    home: { eyebrow: te("home"), title: tHome("elecTitle") },
+    accounts: { eyebrow: te("accounts"), title: tAcc("title") },
+  }[group];
+
   return (
     <section>
       <div className="coast-glow mb-3.5 flex flex-col gap-1">
-        <p className="eyebrow">{te("games")}</p>
-        <h2 className="text-xl font-bold">{t("title")}</h2>
+        <p className="eyebrow">{head.eyebrow}</p>
+        <h2 className="text-xl font-bold">{head.title}</h2>
       </div>
 
       <div className="grid grid-cols-3 gap-3 sm:grid-cols-4">
