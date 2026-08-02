@@ -52,7 +52,7 @@ export default function MyOrders() {
         href="/login"
         className="flex min-h-12 items-center justify-center rounded-card bg-orange px-4 font-bold text-onaccent"
       >
-        {t("signIn")}
+        {t("login")}
       </Link>
     );
 
