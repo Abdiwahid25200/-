@@ -6,7 +6,8 @@ import PackageCard from "./PackageCard";
 import PaySection from "./PaySection";
 import FixedBar from "./FixedBar";
 import { fin, fmt } from "@/lib/format";
-import { isBuyable, live, pay, wa } from "@/lib/data";
+import { isBuyable, live, pay } from "@/lib/data";
+import { useWhatsApp, waLink as buildWa } from "@/lib/useWhatsApp";
 import { useAuth } from "@/lib/auth";
 import { Link } from "@/i18n/navigation";
 import { IconArrow, IconCheckCircle, IconSpinner, IconSuccess } from "./icons";
@@ -73,6 +74,7 @@ export default function BuyFlow({
   const tc = useTranslations("common");
   const tClosed = useTranslations("closed");
   const locale = useLocale();
+  const waNum = useWhatsApp();
 
   const [packId, setPackId] = useState<string | null>(null);
   const [payId, setPayId] = useState<string | null>(null);
@@ -185,10 +187,10 @@ export default function BuyFlow({
     ].filter(Boolean);
   }
 
+  /* الرقم من اللوحة لا من الملف — الثابت `wa` فارغ، فكان زرّ واتساب
+     لا يظهر مهما كتبت الرقم في Store info */
   function waLink(code: string) {
-    if (!wa) return null;
-    const text = encodeURIComponent(orderLines(code).join("\n"));
-    return `https://wa.me/${wa.replace(/\D/g, "")}?text=${text}`;
+    return buildWa(waNum, orderLines(code).join("\n"));
   }
 
   async function confirm() {

@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useTranslations } from "next-intl";
-import { site } from "@/lib/content";
+import { useWhatsApp } from "@/lib/useWhatsApp";
 import { IconSuccess } from "./icons";
 
 /**
@@ -12,6 +12,7 @@ import { IconSuccess } from "./icons";
  */
 export default function MessageForm() {
   const t = useTranslations("contactForm");
+  const waNum = useWhatsApp();
   const [name, setName] = useState("");
   const [contact, setContact] = useState("");
   const [msg, setMsg] = useState("");
@@ -25,9 +26,9 @@ export default function MessageForm() {
   function send() {
     if (!ready) return;
     const body = `${t("name")}: ${name}\n${t("contact")}: ${contact}\n\n${msg}`;
-    if (site.whatsapp) {
+    if (waNum) {
       window.open(
-        `https://wa.me/${site.whatsapp.replace(/\D/g, "")}?text=${encodeURIComponent(body)}`,
+        `https://wa.me/${waNum.replace(/\D/g, "")}?text=${encodeURIComponent(body)}`,
         "_blank",
         "noopener",
       );
@@ -105,7 +106,7 @@ export default function MessageForm() {
         </button>
 
         <p className="text-xs text-muted">
-          {site.whatsapp ? t("goesWa") : t("goesAdmin")}
+          {waNum ? t("goesWa") : t("goesAdmin")}
         </p>
       </div>
     </section>

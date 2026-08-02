@@ -14,6 +14,7 @@ import {
   type ChatMessage,
 } from "@/lib/chat";
 import { site } from "@/lib/content";
+import { useWhatsApp } from "@/lib/useWhatsApp";
 import { faqSlots, pick, readFaq, type FaqDoc, type FaqKey } from "@/lib/faq";
 import Logo from "./Logo";
 import {
@@ -47,6 +48,7 @@ const TEASER_KEY = "rs-chat-teaser";
  */
 export default function LiveChat() {
   const t = useTranslations("chat");
+  const waNum = useWhatsApp();
   const locale = useLocale();
   const { user, ready, enabled, signIn } = useAuth();
 
@@ -173,9 +175,8 @@ export default function LiveChat() {
   }
 
   const unread = unreadCount(msgs, seen);
-  const waHref = site.whatsapp
-    ? `https://wa.me/${site.whatsapp.replace(/\D/g, "")}`
-    : null;
+  /* الرقم من اللوحة لا من الملف — الثابت فارغ فكان البديل غائباً */
+  const waHref = waNum ? `https://wa.me/${waNum.replace(/\D/g, "")}` : null;
 
   return (
     <>

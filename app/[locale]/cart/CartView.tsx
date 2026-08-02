@@ -7,7 +7,8 @@ import { Link } from "@/i18n/navigation";
 import { useCart } from "@/lib/cart";
 import { fmt } from "@/lib/format";
 import { optimizable } from "@/lib/img";
-import { isBuyable, live, pay, wa } from "@/lib/data";
+import { isBuyable, live, pay } from "@/lib/data";
+import { useWhatsApp, waLink } from "@/lib/useWhatsApp";
 import { useAuth } from "@/lib/auth";
 import { payWithPoints, saveOrder } from "@/lib/orders";
 import { usePayMethods } from "@/components/usePayMethods";
@@ -33,6 +34,7 @@ export default function CartView() {
   const tb = useTranslations("buy");
   const tClosed = useTranslations("closed");
   const locale = useLocale();
+  const waNum = useWhatsApp();
   const { lines, total, count, setQty, remove, clear, ready } = useCart();
 
   const [name, setName] = useState("");
@@ -146,9 +148,8 @@ export default function CartView() {
       `${t("contact")}: ${contact}`,
       `${t("address")}: ${addr}`,
     ].join("\n");
-    const waHref = wa
-      ? `https://wa.me/${wa.replace(/\D/g, "")}?text=${encodeURIComponent(msg)}`
-      : null;
+    /* الرقم من اللوحة لا من الملف — الثابت فارغ فكان الزرّ لا يظهر */
+    const waHref = waLink(waNum, msg);
 
     return (
       <div className="flex flex-col gap-5">

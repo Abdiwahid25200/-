@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import { avgMinutes, readStats } from "@/lib/stats";
-import { wa } from "@/lib/data";
+import { useWhatsApp, waLink } from "@/lib/useWhatsApp";
 import type { SavedOrder } from "@/lib/orders";
 import { IconBolt, IconCheckCircle, IconWhatsApp } from "@/components/icons";
 
@@ -33,6 +33,7 @@ function stopOf(status: SavedOrder["status"]): number {
 export default function LiveOrder({ order }: { order: SavedOrder }) {
   const t = useTranslations("track");
   const locale = useLocale();
+  const waNum = useWhatsApp();
 
   /** متوسّط التسليم الحقيقي — يُقرأ مرّة، وبلاه يُخفى السطر كلّه */
   const [avg, setAvg] = useState(0);
@@ -71,11 +72,7 @@ export default function LiveOrder({ order }: { order: SavedOrder }) {
      فيظنّ الزبون أن شيئاً تعطّل. يبقى فيه أثرٌ من الطريق دائماً. */
   const pct = avg > 0 ? Math.min(96, Math.round((secs / (avg * 60)) * 100)) : 0;
 
-  const waHref = wa
-    ? `https://wa.me/${wa.replace(/\D/g, "")}?text=${encodeURIComponent(
-        `${t("askAbout")} ${order.code}`,
-      )}`
-    : null;
+  const waHref = waLink(waNum, `${t("askAbout")} ${order.code}`);
 
   return (
     <section

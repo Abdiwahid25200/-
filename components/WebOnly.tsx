@@ -2,7 +2,7 @@
 
 import { useTranslations } from "next-intl";
 import { useIsApp } from "@/lib/platform";
-import { site } from "@/lib/content";
+import { useWhatsApp } from "@/lib/useWhatsApp";
 import { IconGlobe, IconWhatsApp } from "@/components/icons";
 
 /**
@@ -22,7 +22,8 @@ export default function WebOnly({ path = "" }: { path?: string }) {
   if (!isApp) return null;
 
   const url = `https://eramaan.com${path}`;
-  const wa = site.whatsapp?.replace(/\D/g, "");
+  /* الرقم من اللوحة — الثابت في الملف فارغ */
+  const wa = useWhatsApp().replace(/\D/g, "");
 
   return (
     <div className="fixed inset-0 z-50 flex flex-col items-center justify-center gap-5 bg-bg px-6 text-center">

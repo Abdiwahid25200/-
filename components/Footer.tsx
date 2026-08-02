@@ -3,6 +3,7 @@ import { Link } from "@/i18n/navigation";
 import Logo from "./Logo";
 import { IconTelegram, IconWhatsApp } from "./icons";
 import { footerLinks, site } from "@/lib/content";
+import { mergedSite } from "@/lib/overrides";
 import type { Locale } from "@/i18n/routing";
 
 /**
@@ -23,17 +24,21 @@ export default async function Footer({ locale }: { locale: string }) {
   const t = await getTranslations("footer");
   const L = locale as Locale;
 
+  /* ⚠️ من اللوحة لا من الملف: `site.whatsapp` في `lib/content.ts` فارغ،
+     فكانت أيقونتا التواصل لا تظهران مهما كُتب الرقم في Store info */
+  const store = await mergedSite();
+
   const socials = [
-    site.whatsapp && {
+    store.whatsapp && {
       key: "wa",
       label: "WhatsApp",
-      href: `https://wa.me/${site.whatsapp.replace(/\D/g, "")}`,
+      href: `https://wa.me/${store.whatsapp.replace(/\D/g, "")}`,
       Icon: IconWhatsApp,
     },
-    site.telegram && {
+    store.telegram && {
       key: "tg",
       label: "Telegram",
-      href: `https://t.me/${site.telegram.replace(/^@/, "")}`,
+      href: `https://t.me/${store.telegram.replace(/^@/, "")}`,
       Icon: IconTelegram,
     },
   ].filter(Boolean) as {
@@ -64,9 +69,9 @@ export default async function Footer({ locale }: { locale: string }) {
         </span>
 
         <span className="leading-tight">
-          <span className="block font-bold">{site.brand}</span>
+          <span className="block font-bold">{store.brand}</span>
           <span className="mt-0.5 block text-sm text-muted">
-            {site.tagline[L]}
+            {store.taglineOf(L)}
           </span>
         </span>
 
@@ -104,7 +109,7 @@ export default async function Footer({ locale }: { locale: string }) {
         )}
 
         <p className="pt-2 text-xs text-muted">
-          <span className="num">{new Date().getFullYear()}</span> © {site.brand}{" "}
+          <span className="num">{new Date().getFullYear()}</span> © {store.brand}{" "}
           — {t("rights")}
         </p>
       </div>

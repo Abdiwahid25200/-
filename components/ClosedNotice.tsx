@@ -7,7 +7,7 @@ import Logo from "./Logo";
 import { IconClock, IconWhatsApp } from "./icons";
 import { pick } from "@/lib/overrides";
 import { optimizable } from "@/lib/img";
-import { site } from "@/lib/content";
+import { useWhatsApp } from "@/lib/useWhatsApp";
 import { minutesToOpen, type OpenState } from "@/lib/storeOpen";
 
 /**
@@ -80,7 +80,8 @@ function Mark({ src, size = 72 }: { src: string; size?: number }) {
 
 /** زرّ واتساب — الرقم من نفس وثيقة الإعدادات، وإلا من الملف الثابت */
 function Whatsapp({ label, phone }: { label: string; phone: string }) {
-  const n = phone || site.whatsapp.replace(/\D/g, "");
+  const fallback = useWhatsApp();
+  const n = phone || fallback.replace(/\D/g, "");
   if (!n) return null;
   return (
     <a

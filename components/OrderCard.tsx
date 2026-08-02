@@ -9,7 +9,7 @@ import { sections as staticSections } from "@/lib/content";
 import { cancelMyOrder, canCancel } from "@/lib/orders";
 import { doneWord } from "@/lib/deliver";
 import { fmt } from "@/lib/format";
-import { wa } from "@/lib/data";
+import { useWhatsApp, waLink } from "@/lib/useWhatsApp";
 import type { SavedOrder } from "@/lib/orders";
 import {
   IconBall,
@@ -83,6 +83,7 @@ export default function OrderCard({
   }
 
   const t = useTranslations("accountPage");
+  const waNum = useWhatsApp();
   const tp = useTranslations("pages");
   const locale = useLocale();
 
@@ -114,11 +115,8 @@ export default function OrderCard({
   const at = STEPS.indexOf(order.status as (typeof STEPS)[number]);
   const done = order.status === "done";
 
-  const waHref = wa
-    ? `https://wa.me/${wa.replace(/\D/g, "")}?text=${encodeURIComponent(
-        `${t("askAbout")} ${order.code}`,
-      )}`
-    : null;
+  /* الرقم من اللوحة لا من الملف — كان الزرّ لا يظهر مهما كُتب */
+  const waHref = waLink(waNum, `${t("askAbout")} ${order.code}`);
 
   return (
     <li className="rounded-card border border-line bg-surface p-4">
