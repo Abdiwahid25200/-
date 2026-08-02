@@ -489,11 +489,13 @@ export function IconNavHome({ className = "" }: IconProps) {
 
 export function IconNavGames({ className = "" }: IconProps) {
   return (
+    /* شبكةُ أربعةٍ كما في النموذج — «الأقسام» لا «لعبةٌ بذراع تحكّم»،
+       فالتبويب يفتح كتالوجاً لا لعبة. */
     <svg viewBox="0 0 24 24" fill="none" className={className} aria-hidden>
-      <rect x="3" y="7" width="18" height="10.5" rx="3.4" stroke="currentColor" strokeWidth="1.8" />
-      <path d="M7.6 12.2h2.4M8.8 11v2.4" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" />
-      <circle cx="15.6" cy="11.6" r="1" fill="currentColor" />
-      <circle cx="17.4" cy="13.4" r="1" fill="currentColor" />
+      <rect x="3.2" y="3.2" width="7.6" height="7.6" rx="2.2" stroke="currentColor" strokeWidth="1.8" />
+      <rect x="13.2" y="3.2" width="7.6" height="7.6" rx="2.2" stroke="currentColor" strokeWidth="1.8" />
+      <rect x="3.2" y="13.2" width="7.6" height="7.6" rx="2.2" stroke="currentColor" strokeWidth="1.8" />
+      <rect x="13.2" y="13.2" width="7.6" height="7.6" rx="2.2" stroke="currentColor" strokeWidth="1.8" />
     </svg>
   );
 }

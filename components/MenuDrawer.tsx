@@ -7,8 +7,16 @@ import { Link, usePathname } from "@/i18n/navigation";
 import { localeNames, routing, type Locale } from "@/i18n/routing";
 import { ThemeChoice } from "./ThemeToggle";
 import Logo from "./Logo";
-import SearchButton from "./SearchButton";
-import { IconCart, IconClose, IconDoc, IconMenu, IconSupport, IconUser } from "./icons";
+import {
+  IconCart,
+  IconChevron,
+  IconClose,
+  IconDoc,
+  IconMenu,
+  IconSupport,
+  IconUser,
+  IconWhatsApp,
+} from "./icons";
 import SectionIcon, { type SectionIconKey } from "./SectionIcon";
 import { showsGroup, useIsApp } from "@/lib/platform";
 import { IconBarwaaqo } from "@/components/icons";
@@ -40,14 +48,6 @@ const shop = [
     group: "games" as string | undefined,
   },
 ];
-
-const mine = [
-  { key: "account", href: "/account", Icon: IconUser },
-  // ينزلان إلى قسمهما في صفحة الحساب مباشرة بدل البحث عنه
-  { key: "orders", href: "/orders", Icon: IconDoc },
-  // الشعار والاسم يأتيان من اللوحة عند الفتح — انظري `pts` أدناه
-  { key: "cart", href: "/cart", Icon: IconCart },
-] as const;
 
 const info = [
   { key: "help", href: "/help", Icon: IconSupport },
@@ -137,11 +137,10 @@ export default function MenuDrawer({ phone }: { phone?: string }) {
   const row =
     "flex min-h-12 items-center gap-3 rounded-card px-3 text-sm font-medium transition-colors hover:bg-bg";
 
-  function Group({
-    title,
+  /** قائمةٌ واحدة مسطّحة — بلا عنوان مجموعة، كما في النموذج */
+  function Flat({
     items,
   }: {
-    title: string;
     items: readonly {
       key: string;
       href: string;
@@ -154,11 +153,7 @@ export default function MenuDrawer({ phone }: { phone?: string }) {
     }[];
   }) {
     return (
-      <div>
-        <h3 className="mb-1 px-3 text-xs font-bold uppercase tracking-wide text-muted">
-          {title}
-        </h3>
-        <ul>
+      <ul className="flex flex-col gap-0.5">
           {items.map(({ key, href, Icon, icon, img, label }) => (
             <li key={key}>
               <Link href={href} onClick={() => setOpen(false)} className={row}>
@@ -177,9 +172,8 @@ export default function MenuDrawer({ phone }: { phone?: string }) {
                 {label ?? tp(key)}
               </Link>
             </li>
-          ))}
-        </ul>
-      </div>
+        ))}
+      </ul>
     );
   }
 
@@ -210,13 +204,16 @@ export default function MenuDrawer({ phone }: { phone?: string }) {
             className="fixed inset-y-0 end-0 z-50 flex w-[min(20rem,88vw)] flex-col overflow-y-auto bg-surface shadow-2xl"
           >
             <div className="flex items-center gap-2.5 border-b border-line p-4">
-              <Logo className="size-9 rounded-xl shadow-sm" />
-              <span className="font-bold">Ramaan Store</span>
+              <Logo className="size-9 shrink-0 rounded-xl shadow-sm" />
+              <span className="min-w-0 flex-1 leading-tight">
+                <span className="block truncate font-bold">Ramaan Store</span>
+                <span className="block truncate text-xs text-muted">{t("title")}</span>
+              </span>
               <button
                 type="button"
                 onClick={() => setOpen(false)}
                 aria-label={t("close")}
-                className="ms-auto flex size-11 items-center justify-center rounded-card text-muted transition-colors hover:bg-bg hover:text-orange"
+                className="flex size-11 shrink-0 items-center justify-center rounded-card text-muted transition-colors hover:bg-bg hover:text-orange"
               >
                 {/* ⚠️ كان المحرف ✕ — يتبدّل شكلُه بين جهازٍ وجهاز ولا يقبل
                     سماكةً ولا حجماً، وقد يظهر مربّعاً فارغاً. أيقونةٌ مرسومة. */}
@@ -224,27 +221,37 @@ export default function MenuDrawer({ phone }: { phone?: string }) {
               </button>
             </div>
 
-            <nav className="flex flex-col gap-5 p-3">
-              {/* البحث — نزل من الترويسة إلى هنا، فالترويسة السلة
-                  وزرّ القائمة لا غير كما في النموذج */}
-              <div onClick={() => setOpen(false)}>
-                <SearchButton wide />
-              </div>
+            <nav className="flex flex-col gap-4 p-3">
+              {/* ⚠️ **بطاقة الحساب أوّلاً** كما في النموذج — لا عنوانَ
+                  «حسابي» فوق ثلاثة صفوف. من فتح القائمة يبحث عن نفسه
+                  أوّلاً: طلباتُه ورصيدُه. */}
+              <Link
+                href="/account"
+                onClick={() => setOpen(false)}
+                className="flex items-center gap-3 rounded-card bg-surface2 p-3"
+              >
+                <span
+                  aria-hidden
+                  className="flex size-10 shrink-0 items-center justify-center rounded-card bg-surface text-orange"
+                >
+                  <IconUser className="size-5" />
+                </span>
+                <span className="min-w-0 flex-1 leading-tight">
+                  <span className="block truncate font-bold">{t("account")}</span>
+                  <span className="block truncate text-xs text-muted">{t("mine")}</span>
+                </span>
+                <IconChevron className="size-4 shrink-0 text-muted rtl:rotate-180" />
+              </Link>
 
-              <Group
-                title={t("shop")}
-                /* 🚫 أقسام الحسابات لا تظهر في التطبيق — قرارها.
-                   والتصفية بالمجموعة، فقسمٌ جديد فيها يُخفى وحده. */
-                items={[...base, ...added].filter((x) =>
-                  showsGroup(x.group, isApp),
-                )}
-              />
-              <Group
-                title={t("mine")}
-                items={
-                  pts.on
+              {/* ⚠️ **قائمةٌ واحدة مسطّحة** — كانت ثلاث مجموعاتٍ بعناوين
+                  («المتجر»، «حسابي»، «معلومات»)، فصار في القائمة ستّة
+                  أسطر عنوانٍ فوق أحد عشر سطر وجهة. النموذج قائمةٌ تُمسح
+                  بالعين مرّةً واحدة. */}
+              <Flat
+                items={[
+                  ...[...base, ...added].filter((x) => showsGroup(x.group, isApp)),
+                  ...(pts.on
                     ? [
-                        ...mine,
                         {
                           key: "points",
                           href: "/points",
@@ -254,49 +261,48 @@ export default function MenuDrawer({ phone }: { phone?: string }) {
                           label: pts.brand,
                         },
                       ]
-                    : mine
-                }
+                    : []),
+                  { key: "orders", href: "/orders", Icon: IconDoc },
+                  { key: "cart", href: "/cart", Icon: IconCart },
+                  ...info,
+                ]}
               />
-              <Group title={t("info")} items={info} />
 
-              <div>
-                <h3 className="mb-2 px-3 text-xs font-bold uppercase tracking-wide text-muted">
-                  {tl("label")}
-                </h3>
-                <div className="flex gap-2">
-                  {routing.locales.map((l) => (
-                    <Link
-                      key={l}
-                      href={pathname}
-                      locale={l}
-                      onClick={() => setOpen(false)}
-                      className={`flex min-h-12 flex-1 items-center justify-center rounded-card border-2 text-sm font-medium transition-colors ${
-                        l === active
-                          ? "border-orange bg-orange/5 text-orange"
-                          : "border-line text-muted hover:border-orange/50"
-                      }`}
-                    >
-                      {localeNames[l as Locale]}
-                    </Link>
-                  ))}
-                </div>
+              <span aria-hidden className="h-px bg-line" />
+
+              {/* اللغات ثلاث حبّاتٍ في صفّ — كما في النموذج */}
+              <div className="flex gap-2">
+                {routing.locales.map((l) => (
+                  <Link
+                    key={l}
+                    href={pathname}
+                    locale={l}
+                    onClick={() => setOpen(false)}
+                    className={`flex min-h-11 flex-1 items-center justify-center rounded-full border text-sm font-bold transition-colors ${
+                      l === active
+                        ? "border-orange bg-orange text-onaccent"
+                        : "border-line text-muted hover:border-orange/50"
+                    }`}
+                  >
+                    {localeNames[l as Locale]}
+                  </Link>
+                ))}
               </div>
 
-              <div>
-                <h3 className="mb-2 px-3 text-xs font-bold uppercase tracking-wide text-muted">
-                  {tth("label")}
-                </h3>
-                <ThemeChoice />
-              </div>
+              <ThemeChoice />
 
+              {/* ⚠️ **زرّ واتساب بلون واتساب، وبأيقونةٍ مرسومة.**
+                  كان أصفر وعليه الإيموجي 💬 — والإيموجي ممنوع بقرارها:
+                  يختلف شكله بين آيفون وأندرويد وويندوز. */}
               {phone && (
                 <a
                   href={`https://wa.me/${phone.replace(/\D/g, "")}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex min-h-12 items-center justify-center rounded-card bg-yellow font-bold text-onaccent transition-opacity hover:opacity-90"
+                  className="lift mt-auto flex min-h-12 items-center justify-center gap-2 rounded-card bg-[#25d366] font-bold text-white"
                 >
-                  💬 {t("whatsapp")}
+                  <IconWhatsApp className="size-5 rounded-md" />
+                  {t("whatsapp")}
                 </a>
               )}
             </nav>

@@ -8,7 +8,6 @@ import HowItWorks from "@/components/HowItWorks";
 import MessageForm from "@/components/MessageForm";
 import { IconChat, IconClock, IconEmail, IconWhatsApp } from "@/components/icons";
 import { site, supportChannels } from "@/lib/content";
-import { IconChevron } from "@/components/icons";
 import { faqSlots, pick as pickFaq, readFaq } from "@/lib/faq";
 import { mergedSite } from "@/lib/overrides";
 import Footer from "@/components/Footer";
@@ -79,7 +78,13 @@ export default async function HelpPage({
       <section>
         <h2 className="mb-3.5 text-xl font-bold">{t("reach")}</h2>
         <div className="grid grid-cols-2 gap-2.5">
-          {supportChannels.map(({ key, icon }) => {
+          {/* ⚠️ **لا تُعرض قناةٌ فارغة.** كانت أربع بطاقاتٍ اثنتان منها
+              «يُضاف قريباً» — ووعدٌ لا موعد له يُضعف الثقة ولا يبنيها.
+              فتظهر القنوات التي فيها خبر، ويملأ باقيها بمجرّد كتابتها. */}
+          {supportChannels.filter(({ key }) => {
+            const f = key === "hours" ? "hours" : key === "inquiries" ? "email" : key;
+            return !!valueOf(f);
+          }).map(({ key, icon }) => {
             const Icon = ICONS[icon];
             const field = key === "hours" ? "hours" : key === "inquiries" ? "email" : key;
             const value = valueOf(field);
@@ -99,12 +104,9 @@ export default async function HelpPage({
                     className="block truncate text-sm text-muted"
                     dir={key === "hours" ? undefined : "ltr"}
                   >
-                    {value || t("soon")}
+                    {value}
                   </span>
                 </span>
-                {/* ⚠️ كان المحرف › — ممنوع بقرارها: يتبدّل شكلُه بين
-                    جهازٍ وجهاز ولا يقبل حجماً ولا سماكة */}
-                <IconChevron className="size-4 shrink-0 text-muted rtl:rotate-180" />
               </>
             );
             /* بطاقةٌ مربّعة بأيقونةٍ فوق النصّ — كما في النموذج، بطاقتان بالصفّ */
