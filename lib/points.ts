@@ -34,7 +34,14 @@ import { readPackages, readProducts } from "./overrides";
  * ويظهران أينما ذُكرت النقاط. وكلاهما يُغيَّر من اللوحة.
  */
 export const POINTS_BRAND = "Barwaaqo";
-export const POINTS_ICON = "/images/points/barwaaqo-icon.png";
+/**
+ * ⚠️ **فارغٌ عمداً** — الشعار الافتراضي صار **مرسوماً** (`IconBarwaaqo`
+ *    في `components/icons.tsx`): قطرةٌ بألوان المتجر تتبدّل مع الوضع
+ *    الليلي، ووزنُها مئات البايتات بدل صورة.
+ *
+ *    ويبقى الحقل: من رفعت شعاراً من اللوحة ظهر شعارها بدلاً منه.
+ */
+export const POINTS_ICON = "";
 export const POINTS_WORDMARK = "/images/points/barwaaqo.png";
 
 /** قيمة النقطة الواحدة بالدولار — ١٠ نقاط = ٠٫١٠ دولار */

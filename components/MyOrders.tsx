@@ -5,6 +5,10 @@ import { useTranslations } from "next-intl";
 import { useAuth } from "@/lib/auth";
 import { myOrders, type SavedOrder } from "@/lib/orders";
 import OrderCard from "@/components/OrderCard";
+import LiveOrder from "@/components/LiveOrder";
+import { IconBarwaaqo } from "@/components/icons";
+import { fmt } from "@/lib/format";
+import { isBuyable, pubg } from "@/lib/data";
 import { Link } from "@/i18n/navigation";
 
 /**
@@ -68,18 +72,74 @@ export default function MyOrders() {
 
   if (orders === null) return <p className="text-sm text-muted">…</p>;
 
-  if (orders.length === 0)
-    return (
-      <p className="rounded-card border border-dashed border-line p-6 text-center text-sm text-muted">
-        {t("noOrders")}
-      </p>
-    );
+  /**
+   * ⚠️ **الفراغ أخطر شاشة في المتجر** — من وصلها ولم يجد ما يضغطه خرج.
+   *    فصارت مكانَ بيع: ثلاث باقاتٍ بأسعارها ووعدُ نقاط أوّل طلب.
+   */
+  if (orders.length === 0) return <NoOrders />;
+
+  /* ── الطلب الحيّ أوّلاً ──
+     ⚠️ **واحدٌ لا أكثر**: من له ثلاثة طلبات تمشي معاً يرى ثلاث بطاقات
+        داكنة تملأ الشاشة فيضيع السؤال في الزحام. الأحدث هو الذي ينتظره،
+        وبقيّتها تظهر في العمود بحالتها. */
+  const live = orders.find((o) => o.status === "pending" || o.status === "paid");
+  const rest = orders.filter((o) => o.id !== live?.id);
 
   return (
-    <ul className="flex flex-col gap-3">
-      {orders.map((o) => (
-        <OrderCard key={o.id} order={o} onChanged={() => setTick((n) => n + 1)} />
-      ))}
-    </ul>
+    <div className="flex flex-col gap-5">
+      {live && <LiveOrder order={live} />}
+
+      {rest.length > 0 && (
+        <section className="flex flex-col gap-2.5">
+          <h2 className="text-sm font-bold text-muted">{t("earlier")}</h2>
+          <ul className="flex flex-col gap-3">
+            {rest.map((o) => (
+              <OrderCard key={o.id} order={o} onChanged={() => setTick((n) => n + 1)} />
+            ))}
+          </ul>
+        </section>
+      )}
+    </div>
+  );
+}
+
+/**
+ * لا طلبات بعد — **وشاشةٌ تبيع لا تعتذر**.
+ * القسائم تُقرأ من `lib/data.ts` فتتبع أسعارك وحالاتك، ولا تُكتب هنا.
+ */
+function NoOrders() {
+  const t = useTranslations("accountPage");
+  const te = useTranslations("emptyOrders");
+  const live = pubg.filter(isBuyable).slice(0, 3);
+
+  return (
+    <div className="flex flex-col items-center gap-4 rounded-card border border-dashed border-line p-6 text-center">
+      <IconBarwaaqo className="size-16 text-orange/40" />
+      <div className="flex flex-col gap-1">
+        <strong className="text-lg">{t("noOrders")}</strong>
+        <p className="text-sm text-muted">{te("note")}</p>
+      </div>
+
+      {live.length > 0 && (
+        <ul className="grid w-full grid-cols-3 gap-2">
+          {live.map((p) => (
+            <li key={p.id}>
+              <Link
+                href="/pubg"
+                className="lift flex flex-col items-center gap-1 rounded-card border border-line bg-surface p-3"
+              >
+                <span className="num text-lg font-bold leading-none text-orange">
+                  {p.amount}
+                </span>
+                <span className="text-xs text-muted">{te("uc")}</span>
+                <span className="num text-sm font-bold text-yellow">
+                  {fmt(p.price)}
+                </span>
+              </Link>
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
   );
 }

@@ -4,7 +4,7 @@ import { useTranslations } from "next-intl";
 import { Link, usePathname } from "@/i18n/navigation";
 import { useIsApp } from "@/lib/platform";
 import {
-  IconGift,
+  IconBarwaaqoLine,
   IconNavAccounts,
   IconNavGames,
   IconNavHelp,
@@ -22,7 +22,7 @@ import {
  *    يتعلّم الزبون تنقّلين لمتجرٍ واحد.
  */
 const WEB_THIRD = { key: "accounts", href: "/accounts", Icon: IconNavAccounts } as const;
-const APP_THIRD = { key: "barwaaqo", href: "/points", Icon: IconGift } as const;
+const APP_THIRD = { key: "barwaaqo", href: "/points", Icon: IconBarwaaqoLine } as const;
 
 const tabsFor = (isApp: boolean) =>
   [

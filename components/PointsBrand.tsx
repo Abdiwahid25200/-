@@ -3,6 +3,7 @@
 import Image from "next/image";
 import { POINTS_BRAND, POINTS_ICON, type PointsSettings } from "@/lib/points";
 import { optimizable } from "@/lib/img";
+import { IconBarwaaqo } from "@/components/icons";
 
 /**
  * هويّة برنامج النقاط — **الشعار والاسم معاً، أينما ذُكرت النقاط**.
@@ -30,6 +31,16 @@ export default function PointsBrand({
 
   return (
     <span className={`flex min-w-0 items-center gap-2 ${className}`}>
+      {/* بلا صورةٍ مرفوعة تظهر القطرة المرسومة — لا فراغ */}
+      {!src && (
+        <span
+          aria-hidden
+          className="flex shrink-0 items-center justify-center text-orange"
+          style={{ width: size, height: size }}
+        >
+          <IconBarwaaqo className="size-full" />
+        </span>
+      )}
       {src &&
         (optimizable(src) ? (
           <Image

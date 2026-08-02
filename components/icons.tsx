@@ -930,6 +930,70 @@ export function IconPaperPlane({ className = "" }: IconProps) {
   );
 }
 
+/**
+ * 💧 شعار **برواقو** — قطرةٌ تحمل موجات المتجر (اختيار صاحبة المتجر).
+ *
+ * «برواقو» في الصومالية هي المطر الذي يُنبت الخير. فالقطرة تقول الاسم
+ * بلا كلام، وفي جوفها **موجات شعار المتجر نفسها** — فيبدو من عائلته.
+ *
+ * ⚠️ والموجات بلون العلامة الثاني (`--accent-2`) لا بلونٍ ثابت، فتتبدّل
+ *    مع الوضع الليلي وحدها. وكان الشعار صورةً PNG بأزرقَ وذهبٍ ليسا من
+ *    ألوان المتجر، ولا يُقرأ في ٢٠ بكسل.
+ */
+export function IconBarwaaqo({ className = "" }: IconProps) {
+  return (
+    <svg viewBox="0 0 100 100" className={className} role="img" aria-hidden>
+      <path
+        d="M50 9C50 9 21 42 21 62a29 29 0 0 0 58 0C79 42 50 9 50 9Z"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="6"
+        strokeLinejoin="round"
+      />
+      <circle cx="50" cy="74" r="4.6" fill="var(--accent-2)" />
+      <path
+        d="M38 67a17 17 0 0 1 24 0"
+        fill="none"
+        stroke="var(--accent-2)"
+        strokeWidth="5.4"
+        strokeLinecap="round"
+      />
+      <path
+        d="M30.5 57.5a27 27 0 0 1 39 0"
+        fill="none"
+        stroke="var(--accent-2)"
+        strokeWidth="5.4"
+        strokeLinecap="round"
+      />
+    </svg>
+  );
+}
+
+/**
+ * ونسخةٌ بخطٍّ واحد للشريط السفلي — ٢٠ بكسل لا تحتمل ثلاث موجات.
+ * موجةٌ واحدة تكفي لتُعرف القطرة، والزائد يصير لطخة.
+ */
+export function IconBarwaaqoLine({ className = "" }: IconProps) {
+  return (
+    <svg viewBox="0 0 100 100" className={className} role="img" aria-hidden>
+      <path
+        d="M50 9C50 9 21 42 21 62a29 29 0 0 0 58 0C79 42 50 9 50 9Z"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="6.5"
+        strokeLinejoin="round"
+      />
+      <path
+        d="M35 66a20 20 0 0 1 30 0"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="6"
+        strokeLinecap="round"
+      />
+    </svg>
+  );
+}
+
 /** التنزيل — سهمٌ ينزل إلى صينية. لزرّ «حمّليها لإكسل» في اللوحة */
 export function IconDownload({ className = "" }: IconProps) {
   return (

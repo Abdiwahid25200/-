@@ -424,7 +424,8 @@
       "toppedUp": "Topped up",
       "handedOver": "Handed over",
       "shipped": "Delivered"
-    }
+    },
+    "earlier": "Earlier orders"
   },
   "tiktokFlow": {
     "title": "Contact details",
@@ -638,5 +639,29 @@
     "working": "Deleting…",
     "failed": "Could not delete — check your connection and try again.",
     "again": "Please sign in once more, then press delete again."
+  },
+  "track": {
+    "stage": {
+      "placed": "WAITING FOR US",
+      "paid": "CONFIRMING PAYMENT",
+      "sending": "SENDING NOW",
+      "arrived": "DELIVERED"
+    },
+    "stop": {
+      "placed": "Ordered",
+      "paid": "Paid",
+      "sending": "Sending",
+      "arrived": "Arrived"
+    },
+    "usually": "We usually deliver in",
+    "mins": "{n} min",
+    "elapsed": "elapsed",
+    "late": "Taking longer than usual — message us and we will check right away.",
+    "ask": "Ask about {code}",
+    "askAbout": "Hello, about order"
+  },
+  "emptyOrders": {
+    "note": "Your first top-up lands in minutes. Start with one of these:",
+    "uc": "UC"
   }
 }

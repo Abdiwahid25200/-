@@ -424,7 +424,8 @@
       "toppedUp": "La buuxiyay",
       "handedOver": "La gudbiyay",
       "shipped": "La gaarsiiyay"
-    }
+    },
+    "earlier": "Dalabyadii hore"
   },
   "tiktokFlow": {
     "title": "Faahfaahinta xiriirka",
@@ -638,5 +639,29 @@
     "working": "Waa la tirtirayaa…",
     "failed": "Ma tirtiri karin — hubi xiriirkaaga oo isku day mar kale.",
     "again": "Fadlan mar kale gal, kadibna riix tirtirka."
+  },
+  "track": {
+    "stage": {
+      "placed": "WAA LA SUGAYAA",
+      "paid": "XAQIIJINTA LACAGTA",
+      "sending": "HADDA WAA LA DIRAYAA",
+      "arrived": "WAA LA GAARSIIYAY"
+    },
+    "stop": {
+      "placed": "La dalbaday",
+      "paid": "La bixiyay",
+      "sending": "Waa la dirayaa",
+      "arrived": "Waa la gaarsiiyay"
+    },
+    "usually": "Caadi ahaan waxaan ku gaarsiinaa",
+    "mins": "{n} daqiiqo",
+    "elapsed": "waa la joogaa",
+    "late": "Wuu ka daahay caadiga — nala soo xiriir waan hubinaynaa.",
+    "ask": "Wax ka weydii {code}",
+    "askAbout": "Salaan, dalabka"
+  },
+  "emptyOrders": {
+    "note": "Buuxintaada koowaad daqiiqado gudahood bay kuu imanaysaa. Ku bilow mid ka mid ah:",
+    "uc": "UC"
   }
 }
