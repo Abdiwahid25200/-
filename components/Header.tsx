@@ -23,15 +23,17 @@ export default async function Header() {
     // بلا خلفية بيضاء ولا خطّ فاصل — يجلس على أرضية الصفحة كما بالمعاينة.
     // ولأنه شفّاف فهو لا يلتصق بالأعلى، وإلا ظهر المحتوى من خلفه عند التمرير؛
     // التنقّل الدائم مكانه القائمة السفلية.
-    <header className="coast-glow relative z-30">
+    <header className="relative z-30">
       <div className="page-w flex items-center gap-3 px-4 py-3">
         <Link href="/" className="flex min-w-0 items-center gap-3">
-          <Logo solid className="size-11 shrink-0 rounded-[13px] shadow-sm" />
+          {/* شعارٌ بلا صفيحة كما في النموذج — ترويسةٌ خفيفة يسبق فيها
+              اسمُ المتجر كلَّ شيء، لا مربّعٌ أخضر مصمت */}
+          <Logo bare className="size-9 shrink-0" />
           <span className="min-w-0 leading-tight">
             <span className="block truncate text-[1.05rem] font-bold">
               {store.brand || t("brand")}
             </span>
-            <span className="block truncate text-xs font-semibold uppercase tracking-[0.16em] text-muted rtl:tracking-normal">
+            <span className="block truncate text-xs text-muted">
               {store.taglineOf(hLocale) || t("tagline")}
             </span>
           </span>

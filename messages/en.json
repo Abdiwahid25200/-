@@ -517,18 +517,18 @@
     }
   },
   "eyebrow": {
-    "home": "Electronics · shipped to you",
-    "games": "Catalogue · instant top-ups",
-    "accounts": "Verified accounts · one of a kind",
-    "pubg": "Instant · seconds not minutes",
-    "efootball": "Coins · reviewed by hand",
-    "tiktok": "Ready accounts · sold once",
-    "efootballAccounts": "Full squads · sold once",
-    "cart": "Checkout · delivery details",
-    "help": "Support · every day",
-    "policy": "Terms you can actually read",
-    "account": "Your account, in one place",
-    "soon": "On the way"
+    "home": "ELECTRONICS",
+    "games": "TOP-UP",
+    "accounts": "ACCOUNTS",
+    "pubg": "PUBG MOBILE",
+    "efootball": "EFOOTBALL",
+    "tiktok": "TIKTOK",
+    "efootballAccounts": "EFOOTBALL ACCOUNTS",
+    "cart": "CART",
+    "help": "SUPPORT",
+    "policy": "POLICY",
+    "account": "ACCOUNT",
+    "soon": "SOON"
   },
   "hero2": {
     "kicker": "Instant delivery · 24/7",

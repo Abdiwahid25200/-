@@ -1,8 +1,12 @@
 /**
- * ترويسة قسم — وسم علوي يخصّ الصفحة، ثم عنوان ووصف.
+ * ترويسة قسم — كما في النموذج: وسمٌ صغير بخطّ الأرقام، ثم العنوان.
  *
- * الوسم (`eyebrow`) هو ما يعطي كل صفحة هويّتها: الألعاب "كتالوج"،
- * ببجي "شحن فوري"، الدعم "كيف يعمل" — فلا تتشابه الصفحات.
+ * ⚠️ **الوسم لاتينيّ في اللغات الثلاث** (`SECTIONS` · `PUBG MOBILE`):
+ *    علامةُ مكانٍ لا جملةٌ تُقرأ، فتبقى واحدةً مهما تبدّلت اللغة —
+ *    كما في النموذج الذي اعتمدته صاحبة المتجر.
+ *
+ * ⚠️ **ولا عمود أخضر بجانب العنوان ولا وصفٌ في طرف السطر**: الوصف كان
+ *    يطير إلى الطرف المقابل فيُقرأ عنواناً ثانياً. صار سطراً تحته.
  */
 export default function SectionHead({
   title,
@@ -15,15 +19,10 @@ export default function SectionHead({
   eyebrow?: string;
 }) {
   return (
-    <header className="coast-glow mb-5 flex flex-col gap-1.5">
+    <header className="mb-5 flex flex-col gap-1">
       {eyebrow && <p className="eyebrow">{eyebrow}</p>}
-      <div className="flex flex-wrap items-end justify-between gap-x-3 gap-y-1">
-        <h2 className="flex items-center gap-2.5 text-2xl font-bold leading-tight">
-          <span aria-hidden className="h-7 w-1.5 shrink-0 rounded-full bg-orange" />
-          {title}
-        </h2>
-        {note && <p className="text-sm text-muted">{note}</p>}
-      </div>
+      <h2 className="text-[1.32rem] font-bold leading-tight">{title}</h2>
+      {note && <p className="mt-0.5 text-sm text-muted">{note}</p>}
     </header>
   );
 }

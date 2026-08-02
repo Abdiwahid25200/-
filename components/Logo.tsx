@@ -10,20 +10,29 @@
 export default function Logo({
   className = "",
   solid,
+  bare,
 }: {
   className?: string;
-  /** نسخة مصمتة: صفيحة بلون العلامة والشعار بالأبيض — تُستخدم بالهيدر */
+  /** نسخة مصمتة: صفيحة بلون العلامة والشعار بالأبيض */
   solid?: boolean;
+  /**
+   * ⚠️ **نسخةٌ بلا صفيحة** — الشعار وحده بلون العلامة، كما في النموذج.
+   * الصفيحة الخضراء المصمتة في الترويسة كانت مربّعاً ثقيلاً يسبق اسم
+   * المتجر إلى العين، وترويسةُ النموذج خفيفة: شعارٌ ثم اسم.
+   */
+  bare?: boolean;
 }) {
   const bag = solid ? "var(--on-accent)" : "var(--accent)";
   return (
     <svg viewBox="0 0 100 100" className={className} role="img" aria-hidden>
-      <rect
-        width="100"
-        height="100"
-        rx="22"
-        fill={solid ? "var(--accent)" : "var(--surface-2)"}
-      />
+      {!bare && (
+        <rect
+          width="100"
+          height="100"
+          rx="22"
+          fill={solid ? "var(--accent)" : "var(--surface-2)"}
+        />
+      )}
 
       {/* جسم الحقيبة */}
       <path

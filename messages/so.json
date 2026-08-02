@@ -517,18 +517,18 @@
     }
   },
   "eyebrow": {
-    "home": "Elektaroonig · waa lagu keenayaa",
-    "games": "Katalog · buuxin degdeg ah",
-    "accounts": "Akoonno la xaqiijiyay · mid kasta hal mar",
-    "pubg": "Degdeg · ilbiriqsi ma daqiiqad",
-    "efootball": "Qadaadiic · gacan lagu eegayo",
-    "tiktok": "Akoonno diyaar ah · hal mar la iibiyo",
-    "efootballAccounts": "Kooxo dhameystiran · hal mar la iibiyo",
-    "cart": "Dhameystir · xogta gaarsiinta",
-    "help": "Taageero · maalin kasta",
-    "policy": "Shuruudo la akhriyi karo",
-    "account": "Akoonkaaga hal meel",
-    "soon": "Waa soo socotaa"
+    "home": "ELECTRONICS",
+    "games": "TOP-UP",
+    "accounts": "ACCOUNTS",
+    "pubg": "PUBG MOBILE",
+    "efootball": "EFOOTBALL",
+    "tiktok": "TIKTOK",
+    "efootballAccounts": "EFOOTBALL ACCOUNTS",
+    "cart": "CART",
+    "help": "SUPPORT",
+    "policy": "POLICY",
+    "account": "ACCOUNT",
+    "soon": "SOON"
   },
   "hero2": {
     "kicker": "Gaarsiin degdeg ah · 24/7",

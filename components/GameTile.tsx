@@ -43,14 +43,11 @@ export default function GameTile({
           بيضاء تحت الصورة، فإن تعذّر تحميلها — رابطٌ حُذف، أو شبكةٌ
           بطيئة — بقي مربّعٌ أبيض فارغ. الآن تظهر الأيقونة من تحتها
           فلا يرى الزبون فراغاً أبداً. */}
-      <span className="lift relative flex aspect-square items-center justify-center overflow-hidden rounded-[18px] border border-line bg-gradient-to-bl from-orange/18 to-surface2 shadow-sm">
-        {/* سداسي = وجه عملة — صفيحة هادئة والأيقونة بلون العلامة */}
-        <span
-          className="flex aspect-square w-[56%] items-center justify-center bg-surface/70 text-orange"
-          style={{ clipPath: "polygon(50% 0, 93% 25%, 93% 75%, 50% 100%, 7% 75%, 7% 25%)" }}
-        >
-          <SectionIcon name={icon} mono className="w-[46%]" />
-        </span>
+      {/* ⚠️ **الأيقونة على البلاطة مباشرةً — بلا صفيحة سداسية ولا ظلّ**
+          (النموذج): البلاطة نفسها هي الصفيحة، وصفيحةٌ داخل صفيحة تصنع
+          إطارَين متداخلَين يشغلان نصف المربّع فتصغر الأيقونة. */}
+      <span className="lift relative flex aspect-square items-center justify-center overflow-hidden rounded-2xl border border-line bg-gradient-to-bl from-orange/20 to-surface2 text-orange">
+        <SectionIcon name={icon} mono className="w-[26%]" />
 
         {/* ⚠️ **`alt` فارغ عمداً**: الاسم مكتوبٌ تحت البلاطة، فالصورة
             زينةٌ لا خبر. ولولا ذلك لظهر الاسم **فوقها** نصّاً بديلاً
@@ -86,7 +83,7 @@ export default function GameTile({
         )}
       </span>
 
-      <span className="mt-2 block text-center text-sm font-bold leading-tight">
+      <span className="mt-1.5 block text-center text-xs font-bold leading-tight">
         {title}
       </span>
     </span>

@@ -39,7 +39,7 @@ export default async function SectionTiles({
 
   return (
     <section>
-      <div className="coast-glow mb-3.5 flex flex-col gap-1">
+      <div className="mb-3.5 flex flex-col gap-1">
         <p className="eyebrow">{head.eyebrow}</p>
         <h2 className="text-xl font-bold">{head.title}</h2>
       </div>

@@ -11,7 +11,7 @@ export default async function HomeHero() {
   const t = await getTranslations("hero2");
 
   return (
-    <section className="coast-glow flex flex-col gap-4 pt-2">
+    <section className="flex flex-col gap-4 pt-2">
       <p className="eyebrow">{t("kicker")}</p>
 
       <h1 className="text-[2.1rem] font-bold leading-[1.05] tracking-tight text-balance rtl:tracking-normal sm:text-5xl">

@@ -15,7 +15,7 @@ export default async function HowItWorks() {
   const youtubeId = tx(d, "youtubeId", locale, howItWorks.youtubeId ?? "");
 
   return (
-    <section className="coast-glow flex flex-col gap-4">
+    <section className="flex flex-col gap-4">
       <p className="eyebrow">{tx(d, "badge", locale, t("badge"))}</p>
       <h2 className="text-2xl font-bold leading-tight">{tx(d, "title", locale, t("title"))}</h2>
       <p className="max-w-prose text-muted">{tx(d, "note", locale, t("note"))}</p>

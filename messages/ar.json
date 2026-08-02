@@ -517,18 +517,18 @@
     }
   },
   "eyebrow": {
-    "home": "إلكترونيات · تصلك لبابك",
-    "games": "الكتالوج · شحن فوري",
-    "accounts": "حسابات موثّقة · لكل حساب نسخة واحدة",
-    "pubg": "فوري · ثوانٍ لا دقائق",
-    "efootball": "كوينز · بمراجعة يدوية",
-    "tiktok": "حسابات جاهزة · تُباع مرة واحدة",
-    "efootballAccounts": "فرق كاملة · تُباع مرة واحدة",
-    "cart": "إتمام الطلب · بيانات التسليم",
-    "help": "الدعم · كل يوم",
-    "policy": "شروط تُقرأ فعلاً",
-    "account": "حسابك في مكان واحد",
-    "soon": "في الطريق"
+    "home": "ELECTRONICS",
+    "games": "TOP-UP",
+    "accounts": "ACCOUNTS",
+    "pubg": "PUBG MOBILE",
+    "efootball": "EFOOTBALL",
+    "tiktok": "TIKTOK",
+    "efootballAccounts": "EFOOTBALL ACCOUNTS",
+    "cart": "CART",
+    "help": "SUPPORT",
+    "policy": "POLICY",
+    "account": "ACCOUNT",
+    "soon": "SOON"
   },
   "hero2": {
     "kicker": "تسليم فوري · على مدار الساعة",

@@ -333,18 +333,17 @@ body.has-buybar {
 
 /* ── الوسم العلوي فوق عنوان كل صفحة ──────────────────────── */
 .eyebrow {
-  /* ⚠️ لا دون ١٢٫٥px — كانت ١١٫٥ */
+  /* ⚠️ وسمُ الصفحة **لاتينيّ بخطّ الأرقام** كما في النموذج
+     (`SECTIONS` · `PUBG MOBILE`) — علامةُ مكانٍ لا جملةٌ تُقرأ.
+     ولذلك يبقى التباعد في الاتجاهين: لا عربيّة فيه تُفكّك. */
+  font-family: var(--font-data);
+  /* ⚠️ لا دون ١٢٫٥px — قاعدة المشروع. النموذج رسمها ١٠٫٥ وهو أصغر
+     ممّا يُقرأ على جوّالٍ في الشمس. */
   font-size: 0.79rem;
-  font-weight: 700;
-  letter-spacing: 0.18em;
+  font-weight: 600;
+  letter-spacing: 0.2em;
   text-transform: uppercase;
   color: var(--accent);
-}
-
-/* العربية خطّ متّصل: تباعد الحروف يفكّك الكلمة */
-[dir="rtl"] .eyebrow {
-  letter-spacing: 0;
-  text-transform: none;
 }
 
 /* ── لغة الشكل: القسيمة الممزّقة ──────────────────────────
@@ -392,26 +391,6 @@ body.has-buybar {
 
 .voucher-cut::after {
   bottom: -7px;
-}
-
-/* ── توهّج الساحل خلف رأس الصفحة ─────────────────────────── */
-.coast-glow {
-  position: relative;
-  isolation: isolate;
-}
-
-.coast-glow::before {
-  content: "";
-  position: absolute;
-  /* بلا تجاوز أفقي: التمدّد الجانبي كان يفتح تمريراً أفقياً بكل الصفحات */
-  inset: -40% 0 auto 0;
-  height: 240px;
-  z-index: -1;
-  pointer-events: none;
-  background:
-    radial-gradient(46% 60% at 26% 40%, color-mix(in srgb, var(--accent) 26%, transparent), transparent 70%),
-    radial-gradient(40% 54% at 78% 26%, color-mix(in srgb, var(--accent-2) 20%, transparent), transparent 72%);
-  filter: blur(30px);
 }
 
 @media (prefers-reduced-motion: reduce) {
