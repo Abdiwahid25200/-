@@ -91,30 +91,36 @@ export default function AccountPanel() {
   /* ── مسجَّل الدخول ── */
   return (
     <>
-      <section className="flex items-center gap-3 rounded-card border border-line bg-surface p-4">
-        <span
-          aria-hidden
-          className="flex size-12 shrink-0 items-center justify-center rounded-full bg-orange/10 text-orange"
-        >
-          <IconUser className="size-6" />
-        </span>
-        <span className="min-w-0 flex-1 leading-tight">
-          <span className="block truncate font-bold">
-            {user.displayName || t("guest")}
+      {/* ⚠️ زرّ الخروج في صفٍّ مستقلّ لا بجانب الاسم: كان يجلس في الزاوية
+          السفلية اليمنى للبطاقة، وهناك يعوم زرّ الدردشة — فيغطّي طرفه.
+          وبريدٌ طويل كان يضغطه حتى يكاد يختفي. */}
+      <section className="flex flex-col gap-3 rounded-card border border-line bg-surface p-4">
+        <div className="flex items-center gap-3">
+          <span
+            aria-hidden
+            className="flex size-12 shrink-0 items-center justify-center rounded-full bg-orange/10 text-orange"
+          >
+            <IconUser className="size-6" />
           </span>
-          <span className="block truncate text-sm text-muted" dir="ltr">
-            {user.email}
-          </span>
-          {profile?.phone && (
-            <span className="block truncate text-sm text-muted" dir="ltr">
-              +{profile.phone}
+          <span className="min-w-0 flex-1 leading-tight">
+            <span className="block truncate font-bold">
+              {user.displayName || t("guest")}
             </span>
-          )}
-        </span>
+            <span className="block truncate text-sm text-muted" dir="ltr">
+              {user.email}
+            </span>
+            {profile?.phone && (
+              <span className="num block truncate text-sm text-muted" dir="ltr">
+                +{profile.phone}
+              </span>
+            )}
+          </span>
+        </div>
+
         <button
           type="button"
           onClick={() => signOut()}
-          className="min-h-12 shrink-0 rounded-card border border-line px-4 text-sm font-medium text-muted transition-colors hover:border-danger hover:text-danger"
+          className="min-h-12 rounded-card border border-line text-sm font-bold text-muted transition-colors hover:border-danger hover:text-danger"
         >
           {t("signOut")}
         </button>

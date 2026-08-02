@@ -382,7 +382,8 @@
     "links": {
       "orders": "My orders",
       "cart": "Shopping cart",
-      "help": "Help & support"
+      "help": "Help & support",
+      "points": "My points"
     },
     "google": "Continue with Google",
     "signOut": "Sign out",
