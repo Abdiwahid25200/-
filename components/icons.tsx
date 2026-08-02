@@ -809,6 +809,18 @@ export function IconGift({ className = "" }: IconProps) {
   );
 }
 
+/** الرائج — لهبٌ صغير */
+export function IconFlame({ className = "" }: IconProps) {
+  return (
+    <svg viewBox="0 0 24 24" strokeWidth="1.7" className={`${base} ${className}`} aria-hidden>
+      <path
+        strokeLinejoin="round"
+        d="M12 2.6s5.6 4.2 5.6 9.4A5.6 5.6 0 0 1 12 21.4a5.6 5.6 0 0 1-5.6-5.6c0-2 1-3.2 1-3.2s.6 1.4 1.8 1.8c-.3-3.4 2.8-5.4 2.8-8.6a6 6 0 0 0 0-3.2Z"
+      />
+    </svg>
+  );
+}
+
 /** المشاركة — صندوقٌ يخرج منه سهم لأعلى */
 export function IconShare({ className = "" }: IconProps) {
   return (

@@ -26,6 +26,7 @@ import { withTimeout } from "./timeout";
 import type { SavedOrder } from "./orders";
 import { orderPoints, type PointsMap, type PointsSettings } from "./points";
 import { bumpDelivered } from "./stats";
+import { bumpHot } from "./hot";
 
 export type OrderStatus = SavedOrder["status"];
 
@@ -139,7 +140,7 @@ export async function setOrderStatus(
 
   /* عدّاد الثقة يُحدَّث **بعد** المعاملة لا داخلها: رقمُ عرضٍ لا يستحقّ
      أن يُفشل تسليم طلب لو رُفضت كتابته أو تعثّرت. */
-  let delivered: { at: unknown; item: string } | null = null;
+  let delivered: { at: unknown; item: string; ids: string[] } | null = null;
 
   try {
     const res = await runTransaction(db, async (tx) => {
@@ -198,6 +199,8 @@ export async function setOrderStatus(
           at: o.createdAt,
           // ما سُلّم — يُنشر في الشريط الحيّ بلا اسمٍ ولا رقم
           item: String(o.items?.[0]?.title ?? ""),
+          // 🔥 ومعرّفاته لعدّاد «اشتروها اليوم» على البطاقة نفسها
+          ids: (o.items ?? []).map((i) => String(i?.id ?? "")).filter(Boolean),
         };
 
       let delta = 0;
@@ -358,8 +361,9 @@ export async function setOrderStatus(
     });
 
     if (res.ok && delivered) {
-      const d = delivered as { at: unknown; item: string };
+      const d = delivered as { at: unknown; item: string; ids: string[] };
       await bumpDelivered(d.at, d.item);
+      await bumpHot(d.ids);
     }
     return res;
   } catch {

@@ -1,7 +1,7 @@
 "use client";
 
 import Badge from "./Badge";
-import { IconCheckCircle } from "./icons";
+import { IconCheckCircle, IconFlame } from "./icons";
 import Thumb from "./Thumb";
 import { fin, fmt } from "@/lib/format";
 
@@ -14,12 +14,16 @@ type Props = {
   img?: string;
   instant?: boolean;
   popular?: boolean;
+  /** كم شخصاً اشتراها اليوم — صفرٌ ⇒ لا شارة */
+  hot?: number;
   selected: boolean;
   onSelect: () => void;
   labels: {
     disc: string;
     instant: string;
     popular: string;
+    /** «{n} اشتروها اليوم» */
+    hot: string;
     buy: string;
     selected: string;
     soon: string;
@@ -46,6 +50,7 @@ export default function PackageCard({
   disc,
   img,
   popular,
+  hot = 0,
   selected,
   onSelect,
   labels,
@@ -145,6 +150,16 @@ export default function PackageCard({
           ) : popular ? (
             <Badge tone="green">{labels.popular}</Badge>
           ) : null}
+        </span>
+      )}
+
+      {/* 🔥 **الدليل على البطاقة نفسها، لحظةَ التردّد.**
+          السؤال هنا ليس «هل المتجر حيّ؟» — أرقام الرئيسية أجابت عنه —
+          بل **«أيّ باقةٍ آخذ؟»**. فيوضع الجواب حيث يُسأل. */}
+      {hot > 0 && !soon && (
+        <span className="num mt-2 flex w-fit items-center gap-1 rounded-full bg-danger/10 px-2 py-0.5 text-[0.7rem] font-bold text-danger">
+          <IconFlame className="size-3" />
+          {labels.hot.replace("{n}", String(hot))}
         </span>
       )}
 

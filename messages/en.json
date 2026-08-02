@@ -87,7 +87,8 @@
     "soon": "Coming soon",
     "googleSignIn": "Continue with Google",
     "manual": "Manual",
-    "shipped": "Shipped"
+    "shipped": "Shipped",
+    "hot": "{n} bought this today"
   },
   "games": {
     "title": "Games",

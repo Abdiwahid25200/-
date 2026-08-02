@@ -18,6 +18,7 @@ import ClosedNotice from "./ClosedNotice";
 import GiftAsk from "./GiftAsk";
 import { canOrderNow, isReservation, useStoreOpen } from "@/lib/storeOpen";
 import { useQuery } from "@/lib/useQuery";
+import { MIN_HOT, readHot, type HotMap } from "@/lib/hot";
 
 export type Pack = {
   id: string;
@@ -112,6 +113,18 @@ export default function BuyFlow({
   const redeem = usePointsRedeem(total);
   // المتجر مغلق أو خارج الدوام ⇒ يتصفّح ولا يطلب
   const store = useStoreOpen();
+
+  /* 🔥 «اشتروها اليوم» — يُقرأ مرّة، وبلاه لا شارة ولا تأخير */
+  const [hot, setHot] = useState<HotMap>({});
+  useEffect(() => {
+    let alive = true;
+    void readHot()
+      .then((h) => alive && setHot(h))
+      .catch(() => {});
+    return () => {
+      alive = false;
+    };
+  }, []);
 
   const isWa = mode === "whatsapp";
 
@@ -387,6 +400,7 @@ export default function BuyFlow({
               instant={p.instant}
               popular={p.popular}
               soon={p.soon}
+              hot={(hot[p.id] ?? 0) >= MIN_HOT ? hot[p.id] : 0}
               selected={p.id === packId}
               onSelect={() => !p.soon && setPackId(p.id)}
               labels={{
@@ -396,6 +410,7 @@ export default function BuyFlow({
                 buy: tc("buy"),
                 selected: tc("selected"),
                 soon: tc("soon"),
+                hot: tc.raw("hot") as string,
               }}
               Icon={Icon}
             />
