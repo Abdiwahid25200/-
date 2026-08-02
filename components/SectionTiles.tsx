@@ -44,7 +44,10 @@ export default async function SectionTiles({
         <h2 className="text-xl font-bold">{head.title}</h2>
       </div>
 
-      <div className="grid grid-cols-3 gap-3 sm:grid-cols-4">
+      {/* ⚠️ قسمان ⇒ عمودان، وثلاثة فأكثر ⇒ ثلاثة (النموذج). ثلاثة
+          أعمدةٍ لقسمَين تترك خانةً فارغة بعرض الثلث، فتبدو الصفحة
+          ناقصةً وكأنّ قسماً سقط. */}
+      <div className={`grid gap-3 ${list.length === 2 ? "grid-cols-2" : "grid-cols-3"}`}>
         {list.map((s) => (
           <GameTile
             key={s.key}
