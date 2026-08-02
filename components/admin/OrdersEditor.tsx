@@ -14,6 +14,7 @@ import {
   allOrders,
   claimOrder,
   claimStale,
+  canChangeStatus,
   orderFree,
   customerOf,
   releaseOrder,
@@ -133,6 +134,74 @@ function amountOf(o: AdminOrder): string {
  *    بشيء ولا يُطابق ما ينزل في إكسل. والتفصيل في `lib/span.ts`.
  */
 
+/**
+ * السؤال قبل التنفيذ — و**يقول ماذا سيحدث** لا «هل أنتِ متأكّدة» وحدها.
+ *
+ * ⚠️ «Are you sure?» سؤالٌ لا يُقرأ: من ضغط زرّاً يظنّ نفسه متأكّداً
+ *    فيضغط «نعم» بلا نظر. أمّا «سيُخصم من رصيده ١٢٠ نقطة» فرقمٌ يوقف
+ *    الإبهام — وهو الفرق بين تحذيرٍ يعمل وتحذيرٍ يُتجاوَز.
+ */
+function planOf(
+  o: AdminOrder,
+  to: OrderStatus,
+  due: number,
+  settings: PointsSettings,
+  unsettled: boolean,
+): { to: OrderStatus; title: string; note: string; yes: string } | null {
+  const spent = Number(o.pointsSpent) || 0;
+  const awarded = Number(o.pointsAwarded) || 0;
+  const buying = Number(o.buyPoints) || 0;
+
+  if (to === "paid") {
+    const earn = buying > 0 ? buying : due;
+    const parts: string[] = ["The money is in your hands."];
+    if (settings.on && earn > 0) parts.push(`The customer gains ${earn} points.`);
+    if (Number(o.usePoints) > 0)
+      parts.push(`And ${o.usePoints} points come off their balance.`);
+    return {
+      to,
+      title: `Mark this order paid?`,
+      note: parts.join(" "),
+      yes: "Yes, mark paid",
+    };
+  }
+
+  if (to === "done") {
+    const w = doneLabel(o.kind).toLowerCase();
+    return {
+      to,
+      title: `Confirm you ${w} this order?`,
+      note:
+        o.status === "pending"
+          ? "It has not been marked paid yet — check the money arrived first."
+          : "The customer sees it finished, and it leaves your list.",
+      yes: `Yes, ${w}`,
+    };
+  }
+
+  if (to === "cancelled") {
+    if (unsettled)
+      return {
+        to,
+        title: "Settle the points for this cancelled order?",
+        note: `${spent} points go back to the customer, and ${awarded} are taken off.`,
+        yes: "Yes, settle points",
+      };
+
+    const parts: string[] = ["The customer sees it rejected."];
+    if (awarded > 0) parts.push(`${awarded} points are taken back.`);
+    if (spent > 0) parts.push(`${spent} points return to their balance.`);
+    parts.push("Only the store owner can undo this.");
+    return {
+      to,
+      title: "Reject this order?",
+      note: parts.join(" "),
+      yes: "Yes, reject it",
+    };
+  }
+  return null;
+}
+
 /** فاصل اليوم — «Today» و«Yesterday» ثم التاريخ */
 function dayOf(d: Date | null): string {
   if (!d) return "Earlier";
@@ -160,6 +229,14 @@ export default function OrdersEditor() {
   const [busy, setBusy] = useState<string | null>(null);
   const [note, setNote] = useState<string | null>(null);
   const [err, setErr] = useState(false);
+  /**
+   * ما ينتظر تأكيداً — `"<id>:<status>"`.
+   *
+   * ⚠️ **لا زرّ يمسّ نقاطاً أو حالةً من أوّل ضغطة** (طلبها): الأزرار
+   *    الثلاثة متجاورة والإبهام يخطئ، و«ألغيتُ» تسحب نقاطاً وتُنهي
+   *    طلباً. والسؤال يقول **ماذا سيحدث** لا «هل أنتِ متأكّدة» وحدها.
+   */
+  const [ask, setAsk] = useState<string | null>(null);
 
   const [settings, setSettings] = useState<PointsSettings>(DEFAULT_POINTS);
   const [map, setMap] = useState<PointsMap>({});
@@ -222,9 +299,13 @@ export default function OrdersEditor() {
   }
 
   async function move(o: AdminOrder, next: OrderStatus) {
+    setAsk(null);
     setBusy(o.id);
     setNote(null);
-    const res = await setOrderStatus(o.id, next, map, settings);
+    const res = await setOrderStatus(o.id, next, map, settings, {
+      email: me,
+      name: user?.displayName ?? me,
+    });
     setBusy(null);
 
     if (!res.ok) {
@@ -448,6 +529,17 @@ export default function OrdersEditor() {
             o.status === "cancelled" &&
             ((Number(o.pointsAwarded) || 0) > 0 ||
               (Number(o.pointsSpent) || 0) > 0);
+
+          /* 🔒 الطلب المنتهي أو المرفوض لا يبدّله إلا صاحبة المتجر.
+             (وتسويةُ نقاطٍ عالقة تبقى متاحة — هي تصحيحٌ لا رجوع.) */
+          const locked = canChangeStatus(o, owner) || unsettled;
+
+          /* السؤال المعلّق على هذا الطلب، وما سيحدث لو أُكِّد */
+          const pending = ask?.startsWith(`${o.id}:`)
+            ? (ask.split(":")[1] as OrderStatus)
+            : null;
+          const plan = pending ? planOf(o, pending, due, settings, unsettled) : null;
+          const asking2 = plan !== null;
 
           return (
             <div key={o.id} className="contents">
@@ -689,39 +781,85 @@ export default function OrdersEditor() {
                     </p>
                   )}
 
-                  <div className="flex flex-wrap gap-2">
-                    <button
-                      type="button"
-                      disabled={busy === o.id || o.status === "paid" || (!owner && !o.claimedBy)}
-                      onClick={() => void move(o, "paid")}
-                      className={btn}
-                    >
-                      Mark paid
-                    </button>
-                    {/* ⚠️ الزرّ بكلمة قسمه: «Topped up» لشدّات ببجي،
-                        و«Handed over» لحساب تيك توك، و«Delivered» للجهاز.
-                        زرٌّ يقول «Delivered» عن شحن شدّاتٍ يُربك من يقرؤه. */}
-                    <button
-                      type="button"
-                      disabled={busy === o.id || o.status === "done" || (!owner && !o.claimedBy)}
-                      onClick={() => void move(o, "done")}
-                      className={btn}
-                    >
-                      {doneLabel(o.kind)}
-                    </button>
-                    <button
-                      type="button"
-                      disabled={
-                        busy === o.id ||
-                        (o.status === "cancelled" && !unsettled) ||
-                        (!owner && !o.claimedBy)
-                      }
-                      onClick={() => void move(o, "cancelled")}
-                      className={`${btn} text-danger`}
-                    >
-                      {unsettled ? "Settle points" : "Cancel"}
-                    </button>
-                  </div>
+                  {/* من أنهى الطلب ومتى — الحالة وحدها لا تقول من فعلها */}
+                  {o.statusBy && (
+                    <p className="text-xs text-muted">
+                      {statusWord(o)} by{" "}
+                      <strong className="text-text">
+                        {String(o.statusBy).toLowerCase() === me
+                          ? "you"
+                          : o.statusByName || o.statusBy}
+                      </strong>
+                      {o.statusAt && ` · ${fmtDate(o.statusAt)}`}
+                    </p>
+                  )}
+
+                  {/* 🔒 قفل الحالة النهائية — المساعد يدفع للأمام ولا يرجع */}
+                  {!locked ? (
+                    <p className="rounded-card border border-line bg-bg p-2.5 text-sm text-muted">
+                      This order is <strong>{statusWord(o)}</strong>. Only the
+                      store owner can change it now.
+                    </p>
+                  ) : asking2 && plan ? (
+                    /* ── السؤال: ماذا سيحدث لو أكّدتِ؟ ── */
+                    <div className="flex flex-col gap-2 rounded-card border-2 border-orange bg-orange/5 p-3">
+                      <p className="text-sm font-bold">{plan.title}</p>
+                      <p className="text-sm text-muted">{plan.note}</p>
+                      <div className="flex gap-2">
+                        <button
+                          type="button"
+                          disabled={busy === o.id}
+                          onClick={() => void move(o, plan.to)}
+                          className={`min-h-12 flex-1 rounded-card px-3 font-bold text-onaccent disabled:opacity-50 ${
+                            plan.to === "cancelled" ? "bg-danger" : "bg-orange"
+                          }`}
+                        >
+                          {plan.yes}
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setAsk(null)}
+                          className="min-h-12 flex-1 rounded-card border border-line px-3 font-bold"
+                        >
+                          No, go back
+                        </button>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="flex flex-wrap gap-2">
+                      <button
+                        type="button"
+                        disabled={busy === o.id || o.status === "paid" || (!owner && !o.claimedBy)}
+                        onClick={() => setAsk(`${o.id}:paid`)}
+                        className={btn}
+                      >
+                        Mark paid
+                      </button>
+                      {/* ⚠️ الزرّ بكلمة قسمه: «Topped up» لشدّات ببجي،
+                          و«Handed over» لحساب تيك توك، و«Delivered» للجهاز.
+                          زرٌّ يقول «Delivered» عن شحن شدّاتٍ يُربك من يقرؤه. */}
+                      <button
+                        type="button"
+                        disabled={busy === o.id || o.status === "done" || (!owner && !o.claimedBy)}
+                        onClick={() => setAsk(`${o.id}:done`)}
+                        className={btn}
+                      >
+                        {doneLabel(o.kind)}
+                      </button>
+                      <button
+                        type="button"
+                        disabled={
+                          busy === o.id ||
+                          (o.status === "cancelled" && !unsettled) ||
+                          (!owner && !o.claimedBy)
+                        }
+                        onClick={() => setAsk(`${o.id}:cancelled`)}
+                        className={`${btn} text-danger`}
+                      >
+                        {unsettled ? "Settle points" : "Cancel"}
+                      </button>
+                    </div>
+                  )}
                 </div>
               )}
             </article>

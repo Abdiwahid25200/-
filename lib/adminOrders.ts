@@ -50,6 +50,13 @@ export type AdminOrder = SavedOrder & {
   /** ⚠️ يُحوَّل إلى `Date` في `allOrders` — بلا ذلك يبقى Timestamp
    *    ولا يفهمه حسابُ المهلة. */
   claimedAt?: Date | null;
+
+  /* ── من غيّر الحالة آخر مرّة ──
+     تُكتب في `setOrderStatus`. بها يُعرف من سلّم ومن ألغى، وعليها
+     يقوم قفلُ الحالة النهائية. */
+  statusBy?: string;
+  statusByName?: string;
+  statusAt?: Date | null;
 };
 
 /**
@@ -71,6 +78,7 @@ export async function allOrders(n = 100): Promise<AdminOrder[]> {
       ...v,
       createdAt: v.createdAt?.toDate?.() ?? null,
       claimedAt: v.claimedAt?.toDate?.() ?? null,
+      statusAt: v.statusAt?.toDate?.() ?? null,
     } as AdminOrder;
   });
 }
@@ -122,6 +130,8 @@ export async function setOrderStatus(
   next: OrderStatus,
   map: PointsMap,
   settings: PointsSettings,
+  /** من ضغط الزرّ — يُختم على الطلب فيُعرف من أنهاه ومتى */
+  by?: { email: string; name: string },
 ): Promise<StatusResult> {
   const fallback = settings.perItem;
   const db = fbDb();
@@ -218,10 +228,15 @@ export async function setOrderStatus(
         nextSpent = 0;
       }
 
+      /* ⚠️ **من غيّر الحالة يُكتب معها.** بدونه لا يُعرف من سلّم ولا من
+         ألغى بعد يوم، ولا تظهر لصاحبة المتجر إلا الحالة صمّاء. */
       tx.update(oRef, {
         status: next,
         pointsAwarded: nextAwarded,
         pointsSpent: nextSpent,
+        statusBy: by?.email ?? "",
+        statusByName: by?.name || by?.email || "",
+        statusAt: serverTimestamp(),
         updatedAt: serverTimestamp(),
       });
 
@@ -346,6 +361,20 @@ export function orderFree(o: AdminOrder, me: string, owner: boolean): boolean {
   if (!c || c === me) return true;
   return claimStale(o.claimedAt);
 }
+
+/**
+ * 🔒 **الحالة النهائية لا يبدّلها إلا صاحبة المتجر** (قرارها).
+ *
+ * ⚠️ المساعد يدفع الطلب إلى الأمام: بانتظار ⇒ مقبول ⇒ منتهٍ. أمّا
+ *    **المنتهي والمرفوض فبابٌ مغلق عليه**: طلبٌ سُلّم ثم أُعيد إلى
+ *    «بانتظار» يُشحن مرّتين، وطلبٌ أُلغي ثم أُحيي يُعيد نقاطاً سُحبت.
+ *    وهي وحدها من يصحّح، فهي وحدها من يتحمّل.
+ */
+export const FINAL: OrderStatus[] = ["done", "cancelled"];
+
+/** هل يستطيع من يفتح الشاشة تغيير حالة هذا الطلب؟ */
+export const canChangeStatus = (o: AdminOrder, owner: boolean): boolean =>
+  owner || !FINAL.includes(o.status);
 
 export async function claimOrder(
   orderId: string,

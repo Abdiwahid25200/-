@@ -354,8 +354,30 @@ service cloud.firestore {
           || at < request.time - duration.value(30, 'm');
       }
 
+      /* 🔒 ── الحالة النهائية لصاحبة المتجر وحدها ── (قرارها)
+         ⚠️ المساعد يدفع الطلب إلى الأمام: بانتظار ⇒ مقبول ⇒ منتهٍ.
+            أمّا المنتهي والمرفوض فبابٌ مغلق عليه: طلبٌ سُلّم ثم أُعيد
+            إلى «بانتظار» يُشحن مرّتين، وطلبٌ أُلغي ثم أُحيي يُعيد
+            نقاطاً سُحبت. وهي وحدها من يصحّح فهي وحدها من يتحمّل.
+
+         ⚠️ ويُستثنى **تسوية نقاطٍ عالقة** بعد إلغاء الزبون: الحالة
+            تبقى `cancelled` ولا ترجع، فهي تصحيحٌ لا رجوع. */
+      function finalState() {
+        let s = resource.data.status;
+        return s == 'done' || s == 'cancelled';
+      }
+
+      function settlingOnly() {
+        return resource.data.status == 'cancelled'
+          && request.resource.data.status == 'cancelled';
+      }
+
+      function statusOk() {
+        return isAdmin() || !finalState() || settlingOnly();
+      }
+
       // الحالة والسعر بيد الإدارة — والزبون لا يملك إلا الإلغاء أعلاه
-      allow update: if (canDo('orders') && claimOk())
+      allow update: if (canDo('orders') && claimOk() && statusOk())
         || (isSignedIn() && (validCustomerCancel() || pointsSelfConfirm()));
 
       allow delete: if canDo('orders');
