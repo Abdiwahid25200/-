@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { doc, getDoc } from "firebase/firestore";
 import { fbDb } from "@/lib/firebase";
 import { saveOverride, type SiteOverride } from "@/lib/overrides";
+import { diff, hasChanges } from "@/lib/dirty";
 import { DEFAULT_OPEN, readOpenSettings, type OpenSettings } from "@/lib/storeOpen";
 import { site } from "@/lib/content";
 import ImagePicker from "./ImagePicker";
@@ -134,20 +135,26 @@ export default function SiteEditor() {
   const [open, setOpen] = useState<OpenSettings>(DEFAULT_OPEN);
   const [busy, setBusy] = useState(false);
   const [saved, setSaved] = useState(false);
+  /* نسخة ما حُمِّل — بها نعرف ما لمستِه أنتِ وحده (`lib/dirty.ts`) */
+  const [base, setBase] = useState<Record<string, unknown>>({});
 
   useEffect(() => {
     const db = fbDb();
     if (!db) return setD({});
     getDoc(doc(db, "settings", "store"))
-      .then((s) => setD((s.exists() ? s.data() : {}) as SiteOverride))
+      .then((s) => {
+        const v = (s.exists() ? s.data() : {}) as SiteOverride;
+        setD(v);
+        setBase(structuredClone(v as Record<string, unknown>));
+      })
       .catch(() => setD({}));
     void readOpenSettings().then(setOpen);
   }, []);
 
+  /** ⚠️ يُرسل ما تغيّر وحده (`lib/dirty.ts`) */
   async function save() {
     if (!d) return;
-    setBusy(true);
-    const ok = await saveOverride("settings", "store", {
+    const now: Record<string, unknown> = {
       ...(d as Record<string, unknown>),
       closed: open.closed,
       hoursOn: open.hoursOn,
@@ -161,9 +168,20 @@ export default function SiteEditor() {
       hoursTitle: open.hoursTitle,
       hoursNote: open.hoursNote,
       closedImage: open.closedImage,
-    });
+    };
+
+    const changed = diff(base, now);
+    if (!hasChanges(changed)) {
+      setSaved(true);
+      setTimeout(() => setSaved(false), 2500);
+      return;
+    }
+
+    setBusy(true);
+    const ok = await saveOverride("settings", "store", changed);
     setBusy(false);
     setSaved(ok);
+    if (ok) setBase(structuredClone(now));
     setTimeout(() => setSaved(false), 2500);
   }
 

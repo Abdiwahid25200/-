@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { faqSlots, readFaq, type FaqDoc, type FaqLocale } from "@/lib/faq";
 import { saveOverride } from "@/lib/overrides";
+import { diff, hasChanges } from "@/lib/dirty";
 import { IconCheckCircle, IconSpinner } from "@/components/icons";
 
 const LOCALES: { v: FaqLocale; label: string }[] = [
@@ -23,8 +24,14 @@ export default function FaqEditor() {
   const [busy, setBusy] = useState(false);
   const [saved, setSaved] = useState(false);
 
+  /* نسخة ما حُمِّل — بها نعرف ما لمستِه أنتِ وحده (`lib/dirty.ts`) */
+  const [base, setBase] = useState<Record<string, unknown>>({});
+
   useEffect(() => {
-    readFaq().then(setOver);
+    readFaq().then((o) => {
+      setOver(o);
+      setBase(structuredClone((o ?? {}) as Record<string, unknown>));
+    });
   }, []);
 
   function edit(key: string, field: "q" | "a", value: string) {
@@ -41,16 +48,18 @@ export default function FaqEditor() {
     setSaved(false);
   }
 
+  /** ⚠️ يُرسل ما تغيّر وحده — سؤالٌ واحد لا الوثيقة كلّها */
   async function save() {
+    const now = (over ?? {}) as Record<string, unknown>;
+    const changed = diff(base, now);
+    if (!hasChanges(changed)) return setSaved(true);
+
     setBusy(true);
-    const ok = await saveOverride(
-      "settings",
-      "faq",
-      (over ?? {}) as Record<string, unknown>,
-    );
+    const ok = await saveOverride("settings", "faq", changed);
     setBusy(false);
     setSaved(ok);
-    if (!ok) alert("Could not save — check your connection.");
+    if (ok) setBase(structuredClone(now));
+    else alert("Could not save — check your connection.");
   }
 
   if (!over)

@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { pay as staticPay } from "@/lib/data";
 import { saveOverride, deleteOverride } from "@/lib/overrides";
+import { diff, hasChanges } from "@/lib/dirty";
 import {
   clearPayCache,
   readPayOverrides,
@@ -33,10 +34,14 @@ export default function PaymentsEditor() {
   const [saving, setSaving] = useState<string | null>(null);
   const [saved, setSaved] = useState<string | null>(null);
   const [newId, setNewId] = useState("");
+  /* نسخة ما حُمِّل — بها نعرف ما لمستِه أنتِ وحده (`lib/dirty.ts`) */
+  const [base, setBase] = useState<Record<string, PayOverride>>({});
 
   const load = useCallback(async () => {
     clearPayCache();
-    setOver(await readPayOverrides());
+    const o = await readPayOverrides();
+    setOver(o);
+    setBase(structuredClone(o));
     setLoading(false);
   }, []);
 
@@ -49,13 +54,18 @@ export default function PaymentsEditor() {
     setSaved(null);
   }
 
+  /** ⚠️ يُرسل ما تغيّر وحده (`lib/dirty.ts`) */
   async function save(id: string) {
+    const changed = diff(base[id], (over[id] ?? {}) as Record<string, unknown>);
+    if (!hasChanges(changed)) return setSaved(id);
+
     setSaving(id);
-    const ok = await saveOverride("payments", id, (over[id] ?? {}) as Record<string, unknown>);
+    const ok = await saveOverride("payments", id, changed);
     clearPayCache();
     setSaving(null);
     setSaved(ok ? id : null);
-    if (!ok) alert("Could not save — check your access and connection.");
+    if (ok) setBase((b) => ({ ...b, [id]: structuredClone(over[id] ?? {}) }));
+    else alert("Could not save — check your access and connection.");
   }
 
   async function add() {
@@ -79,6 +89,7 @@ export default function PaymentsEditor() {
     if (!ok) return alert("Could not create — check your access.");
     clearPayCache();
     setOver((p) => ({ ...p, [id]: draft }));
+    setBase((b) => ({ ...b, [id]: structuredClone(draft) }));
     setNewId("");
     setOpen(id);
   }

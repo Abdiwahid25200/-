@@ -7,15 +7,32 @@ import {
   removeItem,
   restoreItem,
   saveItem,
+  type ItemDoc,
   type ItemKind,
   type ShopItem,
 } from "@/lib/items";
 import { customSections } from "@/lib/overrides";
+import { diff, hasChanges } from "@/lib/dirty";
 import { profitOf, readCosts, saveCost, type Costs } from "@/lib/costs";
 import ImagePicker from "./ImagePicker";
 import { IconCheckCircle, IconSpinner, IconTrash } from "@/components/icons";
 
 type KindOption = { v: ItemKind; label: string; titleLabel: string };
+
+/** الحقول التي تكتبها هذه الشاشة — ومنها تُبنى النسخة الأصل والفرق */
+function payloadOf(i: ShopItem): ItemDoc {
+  return {
+    kind: i.kind,
+    title: i.title,
+    sub: i.sub ?? "",
+    price: Number(i.price) || 0,
+    points: i.points === undefined ? undefined : Number(i.points) || 0,
+    img: i.img ?? "",
+    status: i.status,
+    order: i.order,
+    custom: i.custom,
+  };
+}
 
 const KINDS: KindOption[] = [
   { v: "pubg", label: "PUBG UC", titleLabel: "Amount (e.g. 660 UC)" },
@@ -65,9 +82,19 @@ export default function ItemsEditor() {
     );
   }, []);
 
+  /**
+   * ⚠️ **نسخة ما حُمِّل** — بها وحدها نعرف ما لمستِه أنتِ.
+   *    بدونها كانت الشاشة ترسل الوثيقة كاملة فتمحو تعديل مساعدٍ آخر
+   *    على حقلٍ لم تفتحيه أصلاً (`lib/dirty.ts`).
+   */
+  const [base, setBase] = useState<Record<string, ItemDoc>>({});
+
   const load = (k: ItemKind) => {
     setItems(null);
-    allItems(k).then(setItems);
+    allItems(k).then((list) => {
+      setItems(list);
+      setBase(Object.fromEntries(list.map((i) => [i.id, payloadOf(i)])));
+    });
   };
 
   useEffect(() => load(kind), [kind]);
@@ -83,20 +110,22 @@ export default function ItemsEditor() {
     setBusy(it.id);
     // التكلفة تُحفظ في مجموعتها الخاصّة، لا مع بيانات المنتج العامّة
     if (costs[it.id] !== undefined) await saveCost(it.id, costs[it.id]);
-    const ok = await saveItem(it.id, {
-      kind: it.kind,
-      title: it.title,
-      sub: it.sub ?? "",
-      price: Number(it.price) || 0,
-      points: it.points === undefined ? undefined : Number(it.points) || 0,
-      img: it.img ?? "",
-      status: it.status,
-      order: it.order,
-      custom: it.custom,
-    });
+
+    /* ما تغيّر وحده. صنفٌ جديد لا نسخةَ له ⇒ يُرسل كاملاً. */
+    const changed = diff(base[it.id], payloadOf(it));
+
+    if (!hasChanges(changed)) {
+      setBusy(null);
+      setSaved(it.id);           // لا شيء ليُحفظ — ولا داعي لكتابةٍ فارغة
+      return;
+    }
+
+    const ok = await saveItem(it.id, changed);
     setBusy(null);
     setSaved(ok ? it.id : null);
-    if (!ok) alert("Could not save — check your connection.");
+    // النسخة الأصل تتقدّم بما حُفظ، فحفظٌ ثانٍ لا يعيد إرسال ما مضى
+    if (ok) setBase((b) => ({ ...b, [it.id]: payloadOf(it) }));
+    else alert("Could not save — check your connection.");
   }
 
   async function del(it: ShopItem) {

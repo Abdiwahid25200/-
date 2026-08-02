@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { saveOverride } from "@/lib/overrides";
+import { diff, hasChanges } from "@/lib/dirty";
 import ImagePicker from "./ImagePicker";
 import PointsBrand from "@/components/PointsBrand";
 import {
@@ -19,34 +20,50 @@ import {
  * وما لم تُحدَّد له قيمة يأخذ «النقاط الافتراضية» هنا — فلا تملئين
  * خمسين باقة يدوياً لتشغّلي النظام.
  */
+/** الحقول التي تكتبها هذه الشاشة — ومنها تُبنى النسخة الأصل والفرق */
+const payloadOf = (s: PointsSettings): Record<string, unknown> => ({
+  on: s.on,
+  perItem: Math.max(0, Math.round(Number(s.perItem) || 0)),
+  minRedeem: Math.max(0, Math.round(Number(s.minRedeem) || 0)),
+  showFrom: Math.max(0, Number(s.showFrom) || 0),
+  sell: s.sell,
+  minBuy: Math.max(1, Math.round(Number(s.minBuy) || 1)),
+  brand: s.brand.trim(),
+  logo: s.logo.trim(),
+  refOn: s.refOn,
+  refInviter: Math.max(0, Math.round(Number(s.refInviter) || 0)),
+  refInvitee: Math.max(0, Math.round(Number(s.refInvitee) || 0)),
+  refCap: Math.max(0, Math.round(Number(s.refCap) || 0)),
+});
+
 export default function PointsEditor() {
   const [s, setS] = useState<PointsSettings | null>(null);
   const [busy, setBusy] = useState(false);
   const [saved, setSaved] = useState(false);
+  /* نسخة ما حُمِّل — بها نعرف ما لمستِه أنتِ وحده (`lib/dirty.ts`) */
+  const [base, setBase] = useState<Record<string, unknown> | null>(null);
 
   useEffect(() => {
-    void readPointsSettings().then(setS);
+    void readPointsSettings().then((v) => {
+      setS(v);
+      setBase(payloadOf(v));
+    });
   }, []);
 
+  /** ⚠️ يُرسل ما تغيّر وحده — فمساعدان على الباب نفسه لا يمحو أحدهما الآخر */
   async function save() {
     if (!s) return;
+    const changed = diff(base, payloadOf(s));
+    if (!hasChanges(changed)) {
+      setSaved(true);
+      setTimeout(() => setSaved(false), 2500);
+      return;
+    }
     setBusy(true);
-    const ok = await saveOverride("settings", "points", {
-      on: s.on,
-      perItem: Math.max(0, Math.round(Number(s.perItem) || 0)),
-      minRedeem: Math.max(0, Math.round(Number(s.minRedeem) || 0)),
-      showFrom: Math.max(0, Number(s.showFrom) || 0),
-      sell: s.sell,
-      minBuy: Math.max(1, Math.round(Number(s.minBuy) || 1)),
-      brand: s.brand.trim(),
-      logo: s.logo.trim(),
-      refOn: s.refOn,
-      refInviter: Math.max(0, Math.round(Number(s.refInviter) || 0)),
-      refInvitee: Math.max(0, Math.round(Number(s.refInvitee) || 0)),
-      refCap: Math.max(0, Math.round(Number(s.refCap) || 0)),
-    });
+    const ok = await saveOverride("settings", "points", changed);
     setBusy(false);
     setSaved(ok);
+    if (ok) setBase(payloadOf(s));
     setTimeout(() => setSaved(false), 2500);
   }
 

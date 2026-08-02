@@ -10,8 +10,11 @@ import { csvDate, csvName, downloadCsv } from "@/lib/csv";
 import { inSpan, spanLabel, today, type Span } from "@/lib/span";
 import { DONE_GROUP, DONE_GROUP_NOTE, doneLabel } from "@/lib/deliver";
 import {
+  CLAIM_MINUTES,
   allOrders,
   claimOrder,
+  claimStale,
+  orderFree,
   customerOf,
   releaseOrder,
   setOrderStatus,
@@ -247,11 +250,14 @@ export default function OrdersEditor() {
    * ⚠️ **المساعد لا يرى ما قَبِله غيره.** بدون هذا يفتح اثنان الطلب
    *    نفسه فيشحنه كلاهما. وصاحبة المتجر ترى الكل ومعه اسم من قبله.
    */
-  /** ما يخصّني من الطلبات — قبل أي تصفية بالتاريخ أو الحالة */
-  const mine = (orders ?? []).filter((o) => {
-    const c = String(o.claimedBy ?? "").toLowerCase();
-    return owner || !c || c === me;
-  });
+  /**
+   * ما يخصّني من الطلبات — قبل أي تصفية بالتاريخ أو الحالة.
+   *
+   * ⚠️ و**الحجز المتروك يعود للجميع** بعد نصف ساعة (`CLAIM_MINUTES`):
+   *    مساعدٌ قَبِل طلباتٍ ثم غاب كان يبتلعها معه، فلا يراها أحدٌ سواه
+   *    والزبون ينتظر بلا أن يدري أحد.
+   */
+  const mine = (orders ?? []).filter((o) => orderFree(o, me, owner));
 
   /** ما وقع في المدى المختار — منه تُحسب أعداد الشاشة الأولى */
   const inWindow = mine.filter((o) => inSpan(o.createdAt, span));
@@ -484,13 +490,21 @@ export default function OrdersEditor() {
                       Reserved
                     </span>
                   )}
-                  {o.claimedBy && (
-                    <span className="max-w-24 truncate text-xs text-muted">
-                      {String(o.claimedBy).toLowerCase() === me
-                        ? "yours"
-                        : o.claimedName || o.claimedBy}
-                    </span>
-                  )}
+                  {o.claimedBy &&
+                    (String(o.claimedBy).toLowerCase() === me ? (
+                      <span className="text-xs text-muted">yours</span>
+                    ) : claimStale(o.claimedAt) &&
+                      o.status !== "done" &&
+                      o.status !== "cancelled" ? (
+                      /* حجزٌ مضى عليه نصف ساعة بلا حركة — لم يعد يحبسه */
+                      <span className="rounded-full bg-danger/12 px-2 py-0.5 text-xs font-bold text-danger">
+                        Stuck
+                      </span>
+                    ) : (
+                      <span className="max-w-24 truncate text-xs text-muted">
+                        {o.claimedName || o.claimedBy}
+                      </span>
+                    ))}
                 </span>
               </button>
 
@@ -633,8 +647,12 @@ export default function OrdersEditor() {
                     </div>
                   )}
 
-                  {/* القبول أوّلاً: لا يعمل مساعدٌ على طلبٍ لم يقبله */}
-                  {!o.claimedBy ? (
+                  {/* القبول أوّلاً: لا يعمل مساعدٌ على طلبٍ لم يقبله.
+                      والحجز الساقط يُؤخذ بالزرّ نفسه — لا خطوة إضافية. */}
+                  {!o.claimedBy ||
+                  (String(o.claimedBy).toLowerCase() !== me &&
+                    !owner &&
+                    claimStale(o.claimedAt)) ? (
                     <button
                       type="button"
                       disabled={busy === o.id}
@@ -651,6 +669,13 @@ export default function OrdersEditor() {
                           ? "you"
                           : o.claimedName || o.claimedBy}
                       </strong>
+                      {/* ⚠️ يُقال متى سقط الحجز، وإلّا بدا الزرّ متاحاً بلا سبب */}
+                      {String(o.claimedBy).toLowerCase() !== me &&
+                        claimStale(o.claimedAt) && (
+                          <span className="text-danger">
+                            — idle for over {CLAIM_MINUTES} min, anyone may take it
+                          </span>
+                        )}
                       {owner && (
                         <button
                           type="button"

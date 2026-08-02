@@ -341,9 +341,17 @@ service cloud.firestore {
           && get(l).data.delta == -d.usePoints;
       }
 
+      /* ⚠️ **وللحجز مهلة**: مساعدٌ قَبِل طلباتٍ ثم غاب كان يبتلعها معه —
+            لا يراها مساعدٌ آخر ولا يفكّها إلا صاحبة المتجر، والزبون
+            ينتظر. بعد نصف ساعةٍ بلا حركة يعود الطلب للجميع.
+            (والرقم نفسه في `CLAIM_MINUTES` بـ`lib/adminOrders.ts`.) */
       function claimOk() {
         let c = resource.data.get('claimedBy', '');
-        return isAdmin() || c == '' || c == request.auth.token.email;
+        let at = resource.data.get('claimedAt', request.time);
+        return isAdmin()
+          || c == ''
+          || c == request.auth.token.email
+          || at < request.time - duration.value(30, 'm');
       }
 
       // الحالة والسعر بيد الإدارة — والزبون لا يملك إلا الإلغاء أعلاه

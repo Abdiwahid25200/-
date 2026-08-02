@@ -9,6 +9,7 @@ import { mergedPay } from "@/lib/payments";
 import { isBuyable } from "@/lib/data";
 import { useAccess } from "@/lib/adminAccess";
 import { doneLabel } from "@/lib/deliver";
+import { CLAIM_MINUTES, claimStale } from "@/lib/adminOrders";
 
 /**
  * الرئيسية — **المال أوّلاً** (لغة «العدّاد»).
@@ -100,10 +101,20 @@ export default function Dashboard({
     const change =
       yProfit > 0 ? Math.round(((profit - yProfit) / yProfit) * 100) : null;
 
+    /* ⚠️ **الطلبات العالقة مع مساعد** — قَبِلها ثم غاب. كانت تختفي عن
+       بقيّة المساعدين ولا شيء يخبر صاحبة المتجر أنّها واقفة. */
+    const stuck = list.filter(
+      (o) =>
+        o.claimedBy &&
+        (o.status === "pending" || o.status === "paid") &&
+        claimStale(o.claimedAt),
+    ).length;
+
     return {
       revenue,
       profit,
       change,
+      stuck,
       count: today.length,
       pending: list.filter((o) => o.status === "pending").length,
       cancelled: today.filter((o) => o.status === "cancelled").length,
@@ -162,6 +173,24 @@ export default function Dashboard({
           tone={s.cancelled > 0 ? "bad" : undefined}
         />
       </div>
+
+      {/* ⚠️ لافتةٌ لا مربّع: طلبٌ عالقٌ زبونٌ ينتظر، والمربّع الصامت
+          يُقرأ رقماً لا نداءً. وتظهر لصاحبة المتجر وحدها — هي من تفكّ. */}
+      {owner && s.stuck > 0 && (
+        <button
+          type="button"
+          onClick={() => onTab("orders")}
+          className="rounded-card border-2 border-danger bg-danger/5 p-3 text-start text-sm"
+        >
+          <strong className="block">
+            <span className="num">{s.stuck}</span>{" "}
+            {s.stuck === 1 ? "order is" : "orders are"} stuck with a helper
+          </strong>
+          Accepted but untouched for over {CLAIM_MINUTES} minutes. They are free
+          for anyone to take now — open Orders and look for the{" "}
+          <strong>Stuck</strong> tag.
+        </button>
+      )}
 
       {noPay && (
         <button

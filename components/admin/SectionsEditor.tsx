@@ -8,6 +8,7 @@ import {
   saveOverride,
   type SectionOverride,
 } from "@/lib/overrides";
+import { diff, hasChanges } from "@/lib/dirty";
 import ImagePicker from "./ImagePicker";
 import { IconCheckCircle, IconSpinner } from "@/components/icons";
 
@@ -62,9 +63,13 @@ export default function SectionsEditor() {
   const [newKey, setNewKey] = useState("");
   const [adding, setAdding] = useState(false);
 
+  /* نسخة ما حُمِّل — بها نعرف ما لمستِه أنتِ وحده (`lib/dirty.ts`) */
+  const [base, setBase] = useState<Record<string, Draft>>({});
+
   useEffect(() => {
     readSections().then((o) => {
       setOver(o);
+      setBase(structuredClone(o));
       setLoading(false);
     });
   }, []);
@@ -82,12 +87,17 @@ export default function SectionsEditor() {
     setSaved(null);
   }
 
+  /** ⚠️ يُرسل ما تغيّر وحده — فلا يُمحى حقلٌ عدّله مساعدٌ آخر ولم تفتحيه */
   async function save(key: string) {
+    const changed = diff(base[key], (over[key] ?? {}) as Record<string, unknown>);
+    if (!hasChanges(changed)) return setSaved(key);
+
     setSaving(key);
-    const ok = await saveOverride("sections", key, (over[key] ?? {}) as Record<string, unknown>);
+    const ok = await saveOverride("sections", key, changed);
     setSaving(null);
     setSaved(ok ? key : null);
-    if (!ok) alert("Could not save — check your access and connection.");
+    if (ok) setBase((b) => ({ ...b, [key]: structuredClone(over[key] ?? {}) }));
+    else alert("Could not save — check your access and connection.");
   }
 
   /**
@@ -118,6 +128,7 @@ export default function SectionsEditor() {
       return;
     }
     setOver((p) => ({ ...p, [key]: draft }));
+    setBase((b) => ({ ...b, [key]: structuredClone(draft) }));
     setNewKey("");
     setOpen(key);
   }

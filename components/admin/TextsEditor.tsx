@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { readTexts, saveOverride, type TextDoc } from "@/lib/overrides";
+import { diff, hasChanges } from "@/lib/dirty";
 import { IconSpinner } from "@/components/icons";
 
 const LOCALES = [
@@ -57,12 +58,16 @@ export default function TextsEditor() {
   const [d, setD] = useState<TextDoc | null>(null);
   const [busy, setBusy] = useState(false);
   const [saved, setSaved] = useState(false);
+  /* نسخة ما حُمِّل — بها نعرف ما لمستِه أنتِ وحده (`lib/dirty.ts`) */
+  const [base, setBase] = useState<Record<string, unknown>>({});
 
   const g = GROUPS[group];
 
   const load = useCallback(async () => {
     setD(null);
-    setD(await readTexts(g.doc));
+    const v = await readTexts(g.doc);
+    setD(v);
+    setBase(structuredClone(v as Record<string, unknown>));
   }, [g.doc]);
 
   useEffect(() => {
@@ -78,12 +83,20 @@ export default function TextsEditor() {
     setSaved(false);
   }
 
+  /** ⚠️ يُرسل ما تغيّر وحده — نصٌّ واحد بلغةٍ واحدة لا الوثيقة كلّها */
   async function save() {
     if (!d) return;
+    const changed = diff(base, d as Record<string, unknown>);
+    if (!hasChanges(changed)) {
+      setSaved(true);
+      setTimeout(() => setSaved(false), 2500);
+      return;
+    }
     setBusy(true);
-    const ok = await saveOverride("settings", g.doc, d as Record<string, unknown>);
+    const ok = await saveOverride("settings", g.doc, changed);
     setBusy(false);
     setSaved(ok);
+    if (ok) setBase(structuredClone(d as Record<string, unknown>));
     setTimeout(() => setSaved(false), 2500);
   }
 

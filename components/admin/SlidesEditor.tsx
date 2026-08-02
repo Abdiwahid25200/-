@@ -8,6 +8,7 @@ import {
   saveOverride,
   type SlideOverride,
 } from "@/lib/overrides";
+import { diff, hasChanges } from "@/lib/dirty";
 import ImagePicker from "./ImagePicker";
 import { IconCheckCircle, IconSpinner } from "@/components/icons";
 
@@ -32,9 +33,13 @@ export default function SlidesEditor() {
   const [saving, setSaving] = useState<string | null>(null);
   const [saved, setSaved] = useState<string | null>(null);
   const [newKey, setNewKey] = useState("");
+  /* نسخة ما حُمِّل — بها نعرف ما لمستِه أنتِ وحده (`lib/dirty.ts`) */
+  const [base, setBase] = useState<Record<string, SlideOverride>>({});
 
   const load = useCallback(async () => {
-    setOver(await readSlides());
+    const o = await readSlides();
+    setOver(o);
+    setBase(structuredClone(o));
     setLoading(false);
   }, []);
 
@@ -59,12 +64,24 @@ export default function SlidesEditor() {
     setSaved(null);
   }
 
-  async function save(key: string) {
+  /**
+   * ⚠️ يُرسل ما تغيّر وحده (`lib/dirty.ts`).
+   *
+   * ⚠️ و`draft` ليس زينة: من ينادي `edit()` ثم `save()` في اللحظة نفسها
+   *    يقرأ `over` **قبل** أن يتحدّث (React لا يبدّل المتغيّر في مكانه)،
+   *    فكان إخفاء شريحةٍ أصليّة لا يحفظ شيئاً ويبدو الزرّ معطّلاً.
+   */
+  async function save(key: string, draft?: SlideOverride) {
+    const now = (draft ?? over[key] ?? {}) as Record<string, unknown>;
+    const changed = diff(base[key], now);
+    if (!hasChanges(changed)) return setSaved(key);
+
     setSaving(key);
-    const ok = await saveOverride("slides", key, (over[key] ?? {}) as Record<string, unknown>);
+    const ok = await saveOverride("slides", key, changed);
     setSaving(null);
     setSaved(ok ? key : null);
-    if (!ok) alert("Could not save — check your access and connection.");
+    if (ok) setBase((b) => ({ ...b, [key]: structuredClone(now) as SlideOverride }));
+    else alert("Could not save — check your access and connection.");
   }
 
   async function add() {
@@ -77,6 +94,7 @@ export default function SlidesEditor() {
     const ok = await saveOverride("slides", key, draft as Record<string, unknown>);
     if (!ok) return alert("Could not create — check your access.");
     setOver((p) => ({ ...p, [key]: draft }));
+    setBase((b) => ({ ...b, [key]: structuredClone(draft) }));
     setNewKey("");
     setOpen(key);
   }
@@ -84,8 +102,9 @@ export default function SlidesEditor() {
   async function remove(key: string, custom: boolean) {
     if (!custom) {
       // الأصلية لا تُحذف — تُخفى، وإلا عادت من الملفات بعد كل حذف
+      const next = { ...over[key], hidden: true };
       edit(key, { hidden: true });
-      await save(key);
+      await save(key, next);
       return;
     }
     if (!confirm(`Delete slide "${key}"?`)) return;

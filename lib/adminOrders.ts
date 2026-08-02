@@ -47,7 +47,9 @@ export type AdminOrder = SavedOrder & {
      المساعدين، فلا يعمل اثنان على طلبٍ واحد ولا يُشحن مرّتين. */
   claimedBy?: string;
   claimedName?: string;
-  claimedAt?: unknown;
+  /** ⚠️ يُحوَّل إلى `Date` في `allOrders` — بلا ذلك يبقى Timestamp
+   *    ولا يفهمه حسابُ المهلة. */
+  claimedAt?: Date | null;
 };
 
 /**
@@ -68,6 +70,7 @@ export async function allOrders(n = 100): Promise<AdminOrder[]> {
       id: d.id,
       ...v,
       createdAt: v.createdAt?.toDate?.() ?? null,
+      claimedAt: v.claimedAt?.toDate?.() ?? null,
     } as AdminOrder;
   });
 }
@@ -317,6 +320,33 @@ export async function adjustPoints(
  * ونقرأ الوثيقة داخل المعاملة قبل الكتابة، فلو ضغط اثنان في اللحظة
  * نفسها فاز الأوّل وحده.
  */
+/**
+ * ⏳ مهلة حجز الطلب — بعدها يعود للجميع.
+ *
+ * ⚠️ **حجزٌ بلا مهلة يبتلع الطلب.** مساعدٌ قَبِل عشرة طلبات ثم نفدت
+ *    بطاريته أو سافر: العشرة مجمّدةٌ باسمه، وبقيّة المساعدين **لا يرونها
+ *    أصلاً** (تُخفى عنهم عمداً)، وصاحبة المتجر وحدها تفكّها — ولا شيء
+ *    كان يخبرها أنّها عالقة. والزبون ينتظر.
+ *
+ * وهي أطول من مهلة الدردشة (١٥ دقيقة) عمداً: الردّ على رسالةٍ دقائق،
+ * وشحنُ طلبٍ قد يستلزم فتح تطبيق الشحن وانتظار تأكيده.
+ */
+export const CLAIM_MINUTES = 30;
+
+/** متى يُعدّ الحجز متروكاً؟ */
+export function claimStale(at: Date | null | undefined): boolean {
+  const t = at?.getTime?.() ?? 0;
+  return !t || Date.now() - t > CLAIM_MINUTES * 60_000;
+}
+
+/** هل يستطيع هذا المساعد العمل على الطلب؟ (وصاحبة المتجر ترى الكل) */
+export function orderFree(o: AdminOrder, me: string, owner: boolean): boolean {
+  if (owner) return true;
+  const c = String(o.claimedBy ?? "").toLowerCase();
+  if (!c || c === me) return true;
+  return claimStale(o.claimedAt);
+}
+
 export async function claimOrder(
   orderId: string,
   email: string,
@@ -329,9 +359,13 @@ export async function claimOrder(
     return await runTransaction(db, async (tx) => {
       const ref = doc(db, "orders", orderId);
       const snap = await tx.get(ref);
-      const cur = String((snap.data() as AdminOrder | undefined)?.claimedBy ?? "");
+      const v = snap.data() as AdminOrder | undefined;
+      const cur = String(v?.claimedBy ?? "");
+      const at = (v?.claimedAt as { toDate?: () => Date } | undefined)?.toDate?.() ?? null;
 
-      if (cur && cur !== email) return { ok: false as const, takenBy: cur };
+      // الحجز المتروك يُؤخذ بلا استئذان — وإلّا بقي الطلب معلّقاً أبداً
+      if (cur && cur !== email && !claimStale(at))
+        return { ok: false as const, takenBy: cur };
 
       tx.update(ref, {
         claimedBy: email,
