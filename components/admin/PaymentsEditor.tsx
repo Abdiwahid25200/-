@@ -115,7 +115,7 @@ export default function PaymentsEditor() {
   if (loading)
     return (
       <p className="flex items-center gap-2 text-sm text-muted">
-        <IconSpinner className="size-4" /> جارٍ التحميل…
+        <IconSpinner className="size-4" /> Loading…
       </p>
     );
 
@@ -164,7 +164,7 @@ export default function PaymentsEditor() {
           disabled={!newId.trim()}
           className="min-h-12 rounded-card bg-orange px-4 font-bold text-onaccent disabled:opacity-50"
         >
-          إضافة طريقة
+          Add method
         </button>
       </div>
 
@@ -205,7 +205,7 @@ export default function PaymentsEditor() {
                   onClick={() => void hide(x.id, false)}
                   className="min-h-11 w-full rounded-card border border-line font-bold"
                 >
-                  استرجاع
+                  Restore
                 </button>
               </div>
             )}
@@ -319,7 +319,7 @@ export default function PaymentsEditor() {
                   className="flex min-h-12 items-center justify-center gap-2 rounded-card bg-orange font-bold text-onaccent disabled:opacity-50"
                 >
                   {saving === x.id && <IconSpinner className="size-4" />}
-                  حفظ
+                  Save
                 </button>
 
                 <button

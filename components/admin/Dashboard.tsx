@@ -29,7 +29,7 @@ export default function Dashboard({
   name,
 }: {
   onTab: (t: AdminTab) => void;
-  /** اسم صاحبة المتجر — التحيّة تُقال لشخص لا لحساب */
+  /** اسمها — التحيّة تُقال لشخص لا لحساب */
   name?: string;
 }) {
   const access = useAccess();
@@ -115,14 +115,14 @@ export default function Dashboard({
   return (
     <div className="flex flex-col gap-4">
       <div>
-        <h2 className="text-lg font-bold">أهلاً {name || "بكِ"}</h2>
+        <h2 className="text-lg font-bold">Hello {name || "there"}</h2>
         <p className="text-sm text-muted">{todayLine()}</p>
       </div>
 
       {/* الرقم الواحد الذي تُفتح عليه اللوحة */}
       <section className="adm-hero flex flex-col gap-0.5">
         <span className="text-sm opacity-75">
-          {owner ? "ربح اليوم" : "دخل اليوم"}
+          {owner ? "Profit today" : "Revenue today"}
         </span>
         <strong className="num text-4xl font-bold leading-none" dir="ltr">
           {loading ? "…" : money(owner ? s.profit : s.revenue)}
@@ -131,8 +131,8 @@ export default function Dashboard({
           {loading
             ? " "
             : s.change === null
-              ? `من ${s.count} طلباً اليوم`
-              : `${s.change >= 0 ? "↑" : "↓"} ${Math.abs(s.change)}٪ عن أمس`}
+              ? `From ${s.count} orders today`
+              : `${s.change >= 0 ? "↑" : "↓"} ${Math.abs(s.change)}% vs yesterday`}
         </span>
       </section>
 
@@ -140,24 +140,24 @@ export default function Dashboard({
       <div className="grid grid-cols-2 gap-2.5">
         <Cell
           value={loading ? "…" : String(s.pending)}
-          label="ينتظر تأكيدك"
+          label="Waiting for you"
           tone={s.pending > 0 ? "warn" : undefined}
           onClick={() => onTab("orders")}
         />
         <Cell
           value={loading ? "…" : String(waitingChats)}
-          label="رسالة بلا ردّ"
+          label="Messages unanswered"
           tone={waitingChats > 0 ? "warn" : undefined}
           onClick={() => onTab("chats")}
         />
         <Cell
           value={loading ? "…" : owner ? money(s.revenue) : String(s.count)}
-          label={owner ? "دخل اليوم" : "طلب اليوم"}
+          label={owner ? "Revenue today" : "Orders today"}
           tone="good"
         />
         <Cell
           value={loading ? "…" : String(s.cancelled)}
-          label="أُلغيت اليوم"
+          label="Cancelled today"
           tone={s.cancelled > 0 ? "bad" : undefined}
         />
       </div>
@@ -168,21 +168,21 @@ export default function Dashboard({
           onClick={() => onTab("payments")}
           className="rounded-card border-2 border-danger bg-danger/5 p-3 text-start text-sm"
         >
-          <strong className="block">لا توجد طريقة دفع مُفعَّلة</strong>
-          الزبون لا يستطيع الدفع الآن — افتحي «طرق الدفع» وفعّلي واحدة.
+          <strong className="block">No payment method is live</strong>
+          Customers cannot pay right now — open Payment methods and set one live.
         </button>
       )}
 
       {/* ثم القائمة */}
       <section className="flex flex-col gap-2">
         <div className="flex items-baseline justify-between">
-          <h3 className="font-bold">آخر الطلبات</h3>
+          <h3 className="font-bold">Latest orders</h3>
           <button
             type="button"
             onClick={() => onTab("orders")}
             className="text-sm font-bold text-orange"
           >
-            الكلّ
+            See all
           </button>
         </div>
 
@@ -190,7 +190,7 @@ export default function Dashboard({
           <p className="p-4 text-center text-sm text-muted">…</p>
         ) : s.recent.length === 0 ? (
           <p className="rounded-card border border-dashed border-line p-6 text-center text-sm text-muted">
-            لا طلبات بعد. أوّل طلبٍ يصل يظهر هنا.
+            No orders yet. The first one shows up here.
           </p>
         ) : (
           s.recent.map((o) => <Row key={o.id} o={o} onOpen={() => onTab("orders")} />)
@@ -202,7 +202,7 @@ export default function Dashboard({
 
 function todayLine() {
   const d = new Date();
-  return d.toLocaleDateString("ar", {
+  return d.toLocaleDateString("en-GB", {
     weekday: "long",
     day: "numeric",
     month: "long",
@@ -246,15 +246,15 @@ function Cell({
 
 /** صفّ الطلب — الحالة شارةٌ تُقرأ بلمحة، والمبلغ بأرقام تصطفّ */
 function Row({ o, onOpen }: { o: AdminOrder; onOpen: () => void }) {
-  const title = o.items?.[0]?.title ?? o.code ?? "طلب";
+  const title = o.items?.[0]?.title ?? o.code ?? "Order";
   const state =
     o.status === "pending"
-      ? { t: "ينتظر", c: "bg-orange/10 text-orange" }
+      ? { t: "Waiting", c: "bg-orange/10 text-orange" }
       : o.status === "paid"
-        ? { t: "مدفوع", c: "bg-success/10 text-success" }
+        ? { t: "Paid", c: "bg-success/10 text-success" }
         : o.status === "done"
-          ? { t: "سُلّم", c: "bg-surface2 text-muted" }
-          : { t: "أُلغي", c: "bg-danger/10 text-danger" };
+          ? { t: "Delivered", c: "bg-surface2 text-muted" }
+          : { t: "Cancelled", c: "bg-danger/10 text-danger" };
 
   return (
     <button

@@ -40,7 +40,7 @@ export default function ReferralsView() {
   }, [load]);
 
   if (rows === null)
-    return <p className="p-4 text-center text-sm text-muted">جارٍ التحميل…</p>;
+    return <p className="p-4 text-center text-sm text-muted">Loading…</p>;
 
   const byUid = new Map(rows.map((r) => [r.uid, r]));
   const name = (c: CustomerRow) => c.name || c.phone || c.email || c.uid.slice(0, 6);
@@ -161,7 +161,7 @@ export default function ReferralsView() {
         onClick={() => void load()}
         className="min-h-11 rounded-card border border-line px-4 text-sm font-bold"
       >
-        تحديث
+        Refresh
       </button>
     </div>
   );

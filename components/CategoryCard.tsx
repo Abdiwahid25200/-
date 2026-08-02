@@ -1,6 +1,7 @@
 import { Link } from "@/i18n/navigation";
 import SectionIcon, { type SectionIconKey } from "./SectionIcon";
 import Badge from "./Badge";
+import { IconChevron } from "./icons";
 
 type Props = {
   href: string;
@@ -42,9 +43,7 @@ export default function CategoryCard({
         )}
       </span>
       {!soon && (
-        <span aria-hidden className="shrink-0 text-xl text-muted rtl:rotate-180">
-          ›
-        </span>
+        <IconChevron className="size-5 shrink-0 text-muted rtl:rotate-180" />
       )}
     </>
   );

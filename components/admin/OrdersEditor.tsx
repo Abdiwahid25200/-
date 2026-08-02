@@ -33,11 +33,11 @@ import {
  */
 
 const FILTERS = [
-  { v: "all", label: "الكلّ" },
-  { v: "pending", label: "جديد" },
-  { v: "paid", label: "مدفوع" },
-  { v: "done", label: "سُلّم" },
-  { v: "cancelled", label: "مُلغى" },
+  { v: "all", label: "All" },
+  { v: "pending", label: "New" },
+  { v: "paid", label: "Paid" },
+  { v: "done", label: "Delivered" },
+  { v: "cancelled", label: "Cancelled" },
 ] as const;
 
 const STATUS_STYLE: Record<OrderStatus, string> = {
@@ -106,11 +106,11 @@ export default function OrdersEditor() {
     const r = await claimOrder(o.id, me, user?.displayName ?? me);
     setBusy(null);
     if (!r.ok) {
-      setNote(r.takenBy ? `قَبِله ${r.takenBy} قبلك` : "تعذّر القبول");
+      setNote(r.takenBy ? `Already accepted by ${r.takenBy}` : "Could not accept");
       void load();
       return;
     }
-    setNote("قبلتِ هذا الطلب — صار لكِ.");
+    setNote("You accepted this order — it is yours now.");
     void load();
   }
 
@@ -119,7 +119,7 @@ export default function OrdersEditor() {
     setBusy(o.id);
     await releaseOrder(o.id);
     setBusy(null);
-    setNote("فُكّ الحجز — يستطيع أي مساعد قبوله الآن.");
+    setNote("Released — any helper can accept it now.");
     void load();
   }
 
@@ -130,7 +130,7 @@ export default function OrdersEditor() {
     setBusy(null);
 
     if (!res.ok) {
-      setNote("تعذّر الحفظ — أعيدي المحاولة");
+      setNote("Could not save — try again");
       return;
     }
 
@@ -138,9 +138,9 @@ export default function OrdersEditor() {
     // المعروض يجب أن يكون ما في قاعدة البيانات لا ما توقّعناه
     void load();
 
-    if (res.delta > 0) setNote(`أُضيفت ${res.delta} نقطة`);
-    else if (res.delta < 0) setNote(`سُحبت ${-res.delta} نقطة`);
-    else setNote("تم تحديث الحالة");
+    if (res.delta > 0) setNote(`+${res.delta} points added`);
+    else if (res.delta < 0) setNote(`${res.delta} points removed`);
+    else setNote("Status updated");
 
     // الرصيد المعروض في البطاقة يجب أن يتبع الحركة
     setPeople((p) =>
@@ -191,7 +191,7 @@ export default function OrdersEditor() {
           onClick={() => void load()}
           className={`${chip} ms-auto border-line text-muted`}
         >
-          تحديث
+          Refresh
         </button>
       </div>
 
@@ -203,15 +203,15 @@ export default function OrdersEditor() {
 
       {err && (
         <p className="rounded-card border border-danger/40 bg-danger/5 p-3 text-sm">
-          تعذّرت قراءة الطلبات. تحقّقي من اتصالك ثم اضغطي تحديث.
+          Could not read orders. Check your connection, then press Refresh.
         </p>
       )}
 
       {orders === null ? (
-        <p className="p-4 text-center text-sm text-muted">جارٍ التحميل…</p>
+        <p className="p-4 text-center text-sm text-muted">Loading…</p>
       ) : shown.length === 0 ? (
         <p className="rounded-card border border-dashed border-line p-6 text-center text-sm text-muted">
-          لا طلبات هنا بعد.
+          No orders here yet.
         </p>
       ) : (
         shown.map((o) => {
@@ -378,7 +378,7 @@ export default function OrdersEditor() {
                       rel="noopener"
                       className="min-h-11 rounded-card bg-orange px-3 py-2.5 text-center font-bold text-onaccent"
                     >
-                      واتساب الزبون
+                      WhatsApp the customer
                     </a>
                   )}
 
@@ -398,7 +398,7 @@ export default function OrdersEditor() {
                       onClick={() => void accept(o)}
                       className="min-h-12 rounded-card bg-orange px-3 font-bold text-onaccent disabled:opacity-50"
                     >
-                      اقبلي هذا الطلب
+                      Accept this order
                     </button>
                   ) : (
                     <p className="flex flex-wrap items-center gap-2 rounded-card border border-line p-2.5 text-sm">
@@ -415,7 +415,7 @@ export default function OrdersEditor() {
                           onClick={() => void release(o)}
                           className="ms-auto min-h-9 rounded-card border border-line px-3 text-sm font-bold text-danger"
                         >
-                          فكّ الحجز
+                          Release
                         </button>
                       )}
                     </p>
@@ -428,7 +428,7 @@ export default function OrdersEditor() {
                       onClick={() => void move(o, "paid")}
                       className={btn}
                     >
-                      تأكيد الدفع
+                      Mark paid
                     </button>
                     <button
                       type="button"
@@ -436,7 +436,7 @@ export default function OrdersEditor() {
                       onClick={() => void move(o, "done")}
                       className={btn}
                     >
-                      تم التسليم
+                      Delivered
                     </button>
                     <button
                       type="button"

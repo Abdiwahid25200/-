@@ -53,7 +53,7 @@ export default function RecycleBin() {
 
       {rows === null ? (
         <p className="flex items-center gap-2 text-sm text-muted">
-          <IconSpinner className="size-4" /> جارٍ التحميل…
+          <IconSpinner className="size-4" /> Loading…
         </p>
       ) : rows.length === 0 ? (
         <p className="rounded-card border border-dashed border-line p-6 text-center text-sm text-muted">

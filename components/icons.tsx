@@ -683,3 +683,236 @@ export function IconEyeOff({ className = "" }: IconProps) {
     </svg>
   );
 }
+
+/* ═══════════════════════════════════════════════════════════
+   أيقونات حقيقية — لا محارف ولا إيموجي
+   ⚠️ قرار صاحبة المتجر: «بدي أيقونات حقيقية». المحرف (‹ ⚙ ＋ ›)
+      يتغيّر شكله بين جهاز وجهاز، ولا يقبل حجماً ولا سماكة، ويظهر
+      أحياناً مربّعاً فارغاً. كل أيقونة هنا مرسومة بمسار SVG.
+   ═══════════════════════════════════════════════════════════ */
+
+export function IconGear({ className = "" }: IconProps) {
+  return (
+    <svg viewBox="0 0 24 24" strokeWidth="1.8" className={`${base} ${className}`} aria-hidden>
+      <circle cx="12" cy="12" r="3.2" />
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        d="M19.4 15a1.6 1.6 0 0 0 .32 1.77l.06.06a1.9 1.9 0 1 1-2.7 2.7l-.05-.06a1.6 1.6 0 0 0-1.77-.32 1.6 1.6 0 0 0-.97 1.47v.17a1.9 1.9 0 1 1-3.8 0v-.09a1.6 1.6 0 0 0-1.05-1.47 1.6 1.6 0 0 0-1.77.32l-.06.06a1.9 1.9 0 1 1-2.7-2.7l.06-.06a1.6 1.6 0 0 0 .32-1.77 1.6 1.6 0 0 0-1.47-.97H3.6a1.9 1.9 0 1 1 0-3.8h.09A1.6 1.6 0 0 0 5.16 9.4a1.6 1.6 0 0 0-.32-1.77l-.06-.06a1.9 1.9 0 1 1 2.7-2.7l.06.06a1.6 1.6 0 0 0 1.77.32h.08A1.6 1.6 0 0 0 10.36 3.8v-.2a1.9 1.9 0 1 1 3.8 0v.09a1.6 1.6 0 0 0 .97 1.47 1.6 1.6 0 0 0 1.77-.32l.06-.06a1.9 1.9 0 1 1 2.7 2.7l-.06.06a1.6 1.6 0 0 0-.32 1.77v.08a1.6 1.6 0 0 0 1.47.97h.17a1.9 1.9 0 1 1 0 3.8h-.09a1.6 1.6 0 0 0-1.47.97Z"
+      />
+    </svg>
+  );
+}
+
+/** سهمُ فتحٍ في نهاية الصفّ · وسهمُ رجوعٍ حين يُدار */
+export function IconChevron({ className = "" }: IconProps) {
+  return (
+    <svg viewBox="0 0 24 24" strokeWidth="2" className={`${base} ${className}`} aria-hidden>
+      <path strokeLinecap="round" strokeLinejoin="round" d="m9 5 7 7-7 7" />
+    </svg>
+  );
+}
+
+/** الطلبات — إيصال بخطوطه */
+export function IconReceipt({ className = "" }: IconProps) {
+  return (
+    <svg viewBox="0 0 24 24" strokeWidth="1.8" className={`${base} ${className}`} aria-hidden>
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        d="M6 2.75h12v18.5l-2.5-1.8-2.5 1.8-2.5-1.8-2.5 1.8V2.75Z"
+      />
+      <path strokeLinecap="round" d="M9 7.5h6M9 11.5h6M9 15.5h3.5" />
+    </svg>
+  );
+}
+
+/** متجري — كيس تسوّق */
+export function IconBag({ className = "" }: IconProps) {
+  return (
+    <svg viewBox="0 0 24 24" strokeWidth="1.8" className={`${base} ${className}`} aria-hidden>
+      <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 7.5h15l-1.2 13H5.7L4.5 7.5Z" />
+      <path strokeLinecap="round" d="M8.75 9.5V6.4a3.25 3.25 0 0 1 6.5 0v3.1" />
+    </svg>
+  );
+}
+
+/** أرقامي — أعمدة صاعدة */
+export function IconChart({ className = "" }: IconProps) {
+  return (
+    <svg viewBox="0 0 24 24" strokeWidth="1.8" className={`${base} ${className}`} aria-hidden>
+      <path strokeLinecap="round" d="M4 20h16" />
+      <path strokeLinecap="round" strokeLinejoin="round" d="M7 20v-5M12 20V8M17 20v-8" />
+      <path strokeLinecap="round" strokeLinejoin="round" d="m5 9 4.5-4 3.5 3L19 3" />
+    </svg>
+  );
+}
+
+/** الزبائن — شخصان */
+export function IconUsers({ className = "" }: IconProps) {
+  return (
+    <svg viewBox="0 0 24 24" strokeWidth="1.8" className={`${base} ${className}`} aria-hidden>
+      <circle cx="9" cy="8" r="3.4" />
+      <path strokeLinecap="round" d="M2.8 20c0-3.2 2.8-5.3 6.2-5.3s6.2 2.1 6.2 5.3" />
+      <path strokeLinecap="round" d="M16.2 5.1a3.4 3.4 0 0 1 0 6.6M17.6 14.9c2.2.6 3.6 2.3 3.6 4.6" />
+    </svg>
+  );
+}
+
+/** المنتجات — بطاقة سعر */
+export function IconTag({ className = "" }: IconProps) {
+  return (
+    <svg viewBox="0 0 24 24" strokeWidth="1.8" className={`${base} ${className}`} aria-hidden>
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        d="M11.2 3H21v9.8l-8.6 8.6a1.6 1.6 0 0 1-2.3 0l-7.5-7.5a1.6 1.6 0 0 1 0-2.3L11.2 3Z"
+      />
+      <circle cx="16.8" cy="7.2" r="1.5" />
+    </svg>
+  );
+}
+
+/** البانر — صورة */
+export function IconImage({ className = "" }: IconProps) {
+  return (
+    <svg viewBox="0 0 24 24" strokeWidth="1.8" className={`${base} ${className}`} aria-hidden>
+      <rect x="3" y="4.5" width="18" height="15" rx="2.5" />
+      <circle cx="8.5" cy="10" r="1.6" />
+      <path strokeLinecap="round" strokeLinejoin="round" d="m4 17 4.8-4.5 3.4 3.2 3-2.8L20 16.5" />
+    </svg>
+  );
+}
+
+/** طرق الدفع — بطاقة */
+export function IconCard({ className = "" }: IconProps) {
+  return (
+    <svg viewBox="0 0 24 24" strokeWidth="1.8" className={`${base} ${className}`} aria-hidden>
+      <rect x="2.5" y="5" width="19" height="14" rx="2.5" />
+      <path strokeLinecap="round" d="M2.5 9.5h19M6 15h3.5" />
+    </svg>
+  );
+}
+
+/** النقاط — هديّة */
+export function IconGift({ className = "" }: IconProps) {
+  return (
+    <svg viewBox="0 0 24 24" strokeWidth="1.8" className={`${base} ${className}`} aria-hidden>
+      <rect x="3" y="8.5" width="18" height="4" rx="1.2" />
+      <path strokeLinecap="round" strokeLinejoin="round" d="M4.8 12.5V20h14.4v-7.5M12 8.5V20" />
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        d="M12 8.5S10.6 4 8.4 4a2.2 2.2 0 0 0 0 4.5H12Zm0 0s1.4-4.5 3.6-4.5a2.2 2.2 0 0 1 0 4.5H12Z"
+      />
+    </svg>
+  );
+}
+
+/** بيانات المتجر — واجهة محلّ */
+export function IconStore({ className = "" }: IconProps) {
+  return (
+    <svg viewBox="0 0 24 24" strokeWidth="1.8" className={`${base} ${className}`} aria-hidden>
+      <path strokeLinecap="round" strokeLinejoin="round" d="M4 9.5V20h16V9.5" />
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        d="M3 9.5 4.7 4h14.6L21 9.5a2.6 2.6 0 0 1-4.5 1.8A2.6 2.6 0 0 1 12 11.3a2.6 2.6 0 0 1-4.5 0A2.6 2.6 0 0 1 3 9.5Z"
+      />
+      <path strokeLinecap="round" d="M9.5 20v-5.5h5V20" />
+    </svg>
+  );
+}
+
+/** الأسئلة — علامة استفهام في دائرة */
+export function IconHelp({ className = "" }: IconProps) {
+  return (
+    <svg viewBox="0 0 24 24" strokeWidth="1.8" className={`${base} ${className}`} aria-hidden>
+      <circle cx="12" cy="12" r="9" />
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        d="M9.6 9.3a2.5 2.5 0 1 1 3.4 2.3c-.7.3-1 .9-1 1.6v.4"
+      />
+      <path strokeLinecap="round" d="M12 16.8h.01" />
+    </svg>
+  );
+}
+
+/** الأقسام — أربع بلاطات */
+export function IconGrid({ className = "" }: IconProps) {
+  return (
+    <svg viewBox="0 0 24 24" strokeWidth="1.8" className={`${base} ${className}`} aria-hidden>
+      <rect x="3.5" y="3.5" width="7" height="7" rx="2" />
+      <rect x="13.5" y="3.5" width="7" height="7" rx="2" />
+      <rect x="3.5" y="13.5" width="7" height="7" rx="2" />
+      <rect x="13.5" y="13.5" width="7" height="7" rx="2" />
+    </svg>
+  );
+}
+
+/** الدعوات — مغلّف بسهم */
+export function IconInvite({ className = "" }: IconProps) {
+  return (
+    <svg viewBox="0 0 24 24" strokeWidth="1.8" className={`${base} ${className}`} aria-hidden>
+      <circle cx="9.5" cy="8" r="3.4" />
+      <path strokeLinecap="round" d="M3 20c0-3.2 2.9-5.3 6.5-5.3 1.4 0 2.7.3 3.8.9" />
+      <path strokeLinecap="round" strokeLinejoin="round" d="M17.5 13v7M14 16.5h7" />
+    </svg>
+  );
+}
+
+/** المساعدون — شارة شخص */
+export function IconBadge({ className = "" }: IconProps) {
+  return (
+    <svg viewBox="0 0 24 24" strokeWidth="1.8" className={`${base} ${className}`} aria-hidden>
+      <rect x="3.5" y="5" width="17" height="15" rx="3" />
+      <circle cx="12" cy="11" r="2.4" />
+      <path strokeLinecap="round" d="M8 17.2c.8-1.4 2.3-2.2 4-2.2s3.2.8 4 2.2M9.5 2.5h5" />
+    </svg>
+  );
+}
+
+/** الأرباح — دولار في دائرة */
+export function IconMoney({ className = "" }: IconProps) {
+  return (
+    <svg viewBox="0 0 24 24" strokeWidth="1.8" className={`${base} ${className}`} aria-hidden>
+      <circle cx="12" cy="12" r="9" />
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        d="M14.6 9.2A2.4 2.4 0 0 0 12.3 7.6h-.8a2 2 0 0 0-.4 4l1.9.4a2 2 0 0 1-.4 4h-.8a2.4 2.4 0 0 1-2.3-1.7M12 6v12"
+      />
+    </svg>
+  );
+}
+
+/** الشراء — زائد في دائرة */
+export function IconPlus({ className = "" }: IconProps) {
+  return (
+    <svg viewBox="0 0 24 24" strokeWidth="1.9" className={`${base} ${className}`} aria-hidden>
+      <circle cx="12" cy="12" r="9" />
+      <path strokeLinecap="round" d="M12 8.2v7.6M8.2 12h7.6" />
+    </svg>
+  );
+}
+
+/** الإرسال — سهمٌ خارج */
+export function IconSendOut({ className = "" }: IconProps) {
+  return (
+    <svg viewBox="0 0 24 24" strokeWidth="1.9" className={`${base} ${className}`} aria-hidden>
+      <circle cx="12" cy="12" r="9" />
+      <path strokeLinecap="round" strokeLinejoin="round" d="M9 15 15 9m0 0h-4.2M15 9v4.2" />
+    </svg>
+  );
+}
+
+/** الاستلام — سهمٌ داخل */
+export function IconReceive({ className = "" }: IconProps) {
+  return (
+    <svg viewBox="0 0 24 24" strokeWidth="1.9" className={`${base} ${className}`} aria-hidden>
+      <circle cx="12" cy="12" r="9" />
+      <path strokeLinecap="round" strokeLinejoin="round" d="M15 9 9 15m0 0h4.2M9 15v-4.2" />
+    </svg>
+  );
+}

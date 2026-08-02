@@ -4,6 +4,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { useAuth } from "@/lib/auth";
 import { allChats, listenAdminChat, replyChat, type ChatRow } from "@/lib/adminChat";
 import { MAX_LEN, type ChatMessage } from "@/lib/chat";
+import { IconChevron } from "@/components/icons";
 
 /**
  * الدردشة في اللوحة — قائمة المحادثات، وفتحُ واحدة، والردّ عليها.
@@ -61,7 +62,7 @@ export default function ChatsEditor() {
   }
 
   if (rows === null)
-    return <p className="p-4 text-center text-sm text-muted">جارٍ التحميل…</p>;
+    return <p className="p-4 text-center text-sm text-muted">Loading…</p>;
 
   const who = (c: ChatRow) => c.name || c.email || c.uid.slice(0, 6);
 
@@ -80,10 +81,10 @@ export default function ChatsEditor() {
           <button
             type="button"
             onClick={() => setOpen(null)}
-            aria-label="رجوع للمحادثات"
+            aria-label="Back to conversations"
             className="flex size-11 shrink-0 items-center justify-center rounded-card border border-line text-lg text-muted"
           >
-            <span aria-hidden className="rtl:rotate-180">‹</span>
+            <IconChevron className="size-5 rotate-180 rtl:rotate-0" />
           </button>
           <span className="min-w-0 flex-1">
             <span className="block truncate font-bold">{who(open)}</span>
@@ -118,7 +119,7 @@ export default function ChatsEditor() {
             value={text}
             onChange={(e) => setText(e.target.value.slice(0, MAX_LEN))}
             rows={2}
-            placeholder="اكتبي ردّك…"
+            placeholder="Write your reply…"
             className="min-h-12 min-w-0 flex-1 resize-none rounded-card border border-line bg-bg p-3 outline-none focus:border-orange"
           />
           <button
@@ -127,7 +128,7 @@ export default function ChatsEditor() {
             disabled={busy || !text.trim()}
             className="min-h-12 shrink-0 rounded-card bg-orange px-5 font-bold text-onaccent disabled:opacity-50"
           >
-            {busy ? "…" : "إرسال"}
+            {busy ? "…" : "Send"}
           </button>
         </div>
 
@@ -162,7 +163,7 @@ export default function ChatsEditor() {
             your reply.
           </>
         ) : (
-          "تمّ الردّ على الجميع."
+          "Everyone has been answered."
         )}
       </p>
 
@@ -195,11 +196,11 @@ export default function ChatsEditor() {
 
                 {c.needsHuman ? (
                   <span className="shrink-0 rounded-full border border-danger px-2.5 py-1 text-xs font-bold text-danger">
-                    يريد التحدّث
+                    Wants a person
                   </span>
                 ) : c.lastFrom === "user" ? (
                   <span className="shrink-0 rounded-full border border-orange px-2.5 py-1 text-xs font-bold text-orange">
-                    ردّ
+                    Reply
                   </span>
                 ) : null}
               </button>
@@ -213,7 +214,7 @@ export default function ChatsEditor() {
         onClick={() => void load()}
         className="min-h-11 rounded-card border border-line px-4 text-sm font-bold"
       >
-        تحديث
+        Refresh
       </button>
 
       {!user && (

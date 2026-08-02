@@ -158,7 +158,7 @@ export default function ItemsEditor() {
 
       {items === null ? (
         <p className="flex items-center gap-2 text-sm text-muted">
-          <IconSpinner className="size-4" /> جارٍ التحميل…
+          <IconSpinner className="size-4" /> Loading…
         </p>
       ) : (
         <>
@@ -213,7 +213,7 @@ export default function ItemsEditor() {
                       disabled={busy === it.id}
                       className="min-h-12 shrink-0 rounded-card border border-orange px-3 text-sm font-bold text-orange disabled:opacity-50"
                     >
-                      استرجاع
+                      Restore
                     </button>
                   ) : (
                     <button
@@ -393,7 +393,7 @@ export default function ItemsEditor() {
                       className="flex min-h-12 items-center justify-center gap-2 rounded-card bg-orange font-bold text-onaccent disabled:opacity-50"
                     >
                       {busy === it.id && <IconSpinner className="size-4" />}
-                      حفظ
+                      Save
                     </button>
                   </div>
                 )}

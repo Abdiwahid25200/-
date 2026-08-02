@@ -175,7 +175,7 @@ export default function StaffEditor() {
       )}
 
       {rows === null ? (
-        <p className="p-4 text-center text-sm text-muted">جارٍ التحميل…</p>
+        <p className="p-4 text-center text-sm text-muted">Loading…</p>
       ) : rows.length === 0 ? (
         <p className="rounded-card border border-dashed border-line p-6 text-center text-sm text-muted">
           No helpers yet.
@@ -232,7 +232,7 @@ export default function StaffEditor() {
               disabled={busy === r.id}
               className="mt-3 min-h-11 w-full rounded-card border border-line font-bold text-danger disabled:opacity-50"
             >
-              إزالة
+              Remove
             </button>
           </article>
         ))

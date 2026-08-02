@@ -23,7 +23,15 @@ import { useAccess } from "@/lib/adminAccess";
 import { useAuth } from "@/lib/auth";
 import Logo from "@/components/Logo";
 import type { Perm } from "@/lib/staff";
-import { IconBolt, IconCart, IconClose, IconDoc, IconHome } from "@/components/icons";
+import {
+  IconChart,
+  IconChevron,
+  IconClose,
+  IconGear,
+  IconHome,
+  IconBag,
+  IconReceipt,
+} from "@/components/icons";
 
 /**
  * تنقّل اللوحة — **أربعة تبويبات أسفل الشاشة، كتطبيق بنك**.
@@ -56,49 +64,49 @@ const ZONES: {
   icon: (p: { className?: string }) => React.ReactElement;
   items: Item[];
 }[] = [
-  { v: "home", label: "الرئيسية", icon: IconHome, items: [] },
+  { v: "home", label: "Home", icon: IconHome, items: [] },
   {
     v: "work",
-    label: "الطلبات",
-    icon: IconDoc,
+    label: "Orders",
+    icon: IconReceipt,
     items: [
-      { v: "orders", label: "الطلبات", note: "اقبلي، أكّدي الدفع، سلّمي", perm: "orders" },
-      { v: "chats", label: "الدردشة", note: "رسائل الزبائن والردّ عليها", perm: "chat" },
-      { v: "customers", label: "الزبائن", note: "أرقامهم ورصيدهم", perm: "customers" },
+      { v: "orders", label: "Orders", note: "Accept, mark paid, deliver", perm: "orders" },
+      { v: "chats", label: "Live chat", note: "Customer messages and replies", perm: "chat" },
+      { v: "customers", label: "Customers", note: "Their phones and points", perm: "customers" },
     ],
   },
   {
     v: "shop",
-    label: "متجري",
-    icon: IconCart,
+    label: "Shop",
+    icon: IconBag,
     items: [
-      { v: "items", label: "المنتجات والأسعار", note: "الباقات · السعر · التكلفة · النقاط", perm: "products" },
-      { v: "sections", label: "الأقسام والألعاب", note: "أضيفي لعبة أو أخفي قسماً", perm: "sections" },
-      { v: "slides", label: "البانر المتحرّك", note: "صور الرئيسية ونصوصها", perm: "sections" },
-      { v: "payments", label: "طرق الدفع", note: "EVC · أرقام التحويل · الحالة", perm: "payments" },
+      { v: "items", label: "Products & prices", note: "Packages · price · cost · points", perm: "products" },
+      { v: "sections", label: "Sections & games", note: "Add a game or hide a section", perm: "sections" },
+      { v: "slides", label: "Home banner", note: "Slide images and their text", perm: "sections" },
+      { v: "payments", label: "Payment methods", note: "EVC · transfer numbers · status", perm: "payments" },
     ],
   },
   {
     v: "money",
-    label: "أرقامي",
-    icon: IconBolt,
+    label: "Money",
+    icon: IconChart,
     items: [
-      { v: "analytics", label: "الأرباح والتحليل", note: "الدخل والتكلفة والربح", owner: true },
-      { v: "report", label: "تقرير المساعدين", note: "من نفّذ أي طلب ومتى", owner: true },
-      { v: "referrals", label: "الدعوات", note: "من دعا من، وكم كلّفتك", owner: true },
+      { v: "analytics", label: "Profit & analytics", note: "Revenue, cost and profit", owner: true },
+      { v: "report", label: "Helper report", note: "Who handled which order, and when", owner: true },
+      { v: "referrals", label: "Invites", note: "Who invited whom, and the cost", owner: true },
     ],
   },
   {
     v: "settings",
-    label: "الإعدادات",
+    label: "Settings",
     icon: IconHome,
     items: [
-      { v: "points", label: "نقاط Barwaaqo", note: "قيمة النقاط · الدعوة · الشراء", perm: "points" },
-      { v: "store", label: "بيانات المتجر", note: "الاسم · واتساب · الإغلاق والدوام", owner: true },
-      { v: "texts", label: "نصوص الصفحات", note: "«كيف يعمل المتجر» والسياسات", perm: "sections" },
-      { v: "faq", label: "الأسئلة الشائعة", note: "أسئلة الزبائن وأجوبتها", perm: "faq" },
-      { v: "staff", label: "المساعدون", note: "حساباتهم وما يُسمح لهم به", owner: true },
-      { v: "bin", label: "سلة المحذوفات", note: "استرجاع ما حُذف", owner: true },
+      { v: "points", label: "Barwaaqo points", note: "Point value · invites · buying", perm: "points" },
+      { v: "store", label: "Store info", note: "Name · WhatsApp · closing and hours", owner: true },
+      { v: "texts", label: "Page texts", note: "“How it works” and the policies", perm: "sections" },
+      { v: "faq", label: "Q&A", note: "Customer questions and answers", perm: "faq" },
+      { v: "staff", label: "Helpers", note: "Their logins and what they may do", owner: true },
+      { v: "bin", label: "Recycle bin", note: "Restore anything you deleted", owner: true },
     ],
   },
 ];
@@ -136,7 +144,7 @@ export default function AdminTabs() {
   if (bar.length <= 1 && !settings)
     return (
       <p className="rounded-card border border-dashed border-line p-6 text-center text-sm text-muted">
-        لم يُفتح لهذا الحساب أي قسم بعد.
+        No sections are open for this account yet.
       </p>
     );
 
@@ -148,10 +156,10 @@ export default function AdminTabs() {
           <button
             type="button"
             onClick={() => setScreen(null)}
-            aria-label="رجوع"
+            aria-label="Back"
             className="flex size-11 shrink-0 items-center justify-center rounded-card border border-line text-lg text-muted"
           >
-            <span aria-hidden className="rtl:rotate-180">‹</span>
+            <IconChevron className="size-5 rotate-180 rtl:rotate-0" />
           </button>
         )}
 
@@ -159,7 +167,7 @@ export default function AdminTabs() {
           /* الرئيسية تحمل تحيّتها في المحتوى، فالترويسة للهويّة وحدها */
           <span className="flex min-w-0 flex-1 items-center gap-2.5">
             <Logo solid className="size-9 shrink-0 rounded-[11px] shadow-sm" />
-            <span className="truncate text-sm font-bold text-muted">لوحة رمان</span>
+            <span className="truncate text-sm font-bold text-muted">Ramaan Admin</span>
           </span>
         ) : (
           <span className="min-w-0 flex-1">
@@ -179,7 +187,7 @@ export default function AdminTabs() {
               setZone("settings");
               setScreen(null);
             }}
-            aria-label="الإعدادات"
+            aria-label="Settings"
             aria-pressed={zone === "settings"}
             className={`flex size-11 shrink-0 items-center justify-center rounded-card border text-lg ${
               zone === "settings"
@@ -187,7 +195,7 @@ export default function AdminTabs() {
                 : "border-line text-muted"
             }`}
           >
-            <span aria-hidden>⚙</span>
+            <IconGear className="size-5" />
           </button>
         )}
       </div>
@@ -209,7 +217,7 @@ export default function AdminTabs() {
                     href="https://eramaan.com"
                     className="rounded-card border border-line bg-surface p-3 text-center font-bold"
                   >
-                    عرض المتجر
+                    View store
                   </a>
                   <button
                     type="button"
@@ -217,7 +225,7 @@ export default function AdminTabs() {
                     className="flex min-h-12 items-center justify-center gap-2 rounded-card border border-danger/40 text-danger"
                   >
                     <IconClose className="size-4" />
-                    تسجيل الخروج
+                    Sign out
                   </button>
                   {user?.email && (
                     <p className="num break-all text-center text-xs text-muted" dir="ltr">
@@ -287,7 +295,7 @@ function Menu({
               <span className="block truncate font-bold">{t.label}</span>
               <span className="block truncate text-sm text-muted">{t.note}</span>
             </span>
-            <span aria-hidden className="shrink-0 text-muted rtl:rotate-180">›</span>
+            <IconChevron className="size-5 shrink-0 text-muted rtl:rotate-180" />
           </button>
         );
       })}

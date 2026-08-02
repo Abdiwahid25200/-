@@ -124,7 +124,7 @@ export default function TextsEditor() {
 
       {d === null ? (
         <p className="flex items-center gap-2 text-sm text-muted">
-          <IconSpinner className="size-4" /> جارٍ التحميل…
+          <IconSpinner className="size-4" /> Loading…
         </p>
       ) : (
         <>
@@ -161,7 +161,7 @@ export default function TextsEditor() {
             disabled={busy}
             className="min-h-12 rounded-card bg-orange px-4 font-bold text-onaccent disabled:opacity-50"
           >
-            {busy ? "يُحفظ…" : saved ? "تم الحفظ ✓" : "حفظ"}
+            {busy ? "Saving…" : saved ? "Saved ✓" : "Save"}
           </button>
         </>
       )}

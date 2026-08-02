@@ -4,7 +4,13 @@ import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
 import { useAuth } from "@/lib/auth";
 import PointsBrand from "./PointsBrand";
-import { IconWhatsApp } from "./icons";
+import {
+  IconMoney,
+  IconPlus,
+  IconReceive,
+  IconSendOut,
+  IconWhatsApp,
+} from "./icons";
 import { getProfile } from "@/lib/profile";
 import { claimIncoming, ensurePhoneEntry, sendPointsTo } from "@/lib/transfers";
 import {
@@ -195,9 +201,19 @@ export default function PointsCard() {
               tab === k ? "border-orange bg-orange/5 text-orange" : "border-line"
             }`}
           >
-            <span aria-hidden className="text-lg leading-none">
-              {k === "buy" ? "＋" : k === "send" ? "↗" : k === "receive" ? "↙" : "$"}
-            </span>
+            {/* أيقونة مرسومة لكل باب — لا محرف: المحرف يتغيّر بين
+                جهاز وجهاز ولا يقبل حجماً ولا سماكة */}
+            {(() => {
+              const I =
+                k === "buy"
+                  ? IconPlus
+                  : k === "send"
+                    ? IconSendOut
+                    : k === "receive"
+                      ? IconReceive
+                      : IconMoney;
+              return <I className="size-5" />;
+            })()}
             {t(`tab${k[0].toUpperCase()}${k.slice(1)}`)}
           </button>
         ))}
