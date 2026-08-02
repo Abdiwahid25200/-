@@ -1,6 +1,5 @@
 "use client";
 
-import Badge from "./Badge";
 import { IconCheckCircle, IconFlame } from "./icons";
 import Thumb from "./Thumb";
 import { fin, fmt } from "@/lib/format";
@@ -34,13 +33,20 @@ type Props = {
 };
 
 /**
- * بطاقة الباقة = **قسيمة ممزّقة**.
+ * بطاقة الباقة = **قسيمةٌ ممزّقة، أفقيّة**.
  *
- * الكمّية كبيرة بالأعلى ثم وحدتها، وخطّ تقطيع منقّط بين حزّتين جانبيتين،
- * ثم السعر أسفل — كقسيمة شحن تُقصّ.
+ * ⚠️ **كانت شبكةً من بطاقاتٍ مربّعة، وصارت صفّاً واحداً** — قرار صاحبة
+ *    المتجر بعد أن رأت النموذج. والفرق ليس ذوقاً:
  *
- * والصورة اختيارية: حين تُرفع صورة للباقة أو الحساب تتصدّر البطاقة بحجم
- * وافٍ، وحين لا توجد يبقى الرقم هو البطل — فلا تفرغ البطاقة قبل رفع الصور.
+ *    · الشبكة تجعل الزبون يقارن **أربع باقاتٍ في آن** فيتردّد. والصفّ
+ *      يقرأ واحدةً واحدةً كقائمة أسعار، فيمشي لأسفل حتى يجد مقاسه.
+ *    · واسم الباقة في الشبكة يُقصّ («حساب eFootball — ٥ نج…»)، وفي
+ *      الصفّ يتنفّس بالعرض كلّه.
+ *    · والسعر في **حزّةٍ مستقلّة** يمينَ القسيمة، مفصولاً بخطّ تقطيع —
+ *      فتُقرأ الأسعار عموداً واحداً تصطفّ أرقامه، كإيصال.
+ *
+ * والصورة اختيارية: تُعرض مربّعاً صغيراً في الصدر حين تُرفع، وبلاها
+ * يبقى الرقم هو البطل — فلا تفرغ القسيمة قبل رفع الصور.
  */
 export default function PackageCard({
   title,
@@ -60,9 +66,8 @@ export default function PackageCard({
   const final = fin({ price, disc });
   const before = old ?? (disc ? price : undefined);
 
-  // "660 UC" ⇒ الرقم بطلاً والوحدة تحته.
-  // أما الحسابات فعناوينها نصّية طويلة ("حساب eFootball — ٥ نجوم")،
-  // فتُعرض بحجم عادي وتلتفّ، وإلا تمدّدت البطاقة خارج الشاشة.
+  /* "660 UC" ⇒ الرقم بطلاً والوحدة تحته. أما الحسابات فعناوينها نصّية
+     طويلة، فتُعرض بحجمٍ أهدأ وتلتفّ على سطرين. */
   const m = title.match(/^([\d,.٠-٩]+)\s*(.*)$/);
   const isNumeric = Boolean(m);
   const amount = m ? m[1] : title;
@@ -74,123 +79,87 @@ export default function PackageCard({
       onClick={onSelect}
       disabled={soon}
       aria-pressed={selected}
-      className={`lift relative flex flex-col rounded-card border bg-surface p-4 text-start shadow-sm ${
+      className={`lift relative flex w-full items-stretch overflow-hidden rounded-card border bg-surface text-start shadow-sm ${
         soon
           ? "cursor-not-allowed opacity-60"
           : selected
-            ? "border-orange shadow-md"
+            ? "border-orange shadow-md ring-1 ring-orange"
             : "border-line hover:border-orange/60 hover:shadow-md"
       }`}
     >
-      {img ? (
-        /* بصورة: الصورة تملأ الأعلى والكمّية **فوقها** كما في Midasbuy.
-           تدرّج داكن أسفل الصورة يضمن قراءة الرقم مهما كانت الصورة فاتحة. */
-        <span className="relative mb-3 block aspect-square overflow-hidden rounded-[14px] bg-surface2 text-orange">
-          <Thumb
-            img={img}
-            alt={title}
-            Icon={Icon}
-            iconClass="size-14"
-            sizes="(max-width: 640px) 45vw, 30vw"
-          />
+      {/* ── حزّة الوصف ── */}
+      <span className="flex min-w-0 flex-1 items-center gap-3 p-3.5">
+        {img && (
+          <span className="relative block size-13 shrink-0 overflow-hidden rounded-[13px] bg-surface2 text-orange">
+            <Thumb img={img} alt={title} Icon={Icon} iconClass="size-7" sizes="60px" />
+          </span>
+        )}
+
+        <span className="flex min-w-0 flex-1 flex-col gap-0.5">
+          {/* 🔥 الدليل فوق الاسم — يُقرأ قبله فيُلوّن ما بعده */}
+          {hot > 0 && !soon && (
+            <span className="num mb-0.5 flex w-fit items-center gap-1 rounded-full bg-danger/10 px-2 py-0.5 text-[0.7rem] font-bold text-danger">
+              <IconFlame className="size-3" />
+              {labels.hot.replace("{n}", String(hot))}
+            </span>
+          )}
 
           <span
-            aria-hidden
-            className="absolute inset-x-0 bottom-0 h-3/5 bg-gradient-to-t from-black/85 via-black/45 to-transparent"
-          />
-
-          <span className="absolute inset-x-0 bottom-0 flex flex-col items-start p-3 leading-none">
-            <span
-              className={
-                isNumeric
-                  ? "num block text-[1.6rem] font-bold text-white drop-shadow"
-                  : "block text-sm font-bold leading-snug text-balance break-words text-white drop-shadow"
-              }
-            >
-              {amount}
-            </span>
-            {unit && (
-              <span className="mt-1.5 block text-xs font-bold uppercase tracking-[0.16em] text-white/85 rtl:tracking-normal">
-                {unit}
-              </span>
+            className={
+              isNumeric
+                ? "num block text-xl font-bold leading-tight text-text"
+                : "block text-balance break-words text-[0.95rem] font-bold leading-snug text-text"
+            }
+          >
+            {amount}
+            {isNumeric && unit && (
+              <span className="ms-1.5 text-xs font-bold text-muted">{unit}</span>
             )}
           </span>
 
-          {(disc || popular) && (
-            <span className="absolute start-2 top-2">
-              {disc ? (
-                <Badge tone="gold">−{disc}%</Badge>
-              ) : (
-                <Badge tone="green">{labels.popular}</Badge>
-              )}
+          {/* السطر الصغير: الوحدة للنصّي، والوصف للرقمي */}
+          {(isNumeric ? sub : unit) && (
+            <span className="block truncate text-xs text-muted">
+              {isNumeric ? sub : unit}
+            </span>
+          )}
+
+          {popular && !hot && !soon && (
+            <span className="mt-0.5 block text-xs font-bold text-success">
+              {labels.popular}
             </span>
           )}
         </span>
-      ) : (
-        <span className="flex items-start gap-2">
-          <span className="min-w-0 flex-1">
-            <span
-              className={
-                isNumeric
-                  ? "num block text-[1.75rem] font-bold leading-none text-orange"
-                  : "block text-base font-bold leading-snug text-balance break-words text-orange"
-              }
-            >
-              {amount}
-            </span>
-            {unit && (
-              <span className="mt-1.5 block text-xs font-bold uppercase tracking-[0.16em] text-muted rtl:tracking-normal">
-                {unit}
-              </span>
-            )}
-          </span>
+      </span>
 
-          {disc ? (
-            <Badge tone="gold">−{disc}%</Badge>
-          ) : popular ? (
-            <Badge tone="green">{labels.popular}</Badge>
-          ) : null}
-        </span>
-      )}
-
-      {/* 🔥 **الدليل على البطاقة نفسها، لحظةَ التردّد.**
-          السؤال هنا ليس «هل المتجر حيّ؟» — أرقام الرئيسية أجابت عنه —
-          بل **«أيّ باقةٍ آخذ؟»**. فيوضع الجواب حيث يُسأل. */}
-      {hot > 0 && !soon && (
-        <span className="num mt-2 flex w-fit items-center gap-1 rounded-full bg-danger/10 px-2 py-0.5 text-[0.7rem] font-bold text-danger">
-          <IconFlame className="size-3" />
-          {labels.hot.replace("{n}", String(hot))}
-        </span>
-      )}
-
-      {/* خطّ التقطيع بين الحزّتين — هنا تُقصّ القسيمة */}
+      {/* ── خطّ التقطيع بحزّتيه — هنا تُقصّ القسيمة ── */}
       <span
-        className={`voucher-notch relative block border-t border-dashed border-line ${
-          img ? "mt-1" : "mt-5"
-        }`}
-        style={{ "--notch-y": "-7px" } as React.CSSProperties}
+        aria-hidden
+        className="voucher-cut relative block w-px shrink-0 border-s border-dashed border-line"
       />
 
-      {/* ⚠️ بلا `flex-wrap`: السعر القديم كان ينزل سطراً في البطاقات
-          الغالية وحدها ($108 مع $120) فتختلّ البطاقات في الشبكة. */}
-      <span className="mt-3 flex items-baseline gap-1.5">
-        <span className="num shrink-0 text-lg font-bold">{fmt(final)}</span>
+      {/* ── حزّة السعر: عمودٌ تصطفّ أرقامه كإيصال ── */}
+      <span className="flex w-[5.75rem] shrink-0 flex-col items-center justify-center gap-0.5 bg-yellow/7 px-2 py-3.5">
+        {disc ? (
+          <span className="num rounded-full bg-yellow px-1.5 py-px text-[0.65rem] font-bold text-onaccent">
+            −{disc}%
+          </span>
+        ) : null}
+
         {before && before > final && (
-          <span className="num min-w-0 truncate text-xs text-muted line-through">
-            {fmt(before)}
-          </span>
+          <span className="num text-[0.7rem] text-muted line-through">{fmt(before)}</span>
         )}
-        {soon && (
-          <span className="ms-auto shrink-0 text-xs font-bold text-muted">
-            {labels.soon}
-          </span>
-        )}
-        {selected && !soon && (
-          <span className="ms-auto flex shrink-0 items-center gap-1 text-xs font-bold text-orange">
-            <IconCheckCircle className="size-4" />
+
+        <span className="num text-lg font-bold text-yellow">{fmt(final)}</span>
+
+        {soon ? (
+          <span className="text-[0.7rem] font-bold text-muted">{labels.soon}</span>
+        ) : selected ? (
+          <span className="flex items-center gap-1 text-[0.7rem] font-bold text-orange">
+            <IconCheckCircle className="size-3.5" />
             {labels.selected}
           </span>
-        )}
+        ) : null}
       </span>
     </button>
   );

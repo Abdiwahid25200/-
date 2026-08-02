@@ -387,7 +387,8 @@ export default function BuyFlow({
 
       <section ref={packsRef}>
         <h2 className="mb-3 text-lg font-bold">{t("selectPackage")}</h2>
-        <div className="grid grid-cols-2 gap-4 sm:grid-cols-3">
+        {/* صفٌّ واحد: يُقرأ كقائمة أسعار، لا شبكةٌ تُقارَن فيها أربعٌ في آن */}
+        <div className="flex flex-col gap-2.5">
           {packs.map((p) => (
             <PackageCard
               key={p.id}

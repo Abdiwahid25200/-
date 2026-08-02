@@ -371,6 +371,29 @@ body.has-buybar {
   inset-inline-end: -8px;
 }
 
+/* حزّتا القسيمة الأفقية — على خطّ التقطيع العمودي، أعلاه وأسفله.
+   ⚠️ لونُها لون **أرضية الصفحة** لا الأبيض: فوق الوضع الليلي كانت
+      نقطتين بيضاوين معلّقتين في الظلام. */
+.voucher-cut::before,
+.voucher-cut::after {
+  content: "";
+  position: absolute;
+  inset-inline-start: -7px;
+  width: 14px;
+  height: 14px;
+  border-radius: 9999px;
+  background: var(--bg);
+  z-index: 2;
+}
+
+.voucher-cut::before {
+  top: -7px;
+}
+
+.voucher-cut::after {
+  bottom: -7px;
+}
+
 /* ── توهّج الساحل خلف رأس الصفحة ─────────────────────────── */
 .coast-glow {
   position: relative;

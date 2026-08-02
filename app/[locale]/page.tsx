@@ -2,6 +2,7 @@ import { getTranslations, setRequestLocale } from "next-intl/server";
 import ResumeHero from "@/components/ResumeHero";
 import HomeBarwaaqo from "@/components/HomeBarwaaqo";
 import LiveTicker from "@/components/LiveTicker";
+import SectionTiles from "@/components/SectionTiles";
 import ProductCard from "@/components/ProductCard";
 import { IconDevice } from "@/components/icons";
 import { mergedItems } from "@/lib/items";
@@ -44,6 +45,10 @@ export default async function Home({
 
       {/* الخيط الذي يشدّه للعودة — يظهر لمن له رصيد وحده */}
       <HomeBarwaaqo />
+
+      {/* أبوابُ الألعاب — اختصارٌ لا قسم: الرئيسية تبقى للإلكترونيات،
+          لكن من فتح المتجر يريد شحنةً فلا يُطالَب بالبحث عن بابها */}
+      <SectionTiles />
 
       <section>
         <div className="coast-glow mb-3.5 flex flex-col gap-1">
