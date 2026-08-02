@@ -9,8 +9,8 @@ export default function AdminPage() {
         <header className="flex items-center gap-3">
           <Logo solid className="size-11 shrink-0 rounded-[13px] shadow-sm" />
           <div className="min-w-0 flex-1 leading-tight">
-            <h1 className="text-xl font-bold">Ramaan Admin</h1>
-            <p className="text-sm text-muted">Store control panel</p>
+            <h1 className="text-xl font-bold">لوحة رمان</h1>
+            <p className="text-sm text-muted">تحكّمي بمتجرك من هنا</p>
           </div>
         </header>
 

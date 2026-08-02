@@ -32,43 +32,142 @@ import type { Perm } from "@/lib/staff";
  * ⚠️ المساعد لا يرى إلا ما فُتح له، والمجموعة الفارغة لا تظهر أصلاً.
  *    وإخفاء التبويب راحةٌ لا حماية — المنع في `firestore.rules`.
  */
-type Item = { v: AdminTab; label: string; perm?: Perm; owner?: boolean };
+type Item = {
+  v: AdminTab;
+  label: string;
+  /** سطرٌ واحد يقول **ماذا تفعل** لا ماذا تُسمّى — به يفهمها من لم يرها */
+  note: string;
+  perm?: Perm;
+  owner?: boolean;
+};
 
-const GROUPS: { label: string; items: Item[] }[] = [
+/**
+ * ⚠️ المجموعات مسمّاة **بالمهمّة لا بالتصنيف**: «كل يوم» و«متجري»
+ *    و«أرقامي» و«الإعدادات». من يفتح اللوحة أوّل مرّة يسأل «ماذا أفعل
+ *    الآن؟» لا «أين قسم المحتوى؟» — فالترتيب يجيب سؤاله هو.
+ *
+ * ⚠️ والترتيب داخل المجموعة بالأهمّية: ما يُفتح كل ساعة قبل ما يُفتح
+ *    كل شهر. «الطلبات» أوّلاً دائماً.
+ */
+const GROUPS: { label: string; note: string; items: Item[] }[] = [
   {
-    label: "Every day",
+    label: "كل يوم",
+    note: "ما تفتحينه في كل جلسة",
     items: [
-      { v: "orders", label: "Orders", perm: "orders" },
-      { v: "customers", label: "Customers", perm: "customers" },
-      { v: "chats", label: "Live chat", perm: "chat" },
-      { v: "analytics", label: "Analytics", owner: true },
-      { v: "report", label: "Report", owner: true },
-      { v: "referrals", label: "Invites", owner: true },
+      {
+        v: "orders",
+        label: "الطلبات",
+        note: "اقبلي الطلب، أكّدي الدفع، سلّمي",
+        perm: "orders",
+      },
+      {
+        v: "chats",
+        label: "الدردشة",
+        note: "رسائل الزبائن والردّ عليها",
+        perm: "chat",
+      },
+      {
+        v: "customers",
+        label: "الزبائن",
+        note: "أرقامهم ورصيدهم من النقاط",
+        perm: "customers",
+      },
     ],
   },
   {
-    label: "Shop",
+    label: "متجري",
+    note: "ما يراه الزبون ويشتريه",
     items: [
-      { v: "items", label: "Products", perm: "products" },
-      { v: "sections", label: "Sections", perm: "sections" },
-      { v: "slides", label: "Banner", perm: "sections" },
-      { v: "payments", label: "Payments", perm: "payments" },
+      {
+        v: "items",
+        label: "المنتجات والأسعار",
+        note: "الباقات · السعر · التكلفة · النقاط",
+        perm: "products",
+      },
+      {
+        v: "sections",
+        label: "الأقسام والألعاب",
+        note: "أضيفي لعبة أو أخفي قسماً",
+        perm: "sections",
+      },
+      {
+        v: "slides",
+        label: "البانر المتحرّك",
+        note: "صور الرئيسية ونصوصها",
+        perm: "sections",
+      },
+      {
+        v: "payments",
+        label: "طرق الدفع",
+        note: "EVC · أرقام التحويل · الحالة",
+        perm: "payments",
+      },
     ],
   },
   {
-    label: "Content",
+    label: "أرقامي",
+    note: "هل المتجر رابح؟",
     items: [
-      { v: "texts", label: "Page texts", perm: "sections" },
-      { v: "faq", label: "Q&A", perm: "faq" },
+      {
+        v: "analytics",
+        label: "الأرباح والتحليل",
+        note: "الدخل والتكلفة والربح — لك وحدك",
+        owner: true,
+      },
+      {
+        v: "report",
+        label: "تقرير المساعدين",
+        note: "من نفّذ أي طلب ومتى",
+        owner: true,
+      },
+      {
+        v: "referrals",
+        label: "الدعوات",
+        note: "من دعا من، وكم كلّفتك",
+        owner: true,
+      },
     ],
   },
   {
-    label: "Settings",
+    label: "الإعدادات",
+    note: "تُضبط مرّة ثم تُنسى",
     items: [
-      { v: "points", label: "Points", perm: "points" },
-      { v: "store", label: "Store info", owner: true },
-      { v: "bin", label: "Recycle bin", owner: true },
-      { v: "staff", label: "Helpers", owner: true },
+      {
+        v: "points",
+        label: "نقاط Barwaaqo",
+        note: "قيمة النقاط · الدعوة · الشراء",
+        perm: "points",
+      },
+      {
+        v: "store",
+        label: "بيانات المتجر",
+        note: "الاسم · واتساب · إغلاق المتجر ودوامه",
+        owner: true,
+      },
+      {
+        v: "texts",
+        label: "نصوص الصفحات",
+        note: "«كيف يعمل المتجر» والسياسات",
+        perm: "sections",
+      },
+      {
+        v: "faq",
+        label: "الأسئلة الشائعة",
+        note: "أسئلة الزبائن وأجوبتها",
+        perm: "faq",
+      },
+      {
+        v: "staff",
+        label: "المساعدون",
+        note: "حساباتهم وما يُسمح لهم به",
+        owner: true,
+      },
+      {
+        v: "bin",
+        label: "سلة المحذوفات",
+        note: "استرجاع ما حُذف",
+        owner: true,
+      },
     ],
   },
 ];
@@ -82,6 +181,7 @@ export default function AdminTabs() {
 
   const groups = GROUPS.map((g) => ({
     label: g.label,
+    note: g.note,
     items: g.items.filter(allowed),
   })).filter((g) => g.items.length > 0);
 
@@ -92,12 +192,13 @@ export default function AdminTabs() {
   // مساعدٌ فُتح له بابٌ واحد قد يبدأ على تبويب لا يملكه — نردّه للرئيسية
   const flat = groups.flatMap((g) => g.items);
   const current = tab === "home" || flat.some((t) => t.v === tab) ? tab : "home";
-  const title = flat.find((t) => t.v === current)?.label ?? "Ramaan Admin";
+  const open = flat.find((t) => t.v === current);
+  const title = open?.label ?? "لوحة رمان";
 
   if (groups.length === 0)
     return (
       <p className="rounded-card border border-dashed border-line p-6 text-center text-sm text-muted">
-        No sections are open for this account yet.
+        لم يُفتح لهذا الحساب أي قسم بعد.
       </p>
     );
 
@@ -109,13 +210,19 @@ export default function AdminTabs() {
           <button
             type="button"
             onClick={() => setTab("home")}
-            aria-label="Back to dashboard"
+            aria-label="العودة للرئيسية"
             className="flex size-11 shrink-0 items-center justify-center rounded-card border border-line text-lg text-muted transition-colors hover:text-text"
           >
             <span aria-hidden className="rtl:rotate-180">‹</span>
           </button>
         )}
-        <h2 className="min-w-0 flex-1 truncate text-lg font-bold">{title}</h2>
+        {/* العنوان ومعه سطرُ «ماذا تفعل هذه الشاشة» — فلا يحتار من فتحها */}
+        <span className="min-w-0 flex-1">
+          <h2 className="truncate text-lg font-bold">{title}</h2>
+          {open?.note && (
+            <span className="block truncate text-xs text-muted">{open.note}</span>
+          )}
+        </span>
       </div>
 
       {current === "home" ? (

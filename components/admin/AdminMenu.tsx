@@ -5,8 +5,13 @@ import { createPortal } from "react-dom";
 import { useAuth } from "@/lib/auth";
 import Logo from "@/components/Logo";
 import {
+  IconBolt,
   IconCart,
+  IconGames,
+  IconGlobe,
   IconHome,
+  IconShieldCheck,
+  IconSparkle,
   IconTrash,
   IconChat,
   IconClose,
@@ -43,20 +48,23 @@ export type AdminTab =
   | "staff";
 
 /** أيقونة كل تبويب — القائمة تُبنى من نفس مصدر التبويبات فلا يتفرّقان */
-const ICONS: Record<AdminTab, (p: { className?: string }) => React.ReactElement> = {
+export const ICONS: Record<
+  AdminTab,
+  (p: { className?: string }) => React.ReactElement
+> = {
   home: IconHome,
-  orders: IconDoc,
+  orders: IconCart,
   customers: IconUser,
   items: IconDevice,
-  sections: IconDoc,
-  slides: IconDevice,
-  store: IconUser,
+  sections: IconGames,
+  slides: IconGlobe,
+  store: IconShieldCheck,
   payments: IconCart,
   texts: IconDoc,
-  analytics: IconDevice,
+  analytics: IconBolt,
   bin: IconTrash,
   report: IconDoc,
-  points: IconUser,
+  points: IconSparkle,
   chats: IconChat,
   referrals: IconUser,
   faq: IconChat,
@@ -71,7 +79,11 @@ export default function AdminMenu({
   tab: AdminTab;
   onTab: (t: AdminTab) => void;
   /** المجموعات المسموح بها لهذا الحساب — تأتي جاهزة من `AdminTabs` */
-  groups: { label: string; items: { v: AdminTab; label: string }[] }[];
+  groups: {
+    label: string;
+    note?: string;
+    items: { v: AdminTab; label: string; note?: string }[];
+  }[];
 }) {
   const [open, setOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
@@ -92,24 +104,24 @@ export default function AdminMenu({
   }, [open]);
 
   const row =
-    "flex min-h-12 w-full items-center gap-3 rounded-card px-3 text-start font-medium transition-colors hover:bg-bg";
+    "flex min-h-14 w-full items-center gap-3 rounded-card px-3 text-start font-medium transition-colors hover:bg-bg";
 
   const drawer = (
     <div className="fixed inset-0 z-50 flex">
       <button
         type="button"
-        aria-label="Close menu"
+        aria-label="إغلاق القائمة"
         onClick={() => setOpen(false)}
         className="absolute inset-0 bg-black/50"
       />
       <aside className="relative ms-auto flex h-full w-[min(20rem,85vw)] flex-col gap-1 overflow-y-auto border-s border-line bg-surface p-4">
         <div className="mb-2 flex items-center gap-3">
           <Logo solid className="size-10 shrink-0 rounded-[12px]" />
-          <span className="min-w-0 flex-1 truncate font-bold">Ramaan Admin</span>
+          <span className="min-w-0 flex-1 truncate font-bold">لوحة رمان</span>
           <button
             type="button"
             onClick={() => setOpen(false)}
-            aria-label="Close menu"
+            aria-label="إغلاق القائمة"
             className="flex size-10 items-center justify-center rounded-card text-muted hover:text-text"
           >
             <IconClose className="size-5" />
@@ -125,12 +137,12 @@ export default function AdminMenu({
           className={`${row} ${tab === "home" ? "text-orange" : ""}`}
         >
           <IconHome className="size-5 shrink-0" />
-          Dashboard
+          الرئيسية
         </button>
 
         {groups.map((g) => (
           <div key={g.label}>
-            <p className="px-3 pb-1 pt-3 text-xs font-bold uppercase tracking-wide text-muted">
+            <p className="px-3 pb-1 pt-4 text-xs font-bold text-muted">
               {g.label}
             </p>
             {g.items.map((t) => {
@@ -146,23 +158,28 @@ export default function AdminMenu({
                   className={`${row} ${tab === t.v ? "text-orange" : ""}`}
                 >
                   <Icon className="size-5 shrink-0" />
-                  {t.label}
+                  <span className="min-w-0 flex-1">
+                    <span className="block truncate">{t.label}</span>
+                    {t.note && (
+                      <span className="block truncate text-xs font-normal text-muted">
+                        {t.note}
+                      </span>
+                    )}
+                  </span>
                 </button>
               );
             })}
           </div>
         ))}
 
-        <p className="mt-3 px-3 pb-1 text-xs font-bold uppercase tracking-wide text-muted">
-          Account
-        </p>
+        <p className="mt-4 px-3 pb-1 text-xs font-bold text-muted">حسابي</p>
         <a href="https://eramaan.com" className={row}>
           <IconUser className="size-5 shrink-0" />
-          View store
+          عرض المتجر
         </a>
         <button type="button" onClick={() => signOut()} className={`${row} text-danger`}>
           <IconClose className="size-5 shrink-0" />
-          Sign out
+          تسجيل الخروج
         </button>
 
         {user?.email && (
@@ -179,7 +196,7 @@ export default function AdminMenu({
       <button
         type="button"
         onClick={() => setOpen(true)}
-        aria-label="Open menu"
+        aria-label="فتح القائمة"
         aria-expanded={open}
         className="flex size-12 shrink-0 items-center justify-center rounded-card border border-line text-muted transition-colors hover:text-text"
       >

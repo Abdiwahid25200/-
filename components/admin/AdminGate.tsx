@@ -103,10 +103,10 @@ export default function AdminGate({ children }: { children: React.ReactNode }) {
         code === "auth/invalid-credential" ||
           code === "auth/wrong-password" ||
           code === "auth/user-not-found"
-          ? "Wrong username or password."
+          ? "اسم المستخدم أو كلمة السرّ غير صحيحة."
           : code === "auth/too-many-requests"
-            ? "Too many attempts — wait a moment and try again."
-            : "Sign-in failed. Check your connection.",
+            ? "محاولات كثيرة — انتظري لحظة ثم أعيدي المحاولة."
+            : "تعذّر الدخول. تحقّقي من اتصالك.",
       );
     }
     setBusy(false);
@@ -119,12 +119,12 @@ export default function AdminGate({ children }: { children: React.ReactNode }) {
     </main>
   );
 
-  if (!enabled) return shell(<p className="text-muted">Firebase is not configured.</p>);
+  if (!enabled) return shell(<p className="text-muted">Firebase غير مضبوط.</p>);
 
   if (!ready || (user && access === null))
     return shell(
       <p className="flex items-center gap-2 text-muted">
-        <IconSpinner className="size-4" /> Checking…
+        <IconSpinner className="size-4" /> جارٍ التحقّق…
       </p>,
     );
 
@@ -139,15 +139,15 @@ export default function AdminGate({ children }: { children: React.ReactNode }) {
   const form = (note?: string) =>
     shell(
       <>
-        <h1 className="text-xl font-bold">Ramaan Admin</h1>
-        <p className="text-sm text-muted">{note ?? "Store owner access only."}</p>
+        <h1 className="text-xl font-bold">لوحة رمان</h1>
+        <p className="text-sm text-muted">{note ?? "الدخول لصاحبة المتجر ومساعديها."}</p>
 
         <form onSubmit={submit} className="mt-2 flex w-full flex-col gap-3">
           <input
             value={username}
             onChange={(e) => setUsername(e.target.value)}
-            placeholder="Username"
-            aria-label="Username"
+            placeholder="اسم المستخدم"
+            aria-label="اسم المستخدم"
             autoComplete="username"
             // آيباد يرفع أول حرف تلقائياً ويقترح تصحيحاً — كلاهما يفسد الاسم
             autoCapitalize="none"
@@ -163,8 +163,8 @@ export default function AdminGate({ children }: { children: React.ReactNode }) {
               type={show ? "text" : "password"}
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              placeholder="Password"
-              aria-label="Password"
+              placeholder="كلمة السرّ"
+              aria-label="كلمة السرّ"
               autoComplete="current-password"
               autoCapitalize="none"
               autoCorrect="off"
@@ -175,7 +175,7 @@ export default function AdminGate({ children }: { children: React.ReactNode }) {
             <button
               type="button"
               onClick={() => setShow((v) => !v)}
-              aria-label={show ? "Hide password" : "Show password"}
+              aria-label={show ? "إخفاء كلمة السرّ" : "إظهار كلمة السرّ"}
               aria-pressed={show}
               className={`absolute inset-y-0 right-1.5 my-auto flex size-10 items-center justify-center rounded-card transition-colors ${
                 show ? "bg-orange/10 text-orange" : "text-muted hover:text-text"
@@ -197,7 +197,7 @@ export default function AdminGate({ children }: { children: React.ReactNode }) {
             className="flex min-h-12 items-center justify-center gap-2 rounded-card bg-orange font-bold text-onaccent disabled:opacity-40"
           >
             {busy && <IconSpinner className="size-4" />}
-            Sign in
+            دخول
           </button>
         </form>
       </>,
@@ -218,7 +218,7 @@ export default function AdminGate({ children }: { children: React.ReactNode }) {
    */
   if (!access || access.role === "none")
     return form(
-      `No access for ${user.email ?? "this account"} — ask the owner to add it under Helpers.`,
+      `لا صلاحية لحساب ${user.email ?? "هذا"} — تُضاف من قسم «المساعدون».`,
     );
 
   return <AccessProvider value={access}>{children}</AccessProvider>;
