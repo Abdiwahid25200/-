@@ -173,6 +173,15 @@ export async function setOrderStatus(
           ? -Number(already.data()?.delta)
           : 0;
 
+      /* ⚠️ وهل رُدّت من قبل؟ سطرُ الإعادة باسمٍ محسوب (`<code>-refund`)
+         لا باسمٍ عشوائي — فوجودُه وحده يمنع ردّاً ثانياً مهما ضُغط
+         الزرّ. ولولاه لأعادت كل ضغطةٍ النقاطَ من جديد. */
+      const refundId = o.code ? `${String(o.code)}-refund` : "";
+      const refundDoc = refundId
+        ? await tx.get(doc(db, "users", o.uid, "ledger", refundId))
+        : null;
+      const preRefunded = refundDoc?.exists() === true;
+
       /* جائزة الدعوة — تُدفع مرّة واحدة بعد أوّل طلبٍ **بمالٍ حقيقي**.
          تُقرأ هنا وتُكتب مع بقيّة الحركات في آخر المعاملة. */
       let refRef: ReturnType<typeof doc> | null = null;
@@ -189,7 +198,7 @@ export async function setOrderStatus(
       let delta = 0;
       let nextAwarded = awarded;
       let nextSpent = spent;
-      const rows: { delta: number; reason: string }[] = [];
+      const rows: { delta: number; reason: string; id?: string }[] = [];
 
       if (next === "paid" && awarded === 0 && spent === 0) {
         // ① نقاط الشراء ② والخصم الذي طلبه — كلاهما الآن لا قبل الدفع
@@ -242,14 +251,27 @@ export async function setOrderStatus(
             }
           }
         }
-      } else if (next === "cancelled" && (awarded > 0 || spent > 0)) {
-        // الإلغاء يعكس الحركتين: يُعيد ما خُصم ويسحب ما مُنح
-        const pull = Math.min(awarded, balance + spent);
-        if (spent > 0) rows.push({ delta: spent, reason: "refund" });
-        if (pull > 0) rows.push({ delta: -pull, reason: "cancel" });
-        delta = spent - pull;
-        nextAwarded = 0;
-        nextSpent = 0;
+      } else if (next === "cancelled") {
+        /**
+         * ⚠️ **ما خُصم قد لا يكون مكتوباً على الطلب.**
+         *
+         * الزبون يخصم نقاطه بنفسه ثم يُؤكَّد طلبه؛ فإن تعثّر التأكيد
+         * بقي `pointsSpent: 0` **ونقاطُه مخصومة**. وكان الإلغاء حينها
+         * لا يعيد شيئاً — بل لا يظهر زرّ التسوية أصلاً، فتضيع نقاطه
+         * بلا أن يدري أحد. فالمرجع **السجلّ** لا الطلب.
+         */
+        const back = spent > 0 ? spent : preRefunded ? 0 : preSpent;
+
+        if (awarded > 0 || back > 0) {
+          // الإلغاء يعكس الحركتين: يُعيد ما خُصم ويسحب ما مُنح
+          const pull = Math.min(awarded, balance + back);
+          if (back > 0)
+            rows.push({ delta: back, reason: "refund", id: refundId || undefined });
+          if (pull > 0) rows.push({ delta: -pull, reason: "cancel" });
+          delta = back - pull;
+          nextAwarded = 0;
+          nextSpent = 0;
+        }
       }
 
       /* ⚠️ **من غيّر الحالة يُكتب معها.** بدونه لا يُعرف من سلّم ولا من
@@ -273,13 +295,18 @@ export async function setOrderStatus(
           { merge: true },
         );
         for (const r of rows) {
-          tx.set(doc(collection(db, "users", o.uid, "ledger")), {
-            delta: r.delta,
-            reason: r.reason,
-            code: o.code ?? "",
-            orderId,
-            at: serverTimestamp(),
-          });
+          tx.set(
+            r.id
+              ? doc(db, "users", o.uid, "ledger", r.id)
+              : doc(collection(db, "users", o.uid, "ledger")),
+            {
+              delta: r.delta,
+              reason: r.reason,
+              code: o.code ?? "",
+              orderId,
+              at: serverTimestamp(),
+            },
+          );
         }
       }
 
@@ -447,3 +474,37 @@ export async function releaseOrder(orderId: string): Promise<boolean> {
     return false;
   }
 }
+
+/**
+ * أثرُ نقاط الطلب **في السجلّ** — لا في الطلب.
+ *
+ * ⚠️ الطلب قد يكذب: خُصمت نقاطه ثم تعثّر التأكيد فبقي `pointsSpent: 0`.
+ *    أمّا سطر السجلّ فدليلٌ لا يُمحى (القواعد تمنع تعديله وحذفه)، فهو
+ *    وحده ما يُعرف به: **هل أُخذت نقاطه؟ وهل رُدّت؟**
+ *
+ * وبها يظهر زرّ الإعادة على طلبٍ ألغيتِه ونقاطُ صاحبه ما زالت عنده.
+ */
+export type PointsTrace = { spent: number; refunded: boolean };
+
+export async function traceOf(uid: string, code: string): Promise<PointsTrace> {
+  const db = fbDb();
+  if (!db || !uid || !code) return { spent: 0, refunded: false };
+  try {
+    const [a, b] = await Promise.all([
+      withTimeout(getDoc(doc(db, "users", uid, "ledger", code))),
+      withTimeout(getDoc(doc(db, "users", uid, "ledger", `${code}-refund`))),
+    ]);
+    const d = a.exists() ? Number(a.data()?.delta) || 0 : 0;
+    return { spent: d < 0 ? -d : 0, refunded: b.exists() };
+  } catch {
+    return { spent: 0, refunded: false };
+  }
+}
+
+/** نقاطٌ أُخذت من الزبون ولم تُردّ، والطلب ملغى — تنتظر ضغطة */
+export const owesRefund = (o: AdminOrder, t?: PointsTrace): boolean =>
+  o.status === "cancelled" &&
+  (Number(o.pointsSpent) || 0) === 0 &&
+  !!t &&
+  t.spent > 0 &&
+  !t.refunded;

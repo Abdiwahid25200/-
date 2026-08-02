@@ -16,6 +16,9 @@ import {
   claimStale,
   canChangeStatus,
   orderFree,
+  owesRefund,
+  traceOf,
+  type PointsTrace,
   customerOf,
   releaseOrder,
   setOrderStatus,
@@ -147,8 +150,10 @@ function planOf(
   due: number,
   settings: PointsSettings,
   unsettled: boolean,
+  /** ما خُصم فعلاً من السجلّ حين لا يحمله الطلب */
+  owedBack = 0,
 ): { to: OrderStatus; title: string; note: string; yes: string } | null {
-  const spent = Number(o.pointsSpent) || 0;
+  const spent = (Number(o.pointsSpent) || 0) || owedBack;
   const awarded = Number(o.pointsAwarded) || 0;
   const buying = Number(o.buyPoints) || 0;
 
@@ -183,9 +188,12 @@ function planOf(
     if (unsettled)
       return {
         to,
-        title: "Settle the points for this cancelled order?",
-        note: `${spent} points go back to the customer, and ${awarded} are taken off.`,
-        yes: "Yes, settle points",
+        title: `Return ${spent} points to the customer?`,
+        note:
+          awarded > 0
+            ? `${spent} points go back to their balance, and ${awarded} given for this order are taken off.`
+            : `${spent} points were taken for this order and never returned. This puts them back.`,
+        yes: `Yes, return ${spent} points`,
       };
 
     const parts: string[] = ["The customer sees it rejected."];
@@ -241,6 +249,8 @@ export default function OrdersEditor() {
   const [settings, setSettings] = useState<PointsSettings>(DEFAULT_POINTS);
   const [map, setMap] = useState<PointsMap>({});
   const [people, setPeople] = useState<Record<string, Customer | null>>({});
+  /** أثرُ نقاط كل طلب في السجلّ — يُقرأ عند فتح الطلب وحده */
+  const [traces, setTraces] = useState<Record<string, PointsTrace>>({});
 
   const load = useCallback(async () => {
     setErr(false);
@@ -268,11 +278,19 @@ export default function OrdersEditor() {
   async function expand(o: AdminOrder) {
     const next = open === o.id ? null : o.id;
     setOpen(next);
-    if (next && !(o.uid in people)) {
+    if (!next) return;
+
+    if (!(o.uid in people)) {
       setPeople((p) => ({ ...p, [o.uid]: null }));
-      const c = await customerOf(o.uid);
-      setPeople((p) => ({ ...p, [o.uid]: c }));
+      void customerOf(o.uid).then((c) => setPeople((p) => ({ ...p, [o.uid]: c })));
     }
+
+    /* ⚠️ السجلّ يُقرأ للطلبات التي مسّت نقاطاً وحدها — لا قراءتين لكل
+       طلبٍ نقديّ لا علاقة له بالنقاط. */
+    if (!(o.id in traces) && o.code && (o.paidBy === "points" || Number(o.usePoints) > 0))
+      void traceOf(o.uid, String(o.code)).then((t) =>
+        setTraces((p) => ({ ...p, [o.id]: t })),
+      );
   }
 
   /** قبول الطلب — يحجزه باسمي فيختفي من قوائم بقيّة المساعدين */
@@ -525,10 +543,16 @@ export default function OrdersEditor() {
           const due = orderPoints(o.items ?? [], map, settings.perItem);
           /* أُلغي الطلب ونقاطه لم تُسوَّ بعد — يحدث حين يُلغي الزبون
              بنفسه: هو لا يملك رصيده، فالتسوية بضغطة منكِ هنا. */
+          /* ⚠️ ونقاطٌ خُصمت ولم تُسجَّل على الطلب تُعرف من **السجلّ**:
+             بدونها لا يظهر زرّ الإعادة أصلاً، فتضيع نقاط الزبون بعد
+             إلغاءٍ ولا يدري أحد. */
+          const trace = traces[o.id];
+          const owed = owesRefund(o, trace);
           const unsettled =
-            o.status === "cancelled" &&
-            ((Number(o.pointsAwarded) || 0) > 0 ||
-              (Number(o.pointsSpent) || 0) > 0);
+            (o.status === "cancelled" &&
+              ((Number(o.pointsAwarded) || 0) > 0 ||
+                (Number(o.pointsSpent) || 0) > 0)) ||
+            owed;
 
           /* 🔒 الطلب المنتهي أو المرفوض لا يبدّله إلا صاحبة المتجر.
              (وتسويةُ نقاطٍ عالقة تبقى متاحة — هي تصحيحٌ لا رجوع.) */
@@ -538,7 +562,9 @@ export default function OrdersEditor() {
           const pending = ask?.startsWith(`${o.id}:`)
             ? (ask.split(":")[1] as OrderStatus)
             : null;
-          const plan = pending ? planOf(o, pending, due, settings, unsettled) : null;
+          const plan = pending
+            ? planOf(o, pending, due, settings, unsettled, trace?.spent ?? 0)
+            : null;
           const asking2 = plan !== null;
 
           return (
@@ -748,13 +774,20 @@ export default function OrdersEditor() {
 
                   {/* ⚠️ الخياران **مفصولان سطرَين**: كانا جملةً واحدة تخلط
                       «شحنتِ» بـ«Mark paid» — والشحن غيرُ الدفع. */}
+                  {/* ⚠️ الخياران **مفصولان سطرَين**: كانا جملةً واحدة تخلط
+                      «شحنتِ» بـ«Mark paid» — والشحن غيرُ الدفع. */}
                   {unsettled && (
                     <div className="rounded-card border border-danger/40 bg-danger/5 p-2.5 text-sm">
-                      <p className="font-bold">The customer cancelled this order.</p>
+                      <p className="font-bold">
+                        {owed
+                          ? `${trace?.spent ?? 0} points are still taken from this customer.`
+                          : "The customer cancelled this order."}
+                      </p>
                       <ul className="mt-1.5 flex flex-col gap-1">
                         <li>
-                          Nothing sent yet → press <strong>Settle points</strong> —
-                          it returns what was used and takes back what was given.
+                          Nothing sent → press{" "}
+                          <strong>Return {trace?.spent || Number(o.pointsSpent) || 0} points</strong> —
+                          it puts them back on their balance.
                         </li>
                         <li>
                           Already sent it → press <strong>Mark paid</strong>, then{" "}
@@ -881,7 +914,9 @@ export default function OrdersEditor() {
                         onClick={() => setAsk(`${o.id}:cancelled`)}
                         className={`${btn} text-danger`}
                       >
-                        {unsettled ? "Settle points" : "Cancel"}
+                        {unsettled
+                          ? `Return ${trace?.spent || Number(o.pointsSpent) || 0} points`
+                          : "Cancel"}
                       </button>
                     </div>
                   )}
