@@ -21,6 +21,7 @@ import {
   onSnapshot,
   orderBy,
   query,
+  runTransaction,
   serverTimestamp,
   setDoc,
 } from "firebase/firestore";
@@ -37,6 +38,14 @@ export type ChatRow = {
   lastFrom: "user" | "admin";
   /** ضغط الزبون «أريد التحدّث مع شخص» */
   needsHuman: boolean;
+
+  /* ── من يردّ الآن؟ ──
+     ⚠️ محادثةٌ يدخلها مساعدان معاً كارثة: يردّان بجوابين مختلفين
+     على السؤال نفسه، فيظنّ الزبون المتجر مرتبكاً. فأوّلُ من يفتحها
+     يحجزها، وتُقفل على غيره حتى يخرج أو تمرّ مهلةٌ بلا ردّ. */
+  handledBy: string;
+  handledName: string;
+  handledAt: Date | null;
   at: Date | null;
 };
 
@@ -64,10 +73,87 @@ export async function allChats(n = 100): Promise<ChatRow[]> {
         lastText: String(v.lastText ?? ""),
         lastFrom: v.lastFrom === "admin" ? ("admin" as const) : ("user" as const),
         needsHuman: v.needsHuman === true,
+        handledBy: String(v.handledBy ?? ""),
+        handledName: String(v.handledName ?? ""),
+        handledAt: v.handledAt?.toDate?.() ?? null,
         at: v.updatedAt?.toDate?.() ?? null,
       };
     })
     .sort((a, b) => (b.at?.getTime() ?? 0) - (a.at?.getTime() ?? 0));
+}
+
+/**
+ * ⏳ مهلة الحجز — بعدها تُعتبر المحادثة متروكة ويأخذها غيره.
+ *
+ * ⚠️ حجزٌ بلا مهلة أسوأ من لا حجز: مساعدٌ أغلق جوّاله يُقفل المحادثة
+ *    على الجميع، والزبون ينتظر بلا ردّ ولا يدري أحد لماذا.
+ */
+export const HOLD_MINUTES = 15;
+
+/** هل يستطيع هذا المساعد فتح المحادثة؟ (وصاحبة المتجر تفتح كل شيء) */
+export function chatFree(c: ChatRow, me: string, owner: boolean): boolean {
+  if (owner || !c.handledBy) return true;
+  if (c.handledBy.toLowerCase() === me.toLowerCase()) return true;
+  const t = c.handledAt?.getTime() ?? 0;
+  return !t || Date.now() - t > HOLD_MINUTES * 60_000;
+}
+
+/**
+ * حجز المحادثة باسم من فتحها — **بمعاملة**، فلو ضغط اثنان في اللحظة
+ * نفسها فاز واحدٌ وحده وعُرض على الآخر اسمُ من سبقه.
+ */
+export async function claimChat(
+  uid: string,
+  email: string,
+  name: string,
+): Promise<{ ok: true } | { ok: false; takenBy?: string }> {
+  const db = fbDb();
+  if (!db || !uid || !email) return { ok: false };
+
+  try {
+    return await runTransaction(db, async (tx) => {
+      const ref = doc(db, "chats", uid);
+      const snap = await tx.get(ref);
+      const v = snap.data() ?? {};
+      const cur = String(v.handledBy ?? "");
+      const at = v.handledAt?.toDate?.()?.getTime?.() ?? 0;
+      const stale = !at || Date.now() - at > HOLD_MINUTES * 60_000;
+
+      if (cur && cur.toLowerCase() !== email.toLowerCase() && !stale)
+        return { ok: false as const, takenBy: String(v.handledName || cur) };
+
+      tx.set(
+        ref,
+        {
+          uid,
+          handledBy: email,
+          handledName: name || email,
+          handledAt: serverTimestamp(),
+          updatedAt: serverTimestamp(),
+        },
+        { merge: true },
+      );
+      return { ok: true as const };
+    });
+  } catch {
+    return { ok: false };
+  }
+}
+
+/** ترك المحادثة لغيرك — عند الخروج منها أو بيد صاحبة المتجر */
+export async function releaseChat(uid: string): Promise<boolean> {
+  const db = fbDb();
+  if (!db || !uid) return false;
+  try {
+    await setDoc(
+      doc(db, "chats", uid),
+      { uid, handledBy: "", handledName: "", updatedAt: serverTimestamp() },
+      { merge: true },
+    );
+    return true;
+  } catch {
+    return false;
+  }
 }
 
 /** الاستماع لمحادثة واحدة لحظياً — الزبون يكتب فيظهر فوراً أمامك */

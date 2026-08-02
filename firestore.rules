@@ -374,12 +374,45 @@ service cloud.firestore {
         return (isSignedIn() && request.auth.uid == uid) || canDo('chat');
       }
 
+      /* ── حجز المحادثة ──
+         ⚠️ محادثةٌ يدخلها مساعدان معاً كارثة: يردّان بجوابين مختلفين
+            على السؤال نفسه فيظنّ الزبون المتجر مرتبكاً. فأوّلُ من فتحها
+            يحجزها، ومن سواه لا يكتب فيها.
+
+         ⚠️ **وللحجز مهلة**: مساعدٌ أغلق جوّاله كان سيُقفلها على الجميع
+            إلى الأبد. بعد ربع ساعةٍ بلا حركة تعود المحادثة للجميع. */
+      function chatDoc() {
+        return /databases/$(database)/documents/chats/$(uid);
+      }
+
+      function heldBy() {
+        return exists(chatDoc()) ? get(chatDoc()).data.get('handledBy', '') : '';
+      }
+
+      function heldAt() {
+        return exists(chatDoc())
+          ? get(chatDoc()).data.get('handledAt', request.time)
+          : request.time;
+      }
+
+      /** حرّةٌ لي: لا حاجز · أو أنا · أو مضى على الحجز ربع ساعة */
+      function mine() {
+        return isAdmin()
+          || heldBy() == ''
+          || heldBy() == request.auth.token.email
+          || heldAt() < request.time - duration.value(15, 'm');
+      }
+
       allow read: if ownerOrAdmin();
 
       // وثيقة المحادثة: آخر سطر ووقته، لترتيب المحادثات بلوحة الإدارة
-      allow create, update: if ownerOrAdmin()
-        && request.resource.data.uid == uid
-        && request.resource.data.updatedAt == request.time;
+      /* الزبون يكتب وثيقته · والمساعد لا يحجزها إن كانت محجوزة لغيره */
+      allow create, update: if request.resource.data.uid == uid
+        && request.resource.data.updatedAt == request.time
+        && (
+          (isSignedIn() && request.auth.uid == uid)
+          || (canDo('chat') && mine())
+        );
 
       allow delete: if isAdmin();
 
@@ -396,7 +429,7 @@ service cloud.firestore {
         allow read: if ownerOrAdmin();
 
         allow create: if validMsg() && (
-          (canDo('chat') && request.resource.data.from == 'admin')
+          (canDo('chat') && mine() && request.resource.data.from == 'admin')
           // الزبون يكتب باسمه هو فقط — لا ينتحل صفة المتجر
           || (isSignedIn() && request.auth.uid == uid
               && request.resource.data.from == 'user')

@@ -1,7 +1,17 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { allChats, listenAdminChat, replyChat, type ChatRow } from "@/lib/adminChat";
+import {
+  allChats,
+  chatFree,
+  claimChat,
+  listenAdminChat,
+  releaseChat,
+  replyChat,
+  type ChatRow,
+} from "@/lib/adminChat";
+import { useAuth } from "@/lib/auth";
+import { useAccess } from "@/lib/adminAccess";
 import { MAX_LEN, type ChatMessage } from "@/lib/chat";
 import {
   IconChecks,
@@ -75,7 +85,14 @@ function dayLabel(d: Date) {
 }
 
 export default function ChatsEditor() {
+  const { user } = useAuth();
+  const access = useAccess();
+  const owner = access.role === "owner";
+  const me = (user?.email ?? "").toLowerCase();
+
   const [rows, setRows] = useState<ChatRow[] | null>(null);
+  /** رسالةٌ قصيرة تقول لماذا لم تُفتح المحادثة */
+  const [note, setNote] = useState<string | null>(null);
   const [open, setOpen] = useState<ChatRow | null>(null);
   const [msgs, setMsgs] = useState<ChatMessage[]>([]);
   const [text, setText] = useState("");
@@ -118,6 +135,37 @@ export default function ChatsEditor() {
     endRef.current?.scrollIntoView({ block: "end" });
   }, [msgs]);
 
+  /**
+   * فتح محادثة = **حجزها**. ولو سبقك غيرك عُرض اسمه ولم تُفتح.
+   * وصاحبة المتجر تفتح كل شيء وتفكّ الحجز متى شاءت.
+   */
+  async function openChat(c: ChatRow) {
+    setNote(null);
+    if (!chatFree(c, me, owner)) {
+      setNote(`${c.handledName || c.handledBy} is answering this chat.`);
+      return;
+    }
+    const r = await claimChat(c.uid, me, user?.displayName ?? me);
+    if (!r.ok) {
+      setNote(
+        r.takenBy ? `${r.takenBy} is answering this chat.` : "Could not open it.",
+      );
+      void load();
+      return;
+    }
+    setOpen(c);
+    void load();
+  }
+
+  /** الخروج يترك المحادثة لغيرك — فلا تبقى مقفلةً بلا سبب */
+  async function leave() {
+    const c = open;
+    setOpen(null);
+    if (c && !owner) await releaseChat(c.uid);
+    else if (c && owner && c.handledBy.toLowerCase() === me) await releaseChat(c.uid);
+    void load();
+  }
+
   async function send() {
     if (!open || !text.trim()) return;
     setBusy(true);
@@ -149,7 +197,7 @@ export default function ChatsEditor() {
         >
           <button
             type="button"
-            onClick={() => setOpen(null)}
+            onClick={() => void leave()}
             aria-label="Back"
             className="flex size-9 shrink-0 items-center justify-center rounded-full text-muted"
           >
@@ -162,6 +210,17 @@ export default function ChatsEditor() {
               {open.email || "customer"}
             </span>
           </span>
+
+          {/* صاحبة المتجر ترى من يردّ، وتفكّ الحجز حين يتعثّر أو يغيب */}
+          {owner && open.handledBy && open.handledBy.toLowerCase() !== me && (
+            <button
+              type="button"
+              onClick={() => void releaseChat(open.uid).then(load)}
+              className="shrink-0 rounded-full border border-line px-2.5 py-1 text-xs font-bold text-muted"
+            >
+              {open.handledName || open.handledBy} · Release
+            </button>
+          )}
         </div>
 
         <div className="chat-ground flex flex-1 flex-col gap-1.5 overflow-y-auto p-3">
@@ -259,6 +318,12 @@ export default function ChatsEditor() {
         />
       </div>
 
+      {note && (
+        <p className="mx-3 mb-2 rounded-card border border-line bg-surface p-2.5 text-sm font-medium">
+          {note}
+        </p>
+      )}
+
       {err && (
         <p className="mx-3 mb-2 rounded-card border border-danger/40 bg-danger/5 p-3 text-sm">
           Could not read the conversations. Check your access, then press Refresh.
@@ -282,12 +347,15 @@ export default function ChatsEditor() {
         <ul className="bg-surface">
           {sorted.map((c) => {
             const unread = c.lastFrom === "user";
+            const locked = !chatFree(c, me, owner);
             return (
               <li key={c.uid}>
                 <button
                   type="button"
-                  onClick={() => setOpen(c)}
-                  className="flex w-full items-center gap-3 px-3 py-2.5 text-start"
+                  onClick={() => void openChat(c)}
+                  className={`flex w-full items-center gap-3 px-3 py-2.5 text-start ${
+                    locked ? "opacity-55" : ""
+                  }`}
                 >
                   <Avatar name={who(c)} seed={c.uid} size={48} />
 
@@ -311,7 +379,11 @@ export default function ChatsEditor() {
                         {c.lastText || "—"}
                       </span>
 
-                      {c.needsHuman ? (
+                      {locked ? (
+                        <span className="shrink-0 truncate rounded-full bg-surface2 px-2 py-0.5 text-xs font-bold text-muted">
+                          {c.handledName || c.handledBy} is answering
+                        </span>
+                      ) : c.needsHuman ? (
                         <span className="shrink-0 rounded-full bg-danger px-2 py-0.5 text-xs font-bold text-white">
                           Wants a person
                         </span>
