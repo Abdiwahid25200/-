@@ -14,7 +14,7 @@ import { payWithPoints, saveOrder } from "@/lib/orders";
 import { usePayMethods } from "@/components/usePayMethods";
 import { usePointsRedeem } from "./PointsRedeem";
 import ClosedNotice from "./ClosedNotice";
-import { useStoreOpen } from "@/lib/storeOpen";
+import { canOrderNow, isReservation, useStoreOpen } from "@/lib/storeOpen";
 
 export type Pack = {
   id: string;
@@ -131,9 +131,11 @@ export default function BuyFlow({
   const payReady = !payNeeded || !!payId;
   // المتجر مغلق أو خارج الدوام ⇒ لا تأكيد
   const ready = !!pack && accountReady && payReady;
-  const canConfirm = ready && store.open;
+  /* ⚠️ نمط «الطابور» لا يمنع الطلب — يحوّله إلى حجزٍ يُنفَّذ عند الفتح،
+     فلا تضيع طلبات الليل ويُفتح الصباح على طابورٍ جاهز. */
+  const canConfirm = ready && canOrderNow(store);
   /** أكمل كلّ شيء والمانع هو المتجر وحده ⇒ زرّ معطّل يقول السبب، لا زرٌّ صامت */
-  const blocked = ready && !store.open;
+  const blocked = ready && !canOrderNow(store);
 
   const steps = payNeeded ? 3 : 2;
   const stepsDone =
@@ -222,6 +224,8 @@ export default function BuyFlow({
       discount: redeem.discount,
       payMethod: methodName,
       account: accountSummary,
+      // حجزٌ لا طلبٌ فوريّ — تراه اللوحة بوسمه وتنفّذه أوّل ما تفتح
+      ...(isReservation(store) ? { reserved: true } : {}),
     });
     setSaved(r.ok ? "ok" : r.reason);
   }

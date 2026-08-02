@@ -598,7 +598,15 @@
     "note": "Waxaan samaynaynaa cusboonaysiin degdeg ah — mar dambe soo eeg.",
     "hoursTitle": "Waqtiga shaqadu waa dhammaaday",
     "hoursNote": "Dalabyada waxaan qaadnaa {from} ilaa {to}.",
-    "cannotOrder": "Dalabka hadda lama diri karo"
+    "cannotOrder": "Dalabka hadda lama diri karo",
+    "hours": "saac",
+    "minutes": "daqiiqo",
+    "whatsapp": "Nagala soo xiriir WhatsApp",
+    "signWord": "XIRAN",
+    "openAgain": "Waxaan furaynaa",
+    "opensAt": "Waxaan furaynaa {at}",
+    "reserveHint": "Hadda dalabkaaga qabso, waxaana la fulinayaa marka aan furno — waxba lagaama jarayo ilaa aan kula soo xiriirno.",
+    "reserved": "La qabsaday — waa la fulinayaa marka aan furno"
   },
   "pageDesc": {
     "pubg": "Buuxi PUBG Mobile UC adigoo isticmaalaya ID-gaaga — hubi ID-ga ka hor lacag-bixinta, gaarsiin daqiiqado gudahood, qiimo cad.",

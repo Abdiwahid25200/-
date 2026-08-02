@@ -598,7 +598,15 @@
     "note": "We are running a quick update — check back shortly.",
     "hoursTitle": "Outside working hours",
     "hoursNote": "We take orders from {from} to {to}. Order within that time and it is delivered right away.",
-    "cannotOrder": "Orders cannot be sent right now"
+    "cannotOrder": "Orders cannot be sent right now",
+    "hours": "hours",
+    "minutes": "min",
+    "whatsapp": "Message us on WhatsApp",
+    "signWord": "CLOSED",
+    "openAgain": "We open at",
+    "opensAt": "We open at {at}",
+    "reserveHint": "Reserve your order now and it is done the moment we open — nothing is charged until we message you.",
+    "reserved": "Reserved — done when we open"
   },
   "pageDesc": {
     "pubg": "Top up PUBG Mobile UC with your player ID — verify the ID before paying, delivery in minutes, clear prices and no hidden fees.",

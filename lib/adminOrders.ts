@@ -39,6 +39,8 @@ export type AdminOrder = SavedOrder & {
   buyPoints?: number;
   /** `points` حين دُفع الطلب من الرصيد فتأكّد وحده */
   paidBy?: string;
+  /** حجزٌ وصل والمتجر مغلق (نمط «الطابور») — يُنفَّذ أوّل ما تفتح */
+  reserved?: boolean;
 
   /* ── الحجز ──
      بريد من قَبِل الطلب. ما إن يُحجز حتى يختفي من قوائم بقيّة

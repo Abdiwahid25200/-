@@ -13,7 +13,7 @@ import { payWithPoints, saveOrder } from "@/lib/orders";
 import { usePayMethods } from "@/components/usePayMethods";
 import { usePointsRedeem } from "@/components/PointsRedeem";
 import ClosedNotice from "@/components/ClosedNotice";
-import { useStoreOpen } from "@/lib/storeOpen";
+import { canOrderNow, isReservation, useStoreOpen } from "@/lib/storeOpen";
 import {
   IconArrow,
   IconCartEmpty,
@@ -62,9 +62,9 @@ export default function CartView() {
   // النقاط خيارٌ داخل قائمة الدفع، فالقسم يظهر متى وُجدت طريقة أو رصيد
   const payNeeded = methods.length > 0 || redeem.eligible;
   const payReady = !payNeeded || !!payId;
-  const canOrder = detailsReady && payReady && store.open;
+  const canOrder = detailsReady && payReady && canOrderNow(store);
   /** أكمل كلّ شيء والمانع هو المتجر وحده ⇒ زرّ معطّل يقول السبب، لا زرٌّ صامت */
-  const blocked = !!detailsReady && payReady && !store.open;
+  const blocked = !!detailsReady && payReady && !canOrderNow(store);
 
   /* حقول التوصيل: الشريط العائم ينقل الزبون إلى أوّل حقل ناقص */
   const nameRef = useRef<HTMLInputElement>(null);
@@ -107,6 +107,8 @@ export default function CartView() {
       discount: redeem.discount,
       payMethod: methodName,
       account: `${name.trim()} · ${contact.trim()} · ${addr.trim()}`,
+      // حجزٌ لا طلبٌ فوريّ — تراه اللوحة بوسمه وتنفّذه أوّل ما تفتح
+      ...(isReservation(store) ? { reserved: true } : {}),
     });
     setSaved(r.ok ? "ok" : r.reason);
   }

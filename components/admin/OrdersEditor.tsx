@@ -312,6 +312,12 @@ export default function OrdersEditor() {
                   >
                     {STATUS_WORD[o.status] ?? o.status}
                   </span>
+                  {/* حجزٌ وصل خارج الدوام — يُنفَّذ أوّل ما تفتحين */}
+                  {o.reserved && (
+                    <span className="rounded-full bg-orange/15 px-2 py-0.5 text-[0.7rem] font-bold text-orange">
+                      Reserved
+                    </span>
+                  )}
                   {o.claimedBy && (
                     <span className="max-w-24 truncate text-[0.65rem] text-muted">
                       {String(o.claimedBy).toLowerCase() === me

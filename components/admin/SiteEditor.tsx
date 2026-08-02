@@ -6,6 +6,115 @@ import { fbDb } from "@/lib/firebase";
 import { saveOverride, type SiteOverride } from "@/lib/overrides";
 import { DEFAULT_OPEN, readOpenSettings, type OpenSettings } from "@/lib/storeOpen";
 import { site } from "@/lib/content";
+import ImagePicker from "./ImagePicker";
+import type { ClosedStyle } from "@/lib/storeOpen";
+import type { Multilang } from "@/lib/content";
+
+/**
+ * الأشكال الثلاثة — ورسمٌ مصغّر لكل واحد، فتُختار بالعين لا بالاسم.
+ * ⚠️ الرسوم أشكالٌ ملوّنة لا إيموجي ولا محارف (القرار المقفول).
+ */
+const STYLES: { v: ClosedStyle; label: string; note: string; art: React.ReactElement }[] = [
+  {
+    v: "curtain",
+    label: "Curtain",
+    note: "Brand colour + countdown",
+    art: (
+      <span className="flex h-12 flex-col items-center justify-center gap-1 rounded-[8px] bg-navy">
+        <span className="size-3 rounded-full bg-white/70" />
+        <span className="h-1 w-8 rounded-full bg-white/40" />
+        <span className="flex gap-0.5">
+          <span className="h-2.5 w-3 rounded-[2px] bg-white/25" />
+          <span className="h-2.5 w-3 rounded-[2px] bg-white/25" />
+        </span>
+      </span>
+    ),
+  },
+  {
+    v: "sign",
+    label: "Sign",
+    note: "Paper sign on the door",
+    art: (
+      <span className="flex h-12 items-center justify-center rounded-[8px] bg-surface2">
+        <span className="-rotate-3 rounded-[3px] border-2 border-text bg-bg px-2 py-1 text-[0.55rem] font-bold">
+          CLOSED
+        </span>
+      </span>
+    ),
+  },
+  {
+    v: "queue",
+    label: "Queue",
+    note: "Keeps taking orders",
+    art: (
+      <span className="flex h-12 flex-col gap-1 overflow-hidden rounded-[8px] bg-surface2 p-1">
+        <span className="h-3 rounded-[3px] bg-orange" />
+        <span className="h-2 rounded-[2px] bg-line" />
+        <span className="h-2 rounded-[2px] bg-line" />
+        <span className="h-2 w-8 rounded-[2px] bg-orange/50" />
+      </span>
+    ),
+  },
+];
+
+/** كتلة نصوصٍ بثلاث لغات — عنوانٌ وسطر، والفارغ يعني «اتركي الأصل» */
+function Words({
+  title,
+  note,
+  lang,
+  setLang,
+  head,
+  body,
+  onHead,
+  onBody,
+  field,
+}: {
+  title: string;
+  note: string;
+  lang: "ar" | "en" | "so";
+  setLang: (l: "ar" | "en" | "so") => void;
+  head: Partial<Multilang>;
+  body: Partial<Multilang>;
+  onHead: (v: Partial<Multilang>) => void;
+  onBody: (v: Partial<Multilang>) => void;
+  field: string;
+}) {
+  return (
+    <div className="flex flex-col gap-1.5 rounded-card border border-line bg-surface p-3">
+      <span className="text-sm font-bold">{title}</span>
+      <span className="text-sm text-muted">{note} Leave empty to keep ours.</span>
+
+      <div className="flex flex-wrap gap-2 pt-1">
+        {LOCALES.map((l) => (
+          <button
+            key={l.v}
+            type="button"
+            onClick={() => setLang(l.v)}
+            className={`min-h-11 rounded-card border px-4 text-sm font-medium ${
+              lang === l.v ? "border-orange text-orange" : "border-line text-muted"
+            }`}
+          >
+            {l.label}
+          </button>
+        ))}
+      </div>
+
+      <input
+        value={head[lang] ?? ""}
+        onChange={(e) => onHead({ ...head, [lang]: e.target.value })}
+        placeholder="Headline"
+        className={field}
+      />
+      <textarea
+        value={body[lang] ?? ""}
+        onChange={(e) => onBody({ ...body, [lang]: e.target.value })}
+        placeholder="One line under it"
+        rows={2}
+        className={`${field} py-2`}
+      />
+    </div>
+  );
+}
 
 const LOCALES = [
   { v: "ar", label: "العربية" },
@@ -46,6 +155,12 @@ export default function SiteEditor() {
       openTo: open.openTo,
       offDays: open.offDays,
       tzOffset: Number(open.tzOffset) || 0,
+      style: open.style,
+      closedTitle: open.closedTitle,
+      closedNote: open.closedNote,
+      hoursTitle: open.hoursTitle,
+      hoursNote: open.hoursNote,
+      closedImage: open.closedImage,
     });
     setBusy(false);
     setSaved(ok);
@@ -160,6 +275,76 @@ export default function SiteEditor() {
           className={`${field} num text-start`}
         />
       </label>
+
+      {/* ── شكل صفحة الإغلاق ── */}
+      <div className="flex flex-col gap-2">
+        <span className="text-sm font-bold">What customers see when closed</span>
+        <span className="text-sm text-muted">
+          Three looks — pick one. You write every word yourself below.
+        </span>
+
+        <div className="grid grid-cols-3 gap-2">
+          {STYLES.map((st) => (
+            <button
+              key={st.v}
+              type="button"
+              onClick={() => setOpen({ ...open, style: st.v })}
+              className={`rounded-card border-2 p-2 text-start ${
+                open.style === st.v ? "border-orange bg-orange/5" : "border-line"
+              }`}
+            >
+              {st.art}
+              <span className="mt-1.5 block text-xs font-bold">{st.label}</span>
+              <span className="block text-[0.7rem] leading-tight text-muted">
+                {st.note}
+              </span>
+            </button>
+          ))}
+        </div>
+
+        {open.style === "queue" && (
+          <p className="rounded-card border border-dashed border-orange/50 bg-orange/5 p-3 text-sm">
+            <strong>Queue keeps selling.</strong> Customers still place orders
+            while you are closed — they arrive marked <strong>Reserved</strong>
+            {" "}and you do them when you open.
+          </p>
+        )}
+
+        <span className="mt-1 text-sm font-bold">Picture on that page</span>
+        <span className="text-sm text-muted">
+          Your logo is used if you leave this empty.
+        </span>
+        <ImagePicker
+          value={open.closedImage}
+          folder="closed"
+          onChange={(url) => setOpen({ ...open, closedImage: url ?? "" })}
+        />
+      </div>
+
+      {/* نصوص الإغلاق — بثلاث لغات، والفارغ يعني «اتركي الأصل» */}
+      <Words
+        title="Words — closed by you"
+        note="Shown when you switch the store off yourself."
+        lang={lang}
+        setLang={setLang}
+        head={open.closedTitle}
+        body={open.closedNote}
+        onHead={(v) => setOpen({ ...open, closedTitle: v })}
+        onBody={(v) => setOpen({ ...open, closedNote: v })}
+        field={field}
+      />
+
+      <Words
+        title="Words — outside working hours"
+        note="Shown when the day is over."
+        lang={lang}
+        setLang={setLang}
+        head={open.hoursTitle}
+        body={open.hoursNote}
+        onHead={(v) => setOpen({ ...open, hoursTitle: v })}
+        onBody={(v) => setOpen({ ...open, hoursNote: v })}
+        field={field}
+      />
 
       <label className="flex flex-col gap-1.5 text-sm">
         <span className="font-bold">Store name</span>
