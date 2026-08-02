@@ -42,13 +42,61 @@ const FILTERS = [
 
 const STATUS_STYLE: Record<OrderStatus, string> = {
   pending: "bg-yellow/15 text-yellow",
-  paid: "bg-orange/15 text-orange",
-  done: "bg-orange/15 text-orange",
+  paid: "bg-success/12 text-success",
+  done: "bg-surface2 text-muted",
   cancelled: "bg-danger/10 text-danger",
+};
+
+/** كلماتٌ لا مصطلحات: «New» أوضح من `pending` لمن يفتح اللوحة أوّل مرّة */
+const STATUS_WORD: Record<OrderStatus, string> = {
+  pending: "New",
+  paid: "Paid",
+  done: "Delivered",
+  cancelled: "Cancelled",
 };
 
 const fmtDate = (d: Date | null) =>
   d ? d.toLocaleString("en-GB", { dateStyle: "short", timeStyle: "short" }) : "—";
+
+const clockOf = (d: Date | null) =>
+  d ? d.toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" }) : "—";
+
+/**
+ * ما طُلب — سطرٌ واحد يُقرأ بلمحة.
+ * صنفٌ واحد ⇒ اسمه · أكثر ⇒ الأوّل و«+2».
+ */
+function itemLine(o: AdminOrder): string {
+  const items = o.items ?? [];
+  if (items.length === 0) return o.kind || "Order";
+  const first = items[0];
+  const qty = Math.max(1, first.qty ?? 1);
+  const head = `${first.title}${qty > 1 ? ` ×${qty}` : ""}`;
+  return items.length > 1 ? `${head} +${items.length - 1}` : head;
+}
+
+/**
+ * المبلغ — و**الصفر ليس عطلاً**.
+ * طلبٌ دُفع كلّه بالنقاط مبلغُه صفر، فيُقال «Points» بدل `$0.00`
+ * التي تجعل الشاشة تبدو مكسورة.
+ */
+function amountOf(o: AdminOrder): string {
+  const total = Number(o.total) || 0;
+  if (total > 0) return `$${total.toFixed(2)}`;
+  if (o.paidBy === "points" || Number(o.usePoints) > 0)
+    return `${Number(o.usePoints) || Number(o.pointsSpent) || 0} pts`;
+  return "$0.00";
+}
+
+/** فاصل اليوم — «Today» و«Yesterday» ثم التاريخ */
+function dayOf(d: Date | null): string {
+  if (!d) return "Earlier";
+  const now = new Date();
+  if (d.toDateString() === now.toDateString()) return "Today";
+  const y = new Date(now);
+  y.setDate(y.getDate() - 1);
+  if (d.toDateString() === y.toDateString()) return "Yesterday";
+  return d.toLocaleDateString("en-GB", { day: "numeric", month: "long" });
+}
 
 export default function OrdersEditor() {
   const { user } = useAuth();
@@ -166,13 +214,15 @@ export default function OrdersEditor() {
 
   return (
     <div className="flex flex-col gap-3">
-      <div className="flex flex-wrap items-center gap-2">
+      {/* ⚠️ صفٌّ واحد يُمرَّر أفقياً: خمسة مرشّحات ملفوفة على سطرين
+          تسرق ثلث الشاشة وتُنزل الطلبات تحت الطيّ. */}
+      <div className="-mx-4 flex items-center gap-2 overflow-x-auto px-4 pb-1">
         {FILTERS.map((f) => (
           <button
             key={f.v}
             type="button"
             onClick={() => setFilter(f.v)}
-            className={`${chip} ${
+            className={`${chip} shrink-0 ${
               filter === f.v
                 ? "border-orange bg-orange/10 text-orange"
                 : "border-line text-muted"
@@ -189,7 +239,7 @@ export default function OrdersEditor() {
         <button
           type="button"
           onClick={() => void load()}
-          className={`${chip} ms-auto border-line text-muted`}
+          className={`${chip} shrink-0 border-line text-muted`}
         >
           Refresh
         </button>
@@ -214,8 +264,11 @@ export default function OrdersEditor() {
           No orders here yet.
         </p>
       ) : (
-        shown.map((o) => {
+        shown.map((o, idx) => {
           const who = people[o.uid];
+          /* فاصل اليوم — الطلبات مرتّبة بالأحدث، فيُرسم عند تغيّر اليوم */
+          const day = dayOf(o.createdAt);
+          const newDay = idx === 0 || dayOf(shown[idx - 1].createdAt) !== day;
           const due = orderPoints(o.items ?? [], map, settings.perItem);
           /* أُلغي الطلب ونقاطه لم تُسوَّ بعد — يحدث حين يُلغي الزبون
              بنفسه: هو لا يملك رصيده، فالتسوية بضغطة منكِ هنا. */
@@ -225,8 +278,11 @@ export default function OrdersEditor() {
               (Number(o.pointsSpent) || 0) > 0);
 
           return (
+            <div key={o.id} className="contents">
+              {newDay && (
+                <p className="px-1 pt-2 text-xs font-bold text-muted">{day}</p>
+              )}
             <article
-              key={o.id}
               className="rounded-card border border-line bg-surface"
             >
               <button
@@ -234,22 +290,27 @@ export default function OrdersEditor() {
                 onClick={() => void expand(o)}
                 className="flex w-full items-center gap-3 p-3 text-start"
               >
+                {/* ⚠️ **ما طُلب أوّلاً لا رمز الطلب.** «M-537817» لا يقول
+                    شيئاً، و«660 UC ×1» يقول كل شيء. الرمز سطرٌ صغير تحته. */}
                 <span className="min-w-0 flex-1">
-                  <span className="num block truncate font-bold">{o.code}</span>
+                  <span className="block truncate font-bold">{itemLine(o)}</span>
                   <span className="block truncate text-xs text-muted">
-                    {o.name || o.email || "—"} · {fmtDate(o.createdAt)}
+                    {o.name || o.email || "—"} · {clockOf(o.createdAt)}
+                  </span>
+                  <span className="num block truncate text-[0.7rem] text-muted">
+                    {o.code}
                   </span>
                 </span>
-                <span className="num shrink-0 font-bold">
-                  ${Number(o.total ?? 0).toFixed(2)}
-                </span>
+
                 <span className="flex shrink-0 flex-col items-end gap-1">
+                  {/* مبلغٌ صفريّ ليس عطلاً: طلبٌ دُفع بالنقاط. فيُقال */}
+                  <span className="num font-bold">{amountOf(o)}</span>
                   <span
-                    className={`rounded-full px-2 py-1 text-[0.7rem] font-bold uppercase ${
+                    className={`rounded-full px-2 py-0.5 text-[0.7rem] font-bold ${
                       STATUS_STYLE[o.status] ?? ""
                     }`}
                   >
-                    {o.status}
+                    {STATUS_WORD[o.status] ?? o.status}
                   </span>
                   {o.claimedBy && (
                     <span className="max-w-24 truncate text-[0.65rem] text-muted">
@@ -454,6 +515,7 @@ export default function OrdersEditor() {
                 </div>
               )}
             </article>
+            </div>
           );
         })
       )}

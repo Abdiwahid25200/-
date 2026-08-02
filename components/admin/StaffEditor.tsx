@@ -35,6 +35,9 @@ export default function StaffEditor() {
   const [dial, setDial] = useState("252");
   const [num, setNum] = useState("");
   const [busy, setBusy] = useState<string | null>(null);
+  /** الرقم قيد التعديل — `null` يعني لا شيء مفتوح */
+  const [editing, setEditing] = useState<string | null>(null);
+  const [editPhone, setEditPhone] = useState("");
   const [note, setNote] = useState<string | null>(null);
 
   const load = useCallback(async () => setRows(await allStaff()), []);
@@ -95,6 +98,25 @@ export default function StaffEditor() {
     setUserName("");
     setPass("");
     setNum("");
+    void load();
+  }
+
+  /**
+   * تغيير رقم مساعدٍ قائم — بلا حذفه وإنشائه من جديد.
+   * ⚠️ الرقم يُحفظ أرقاماً فقط، فلا تكسره مسافةٌ ولا `+` ولا شرطة.
+   */
+  async function savePhone(r: StaffDoc & { id: string }) {
+    const phone = digitsOnly(editPhone);
+    if (!validStaffPhone(phone)) {
+      setNote("Add the country code — at least 9 digits.");
+      return;
+    }
+    setBusy(r.id);
+    const ok = await saveStaff(r.id, { email: r.id, phone });
+    setBusy(null);
+    if (!ok) return setNote("Could not save the number — check your access.");
+    setEditing(null);
+    setNote("Number saved.");
     void load();
   }
 
@@ -243,17 +265,59 @@ export default function StaffEditor() {
                     <span className="ms-2 text-xs font-medium text-muted">(you)</span>
                   )}
                 </span>
-                {r.phone ? (
-                  <a
-                    href={`https://wa.me/${r.phone}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="num inline-flex items-center gap-1 text-xs text-success"
-                  >
-                    <IconWhatsApp className="size-3.5" />+{r.phone}
-                  </a>
+                {editing === r.id ? (
+                  <span className="mt-1 flex items-center gap-2">
+                    <input
+                      value={editPhone}
+                      onChange={(e) => setEditPhone(digitsOnly(e.target.value))}
+                      placeholder="252615456500"
+                      aria-label="WhatsApp number"
+                      inputMode="tel"
+                      dir="ltr"
+                      autoFocus
+                      className="num min-h-10 min-w-0 flex-1 rounded-card border border-orange bg-bg px-2 text-start outline-none"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => void savePhone(r)}
+                      disabled={busy === r.id || !validStaffPhone(editPhone)}
+                      className="min-h-10 shrink-0 rounded-card bg-orange px-3 text-sm font-bold text-onaccent disabled:opacity-50"
+                    >
+                      Save
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setEditing(null)}
+                      className="min-h-10 shrink-0 px-1 text-sm text-muted"
+                    >
+                      Cancel
+                    </button>
+                  </span>
                 ) : (
-                  <span className="text-xs text-danger">No number on file</span>
+                  <span className="flex items-center gap-2">
+                    {r.phone ? (
+                      <a
+                        href={`https://wa.me/${r.phone}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="num inline-flex items-center gap-1 text-xs text-success"
+                      >
+                        <IconWhatsApp className="size-3.5" />+{r.phone}
+                      </a>
+                    ) : (
+                      <span className="text-xs text-danger">No number on file</span>
+                    )}
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setEditing(r.id);
+                        setEditPhone(r.phone ?? "");
+                      }}
+                      className="text-xs font-bold text-orange"
+                    >
+                      {r.phone ? "Change" : "Add number"}
+                    </button>
+                  </span>
                 )}
               </span>
               {/* ⚠️ الشارة تُخبر، والزرّ يفعل — كانا شيئاً واحداً، فلمسةٌ
