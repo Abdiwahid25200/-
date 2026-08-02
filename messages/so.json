@@ -370,7 +370,20 @@
     "receiveAsk": "Dhibco ku weydiiso WhatsApp",
     "receiveMsg": "Ii soo dir dhibcaha {brand} lambarkayga {phone} — bogga dhibcahaaga {url} ka rid 'Dir'.",
     "receiveCopy": "Koobi lambarka",
-    "receiveCopied": "Waa la koobiyeeyay ✓"
+    "receiveCopied": "Waa la koobiyeeyay ✓",
+    "why": {
+      "order": "Dhibcaha dalabkaaga",
+      "redeem": "Lagu isticmaalay dalab",
+      "cancel": "Dalabkii waa la joojiyay",
+      "refund": "Waa laguu celiyay",
+      "invite": "Saaxiib aad casuuntay",
+      "referral": "Abaalmarinta casuumaadda",
+      "send": "Waxaad u dirtay saaxiib",
+      "received": "Waxaa kaaga yimid saaxiib",
+      "sell": "Waxaad ku iibisay lacag",
+      "manual": "Dukaanka"
+    },
+    "history": "Dhaqdhaqaaqii u dambeeyay"
   },
   "accountPage": {
     "title": "Akoonkayga",

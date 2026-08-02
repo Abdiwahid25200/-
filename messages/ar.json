@@ -370,7 +370,20 @@
     "receiveAsk": "اطلبي نقاطاً على واتساب",
     "receiveMsg": "أرسل لي نقاط {brand} على رقمي {phone} — من صفحة نقاطك في {url} اضغط «إرسال».",
     "receiveCopy": "نسخ الرقم",
-    "receiveCopied": "تم النسخ ✓"
+    "receiveCopied": "تم النسخ ✓",
+    "why": {
+      "order": "نقاط طلبك",
+      "redeem": "خصمٌ على طلب",
+      "cancel": "أُلغي الطلب",
+      "refund": "أُعيدت إليك",
+      "invite": "صديقٌ دعوتَه",
+      "referral": "مكافأة الدعوة",
+      "send": "أرسلتَها لصديق",
+      "received": "وصلتك من صديق",
+      "sell": "بِعتَها نقداً",
+      "manual": "من المتجر"
+    },
+    "history": "آخر الحركات"
   },
   "accountPage": {
     "title": "حسابي",

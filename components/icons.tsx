@@ -897,6 +897,15 @@ export function IconPlus({ className = "" }: IconProps) {
   );
 }
 
+/** الطرح — لسطر الخصم في سجلّ النقاط */
+export function IconMinus({ className = "" }: IconProps) {
+  return (
+    <svg viewBox="0 0 24 24" strokeWidth="2.4" className={`${base} ${className}`} aria-hidden>
+      <path strokeLinecap="round" d="M6 12h12" />
+    </svg>
+  );
+}
+
 /** الإرسال — سهمٌ خارج */
 export function IconSendOut({ className = "" }: IconProps) {
   return (

@@ -370,7 +370,20 @@
     "receiveAsk": "Ask for points on WhatsApp",
     "receiveMsg": "Send me {brand} points on my number {phone} — open your points page at {url} and tap Send.",
     "receiveCopy": "Copy number",
-    "receiveCopied": "Copied ✓"
+    "receiveCopied": "Copied ✓",
+    "why": {
+      "order": "Points for your order",
+      "redeem": "Used on an order",
+      "cancel": "Order cancelled",
+      "refund": "Returned to you",
+      "invite": "A friend you invited",
+      "referral": "Invite bonus",
+      "send": "Sent to a friend",
+      "received": "Received from a friend",
+      "sell": "Sold for cash",
+      "manual": "From the store"
+    },
+    "history": "Recent activity"
   },
   "accountPage": {
     "title": "My account",

@@ -3,12 +3,13 @@
 import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
 import { useAuth } from "@/lib/auth";
-import PointsBrand from "./PointsBrand";
 import {
   IconMoney,
   IconPlus,
   IconReceive,
   IconSendOut,
+  IconMinus,
+  IconBarwaaqo,
   IconWhatsApp,
 } from "./icons";
 import { getProfile } from "@/lib/profile";
@@ -35,6 +36,13 @@ import {
  * 🔒 قراءة فقط: الرصيد يُكتب من لوحة الإدارة وحدها، والقواعد تمنع
  *    الزبون من لمسه. وأي تعذّرٍ في القراءة يُخفي البطاقة ولا يكسر الصفحة.
  */
+/**
+ * سببُ الحركة بكلمةٍ يفهمها — والمجهول يقع على «من المتجر»
+ * فلا يظهر رمزٌ تقنيّ لزبون.
+ */
+const KNOWN = ["order", "redeem", "cancel", "refund", "invite", "referral", "send", "received", "sell"];
+const reasonKey = (r: string) => (KNOWN.includes(r) ? r : "manual");
+
 export default function PointsCard() {
   const t = useTranslations("points");
   const { user, ready } = useAuth();
@@ -166,43 +174,81 @@ export default function PointsCard() {
   const short = Math.max(0, settings.minRedeem - points);
 
   return (
-    <section id="points" className="scroll-mt-20 rounded-card border border-line bg-surface p-4">
-      {/* هويّة البرنامج: الشعار واسمه — لا كلمة «نقاط» مجرّدة */}
-      <div className="flex items-center justify-between gap-2">
-        <PointsBrand settings={settings} size={30} />
-        <span className="text-xs font-bold uppercase tracking-wide text-muted rtl:tracking-normal">
-          {t("eyebrow")}
-        </span>
+    <section id="points" className="scroll-mt-20 flex flex-col gap-3">
+      {/**
+       * 💳 **البطاقة — «الحقيبة»** (اختيار صاحبة المتجر من ثلاثة).
+       *
+       * رصيدُه بطاقةٌ في جيبه لا سطراً في صفحة. يعرفها كل من فتح تطبيق
+       * بنك، فلا يتعلّم شيئاً جديداً.
+       *
+       * ⚠️ والتدرّج **مكتوبٌ هنا لا في `globals.css`**: لونان لا وجود
+       *    لهما في اللوحة (عمقٌ أفتح للأعلى وذهبٌ شفّاف)، وإضافتهما
+       *    متغيّرَين عامّين لموضعٍ واحد تُوسّع اللوحة بلا داعٍ.
+       */}
+      <div
+        className="relative flex flex-col gap-3.5 overflow-hidden rounded-card p-4 text-white"
+        style={{
+          background:
+            "radial-gradient(120% 90% at 88% 6%, rgba(224,174,86,.34) 0%, transparent 58%), linear-gradient(158deg, #0a3b45 0%, #062730 100%)",
+        }}
+      >
+        {/* قوسٌ باهت يكسر الفراغ — كوجه بطاقةٍ حقيقية */}
+        <span
+          aria-hidden
+          className="pointer-events-none absolute -bottom-24 -end-12 size-48 rounded-full border border-white/10"
+        />
+
+        <div className="relative flex items-center gap-2.5">
+          {/* الشريحة الذهبية — علامةُ بطاقةٍ يعرفها الناس */}
+          <span
+            aria-hidden
+            className="h-6 w-8 shrink-0 rounded-[5px] bg-gradient-to-br from-yellow to-yellow/60"
+          />
+          <span className="min-w-0 flex-1 truncate text-sm font-bold">
+            {settings.brand}
+          </span>
+          <span className="shrink-0 text-xs uppercase tracking-wide opacity-60 rtl:tracking-normal">
+            {t("eyebrow")}
+          </span>
+        </div>
+
+        <div className="relative">
+          <p className="num text-4xl font-bold leading-none">{points}</p>
+          <p className="mt-1 text-xs opacity-70">{t("unit")}</p>
+        </div>
+
+        {/* ⚠️ «٣ نقاط = ٠٫٠٣ دولار» رقمٌ يُصغّر الهديّة في عين الزبون،
+            فلا تظهر القيمة حتى تبلغ حدّاً له معنى (تحدّدينه من اللوحة) */}
+        <p className="relative">
+          <span className="num inline-flex rounded-full bg-white/15 px-2.5 py-1 text-xs font-bold">
+            {usd >= settings.showFrom
+              ? t("worth", { usd: `$${usd.toFixed(2)}` })
+              : t("hiddenValue", { usd: `$${settings.showFrom.toFixed(2)}` })}
+          </span>
+        </p>
       </div>
 
-      <p className="mt-1 flex items-baseline gap-2">
-        <span className="num text-3xl font-bold leading-none">{points}</span>
-        <span className="font-medium text-muted">{t("unit")}</span>
-      </p>
-
-      {/* ⚠️ «٣ نقاط = ٠٫٠٣ دولار» رقمٌ يُصغّر الهديّة في عين الزبون،
-          فلا تظهر القيمة حتى تبلغ حدّاً له معنى (تحدّدينه من اللوحة) */}
-      <p className="mt-1.5 text-sm text-muted">
-        {usd >= settings.showFrom
-          ? t("worth", { usd: `$${usd.toFixed(2)}` })
-          : t("hiddenValue", { usd: `$${settings.showFrom.toFixed(2)}` })}
-      </p>
-
-      <p className="mt-3 border-t border-dashed border-line pt-3 text-sm text-muted">
+      <p className="text-sm text-muted">
         {short > 0
           ? t("toRedeem", { n: short, min: settings.minRedeem })
           : t("canRedeem")}
       </p>
 
       {/* أربعة أبواب كالمحفظة: شراء · إرسال · استلام · بيع */}
-      <div className="mt-3 grid grid-cols-4 gap-2 border-t border-dashed border-line pt-3">
+      <div className="grid grid-cols-4 gap-2">
         {(["buy", "send", "receive", "sell"] as const).map((k) => (
           <button
             key={k}
             type="button"
             onClick={() => setTab(tab === k ? null : k)}
+            /* ⚠️ «شراء» مصمتٌ والباقي هادئ: من فتح المحفظة أكثرُ ما
+               يريده أن يزيدها، والأربعةُ بوزنٍ واحد لا تدلّه على شيء. */
             className={`flex min-h-16 flex-col items-center justify-center gap-1 rounded-card border text-xs font-bold transition-colors ${
-              tab === k ? "border-orange bg-orange/5 text-orange" : "border-line"
+              tab === k
+                ? "border-orange bg-orange/10 text-orange"
+                : k === "buy"
+                  ? "border-orange bg-orange text-onaccent"
+                  : "border-line bg-surface"
             }`}
           >
             {/* أيقونة مرسومة لكل باب — لا محرف: المحرف يتغيّر بين
@@ -374,28 +420,70 @@ export default function PointsCard() {
 
       {msg && <p className="mt-2 text-sm font-medium">{msg}</p>}
 
+      {/**
+       * آخر الحركات — **كصفحة حساب لا كقائمة أرقام**.
+       *
+       * ⚠️ لكل سطرٍ **سببُه** لا رمزُه وحده: «دعوة صديق» و«خصم على طلب»
+       *    يُقرآن، أمّا `M-537817` فرمزٌ لا يقول شيئاً. والدائرة تقول
+       *    الاتّجاه قبل أن تُقرأ الأرقام: خضراءُ دخل، حمراءُ خرج.
+       */}
       {rows.length > 0 && (
-        <ul className="mt-3 flex flex-col gap-1.5 text-sm">
-          {rows.map((r) => (
-            <li key={r.id} className="flex items-center gap-2">
-              <span
-                className={`num shrink-0 font-bold ${
-                  r.delta < 0 ? "text-danger" : "text-orange"
-                }`}
-              >
-                {r.delta > 0 ? `+${r.delta}` : r.delta}
-              </span>
-              <span className="min-w-0 flex-1 truncate text-muted">
-                {r.code ? t("forOrder", { code: r.code }) : t("manual")}
-              </span>
-              {r.at && (
-                <span className="num shrink-0 text-xs text-muted">
-                  {r.at.toLocaleDateString("en-GB")}
-                </span>
-              )}
-            </li>
-          ))}
-        </ul>
+        <section className="flex flex-col gap-1">
+          <h3 className="mt-1 text-sm font-bold">{t("history")}</h3>
+          <ul className="flex flex-col">
+            {rows.map((r, i) => {
+              const up = r.delta > 0;
+              const invite = r.reason === "invite" || r.reason === "referral";
+              return (
+                <li
+                  key={r.id}
+                  className={`flex items-center gap-2.5 py-2.5 ${
+                    i > 0 ? "border-t border-line" : ""
+                  }`}
+                >
+                  <span
+                    aria-hidden
+                    className={`grid size-8 shrink-0 place-items-center rounded-full ${
+                      invite
+                        ? "bg-yellow/15 text-yellow"
+                        : up
+                          ? "bg-success/12 text-success"
+                          : "bg-danger/10 text-danger"
+                    }`}
+                  >
+                    {invite ? (
+                      <IconBarwaaqo className="size-4" />
+                    ) : up ? (
+                      <IconPlus className="size-4" />
+                    ) : (
+                      <IconMinus className="size-4" />
+                    )}
+                  </span>
+
+                  <span className="min-w-0 flex-1 leading-tight">
+                    <span className="block truncate text-sm font-bold">
+                      {t(`why.${reasonKey(r.reason)}`)}
+                    </span>
+                    <span className="num block truncate text-xs text-muted">
+                      {[r.code, r.at?.toLocaleDateString("en-GB")]
+                        .filter(Boolean)
+                        .join(" · ")}
+                    </span>
+                  </span>
+
+                  <span
+                    className={`num shrink-0 font-bold ${
+                      up ? "text-success" : "text-danger"
+                    }`}
+                    dir="ltr"
+                  >
+                    {up ? `+${r.delta}` : r.delta}
+                  </span>
+                </li>
+              );
+            })}
+          </ul>
+        </section>
       )}
     </section>
   );
