@@ -3,20 +3,23 @@
 import { useEffect, useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import { useAuth } from "@/lib/auth";
-import { myOrders, type SavedOrder } from "@/lib/orders";
 import { fmt } from "@/lib/format";
 import { IconUser } from "@/components/icons";
 import { Link } from "@/i18n/navigation";
 import { getProfile, isComplete, type Profile } from "@/lib/profile";
-import OrderCard from "@/components/OrderCard";
 
-/** بطاقة الحساب — دخول بجوجل، ثم عرض طلبات هذا الزبون وحده */
+/**
+ * بطاقة الحساب — من أنتِ، ورقمك، والخروج.
+ *
+ * ⚠️ **لا طلبات هنا ولا نقاط** (قرار صاحبة المتجر): لكلٍّ صفحته —
+ *    `/orders` و`/points` — وتُفتحان من قائمة الروابط أسفل الصفحة.
+ *    صفحةٌ تجمع كل شيء تُطيل التمرير ولا تُعجّل شيئاً.
+ */
 export default function AccountPanel() {
   const t = useTranslations("accountPage");
   const locale = useLocale();
   const { user, ready, enabled, signOut } = useAuth();
 
-  const [orders, setOrders] = useState<SavedOrder[] | null>(null);
   const [failed, setFailed] = useState(false);
   const [profile, setProfile] = useState<Profile | null>(null);
   /** هل نجحت قراءة الملف الشخصي؟ `null` وحده لا يفرّق بين "لا وثيقة" و"فشل" */
@@ -26,19 +29,13 @@ export default function AccountPanel() {
 
   useEffect(() => {
     if (!user) {
-      setOrders(null);
       setProfile(null);
       setProfileRead(false);
       return;
     }
     let live = true;
     setFailed(false);
-    setOrders(null);
     setProfileRead(false);
-    // تعذّرت القراءة؟ تُقال صراحةً — حسابٌ يبدو فارغاً وطلبُه محفوظ أسوأ
-    myOrders(user)
-      .then((o) => live && setOrders(o))
-      .catch(() => live && setFailed(true));
     getProfile(user)
       .then((p) => {
         if (!live) return;
@@ -137,39 +134,6 @@ export default function AccountPanel() {
         </Link>
       )}
 
-      {/* `scroll-mt` يترك مساحة فوق العنوان فلا يختفي تحت الترويسة */}
-      <section id="orders" className="scroll-mt-20">
-        <h2 className="mb-3 text-lg font-bold">{t("myOrders")}</h2>
-
-        {failed ? (
-          <div className="rounded-card border border-dashed border-danger/60 p-6 text-center text-sm">
-            <p className="text-danger">{t("ordersError")}</p>
-            <button
-              type="button"
-              onClick={() => setTick((n) => n + 1)}
-              className="mt-3 min-h-12 rounded-card border border-line px-4 font-medium"
-            >
-              {t("retry")}
-            </button>
-          </div>
-        ) : orders === null ? (
-          <p className="text-sm text-muted">…</p>
-        ) : orders.length === 0 ? (
-          <p className="rounded-card border border-dashed border-line p-6 text-center text-sm text-muted">
-            {t("noOrders")}
-          </p>
-        ) : (
-          <ul className="flex flex-col gap-3">
-            {orders.map((o) => (
-              <OrderCard
-                key={o.id}
-                order={o}
-                onChanged={() => setTick((n) => n + 1)}
-              />
-            ))}
-          </ul>
-        )}
-      </section>
     </>
   );
 }

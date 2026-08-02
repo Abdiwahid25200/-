@@ -5,7 +5,6 @@ import { IconChevron } from "@/components/icons";
 import { Link } from "@/i18n/navigation";
 import { IconCart, IconDoc, IconGift, IconSupport } from "@/components/icons";
 import AccountPanel from "@/components/AccountPanel";
-import PointsCard from "@/components/PointsCard";
 import { privateMeta } from "@/lib/seo";
 
 /**
@@ -37,8 +36,6 @@ export default async function AccountPage({
       <BackLink href="/" />
       <SectionHead
         eyebrow={te("account")} title={t("title")} note={t("note")} />
-
-      <PointsCard />
 
       <AccountPanel />
 

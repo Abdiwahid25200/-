@@ -373,7 +373,7 @@
   },
   "accountPage": {
     "title": "Akoonkayga",
-    "note": "Dalabyadaada iyo xogtaada",
+    "note": "Xogtaada iyo xiriirrada degdegga ah",
     "guest": "Waxaad u fiirinaysaa sida marti",
     "guestNote": "Gal si aad ula socoto dalabyadaada",
     "login": "Gal",
@@ -501,7 +501,7 @@
     "cart": "Dhameystir · xogta gaarsiinta",
     "help": "Taageero · maalin kasta",
     "policy": "Shuruudo la akhriyi karo",
-    "account": "Dalabkaaga hal meel",
+    "account": "Akoonkaaga hal meel",
     "soon": "Waa soo socotaa"
   },
   "hero2": {

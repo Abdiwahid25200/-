@@ -373,7 +373,7 @@
   },
   "accountPage": {
     "title": "My account",
-    "note": "Your orders and details",
+    "note": "Your details and quick links",
     "guest": "You are browsing as a guest",
     "guestNote": "Sign in to track your orders and save your details",
     "login": "Sign in",
@@ -501,7 +501,7 @@
     "cart": "Checkout · delivery details",
     "help": "Support · every day",
     "policy": "Terms you can actually read",
-    "account": "Your orders, in one place",
+    "account": "Your account, in one place",
     "soon": "On the way"
   },
   "hero2": {
