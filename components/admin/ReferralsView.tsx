@@ -4,6 +4,9 @@ import { useCallback, useEffect, useState } from "react";
 import { allCustomers, type CustomerRow } from "@/lib/customers";
 import { DEFAULT_POINTS, pointsToUsd, readPointsSettings } from "@/lib/points";
 import type { PointsSettings } from "@/lib/points";
+import { IconDownload } from "@/components/icons";
+import { downloadCsv } from "@/lib/csv";
+import { today } from "@/lib/span";
 
 /**
  * الدعوات — من دعا مَن، وكم كلّفتك، ومتى تُدفع.
@@ -51,6 +54,33 @@ export default function ReferralsView() {
   const waiting = invited.length - paid.length;
 
   const cost = paid.length * (s.refInviter + s.refInvitee);
+
+  /**
+   * تنزيل الدعوات — **من دعا مَن، وهل أثمرت**.
+   *
+   * ⚠️ ولا حقلَي تاريخ هنا: وثيقة الزبون لا تحمل تاريخ الدعوة، بل تاريخ
+   *    آخر تعديلٍ عليها. فمدىً مبنيٌّ عليه يعطي جدولاً يبدو دقيقاً وهو
+   *    ليس كذلك — وجدولٌ كاذب أسوأ من جدولٍ بلا تاريخ.
+   */
+  function download() {
+    downloadCsv(
+      `ramaan-invites-${today()}`,
+      ["Customer", "Phone", "Email", "Invited by", "Rewarded", "Their code", "Invites that paid off", "Points earned"],
+      invited.map((c) => {
+        const by = byUid.get(c.referredBy);
+        return [
+          c.name || "",
+          c.phone,
+          c.email,
+          by ? name(by) : c.referredBy,
+          c.refPaid ? "yes" : "not yet",
+          c.ref,
+          c.refCount,
+          c.refEarned,
+        ];
+      }),
+    );
+  }
 
   /** أفضل الداعين — الأكثر إثماراً أوّلاً */
   const top = rows
@@ -156,13 +186,24 @@ export default function ReferralsView() {
         )}
       </section>
 
-      <button
-        type="button"
-        onClick={() => void load()}
-        className="min-h-11 rounded-card border border-line px-4 text-sm font-bold"
-      >
-        Refresh
-      </button>
+      <div className="flex gap-2">
+        <button
+          type="button"
+          onClick={() => void load()}
+          className="min-h-11 flex-1 rounded-card border border-line px-4 text-sm font-bold"
+        >
+          Refresh
+        </button>
+        <button
+          type="button"
+          disabled={invited.length === 0}
+          onClick={download}
+          className="flex min-h-11 flex-1 items-center justify-center gap-2 rounded-card border border-orange/50 px-4 text-sm font-bold text-orange disabled:opacity-45"
+        >
+          <IconDownload className="size-4" />
+          Excel
+        </button>
+      </div>
     </div>
   );
 }
