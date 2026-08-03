@@ -1,5 +1,10 @@
 import { NextResponse } from "next/server";
-import { CODE_TTL_MS, DEVICE_TTL_MS, toAdminEmail } from "@/lib/adminLogin";
+import {
+  ADMIN_DOMAIN,
+  CODE_TTL_MS,
+  DEVICE_TTL_MS,
+  toAdminEmail,
+} from "@/lib/adminLogin";
 import { emailReady, looksLikeEmail, sendEmail } from "@/lib/email";
 import { getDocRest, signIn } from "@/lib/fireRest";
 import { newCode, open, sign, signReady } from "@/lib/signed";
@@ -17,7 +22,8 @@ import { newCode, open, sign, signReady } from "@/lib/signed";
  * | من يدخل | إلى أين يُرسل |
  * |---|---|
  * | صاحبة المتجر (وثيقة في `admins`) | `OWNER_OTP_EMAIL` من متغيّرات Vercel |
- * | مساعد (وثيقة في `staff`) | **بريدُ دخوله نفسه** — فهو بريدٌ حقيقيّ أصلاً |
+ * | مساعدٌ باسمٍ وكلمة سرّ | حقل `mail` في وثيقته — تكتبه صاحبة المتجر في شاشة Helpers |
+ * | مساعدٌ ببريدٍ حقيقيّ (جوجل) | بريدُ دخوله نفسه |
  *
  * ⚠️ **ولأن اسم صاحبة المتجر ليس بريداً حقيقياً** (`…@eramaan.com` حيلةٌ
  *    لتدخل باسمٍ تحفظه) لزم متغيّرٌ يقول: أين تقرأ بريدها فعلاً.
@@ -132,7 +138,20 @@ export async function POST(request: Request) {
   } else {
     const staff = await getDocRest(`staff/${who.email}`, who.idToken);
     // موقوفٌ أو غير مساعد ⇒ لا رمز: تكمل الشاشةُ فتقول له «لا صلاحية»
-    if (staff && staff.active !== false) to = who.email;
+    if (staff && staff.active !== false) {
+      const mail = String(staff.mail ?? "").trim();
+      /**
+       * ⚠️ **بريد الدخول ليس صندوقاً**: `sara@eramaan.com` حيلةٌ ليدخل
+       *    المساعد باسمٍ يحفظه، ولا أحد يقرأ ما يصله. فالرمز يذهب إلى
+       *    بريده المكتوب في شاشة «Helpers»، ومن دخل ببريدٍ حقيقيّ
+       *    (جوجل) يذهب إلى بريده هو.
+       */
+      to = looksLikeEmail(mail)
+        ? mail
+        : who.email.endsWith(`@${ADMIN_DOMAIN}`)
+          ? ""
+          : who.email;
+    }
   }
 
   if (!looksLikeEmail(to)) return skip();

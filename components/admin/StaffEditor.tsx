@@ -4,18 +4,17 @@ import { useCallback, useEffect, useState } from "react";
 import {
   PERMS,
   allStaff,
-  digitsOnly,
+  emailKey,
   removeStaff,
   saveStaff,
-  validStaffPhone,
+  validStaffMail,
   type Can,
   type Perm,
   type StaffDoc,
 } from "@/lib/staff";
 import { useAuth } from "@/lib/auth";
 import { createStaffLogin, toStaffEmail } from "@/lib/staffAuth";
-import { dialCodes } from "@/lib/profile";
-import { IconWhatsApp } from "@/components/icons";
+import { IconEmail } from "@/components/icons";
 
 /**
  * المساعدون — تُعطى الصلاحية **للبريد** فيعمل قبل أوّل دخول له.
@@ -31,13 +30,12 @@ export default function StaffEditor() {
   const [rows, setRows] = useState<(StaffDoc & { id: string })[] | null>(null);
   const [userName, setUserName] = useState("");
   const [pass, setPass] = useState("");
-  /** مفتاح الدولة ورقمه — يُحفظان معاً رقماً واحداً بلا `+` */
-  const [dial, setDial] = useState("252");
-  const [num, setNum] = useState("");
+  /** بريد المساعد الحقيقيّ — إليه يذهب رمز الدخول (قرارها ٠٣-٠٨) */
+  const [mail, setMail] = useState("");
   const [busy, setBusy] = useState<string | null>(null);
-  /** الرقم قيد التعديل — `null` يعني لا شيء مفتوح */
+  /** البريد قيد التعديل — `null` يعني لا شيء مفتوح */
   const [editing, setEditing] = useState<string | null>(null);
-  const [editPhone, setEditPhone] = useState("");
+  const [editMail, setEditMail] = useState("");
   const [note, setNote] = useState<string | null>(null);
 
   const load = useCallback(async () => setRows(await allStaff()), []);
@@ -52,16 +50,16 @@ export default function StaffEditor() {
    */
   async function makeLogin() {
     const u = userName.trim();
-    const phone = digitsOnly(dial + num);
+    const contact = emailKey(mail);
 
     if (!u || pass.length < 6) {
       setNote("Pick a username and a password of at least 6 characters.");
       return;
     }
-    /* ⚠️ الرقم شرطٌ لا خيار: إليه يُرسَل رمز التحقّق، وبه تصلين إلى
-       المساعد حين يتعثّر. واسمٌ بلا رقم لا يدلّ على أحد بعد شهر. */
-    if (!validStaffPhone(phone)) {
-      setNote("Add the helper's WhatsApp number with its country code.");
+    /* ⚠️ البريد شرطٌ لا خيار: إليه يُرسَل رمز الدخول، وبه تصلين إلى
+       المساعد حين يتعثّر. واسمٌ بلا بريد لا يدلّ على أحد بعد شهر. */
+    if (!validStaffMail(contact)) {
+      setNote("Add the helper's own email — the code is sent there.");
       return;
     }
     const id = toStaffEmail(u);
@@ -88,7 +86,7 @@ export default function StaffEditor() {
     const ok = await saveStaff(made.email, {
       email: made.email,
       active: true,
-      phone,
+      mail: contact,
       can: { orders: true },
     });
     setBusy(null);
@@ -97,26 +95,26 @@ export default function StaffEditor() {
     setNote(`Done — ${u} signs in at /admin with the password you set.`);
     setUserName("");
     setPass("");
-    setNum("");
+    setMail("");
     void load();
   }
 
   /**
-   * تغيير رقم مساعدٍ قائم — بلا حذفه وإنشائه من جديد.
-   * ⚠️ الرقم يُحفظ أرقاماً فقط، فلا تكسره مسافةٌ ولا `+` ولا شرطة.
+   * تغيير بريد مساعدٍ قائم — بلا حذفه وإنشائه من جديد.
+   * ⚠️ ويُوحَّد شكله (`emailKey`) فلا تكسره مسافةٌ ولا حرفٌ كبير.
    */
-  async function savePhone(r: StaffDoc & { id: string }) {
-    const phone = digitsOnly(editPhone);
-    if (!validStaffPhone(phone)) {
-      setNote("Add the country code — at least 9 digits.");
+  async function saveMail(r: StaffDoc & { id: string }) {
+    const contact = emailKey(editMail);
+    if (!validStaffMail(contact)) {
+      setNote("Write a real email — not the sign-in username.");
       return;
     }
     setBusy(r.id);
-    const ok = await saveStaff(r.id, { email: r.id, phone });
+    const ok = await saveStaff(r.id, { email: r.id, mail: contact });
     setBusy(null);
-    if (!ok) return setNote("Could not save the number — check your access.");
+    if (!ok) return setNote("Could not save the email — check your access.");
     setEditing(null);
-    setNote("Number saved.");
+    setNote("Email saved.");
     void load();
   }
 
@@ -188,39 +186,31 @@ export default function StaffEditor() {
             className={`${field} min-w-32 flex-1`}
           />
         </div>
-        {/* رقم واتساب — مفتاح الدولة من قائمة، والباقي أرقام */}
-        <div className="flex gap-2">
-          <select
-            value={dial}
-            onChange={(e) => setDial(e.target.value)}
-            aria-label="Country code"
-            dir="ltr"
-            className={`${field} w-auto shrink-0 px-2`}
-          >
-            {dialCodes.map((c) => (
-              <option key={c.code} value={c.code}>
-                {c.flag} +{c.code}
-              </option>
-            ))}
-          </select>
-          <input
-            value={num}
-            onChange={(e) => setNum(digitsOnly(e.target.value))}
-            placeholder="WhatsApp number"
-            aria-label="WhatsApp number"
-            inputMode="tel"
-            dir="ltr"
-            className={`${field} num min-w-0 flex-1 text-start`}
-          />
-        </div>
+        {/* 🔑 بريد المساعد الحقيقيّ — إليه يذهب رمز الدخول (قرارها ٠٣-٠٨).
+            كان هنا رقم واتساب، فلمّا صار الرمز بالبريد صار الرقم يَعِد
+            بما لا يقع: رمزٌ يُرسل إلى مكانٍ لا يستقبله. */}
+        <input
+          value={mail}
+          onChange={(e) => setMail(e.target.value)}
+          placeholder="Helper's email"
+          aria-label="Helper's email"
+          type="email"
+          inputMode="email"
+          dir="ltr"
+          autoCapitalize="none"
+          autoCorrect="off"
+          spellCheck={false}
+          className={`${field} w-full`}
+        />
         <p className="text-xs text-muted">
-          Needed — the verification code goes to this number, and it is how you
-          reach the helper.
+          Needed — the sign-in code goes to this email, and it is how you reach
+          the helper.
         </p>
 
         {userName.trim() && (
-          <p className="num text-xs text-muted" dir="ltr">
-            {toStaffEmail(userName)} · +{digitsOnly(dial + num)}
+          <p className="text-xs break-all text-muted" dir="ltr">
+            {toStaffEmail(userName)}
+            {validStaffMail(mail) ? ` · ${emailKey(mail)}` : ""}
           </p>
         )}
         <button
@@ -230,7 +220,7 @@ export default function StaffEditor() {
             busy === "login" ||
             !userName.trim() ||
             pass.length < 6 ||
-            !validStaffPhone(dial + num)
+            !validStaffMail(mail)
           }
           className="min-h-12 rounded-card bg-orange px-4 font-bold text-onaccent disabled:opacity-50"
         >
@@ -268,19 +258,23 @@ export default function StaffEditor() {
                 {editing === r.id ? (
                   <span className="mt-1 flex items-center gap-2">
                     <input
-                      value={editPhone}
-                      onChange={(e) => setEditPhone(digitsOnly(e.target.value))}
-                      placeholder="252615456500"
-                      aria-label="WhatsApp number"
-                      inputMode="tel"
+                      value={editMail}
+                      onChange={(e) => setEditMail(e.target.value)}
+                      placeholder="helper@gmail.com"
+                      aria-label="Helper's email"
+                      type="email"
+                      inputMode="email"
                       dir="ltr"
+                      autoCapitalize="none"
+                      autoCorrect="off"
+                      spellCheck={false}
                       autoFocus
-                      className="num min-h-10 min-w-0 flex-1 rounded-card border border-orange bg-bg px-2 text-start outline-none"
+                      className="min-h-10 min-w-0 flex-1 rounded-card border border-orange bg-bg px-2 text-start outline-none"
                     />
                     <button
                       type="button"
-                      onClick={() => void savePhone(r)}
-                      disabled={busy === r.id || !validStaffPhone(editPhone)}
+                      onClick={() => void saveMail(r)}
+                      disabled={busy === r.id || !validStaffMail(editMail)}
                       className="min-h-10 shrink-0 rounded-card bg-orange px-3 text-sm font-bold text-onaccent disabled:opacity-50"
                     >
                       Save
@@ -294,28 +288,31 @@ export default function StaffEditor() {
                     </button>
                   </span>
                 ) : (
-                  <span className="flex items-center gap-2">
-                    {r.phone ? (
+                  <span className="flex flex-wrap items-center gap-2">
+                    {r.mail ? (
                       <a
-                        href={`https://wa.me/${r.phone}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="num inline-flex items-center gap-1 text-xs text-success"
+                        href={`mailto:${r.mail}`}
+                        className="inline-flex min-w-0 items-center gap-1 text-xs text-muted"
                       >
-                        <IconWhatsApp className="size-3.5" />+{r.phone}
+                        <IconEmail className="size-3.5 shrink-0" />
+                        <span className="break-all">{r.mail}</span>
                       </a>
                     ) : (
-                      <span className="text-xs text-danger">No number on file</span>
+                      /* ⚠️ **بلا بريدٍ لا رمز**: يُقال صريحاً لأن المساعد
+                         عندها يدخل بكلمة السرّ وحدها من أي جهاز. */
+                      <span className="text-xs text-danger">
+                        No email — no sign-in code
+                      </span>
                     )}
                     <button
                       type="button"
                       onClick={() => {
                         setEditing(r.id);
-                        setEditPhone(r.phone ?? "");
+                        setEditMail(r.mail ?? "");
                       }}
                       className="text-xs font-bold text-orange"
                     >
-                      {r.phone ? "Change" : "Add number"}
+                      {r.mail ? "Change" : "Add email"}
                     </button>
                   </span>
                 )}
