@@ -45,13 +45,14 @@ export function IconSupport({ className = "" }: IconProps) {
 }
 
 export function IconCart({ className = "" }: IconProps) {
+  /* ⚠️ **عربةٌ بعجلتَين كما في النموذج** — لا حقيبة. الحقيبة بلا مقبضٍ
+     ظاهر تُقرأ **سلّةَ مهملات** في شريطٍ صغير، وقد قرأتها صاحبة المتجر
+     كذلك. والعجلتان تقولان «تسوّق» بلا كلمة. */
   return (
     <svg viewBox="0 0 24 24" strokeWidth="1.8" className={`${base} ${className}`} aria-hidden>
-      <path
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        d="M6 8h12l-1 12.2A2 2 0 0 1 15 22H9a2 2 0 0 1-2-1.8zM9 8V6a3 3 0 0 1 6 0v2"
-      />
+      <path strokeLinecap="round" strokeLinejoin="round" d="M3 4h2.2l2.3 10.6h9.6L19 7.2H6.2" />
+      <circle cx="9.4" cy="19" r="1.5" />
+      <circle cx="16.6" cy="19" r="1.5" />
     </svg>
   );
 }
@@ -59,7 +60,8 @@ export function IconCart({ className = "" }: IconProps) {
 export function IconMenu({ className = "" }: IconProps) {
   return (
     <svg viewBox="0 0 24 24" strokeWidth="1.8" className={`${base} ${className}`} aria-hidden>
-      <path strokeLinecap="round" d="M4 7h16M4 12h16M4 17h16" />
+      {/* السطر الثالث أقصر — كما في النموذج، فتُقرأ قائمةً لا شبكةَ خطوط */}
+      <path strokeLinecap="round" d="M4 7h16M4 12h16M4 17h11" />
     </svg>
   );
 }
@@ -482,7 +484,9 @@ export function IconPadMono({ className = "" }: IconProps) {
 export function IconNavHome({ className = "" }: IconProps) {
   return (
     <svg viewBox="0 0 24 24" fill="none" className={className} aria-hidden>
-      <path d="M4 10.5 12 4l8 6.5V19a1.5 1.5 0 0 1-1.5 1.5h-13A1.5 1.5 0 0 1 4 19v-8.5Z" stroke="currentColor" strokeWidth="1.8" strokeLinejoin="round" />
+      <path d="M3 10.5 12 3l9 7.5" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+      <path d="M5.5 9.5V20h13V9.5" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+      <path d="M9.5 20v-5.5h5V20" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
   );
 }
@@ -509,11 +513,18 @@ export function IconNavAccounts({ className = "" }: IconProps) {
   );
 }
 
-/** الدعم — فقاعة محادثة مستديرة، نفس أيقونة المعاينة */
+/**
+ * الدعم — فقاعةٌ **فيها علامة استفهام**، كما في النموذج.
+ *
+ * ⚠️ الفقاعة وحدها تقول «محادثة» لا «مساعدة»، وعلامةُ الاستفهام داخلها
+ *    تقول: هنا يُسأل. وهي فارق التبويب الذي أشارت إليه صاحبة المتجر.
+ */
 export function IconNavHelp({ className = "" }: IconProps) {
   return (
     <svg viewBox="0 0 24 24" fill="none" className={className} aria-hidden>
-      <path d="M20 12a8 8 0 1 0-3.2 6.4L20 20l-.8-3.2A7.9 7.9 0 0 0 20 12Z" stroke="currentColor" strokeWidth="1.8" strokeLinejoin="round" />
+      <path d="M20.5 12.4c0 4.1-3.8 7.4-8.5 7.4-1 0-1.9-.2-2.8-.4L4 21l1.4-3.8a7 7 0 0 1-1.9-4.8C3.5 8.3 7.3 5 12 5s8.5 3.3 8.5 7.4Z" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+      <path d="M9.9 10.4c.2-1.1 1-1.9 2.1-1.9 1.2 0 2.1.8 2.1 1.9 0 1.4-2.1 1.4-2.1 3" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+      <circle cx="12" cy="16" r=".9" fill="currentColor" />
     </svg>
   );
 }

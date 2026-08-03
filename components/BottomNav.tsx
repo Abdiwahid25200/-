@@ -81,25 +81,21 @@ export default function BottomNav() {
                 href={href}
                 aria-current={isActive ? "page" : undefined}
                 // الحركة عند الضغط: انكماش خفيف يعود فوراً — إحساس زرّ حقيقي
-                className={`nav-tap flex min-h-13 flex-1 flex-col items-center justify-center gap-1 rounded-[16px] py-1 ${
-                  isActive ? "text-orange" : "text-muted hover:text-text"
+                /**
+                 * ⚠️ **القرص يشمل الأيقونة والاسم معاً** — كما في النموذج.
+                 *    كان قرصاً بيضاوياً خلف الأيقونة وحدها، والاسمُ خارجه
+                 *    فيبدو التبويب نصفَه مُضاءً ونصفَه لا. والقرص يُرى
+                 *    بطرف العين، والخطّ فوق التبويب شعرةٌ تُرى بالتدقيق.
+                 */
+                className={`nav-tap flex min-h-13 flex-1 flex-col items-center justify-center gap-1 rounded-xl py-1.5 transition-colors ${
+                  isActive
+                    ? "bg-orange/12 font-extrabold text-orange"
+                    : "font-semibold text-muted hover:text-text"
                 }`}
               >
-                {/**
-                 * ⚠️ **قرصٌ خلف أيقونة التبويب النشط** بدل الخطّ فوقه:
-                 *    الخطّ شعرةٌ تُرى بالتدقيق، والقرص يُرى بطرف العين —
-                 *    فتعرف أين أنت بلا أن تبحث.
-                 */}
-                <span
-                  className={`flex items-center justify-center rounded-full px-4 py-1 transition-colors ${
-                    isActive ? "bg-orange/12" : ""
-                  }`}
-                >
-                  <Icon className="nav-ico size-6" />
-                </span>
-                <span className="text-[0.78rem] font-bold uppercase tracking-[0.06em] rtl:tracking-normal">
-                  {t(key)}
-                </span>
+                <Icon className="nav-ico size-[22px]" />
+                {/* بلا حروفٍ كبيرة ولا تباعد — النموذج اسمٌ عاديّ يُقرأ */}
+                <span className="text-[0.78rem] leading-none">{t(key)}</span>
               </Link>
             );
           })}

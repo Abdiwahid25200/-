@@ -187,9 +187,10 @@ export default function MenuDrawer({ phone }: { phone?: string }) {
         onClick={() => setOpen(true)}
         aria-label={t("open")}
         aria-expanded={open}
-        className="flex size-12 shrink-0 items-center justify-center rounded-card text-muted transition-colors hover:bg-bg hover:text-orange"
+        /* بلون النصّ لا رماديّاً باهتاً — كما في النموذج، وكأختها السلّة */
+        className="flex size-12 shrink-0 items-center justify-center rounded-xl text-text transition-colors hover:text-orange"
       >
-        <IconMenu />
+        <IconMenu className="size-[21px]" />
       </button>
 
       {open && mounted && createPortal(
