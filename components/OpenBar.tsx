@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
-import { EMPTY_STATS, avgMinutes, readStats } from "@/lib/stats";
+import { EMPTY_STATS, avgMinutes, readStats, tellSpeed } from "@/lib/stats";
 import { opensAt, useStoreOpen } from "@/lib/storeOpen";
 import { IconClock } from "@/components/icons";
 
@@ -57,8 +57,7 @@ export default function OpenBar() {
    *    (وهي قاعدة `GiftProof` نفسها — الرقم الضعيف لا يُعرض أصلاً.)
    *    والمتوسّط يتحسّن وحده كلّما شحنتِ بسرعة، فيعود الرقم بلا كود.
    */
-  const MAX_SHOW = 120;
-  const tellSpeed = avg > 0 && avg <= MAX_SHOW;
+  const show = tellSpeed(avg);
 
   const state = open
     ? t("openNow")
@@ -66,7 +65,7 @@ export default function OpenBar() {
       ? t("opensAt", { t: opensAt(settings) })
       : t("closedNow");
 
-  const speed = !tellSpeed
+  const speed = !show
     ? ""
     : avg < 60
       ? t("avgMin", { n: avg })

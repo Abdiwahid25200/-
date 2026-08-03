@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
-import { EMPTY_STATS, MIN_ORDERS, avgMinutes, readStats, type PublicStats } from "@/lib/stats";
+import { EMPTY_STATS, MIN_ORDERS, avgMinutes, readStats, tellSpeed, type PublicStats } from "@/lib/stats";
 import { opensAt, useStoreOpen } from "@/lib/storeOpen";
 import { useWhatsApp, waLink } from "@/lib/useWhatsApp";
 import { IconCheckCircle, IconClock, IconWhatsApp } from "@/components/icons";
@@ -61,7 +61,8 @@ export default function GiftProof({
       text: t("delivered", { n: s.done }),
     });
 
-  if (avg > 0)
+  // القاعدة من `lib/stats.ts` — نفسها التي يتبعها شريط الترويسة
+  if (tellSpeed(avg))
     rows.push({
       key: "avg",
       icon: <IconClock className="size-4.5 shrink-0 text-orange" />,
