@@ -69,7 +69,9 @@ export default function BottomNav() {
      * ⚠️ وارتفاعُه يحكم ما يجلس فوقه: `--chat-bottom` في `globals.css`
      *    و`FixedBar`. تغييرُ الحشوة هنا وحدها يفتح فجوةً أو يُحدث تراكباً.
      */
-    <div className="fixed inset-x-0 bottom-0 z-40 border-t border-line bg-surface pb-[env(safe-area-inset-bottom)]">
+    /* ⚠️ `fx-w` لا `inset-x-0`: الموقع بعرض الجوّال على كل جهاز، وشريطٌ
+       يمتدّ بعرض الآيباد كلّه تحت موقعٍ عرضُه ٤٣٠ يفضح أنهما شيئان. */
+    <div className="fx-w fixed bottom-0 z-40 border-t border-line bg-surface pb-[env(safe-area-inset-bottom)]">
       <nav aria-label={t("label")}>
         <div className="page-w flex px-1.5 py-1.5">
           {tabs.map(({ key, href, Icon }) => {

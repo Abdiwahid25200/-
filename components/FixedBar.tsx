@@ -21,11 +21,11 @@ export default function FixedBar({ children }: { children: React.ReactNode }) {
   if (!mounted) return null;
 
   return createPortal(
-    // ⚠️ `max-w-4xl` = ٨٩٦ = عرض `.page-w` نفسه، فيحاذي الشريطُ المحتوى.
-    // لا يصلح `page-w` هنا: العنصر `fixed` بـ`inset-x-3`، و`width: 100%`
-    // معهما يجعله يتجاوز الحافة اليمنى على الجوال.
-    <div className="buybar fixed inset-x-3 bottom-[calc(4.8rem+env(safe-area-inset-bottom))] z-30 mx-auto max-w-4xl">
-      {children}
+    // ⚠️ `fx-w` = عرض الموقع نفسه (٤٣٠)، و`px-3` يُبقي الشريط منزاحاً عن
+    // الحافّتين كما كان. ولا يصلح `page-w` هنا: العنصر `fixed`، وعرضُه
+    // يُقاس من الشاشة لا من الأب — فيلزم تكرار الحبس صراحةً.
+    <div className="fx-w fixed bottom-[calc(4.8rem+env(safe-area-inset-bottom))] z-30 px-3">
+      <div className="buybar">{children}</div>
     </div>,
     document.body,
   );

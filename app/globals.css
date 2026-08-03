@@ -494,19 +494,48 @@ body.has-buybar {
    فلا يقفز المحتوى يميناً ويساراً عند التنقّل على الآيباد والشاشات الواسعة.
    على الجوال لا أثر له: العرض أقلّ من الحدّ أصلاً.
    🔧 لتغيير عرض الموقع كلّه لاحقاً: هذا السطر وحده. */
+/* 📱 **عرض الجوّال على كل جهاز** — قرارها (٠٣-٠٨).
+   النموذج إطارُ جوّال ٤٣٠px، وقالت: «بدي على كل الأجهزة». فالموقع
+   عمودٌ واحد بعرض الجوّال أينما فُتح، وعلى الآيباد يجلس في وسط
+   الشاشة كبطاقةٍ — وهذا شكل النموذج نفسه على الشاشات الواسعة.
+   🔧 **لتغيير عرض الموقع كلّه: هذا السطر وحده.** */
+:root {
+  --app-w: 430px;
+}
+
 .page-w {
   width: 100%;
-  max-width: 56rem; /* ٨٩٦ بكسل */
+  max-width: var(--app-w);
   margin-inline: auto;
 }
 
+/* ⚠️ **وكل عنصرٍ `fixed` يُحبس في العرض نفسه** — وإلا التصق بحافة
+   الآيباد بينما الموقع في وسطه، فيبدو الشريط والزرّ هاربَين من الموقع.
+   `.fx-w` للأشرطة الممتدّة (القائمة السفلية · شريط الشراء)، و`.fx-right`
+   للزرّ العائم: يقيس من حافة الإطار لا من حافة الشاشة. */
+.fx-w {
+  inset-inline: 0;
+  width: 100%;
+  max-width: var(--app-w);
+  margin-inline: auto;
+}
+
+.fx-right {
+  right: max(0.75rem, calc((100vw - var(--app-w)) / 2 + 0.75rem));
+}
+
 .app-shell {
+  width: 100%;
+  max-width: var(--app-w);
+  margin-inline: auto;
   background: var(--bg);
   border-radius: 28px 28px 0 0;
   box-shadow: 0 -1px 0 var(--line);
 }
 
-@media (min-width: 900px) {
+/* الشاشة أوسع من الجوّال ⇒ أرضيةٌ خلف الإطار وحدّان يفصلانه عنها،
+   كما يفعل النموذج نفسه فوق ٤٧٠px. */
+@media (min-width: 471px) {
   body {
     background: var(--surface-2);
   }
@@ -515,13 +544,9 @@ body.has-buybar {
     /* ⚠️ `width: 100%` لازم ولا يُحذف: `body` عنصر flex عمودي، والهامش
        `auto` الجانبي في flexbox يُلغي التمدّد ويقلّص العنصر إلى عرض
        محتواه — فكانت صفحة الألعاب تظهر عموداً ضيّقاً وسط الآيباد. */
-    width: 100%;
-    max-width: 1100px;
-    margin: 18px auto 0;
-    border-radius: 34px;
-    border: 1px solid var(--line);
+    min-height: 100dvh;
+    border-inline: 1px solid var(--line);
     box-shadow: 0 24px 60px -30px rgba(0, 0, 0, 0.25);
-    overflow: hidden;
   }
 }
 

@@ -190,7 +190,7 @@ export default function LiveChat() {
           type="button"
           onClick={toggle}
           style={{ bottom: `calc(${ABOVE_NAV} + 3.9rem)` }}
-          className="chat-in fixed right-3 z-40 flex min-h-11 max-w-[min(15rem,calc(100vw-1.5rem))] items-center rounded-[16px] rounded-br-[4px] border border-line bg-surface px-3.5 py-2 text-start text-sm font-medium shadow-[0_8px_22px_rgba(0,0,0,0.14)]"
+          className="chat-in fx-right fixed z-40 flex min-h-11 max-w-[min(15rem,calc(100vw-1.5rem))] items-center rounded-[16px] rounded-br-[4px] border border-line bg-surface px-3.5 py-2 text-start text-sm font-medium shadow-[0_8px_22px_rgba(0,0,0,0.14)]"
         >
           {t("teaser")}
         </button>
@@ -203,7 +203,7 @@ export default function LiveChat() {
         aria-expanded={open}
         aria-label={open ? t("close") : t("open")}
         style={{ bottom: ABOVE_NAV }}
-        className="nav-tap fixed right-3 z-50 flex size-14 items-center justify-center rounded-full bg-orange text-onaccent shadow-[0_8px_24px_rgba(0,0,0,0.22)] ring-1 ring-black/5"
+        className="nav-tap fx-right fixed z-50 flex size-14 items-center justify-center rounded-full bg-orange text-onaccent shadow-[0_8px_24px_rgba(0,0,0,0.22)] ring-1 ring-black/5"
       >
         {open ? (
           <IconClose className="size-6" />
@@ -225,7 +225,7 @@ export default function LiveChat() {
           role="dialog"
           aria-label={t("title")}
           style={{ bottom: `calc(${ABOVE_NAV} + 4.4rem)` }}
-          className="chat-in fixed right-3 z-50 flex max-h-[min(32rem,66dvh)] w-[min(23rem,calc(100vw-1.5rem))] flex-col overflow-hidden rounded-[26px] border border-line bg-surface shadow-[0_18px_50px_rgba(0,0,0,0.25)]"
+          className="chat-in fx-right fixed z-50 flex max-h-[min(32rem,66dvh)] w-[min(23rem,calc(100vw-1.5rem))] flex-col overflow-hidden rounded-[26px] border border-line bg-surface shadow-[0_18px_50px_rgba(0,0,0,0.25)]"
         >
           {/* الترويسة — لوحة بلون العلامة تُميّز النافذة عن الصفحة خلفها */}
           <header className="flex items-center gap-3 bg-navy p-3.5 text-white">
