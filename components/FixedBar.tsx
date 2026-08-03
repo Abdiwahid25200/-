@@ -24,7 +24,7 @@ export default function FixedBar({ children }: { children: React.ReactNode }) {
     // ⚠️ `fx-w` = عرض الموقع نفسه (٤٣٠)، و`px-3` يُبقي الشريط منزاحاً عن
     // الحافّتين كما كان. ولا يصلح `page-w` هنا: العنصر `fixed`، وعرضُه
     // يُقاس من الشاشة لا من الأب — فيلزم تكرار الحبس صراحةً.
-    <div className="fx-w fixed bottom-[calc(4.8rem+env(safe-area-inset-bottom))] z-30 px-3">
+    <div className="fx-w fixed bottom-[calc(4.8rem+env(safe-area-inset-bottom))] z-[60] px-3">
       <div className="buybar">{children}</div>
     </div>,
     document.body,

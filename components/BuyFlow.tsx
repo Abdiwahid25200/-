@@ -152,6 +152,14 @@ export default function BuyFlow({
   const barVisible = !done;
 
   const packsRef = useRef<HTMLElement>(null);
+  /**
+   * 💳 **الدفع يملأ الشاشة** — طلبها (٠٣-٠٨) والنموذج.
+   * الدفع كان قسماً في ذيل صفحةٍ فيها الآيدي والباقات، فيصل الزبون إليه
+   * وفوقه شاشتان يمرّ بهما. ولحظةُ إخراج المال أحوجُ اللحظات إلى شاشةٍ
+   * لا يزاحمها شيء. وهي **خطوةٌ لا مسار**: باقتُه وآيديه وخصمُ نقاطه في
+   * ذاكرة هذا المكوّن، والانتقال إلى رابطٍ جديد يفقدها.
+   */
+  const [payOpen, setPayOpen] = useState(false);
   const accountRef = useRef<HTMLDivElement>(null);
   const payRef = useRef<HTMLDivElement>(null);
 
@@ -189,6 +197,7 @@ export default function BuyFlow({
 
   /** ينقله إلى ما ينقصه ويفتح لوحة المفاتيح عليه — لا زرّ معطّل */
   function goToNext() {
+    if (next === "pay") return setPayOpen(true);
     const box =
       next === "account"
         ? accountRef.current
@@ -438,7 +447,28 @@ export default function BuyFlow({
         (isWa ? (
           <div ref={accountRef}>{accountForm}</div>
         ) : (
-          <div ref={payRef} className="flex flex-col gap-5">
+          <div
+            ref={payRef}
+            className={
+              payOpen
+                ? "fx-w fixed inset-y-0 z-[45] flex flex-col gap-5 overflow-y-auto bg-bg px-4 pb-40 pt-3"
+                : "flex flex-col gap-5"
+            }
+          >
+            {/* ترويسة الشاشة — رجوعٌ وعنوان، كما في النموذج */}
+            {payOpen && (
+              <header className="flex flex-col gap-1">
+                <button
+                  type="button"
+                  onClick={() => setPayOpen(false)}
+                  className="back -mx-2 !px-2 !py-0 min-h-11"
+                >
+                  <IconArrow className="rtl:rotate-180" />
+                  {tc("back")}
+                </button>
+                <h2 className="h2S">{t("payTitle")}</h2>
+              </header>
+            )}
             {/* ⚠️ **ملخّصٌ قبل الدفع** — كما في النموذج، وكان غائباً.
                 المبلغ كان في الشريط السفلي وحده: يفتح الزبون قائمة الدفع
                 ولا يرى **ماذا** يدفع ولا **على أيّ آيدي**. ولحظةُ إخراج
@@ -485,6 +515,7 @@ export default function BuyFlow({
                 selected={payId}
                 onSelect={setPayId}
                 redeem={redeem}
+                bare={payOpen}
               />
             )}
 

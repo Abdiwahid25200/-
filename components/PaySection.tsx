@@ -46,12 +46,15 @@ export default function PaySection({
   selected,
   onSelect,
   redeem,
+  bare,
 }: {
   amount: number;
   selected: string | null;
   onSelect: (id: string) => void;
   /** رصيد نقاط الزبون — يظهر خياراً أوّل في القائمة متى كفى */
   redeem?: Redeem;
+  /** بلا ترويسة ولا إطار — حين تكون الشاشة كلّها للدفع، فعنوانها يكفي */
+  bare?: boolean;
 }) {
   const t = useTranslations("buy");
   const tc = useTranslations("common");
@@ -94,8 +97,10 @@ export default function PaySection({
   ];
 
   return (
-    <section className="rounded-card border border-line bg-surface p-4">
-      <h2 className="mb-4 text-lg font-bold">{t("payTitle")}</h2>
+    <section className={bare ? "" : "rounded-card border border-line bg-surface p-4"}>
+      {/* ⚠️ عنوانٌ واحد لا اثنان: شاشة الدفع تحمل عنوانها في ترويستها،
+          فعنوانُ القسم تحته يكرّره بحجمٍ أصغر — يُقرأ خطأً في الرسم. */}
+      {!bare && <h2 className="mb-4 text-lg font-bold">{t("payTitle")}</h2>}
 
       <div className="flex flex-col gap-5">
         {/* الدفع من رصيد النقاط — أوّل الخيارات متى كفى الرصيد */}
