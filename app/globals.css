@@ -159,35 +159,39 @@ body {
       الطاولة، ولوحة الأرقام تفقد نصف وضوحها على أرضٍ سوداء.
    ═══════════════════════════════════════════════════════════ */
 .adm {
-  --bg: #f6f7fb;
+  /* 🎨 **لوحة المتجر نفسها (Coast)** — النموذج المعتمد (٠٣-٠٨).
+     كانت اللوحة بأزرقٍ ورماديّ لا وجود لهما في المتجر، فتبدو أداةً
+     من مكانٍ آخر. وهي سطحٌ إنجليزيّ مستقلّ نعم — لكن لصاحبة المتجر
+     نفسها، ولا سبب لأن تتعلّم عينُها لونَين. */
+  --bg: #eff7f7;
   --surface: #ffffff;
-  --surface-2: #eef1f6;
-  --line: #e4e7ec;
-  --text: #101828;
-  --muted: #667085;
-  --accent: #123262;      /* الحبر — الأزرار والتحديد */
-  --accent-2: #b54708;    /* الانتباه */
-  --accent-3: #0f7a4d;    /* الربح */
-  --deep: #0b1c38;
-  --danger: #b42318;
+  --surface-2: #e9f4f4;
+  --line: #cde4e4;
+  --text: #062730;
+  --muted: #4d7580;
+  --accent: #067a6e;      /* الأخضر المائي — الأزرار والتحديد */
+  --accent-2: #a56200;    /* الذهب الرملي — المال والانتباه */
+  --accent-3: #1c7a3a;    /* الربح */
+  --deep: #062730;
+  --danger: #c62633;
   --on-accent: #ffffff;
 
   /* ⚠️ وتُعاد هنا بأسمائها في Tailwind أيضاً — وهذا **لازم**:
      المُصرِّف يستبدل `var(--accent)` داخل `--color-orange` بقيمتها
      عند `:root` وقتَ البناء، فتغييرُ `--accent` وحده لا يصل إلى
      `bg-orange`. جرّبتُه فبقي الزرّ أخضر مائياً. */
-  --color-bg: #f6f7fb;
+  --color-bg: #eff7f7;
   --color-surface: #ffffff;
-  --color-surface2: #eef1f6;
-  --color-line: #e4e7ec;
-  --color-text: #101828;
-  --color-muted: #667085;
-  --color-orange: #123262;
-  --color-yellow: #b54708;
-  --color-gold: #b54708;
-  --color-navy: #0b1c38;
-  --color-success: #0f7a4d;
-  --color-danger: #b42318;
+  --color-surface2: #e9f4f4;
+  --color-line: #cde4e4;
+  --color-text: #062730;
+  --color-muted: #4d7580;
+  --color-orange: #067a6e;
+  --color-yellow: #a56200;
+  --color-gold: #a56200;
+  --color-navy: #062730;
+  --color-success: #1c7a3a;
+  --color-danger: #c62633;
   --color-onaccent: #ffffff;
 
   color-scheme: light;
@@ -1117,3 +1121,162 @@ input.field::placeholder, textarea.field::placeholder { color: var(--muted); }
 .cbub { max-width: 78%; padding: 9px 13px; border-radius: 16px; font-size: 13.5px; line-height: 1.55; }
 .cbub.me { background: var(--accent); color: var(--on-accent); align-self: flex-start; border-end-start-radius: 5px; }
 .cbub.you { background: var(--surface); border: 1px solid var(--line); align-self: flex-end; border-end-end-radius: 5px; }
+
+
+/* ════════════════════════════════════════════════════════════════
+   لوحة الإدارة — أصناف النموذج المعتمد (الخطوة ١)
+   `docs/نموذج/لوحة-الإدارة.html`
+   ════════════════════════════════════════════════════════════════
+
+   ⚠️ **كلّها بادئة `adm-`** ولا تُسمّى `card` ولا `btn` ولا `row`:
+      تلك أصناف الموقع وتعيش في الملفّ نفسه، وسطحان يتشاركان اسماً
+      واحداً يعني أن تعديل أحدهما يكسر الآخر بلا إنذار.
+
+   ⚠️ **ولا تُستعمل خارج `.adm`** — القرار المقفول (أ): الإدارة سطحٌ
+      إنجليزيّ مستقلّ، وما يصلح لها لا يُنقل إلى صفحات الزبون.
+   ──────────────────────────────────────────────────────────────── */
+
+/* ── الصفّ: شريطُ خطورةٍ يُقرأ قبل الكلمات ───────────────────── */
+.adm-q {
+  width: 100%;
+  display: flex;
+  align-items: stretch;
+  gap: 12px;
+  text-align: start;
+  padding: 12px 13px 12px 0;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: var(--surface);
+}
+.adm-q > .sv {
+  width: 4px;
+  flex: none;
+  border-radius: 999px;
+  background: var(--line);
+  margin-inline-start: 12px;
+}
+.adm-q.wait > .sv { background: var(--accent-2); }
+.adm-q.late > .sv { background: var(--danger); }
+.adm-q.done > .sv { background: var(--accent-3); }
+.adm-q > .bd { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+
+/* ── شارة الحالة ───────────────────────────────────────────── */
+.adm-pill {
+  width: fit-content;
+  padding: 2px 9px;
+  border-radius: 999px;
+  font-size: 0.79rem;
+  font-weight: 800;
+  background: var(--surface-2);
+  color: var(--muted);
+}
+.adm-pill.wait { background: color-mix(in srgb, var(--accent-2) 15%, transparent); color: var(--accent-2); }
+.adm-pill.late { background: color-mix(in srgb, var(--danger) 13%, transparent); color: var(--danger); }
+.adm-pill.done { background: color-mix(in srgb, var(--accent-3) 14%, transparent); color: var(--accent-3); }
+
+/* ── المفتاح: ضغطةٌ واحدة بدل فتحِ قائمةٍ واختيارٍ وإغلاق ────── */
+.adm-sw {
+  width: 50px;
+  height: 30px;
+  flex: none;
+  padding: 2px;
+  display: flex;
+  align-items: center;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  background: var(--surface-2);
+}
+.adm-sw > i { width: 24px; height: 24px; border-radius: 50%; background: var(--muted); display: block; }
+.adm-sw.on { justify-content: flex-end; background: color-mix(in srgb, var(--accent) 18%, transparent); border-color: var(--accent); }
+.adm-sw.on > i { background: var(--accent); }
+@media (prefers-reduced-motion: no-preference) { .adm-sw > i { transition: background 0.16s; } }
+
+/* ── الرقم الذي يستدعيها — أوّل ما تقع عليه العين في Today ──── */
+.adm-needs {
+  position: relative;
+  overflow: hidden;
+  border-radius: 20px;
+  padding: 18px;
+  color: #fff;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  background: linear-gradient(150deg, var(--accent), color-mix(in srgb, var(--accent) 72%, #000));
+}
+.adm-needs > .halo {
+  position: absolute;
+  top: -72px;
+  right: -46px;
+  width: 190px;
+  height: 190px;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+}
+/* ⚠️ الأبيض هنا ثابتٌ لا متغيّر: الأرضية متدرّجةٌ بلون العلامة في
+   الوضعين معاً، فنصُّها أبيضُ في الوضعين معاً. */
+.adm-needs .go {
+  width: fit-content;
+  min-height: 46px;
+  padding: 0 20px;
+  border-radius: 999px;
+  background: #fff;
+  color: #05655c;
+  font-weight: 800;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* ── مربّع الحرف — بديلُ شعارٍ لا نملكه لكل خدمةٍ وشخص ───────── */
+.adm-mark {
+  width: 34px;
+  height: 34px;
+  flex: none;
+  display: grid;
+  place-items: center;
+  border-radius: 10px;
+  color: #fff;
+  font-family: var(--font-data);
+  font-size: 0.79rem;
+  font-weight: 800;
+}
+
+/* ── بلاطة «More» ──────────────────────────────────────────── */
+.adm-tile {
+  min-height: 96px;
+  padding: 14px;
+  text-align: start;
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  background: var(--surface);
+}
+.adm-tile > .pl {
+  width: 36px;
+  height: 36px;
+  display: grid;
+  place-items: center;
+  border-radius: 11px;
+  background: color-mix(in srgb, var(--accent) 11%, transparent);
+  color: var(--accent);
+}
+
+/* ── الترجمة التلقائية: شارةٌ تقول حال كل سطر ───────────────── */
+.adm-auto {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 0.79rem;
+  font-weight: 800;
+  background: color-mix(in srgb, var(--accent) 12%, transparent);
+  color: var(--accent);
+}
+/* ⚠️ **الذهبيّ يعني «كلامُكِ أنتِ»** — والتلقائيّ لا يكتب فوقه أبداً */
+.adm-auto.mine {
+  background: color-mix(in srgb, var(--accent-2) 15%, transparent);
+  color: var(--accent-2);
+}
