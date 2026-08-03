@@ -224,17 +224,23 @@ export default function LiveChat() {
         <div
           role="dialog"
           aria-label={t("title")}
-          style={{ bottom: `calc(${ABOVE_NAV} + 4.4rem)` }}
-          className="chat-in fx-right fixed z-50 flex max-h-[min(32rem,66dvh)] w-[min(23rem,calc(100vw-1.5rem))] flex-col overflow-hidden rounded-[26px] border border-line bg-surface shadow-[0_18px_50px_rgba(0,0,0,0.25)]"
+          /* ⚠️ **تملأ الشاشة** (النموذج) لا نافذةً عائمة في زاويتها:
+             محادثةٌ في مربّعٍ صغير فوق صفحةٍ تظهر من حوله تُقرأ كإعلان،
+             والزبون الذي فتحها يريدها وحدها. `fx-w` يحبسها في عرض
+             الموقع فلا تمتدّ بعرض الآيباد. */
+          className="chat-in fx-w fixed inset-y-0 z-50 flex flex-col bg-bg"
         >
-          {/* الترويسة — لوحة بلون العلامة تُميّز النافذة عن الصفحة خلفها */}
-          <header className="flex items-center gap-3 bg-navy p-3.5 text-white">
-            <Logo className="size-10 shrink-0" solid />
+          {/* الترويسة — بأرضية الصفحة وخطٍّ سفليّ كما في النموذج، لا
+              لوحةٌ داكنة: الدردشة شاشةٌ من المتجر لا نافذةٌ غريبة عنه */}
+          <header className="flex shrink-0 items-center gap-3 border-b border-line px-4 py-3">
+            <span className="plate size-9 shrink-0">
+              <Logo bare />
+            </span>
 
-            <span className="min-w-0 flex-1">
+            <span className="min-w-0 flex-1 leading-tight">
               <span className="block truncate font-bold">{t("title")}</span>
-              <span className="flex items-center gap-1.5 text-xs text-white/75">
-                <span className="pulse-dot" />
+              <span className="f11 flex items-center gap-1.5 text-success">
+                <span className="beat" />
                 {t("status")}
               </span>
             </span>
@@ -243,7 +249,7 @@ export default function LiveChat() {
               type="button"
               onClick={close}
               aria-label={t("close")}
-              className="nav-tap -me-1 flex size-9 shrink-0 items-center justify-center rounded-full text-white/80 hover:bg-white/10 hover:text-white"
+              className="nav-tap -me-1 flex size-11 shrink-0 items-center justify-center rounded-full text-muted hover:text-text"
             >
               <IconClose className="size-5" />
             </button>
