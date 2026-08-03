@@ -54,6 +54,8 @@ export function inSpan(d: Date | null | undefined, s: Span): boolean {
 /** المدى بالكلمات — يُطبع فوق الجداول وفي رسائل الفراغ */
 export function spanLabel(s: Span): string {
   if (!s.from && !s.to) return "All time";
-  if (s.from && s.to) return s.from === s.to ? s.from : `${s.from} → ${s.to}`;
+  /* ⚠️ «to» بالكلمة لا بسهمٍ محرفيّ — القرار المقفول (ب): المحرف
+     يتغيّر شكله بين جهازٍ وجهاز، وقد يظهر مربّعاً فارغاً. */
+  if (s.from && s.to) return s.from === s.to ? s.from : `${s.from} to ${s.to}`;
   return s.from ? `From ${s.from}` : `Until ${s.to}`;
 }

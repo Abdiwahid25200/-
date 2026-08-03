@@ -10,7 +10,12 @@ import {
 } from "@/lib/overrides";
 import { diff, hasChanges } from "@/lib/dirty";
 import ImagePicker from "./ImagePicker";
-import { IconCheckCircle, IconSpinner } from "@/components/icons";
+import {
+  IconCheckCircle,
+  IconMinus,
+  IconPlus,
+  IconSpinner,
+} from "@/components/icons";
 
 /** حالات القسم كما تفهمها صاحبة المتجر لا كما يكتبها المبرمج */
 const STATUSES = [
@@ -231,14 +236,24 @@ export default function SectionsEditor() {
                 <span className="block truncate font-bold">
                   {d.title?.ar || s.key}
                 </span>
-                <span className="block text-xs text-muted">
+                <span
+                  className={`adm-st mt-0.5 ${
+                    (d.status ?? s.status) === "on"
+                      ? "on"
+                      : (d.status ?? s.status) === "soon"
+                        ? "soon"
+                        : ""
+                  }`}
+                >
                   {STATUSES.find((x) => x.v === (d.status ?? s.status))?.label}
                 </span>
               </span>
               {saved === s.key && <IconCheckCircle className="size-5 text-yellow" />}
-              <span aria-hidden className="text-muted">
-                {isOpen ? "−" : "+"}
-              </span>
+              {isOpen ? (
+                <IconMinus className="size-5 text-muted" />
+              ) : (
+                <IconPlus className="size-5 text-muted" />
+              )}
             </button>
 
             {isOpen && (

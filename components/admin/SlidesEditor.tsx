@@ -10,7 +10,12 @@ import {
 } from "@/lib/overrides";
 import { diff, hasChanges } from "@/lib/dirty";
 import ImagePicker from "./ImagePicker";
-import { IconCheckCircle, IconSpinner } from "@/components/icons";
+import {
+  IconCheckCircle,
+  IconMinus,
+  IconPlus,
+  IconSpinner,
+} from "@/components/icons";
 
 const LOCALES = [
   { v: "ar", label: "العربية" },
@@ -194,12 +199,16 @@ export default function SlidesEditor() {
                 <span className="block truncate font-bold">
                   {d.title?.[lang] || s.key}
                 </span>
-                <span className="block text-xs text-muted">
+                <span className={`adm-st mt-0.5 ${d.hidden ? "" : "on"}`}>
                   {d.hidden ? "Hidden" : d.custom ? "Added by you" : "Built-in"}
                 </span>
               </span>
               {saved === s.key && <IconCheckCircle className="size-5 text-yellow" />}
-              <span aria-hidden className="text-muted">{isOpen ? "−" : "+"}</span>
+              {isOpen ? (
+                <IconMinus className="size-5 text-muted" />
+              ) : (
+                <IconPlus className="size-5 text-muted" />
+              )}
             </button>
 
             {isOpen && (

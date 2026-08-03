@@ -17,7 +17,13 @@ import { diff, hasChanges } from "@/lib/dirty";
 import { profitOf, readCosts, saveCost, type Costs } from "@/lib/costs";
 import ImagePicker from "./ImagePicker";
 import GalleryPicker from "./GalleryPicker";
-import { IconCheckCircle, IconSpinner, IconTrash } from "@/components/icons";
+import {
+  IconCheckCircle,
+  IconMinus,
+  IconPlus,
+  IconSpinner,
+  IconTrash,
+} from "@/components/icons";
 
 type KindOption = { v: ItemKind; label: string; titleLabel: string };
 
@@ -203,12 +209,25 @@ export default function ItemsEditor() {
                 }`}
               >
                 {/* الصفّ ليس زرّاً واحداً: الحذف والاسترجاع هنا في متناول
-                    الإصبع، بلا فتح البطاقة والنزول إلى أسفلها */}
-                <div className="flex items-center gap-1 p-3.5">
+                    الإصبع، بلا فتح البطاقة والنزول إلى أسفلها.
+
+                    ⚠️ وشريط الخطورة (`.sv`) أوّلَه: **الحالة تُرى قبل أن
+                    تُقرأ** — الأخضر يعمل، والذهبيّ «قريباً»، والرماديّ
+                    مخفيٌّ عن الزبون. */}
+                <div
+                  className={`adm-q border-0 py-0 pe-1 ps-0 ${
+                    it.hidden || it.status === "off"
+                      ? ""
+                      : it.status === "soon"
+                        ? "wait"
+                        : "done"
+                  }`}
+                >
+                  <span className="sv my-3" />
                   <button
                     type="button"
                     onClick={() => setOpen(isOpen ? null : it.id)}
-                    className={`flex min-w-0 flex-1 items-center gap-3 text-start ${
+                    className={`flex min-w-0 flex-1 items-center gap-3 py-3 text-start ${
                       it.hidden ? "opacity-55" : ""
                     }`}
                   >
@@ -226,12 +245,19 @@ export default function ItemsEditor() {
                       >
                         {it.title || "Untitled"}
                       </span>
-                      <span className="num block text-xs text-muted" dir="ltr">
-                        ${Number(it.price).toFixed(2)}
-                        {it.hidden
-                          ? " · Removed"
-                          : it.status !== "on" &&
-                            ` · ${STATUSES.find((s) => s.v === it.status)?.label}`}
+                      <span className="mt-0.5 flex items-center gap-1.5">
+                        <span className="num shrink-0 text-sm font-bold text-gold" dir="ltr">
+                          ${Number(it.price).toFixed(2)}
+                        </span>
+                        {it.hidden ? (
+                          <span className="adm-st">Removed</span>
+                        ) : (
+                          it.status !== "on" && (
+                            <span className={`adm-st ${it.status === "soon" ? "soon" : ""}`}>
+                              {STATUSES.find((s) => s.v === it.status)?.label}
+                            </span>
+                          )
+                        )}
                       </span>
                     </span>
                     {saved === it.id && <IconCheckCircle className="size-5 text-yellow" />}
@@ -262,13 +288,15 @@ export default function ItemsEditor() {
                     </button>
                   )}
 
+                  {/* 🔒 أيقونةٌ مرسومة لا محرف: `−` و`+` كانا محرفَين
+                      يتغيّر شكلهما بين جهازٍ وجهاز — القرار المقفول (ب) */}
                   <button
                     type="button"
                     onClick={() => setOpen(isOpen ? null : it.id)}
                     aria-label={isOpen ? "Close" : "Edit"}
-                    className="flex size-12 shrink-0 items-center justify-center text-lg text-muted"
+                    className="flex size-12 shrink-0 items-center justify-center text-muted"
                   >
-                    <span aria-hidden>{isOpen ? "−" : "+"}</span>
+                    {isOpen ? <IconMinus className="size-5" /> : <IconPlus className="size-5" />}
                   </button>
                 </div>
 

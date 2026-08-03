@@ -92,11 +92,11 @@ const MORE: Screen[] = [
   {
     v: "chats",
     label: "Live chat",
-    note: "Customer messages and replies",
+    note: "Messages and replies",
     perm: "chat",
     hint: (h) =>
       h.waitingChats > 0
-        ? `${h.waitingChats} ${h.waitingChats === 1 ? "person is" : "people are"} waiting`
+        ? `${h.waitingChats} waiting for a reply`
         : null,
   },
   {
@@ -110,10 +110,10 @@ const MORE: Screen[] = [
     label: "Payments",
     note: "How they pay you",
     perm: "payments",
-    hint: (h) => (h.livePay === 0 ? "All off — turn one on" : null),
+    hint: (h) => (h.livePay === 0 ? "All off, nobody can pay" : null),
   },
   { v: "points", label: "Barwaaqo", note: "Points and rewards", perm: "points" },
-  { v: "faq", label: "Questions", note: "Answers customers see", perm: "faq" },
+  { v: "faq", label: "Questions", note: "What customers ask", perm: "faq" },
   { v: "staff", label: "Helpers", note: "Who can open what", owner: true },
   { v: "referrals", label: "Invites", note: "Who brought whom", owner: true },
   {
@@ -121,11 +121,11 @@ const MORE: Screen[] = [
     label: "Store info",
     note: "Number, hours, days off",
     owner: true,
-    hint: (h) => (h.noWhatsapp ? "WhatsApp number is empty" : null),
+    hint: (h) => (h.noWhatsapp ? "No WhatsApp number yet" : null),
   },
   { v: "texts", label: "Wording", note: "Text customers read", perm: "sections" },
-  { v: "slides", label: "Banner", note: "Slides on the home screen", perm: "sections" },
-  { v: "report", label: "Helper report", note: "Who handled what, and when", owner: true },
+  { v: "slides", label: "Banner", note: "Home screen slides", perm: "sections" },
+  { v: "report", label: "Helper report", note: "Who handled what", owner: true },
   { v: "bin", label: "Deleted", note: "Bring anything back", owner: true },
 ];
 
@@ -317,7 +317,9 @@ function MoreGrid({
               {/* ⚠️ السطر الحيّ يعلو الوصف الثابت: «كلّها مطفأة» تُقال
                   مرّة، ووصفُ الباب يبقى مكتوباً في كل مرّة. */}
               <span
-                className={`block truncate text-xs ${live ? "font-bold text-danger" : "text-muted"}`}
+                className={`line-clamp-2 block text-xs leading-snug ${
+                  live ? "font-bold text-danger" : "text-muted"
+                }`}
               >
                 {live ?? s.note}
               </span>

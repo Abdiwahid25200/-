@@ -11,7 +11,12 @@ import {
   type PayOverride,
 } from "@/lib/payments";
 import ImagePicker from "./ImagePicker";
-import { IconCheckCircle, IconSpinner } from "@/components/icons";
+import {
+  IconCheckCircle,
+  IconMinus,
+  IconPlus,
+  IconSpinner,
+} from "@/components/icons";
 
 const STATUSES = [
   { v: "on", label: "Live — customers can pay" },
@@ -140,23 +145,55 @@ export default function PaymentsEditor() {
       .map(([id, o]) => ({ id, name: o.nameEn ?? id, base: undefined, custom: true })),
   ];
 
-  const liveCount = list.filter(
+  const live = list.filter(
     (x) => (over[x.id]?.status ?? x.base?.status ?? "on") === "on",
-  ).length;
+  );
+  const liveCount = live.length;
+
+  /**
+   * 🔎 **الشاشة تقول ما ينقص** — لا تنتظر أن يُكتشف.
+   *
+   * ⚠️ وطريقةٌ مفتوحةٌ بلا رقم تحويلٍ أسوأ من مطفأة: الزبون يصل إلى
+   *    خطوة الدفع فيجدها فارغةً فيترك الطلب — وأنتِ تحسبينها تعمل.
+   */
+  const noNumber = live.filter((x) => {
+    const d = over[x.id] ?? {};
+    const nums = d.numbers ?? x.base?.numbers ?? [];
+    const ussd = d.ussd ?? x.base?.ussd ?? "";
+    return nums.length === 0 && !String(ussd).trim();
+  });
 
   return (
     <div className="flex flex-col gap-3">
-      <p
-        className={`rounded-card border p-3 text-sm ${
-          liveCount === 0
-            ? "border-danger/40 bg-danger/5"
-            : "border-dashed border-line text-muted"
-        }`}
-      >
-        {liveCount === 0
-          ? "No payment method is live — the payment step is hidden from customers. Set at least one to Live."
-          : `${liveCount} method${liveCount > 1 ? "s" : ""} live.`}
-      </p>
+      {liveCount === 0 ? (
+        <p className="adm-warn text-sm">
+          <span>
+            <b className="block">No payment method is live</b>
+            All <span className="num">{list.length}</span> are off, so the payment
+            step never appears and customers cannot pay. Set at least one to{" "}
+            <b>Live</b>.
+          </span>
+        </p>
+      ) : (
+        <p className="adm-ttl">
+          <span className="num">{liveCount}</span> of{" "}
+          <span className="num">{list.length}</span> live
+        </p>
+      )}
+
+      {noNumber.length > 0 && (
+        <p className="adm-warn soft text-sm">
+          <span>
+            <b className="block">
+              {noNumber.map((x) => x.name).join(", ")}{" "}
+              {noNumber.length === 1 ? "is live but has" : "are live but have"} no
+              number
+            </b>
+            The customer reaches the payment step and finds nothing to send money
+            to. Open it and write the transfer number or the USSD code.
+          </span>
+        </p>
+      )}
 
       <div className="flex flex-wrap items-end gap-2 rounded-card border border-dashed border-line p-3">
         <label className="flex min-w-40 flex-1 flex-col gap-1.5 text-sm">
@@ -199,14 +236,22 @@ export default function PaymentsEditor() {
                 >
                   {d.nameEn || x.base?.nameEn || x.id}
                 </span>
-                <span className="block text-xs text-muted">
+                <span
+                  className={`adm-st mt-0.5 ${
+                    d.hidden ? "" : status === "on" ? "on" : status === "soon" ? "soon" : ""
+                  }`}
+                >
                   {d.hidden
                     ? "Removed"
                     : STATUSES.find((s) => s.v === status)?.label}
                 </span>
               </span>
               {saved === x.id && <IconCheckCircle className="size-5 text-yellow" />}
-              <span aria-hidden className="text-muted">{isOpen ? "−" : "+"}</span>
+              {isOpen ? (
+                <IconMinus className="size-5 text-muted" />
+              ) : (
+                <IconPlus className="size-5 text-muted" />
+              )}
             </button>
 
             {d.hidden && (

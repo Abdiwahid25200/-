@@ -190,8 +190,38 @@ export default function SiteEditor() {
   const field =
     "min-h-12 w-full rounded-card border border-line bg-bg px-3 outline-none focus:border-orange";
 
+  /**
+   * 🔎 **ما ينقص يُقال هنا** — وإلّا لم يُكتشف إلا بالمصادفة.
+   *
+   * ⚠️ قناةٌ فارغةٌ **لا تُعرض للزبون** (قرارٌ قديم: لا تُعرض قناة فارغة)،
+   *    فيبدو الأمر حذفاً وهو فراغُ حقل. وهذا ما وقع فعلاً مع واتساب:
+   *    بُحث عنه في تاريخ git ظنّاً أنّه أُزيل، وكان الحقل فارغاً لا غير.
+   */
+  const missing = (
+    [
+      ["WhatsApp", (d.whatsapp ?? site.whatsapp) as string],
+      ["Email", (d.email ?? site.email) as string],
+      ["Telegram", (d.telegram ?? site.telegram) as string],
+    ] as const
+  )
+    .filter(([, v]) => !String(v ?? "").trim())
+    .map(([k]) => k);
+
   return (
     <div className="flex flex-col gap-4">
+      {missing.length > 0 && (
+        <p className={`adm-warn text-sm ${missing.length === 3 ? "" : "soft"}`}>
+          <span>
+            <b className="block">
+              {missing.join(", ")} {missing.length === 1 ? "is" : "are"} empty
+            </b>
+            {missing.length === 3
+              ? "The help page shows no way to reach you at all. Write at least one below."
+              : "An empty channel stays hidden on the help page — customers never see that card. Fill it in below, or leave it empty on purpose."}
+          </span>
+        </p>
+      )}
+
       {/* ── إغلاق المتجر وساعات العمل ── */}
       <label
         className={`flex items-center gap-3 rounded-card border-2 p-3 ${

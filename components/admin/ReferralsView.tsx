@@ -119,7 +119,7 @@ export default function ReferralsView() {
       </p>
 
       <section>
-        <h3 className="mb-2 font-bold">Top inviters</h3>
+        <h3 className="adm-ttl mb-2">Top inviters</h3>
         {top.length === 0 ? (
           <p className="rounded-card border border-dashed border-line p-5 text-center text-sm text-muted">
             No invite has paid off yet.
@@ -150,7 +150,7 @@ export default function ReferralsView() {
       </section>
 
       <section>
-        <h3 className="mb-2 font-bold">Who invited whom</h3>
+        <h3 className="adm-ttl mb-2">Who invited whom</h3>
         {invited.length === 0 ? (
           <p className="rounded-card border border-dashed border-line p-5 text-center text-sm text-muted">
             Nobody has signed up with a code yet.

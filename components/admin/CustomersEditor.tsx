@@ -155,18 +155,21 @@ export default function CustomersEditor() {
                   setOpen(open === c.uid ? null : c.uid);
                   setAmount("");
                 }}
-                className="flex w-full items-center gap-3 p-3 text-start"
+                className={`adm-q border-0 ${c.points > 0 ? "done" : "wait"}`}
               >
-                <span className="min-w-0 flex-1">
-                  <span className="block truncate font-bold">
-                    {c.name || c.email || "—"}
+                <span className="sv" />
+                <span className="bd">
+                  <span className="flex items-center gap-3">
+                    <b className="min-w-0 flex-1 truncate">
+                      {c.name || c.email || "—"}
+                    </b>
+                    <span className="num shrink-0 font-bold text-gold" dir="ltr">
+                      {c.points} pts
+                    </span>
                   </span>
-                  <span className="num block truncate text-xs text-muted" dir="ltr">
+                  <span className="num truncate text-xs text-muted" dir="ltr">
                     {c.phone || "no phone"}
                   </span>
-                </span>
-                <span className="num shrink-0 text-sm font-bold text-orange">
-                  {c.points}
                 </span>
               </button>
 

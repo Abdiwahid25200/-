@@ -69,11 +69,20 @@ const SHORT: Record<(typeof FILTERS)[number]["v"], string> = {
   cancelled: "Rejected",
 };
 
+/* شارة الحالة — أصناف النموذج، فالشارة نفسها في Today وفي هذه الشاشة */
 const STATUS_STYLE: Record<OrderStatus, string> = {
-  pending: "bg-yellow/15 text-yellow",
-  paid: "bg-success/12 text-success",
-  done: "bg-surface2 text-muted",
-  cancelled: "bg-danger/10 text-danger",
+  pending: "adm-pill wait",
+  paid: "adm-pill done",
+  done: "adm-pill",
+  cancelled: "adm-pill late",
+};
+
+/** شريط الخطورة على حافة الصفّ — يُقرأ قبل الكلمات */
+const STATUS_SEV: Record<OrderStatus, string> = {
+  pending: "wait",
+  paid: "wait",
+  done: "done",
+  cancelled: "",
 };
 
 /**
@@ -430,7 +439,7 @@ export default function OrdersEditor() {
 
         {/* ① متى — من … إلى، وبإمكانها تنزيل المدى كلّه لإكسل من هنا */}
         <section className="flex flex-col gap-2">
-          <h3 className="font-bold">Which dates?</h3>
+          <h3 className="adm-ttl">Which dates?</h3>
           <DateRange
             span={span}
             onChange={setSpan}
@@ -578,8 +587,9 @@ export default function OrdersEditor() {
               <button
                 type="button"
                 onClick={() => void expand(o)}
-                className="flex w-full items-center gap-3 p-3 text-start"
+                className={`adm-q border-0 ${STATUS_SEV[o.status] ?? ""}`}
               >
+                <span className="sv" />
                 {/* ⚠️ **ما طُلب أوّلاً لا رمز الطلب.** «M-537817» لا يقول
                     شيئاً، و«660 UC ×1» يقول كل شيء. الرمز سطرٌ صغير تحته. */}
                 <span className="min-w-0 flex-1">
@@ -594,12 +604,8 @@ export default function OrdersEditor() {
 
                 <span className="flex shrink-0 flex-col items-end gap-1">
                   {/* مبلغٌ صفريّ ليس عطلاً: طلبٌ دُفع بالنقاط. فيُقال */}
-                  <span className="num font-bold">{amountOf(o)}</span>
-                  <span
-                    className={`rounded-full px-2 py-0.5 text-xs font-bold ${
-                      STATUS_STYLE[o.status] ?? ""
-                    }`}
-                  >
+                  <span className="num font-bold text-gold">{amountOf(o)}</span>
+                  <span className={STATUS_STYLE[o.status] ?? ""}>
                     {statusWord(o)}
                   </span>
                   {/* حجزٌ وصل خارج الدوام — يُنفَّذ أوّل ما تفتحين */}
@@ -785,12 +791,12 @@ export default function OrdersEditor() {
                       </p>
                       <ul className="mt-1.5 flex flex-col gap-1">
                         <li>
-                          Nothing sent → press{" "}
+                          Nothing sent yet: press{" "}
                           <strong>Return {trace?.spent || Number(o.pointsSpent) || 0} points</strong> —
                           it puts them back on their balance.
                         </li>
                         <li>
-                          Already sent it → press <strong>Mark paid</strong>, then{" "}
+                          Already sent it: press <strong>Mark paid</strong>, then{" "}
                           <strong>{doneLabel(o.kind)}</strong>.
                         </li>
                       </ul>

@@ -1059,6 +1059,20 @@ export function IconCalendar({ className = "" }: IconProps) {
 }
 
 /**
+ * نصوص الصفحات — حرفٌ فوق سطر، كزرّ الخطّ في محرّرات الكتابة.
+ *
+ * ⚠️ كانت «Wording» و«Questions» على `IconHelp` معاً — بابان بأيقونةٍ
+ *    واحدة، والمكرّرة زينةٌ لا علامة. القرار المقفول (ج).
+ */
+export function IconText({ className = "" }: IconProps) {
+  return (
+    <svg viewBox="0 0 24 24" strokeWidth="1.8" className={`${base} ${className}`} aria-hidden>
+      <path strokeLinecap="round" d="M5 5h14M5 5v2M12 5v14M9.5 19h5" />
+    </svg>
+  );
+}
+
+/**
  * الأقسام — إطارٌ مقسومٌ إلى صفٍّ وعمود، أي **تخطيط الصفحة نفسه**.
  *
  * ⚠️ كانت الأقسام على `IconGrid` (أربعة مربّعات)، وهي أيقونة **More**

@@ -13,6 +13,7 @@ import {
   IconReceipt,
   IconStore,
   IconTag,
+  IconText,
   IconTrash,
   IconUsers,
 } from "@/components/icons";
@@ -60,7 +61,8 @@ export const ICONS: Record<
   slides: IconImage,
   store: IconStore,
   payments: IconCard,
-  texts: IconHelp,
+  /* ⚠️ نصوص الصفحات لها أيقونتها — كانت تشارك `faq` أيقونةَ السؤال */
+  texts: IconText,
   analytics: IconChart,
   bin: IconTrash,
   report: IconMoney,

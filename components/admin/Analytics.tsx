@@ -93,9 +93,58 @@ export default function Analytics() {
 
     const pointsGiven = earned.reduce((n, o) => n + (Number(o.pointsAwarded) || 0), 0);
 
+    /* ── منحنى الربح ──
+       الرقم يقول «كم»، والمنحنى يقول «إلى أين» — وهذا ما يُبنى عليه قرار.
+
+       ⚠️ **البواكي محسوبةٌ من المدى المختار لا بعددٍ ثابت**: مدىً من
+          يومين في ثلاثين بواكيَ خطٌّ مسنّن لا معنى له، ومدى سنةٍ في
+          سبعةٍ خطٌّ لا يُقرأ منه أسبوع. */
+    const costOf = (o: (typeof list)[number]) => {
+      let c = 0;
+      for (const it of o.items ?? []) {
+        const v = costs[it.id];
+        if (v !== undefined) c += v * Math.max(1, it.qty ?? 1);
+      }
+      return c;
+    };
+
+    const times = list.map((o) => o.createdAt?.getTime() ?? 0).filter(Boolean);
+    const lo = times.length ? Math.min(...times) : 0;
+    const hi = times.length ? Math.max(...times) : 0;
+    const days = Math.max(1, Math.round((hi - lo) / 86_400_000) + 1);
+    const slots = Math.min(Math.max(days, 2), 30);
+    const curve = Array<number>(slots).fill(0);
+    for (const o of earned) {
+      const t = o.createdAt?.getTime() ?? 0;
+      if (!t) continue;
+      const i =
+        hi === lo ? slots - 1 : Math.min(slots - 1, Math.floor(((t - lo) / (hi - lo)) * slots));
+      curve[i] += (Number(o.total) || 0) - costOf(o);
+    }
+
+    /* والمقارنة بمدىً سابقٍ بطوله — «+18%» بلا «مقارنةً بماذا» رقمٌ أعمى */
+    let before = 0;
+    let hasBefore = false;
+    if (times.length) {
+      const width = hi - lo || 86_400_000;
+      for (const o of orders ?? []) {
+        const t = o.createdAt?.getTime() ?? 0;
+        if (!t || t >= lo || t < lo - width) continue;
+        if (o.status !== "paid" && o.status !== "done") continue;
+        hasBefore = true;
+        before += (Number(o.total) || 0) - costOf(o);
+      }
+    }
+    const change =
+      hasBefore && before > 0
+        ? Math.round(((revenue - cost - before) / before) * 100)
+        : null;
+
     return {
       list,
       earned,
+      curve,
+      change,
       count: list.length,
       pending: list.filter((o) => o.status === "pending").length,
       cancelled: list.filter((o) => o.status === "cancelled").length,
@@ -187,16 +236,52 @@ export default function Analytics() {
         <p className="p-4 text-center text-sm text-muted">Loading…</p>
       ) : (
         <>
-          {/* الثلاثة الكبار: دخل · تكلفة · ربح */}
-          <div className="grid grid-cols-3 gap-2">
-            <Box label="Revenue" value={money(s.revenue)} />
-            <Box label="Cost" value={money(s.cost)} muted />
-            <Box
-              label="Profit"
-              value={money(s.profit)}
-              tone={s.profit >= 0 ? "good" : "bad"}
-            />
-          </div>
+          {/* ── البطاقة الكبرى: الربح رقماً ومنحنىً، والدخل والتكلفة تحته ──
+              رقمٌ واحد كبير ثم تفصيلُه — شكل النموذج في كل شاشة. */}
+          <section className="flex flex-col gap-3 rounded-card border border-line bg-surface p-3.5">
+            <div className="flex items-center gap-3">
+              <span className="min-w-0 flex-1">
+                <span className="block text-xs text-muted">Profit</span>
+                <b
+                  className={`num block text-[1.65rem] font-extrabold leading-tight ${
+                    s.profit >= 0 ? "text-success" : "text-danger"
+                  }`}
+                  dir="ltr"
+                >
+                  {money(s.profit)}
+                </b>
+              </span>
+              {s.change !== null && (
+                <span className={`adm-pill ${s.change >= 0 ? "done" : "late"}`}>
+                  <span className="num">
+                    {s.change >= 0 ? "+" : ""}
+                    {s.change}%
+                  </span>
+                </span>
+              )}
+            </div>
+
+            <ProfitCurve series={s.curve} />
+
+            <hr className="border-0 border-t border-line" />
+            <div className="flex items-center gap-3 text-sm">
+              <span className="min-w-0 flex-1 text-muted">Income</span>
+              <b className="num" dir="ltr">
+                {money(s.revenue)}
+              </b>
+            </div>
+            <div className="flex items-center gap-3 text-sm">
+              <span className="min-w-0 flex-1 text-muted">Cost</span>
+              <b className="num" dir="ltr">
+                {money(s.cost)}
+              </b>
+            </div>
+            {s.change !== null && (
+              <p className="text-xs text-muted">
+                Compared with the same number of days just before this range.
+              </p>
+            )}
+          </section>
 
           {s.unknownCost > 0 && (
             <p className="rounded-card border border-dashed border-line p-3 text-sm text-muted">
@@ -222,7 +307,7 @@ export default function Analytics() {
 
           <section>
             <div className="mb-2 flex items-center gap-2">
-              <h3 className="min-w-0 flex-1 font-bold">Best sellers</h3>
+              <h3 className="adm-ttl min-w-0 flex-1">Best sellers</h3>
               {s.top.length > 0 && (
                 <button
                   type="button"
@@ -307,7 +392,7 @@ function TrustBarBox() {
 
   return (
     <section className="rounded-card border border-line bg-surface p-4">
-      <h3 className="font-bold">Trust bar on the home page</h3>
+      <h3 className="adm-ttl">Trust bar on the home page</h3>
       <p className="mt-1 text-sm text-muted">
         Real numbers from your own orders. It stays hidden until you have{" "}
         <strong className="num">{MIN_ORDERS}</strong> finished orders — a small
@@ -343,6 +428,50 @@ function TrustBarBox() {
         {busy ? "Counting…" : "Recount from old orders"}
       </button>
     </section>
+  );
+}
+
+/**
+ * منحنى الربح — مساحةٌ تحت خطّ.
+ *
+ * ⚠️ **القاع من الأرقام نفسها**: مقياسٌ ثابت يجعل منحنى متجرٍ يربح
+ *    عشرة دولارات مسطّحاً كالورق. والصفر يبقى في المقياس حين تكون كل
+ *    الأرقام موجبة، وإلا بدا يومٌ ربحه دولارٌ واحد قمّةً وليس بقمّة.
+ */
+function ProfitCurve({ series }: { series: number[] }) {
+  const n = series.length;
+  if (n < 2 || series.every((v) => v === 0)) return null;
+
+  const hi = Math.max(...series, 0);
+  const lo = Math.min(...series, 0);
+  const span = hi - lo || 1;
+  const x = (i: number) => (i / (n - 1)) * 300;
+  const y = (v: number) => 68 - ((v - lo) / span) * 62;
+
+  const line = series.map((v, i) => `${i ? "L" : "M"}${x(i).toFixed(1)} ${y(v).toFixed(1)}`).join(" ");
+
+  return (
+    <svg
+      viewBox="0 0 300 74"
+      preserveAspectRatio="none"
+      className="h-[74px] w-full"
+      aria-hidden
+    >
+      <path
+        d={`${line} L300 74 L0 74Z`}
+        fill="color-mix(in srgb, var(--accent-3) 14%, transparent)"
+        stroke="none"
+      />
+      <path
+        d={line}
+        fill="none"
+        stroke="var(--accent-3)"
+        strokeWidth="2.4"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      <circle cx="300" cy={y(series[n - 1])} r="3.4" fill="var(--accent-3)" />
+    </svg>
   );
 }
 
