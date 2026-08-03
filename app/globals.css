@@ -501,6 +501,8 @@ body.has-buybar {
    🔧 **لتغيير عرض الموقع كلّه: هذا السطر وحده.** */
 :root {
   --app-w: 430px;
+  /* ارتفاع بلاطة القسم — انظر `.tile .sq` */
+  --tile-h: 96px;
 }
 
 .page-w {
@@ -767,7 +769,13 @@ input.field::placeholder, textarea.field::placeholder { color: var(--muted); }
 .tile { display: flex; flex-direction: column; gap: 7px; align-items: center; }
 .tile .sq {
   width: 100%;
-  aspect-ratio: 1;
+  /* 📏 **ارتفاعٌ مقطوع لا مربّعٌ يكبر مع العرض** — قرارها (٠٣-٠٨):
+     «صغّرهم، بدي العميل يرى كل الأقسام من دون ما ينزل».
+     المربّع يربط الارتفاع بالعرض، فقسمان في صفٍّ يجعلان البلاطة ١٧٤×١٧٤
+     — وهي وحدها تُخرج الرئيسية عن الشاشة. الارتفاع الثابت يجعل الصفّ
+     بمقاسٍ واحد في كل صفحة مهما كان عدد الأعمدة.
+     🔧 **لتصغيرها أو تكبيرها: `--tile-h` وحده.** */
+  height: var(--tile-h);
   border-radius: 16px;
   display: grid;
   place-items: center;
