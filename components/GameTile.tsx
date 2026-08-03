@@ -7,9 +7,9 @@ type Props = {
   href: string;
   title: string;
   icon: SectionIconKey;
-  /** صورة القسم — تُرفع لاحقاً من لوحة الإدارة، وحتى ذلك تظهر الأيقونة */
+  /** صورة القسم — تُرفع من لوحة الإدارة، وبلا صورة تظهر الأيقونة المرسومة */
   img?: string;
-  /** وسم أعلى الصورة: فوري أم يدوي */
+  /** وسم أعلى البلاطة: فوري أم يدوي */
   badge?: "instant" | "manual" | "shipped";
   badgeLabel?: string;
   soon?: boolean;
@@ -17,8 +17,17 @@ type Props = {
 };
 
 /**
- * بطاقة قسم مربّعة — صورة كبيرة والاسم تحتها، ثلاث بالصف.
- * بديل الصف الأفقي، بناءً على المرجع الذي أرسلته صاحبة المشروع.
+ * بلاطة قسم — **مبنيّةٌ على أصناف النموذج**: `.tile` مربّعاً و`.sq` صفيحةً
+ * و`.nm` اسماً تحتها و`.bdg` وسماً في زاويتها. المقاسات في `globals.css`.
+ *
+ * ⚠️ **الاسم تحت البلاطة لا فوقها**: كان يُكتب فوق الصورة فيقع على شعار
+ *    اللعبة نفسه — «eFootball» فوق كلمة FOOTBALL المرسومة في الشعار.
+ *
+ * ⚠️ **والأيقونة تحت الصورة لا بديلاً عنها**: تعذّر تحميل الصورة — رابطٌ
+ *    حُذف أو شبكةٌ بطيئة — يترك مربّعاً فارغاً. فتظهر الأيقونة من تحتها.
+ *
+ * ⚠️ **و`alt` فارغ عمداً**: الاسم مكتوبٌ تحت البلاطة، فالصورة زينةٌ لا خبر.
+ *    ولولا ذلك لظهر الاسم فوقها نصّاً بديلاً حين يتعذّر تحميلها.
  */
 export default function GameTile({
   href,
@@ -30,28 +39,13 @@ export default function GameTile({
   soon,
   soonLabel,
 }: Props) {
-  /**
-   * الاسم **تحت** البلاطة لا فوقها.
-   *
-   * كان يُكتب فوق الصورة، فيقع على شعار اللعبة نفسه: "eFootball" فوق كلمة
-   * FOOTBALL المرسومة في الشعار، فتزدحم الكلمتان ويبدو المتجر غير مرتّب.
-   * وشعارات الألعاب مصمَّمة لتُرى وحدها — فلتبقَ وحدها، والاسم تحتها.
-   */
-  const tile = (
-    <span className="block">
-      {/* ⚠️ **التدرّج والأيقونة أسفل الصورة لا بديلاً عنها.** كانت البلاطة
-          بيضاء تحت الصورة، فإن تعذّر تحميلها — رابطٌ حُذف، أو شبكةٌ
-          بطيئة — بقي مربّعٌ أبيض فارغ. الآن تظهر الأيقونة من تحتها
-          فلا يرى الزبون فراغاً أبداً. */}
-      {/* ⚠️ **الأيقونة على البلاطة مباشرةً — بلا صفيحة سداسية ولا ظلّ**
-          (النموذج): البلاطة نفسها هي الصفيحة، وصفيحةٌ داخل صفيحة تصنع
-          إطارَين متداخلَين يشغلان نصف المربّع فتصغر الأيقونة. */}
-      <span className="lift relative flex aspect-square items-center justify-center overflow-hidden rounded-2xl border border-line bg-gradient-to-bl from-orange/20 to-surface2 text-orange">
-        <SectionIcon name={icon} mono className="w-[26%]" />
+  const label = soon ? soonLabel : badgeLabel;
 
-        {/* ⚠️ **`alt` فارغ عمداً**: الاسم مكتوبٌ تحت البلاطة، فالصورة
-            زينةٌ لا خبر. ولولا ذلك لظهر الاسم **فوقها** نصّاً بديلاً
-            حين يتعذّر تحميلها، فيُقرأ مرّتين ويقع على الأيقونة. */}
+  const tile = (
+    <>
+      <span className="sq lift">
+        {label && <span className="bdg">{label}</span>}
+        <SectionIcon name={icon} mono />
         {img ? (
           optimizable(img) ? (
             <Image
@@ -70,35 +64,22 @@ export default function GameTile({
             />
           )
         ) : null}
-
-        {/* الوسم **على** البلاطة كما في النموذج — لا سطراً ثالثاً تحتها */}
-        {(soon ? soonLabel : badgeLabel) && (
-          <span
-            className={`absolute start-1.5 top-1.5 rounded-full px-2 py-0.5 text-[0.62rem] font-bold ${
-              soon ? "bg-yellow text-onaccent" : "bg-orange text-onaccent"
-            }`}
-          >
-            {soon ? soonLabel : badgeLabel}
-          </span>
-        )}
       </span>
 
-      <span className="mt-1.5 block text-center text-xs font-bold leading-tight">
-        {title}
-      </span>
-    </span>
+      <span className="nm">{title}</span>
+    </>
   );
 
   if (soon) {
     return (
-      <div className="opacity-70" aria-disabled="true">
+      <div className="tile opacity-70" aria-disabled="true">
         {tile}
       </div>
     );
   }
 
   return (
-    <Link href={href} className="group block">
+    <Link href={href} className="tile group">
       {tile}
     </Link>
   );

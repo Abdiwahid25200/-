@@ -71,37 +71,26 @@ export default function BottomNav() {
      */
     /* ⚠️ `fx-w` لا `inset-x-0`: الموقع بعرض الجوّال على كل جهاز، وشريطٌ
        يمتدّ بعرض الآيباد كلّه تحت موقعٍ عرضُه ٤٣٠ يفضح أنهما شيئان. */
-    <div className="fx-w fixed bottom-0 z-40 border-t border-line bg-surface pb-[env(safe-area-inset-bottom)]">
-      <nav aria-label={t("label")}>
-        <div className="page-w flex px-1.5 py-1.5">
-          {tabs.map(({ key, href, Icon }) => {
-            const isActive =
-              href === "/" ? pathname === "/" : pathname.startsWith(href);
-            return (
-              <Link
-                key={key}
-                href={href}
-                aria-current={isActive ? "page" : undefined}
-                // الحركة عند الضغط: انكماش خفيف يعود فوراً — إحساس زرّ حقيقي
-                /**
-                 * ⚠️ **القرص يشمل الأيقونة والاسم معاً** — كما في النموذج.
-                 *    كان قرصاً بيضاوياً خلف الأيقونة وحدها، والاسمُ خارجه
-                 *    فيبدو التبويب نصفَه مُضاءً ونصفَه لا. والقرص يُرى
-                 *    بطرف العين، والخطّ فوق التبويب شعرةٌ تُرى بالتدقيق.
-                 */
-                className={`nav-tap flex min-h-13 flex-1 flex-col items-center justify-center gap-1 rounded-xl py-1.5 transition-colors ${
-                  isActive
-                    ? "bg-orange/12 font-extrabold text-orange"
-                    : "font-semibold text-muted hover:text-text"
-                }`}
-              >
-                <Icon className="nav-ico size-[22px]" />
-                {/* بلا حروفٍ كبيرة ولا تباعد — النموذج اسمٌ عاديّ يُقرأ */}
-                <span className="text-[0.78rem] leading-none">{t(key)}</span>
-              </Link>
-            );
-          })}
-        </div>
+    <div className="fx-w fixed bottom-0 z-40 bg-surface pb-[env(safe-area-inset-bottom)]">
+      {/* صنف `.nav` من النموذج: الحشوة ٨/٦/١٤ · الأيقونة ٢٢ · الاسم تحتها
+          · وقرصُ النشط يشمل الاثنين معاً. المقاسات في `globals.css`. */}
+      <nav className="nav" aria-label={t("label")}>
+        {tabs.map(({ key, href, Icon }) => {
+          const isActive =
+            href === "/" ? pathname === "/" : pathname.startsWith(href);
+          return (
+            <Link
+              key={key}
+              href={href}
+              aria-current={isActive ? "page" : undefined}
+              // `nav-tap` انكماشٌ خفيف عند الضغط يعود فوراً — إحساس زرّ حقيقي
+              className={`nav-tap transition-colors ${isActive ? "on" : "hover:text-text"}`}
+            >
+              <Icon className="nav-ico" />
+              <span>{t(key)}</span>
+            </Link>
+          );
+        })}
       </nav>
     </div>
   );

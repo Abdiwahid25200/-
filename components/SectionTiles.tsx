@@ -39,15 +39,16 @@ export default async function SectionTiles({
 
   return (
     <section>
-      <div className="mb-3.5 flex flex-col gap-1">
-        <p className="eyebrow">{head.eyebrow}</p>
-        <h2 className="text-xl font-bold">{head.title}</h2>
+      {/* ترويسة الكتلة بأصناف النموذج: وسمٌ لاتينيّ صغير ثم العنوان */}
+      <div className="mb-2.5 flex flex-col gap-0.5">
+        <p className="eyeS">{head.eyebrow}</p>
+        <h2 className="h2S">{head.title}</h2>
       </div>
 
       {/* ⚠️ قسمان ⇒ عمودان، وثلاثة فأكثر ⇒ ثلاثة (النموذج). ثلاثة
           أعمدةٍ لقسمَين تترك خانةً فارغة بعرض الثلث، فتبدو الصفحة
           ناقصةً وكأنّ قسماً سقط. */}
-      <div className={`grid gap-3 ${list.length === 2 ? "grid-cols-2" : "grid-cols-3"}`}>
+      <div className={`tiles ${list.length === 2 ? "two" : ""}`}>
         {list.map((s) => (
           <GameTile
             key={s.key}
