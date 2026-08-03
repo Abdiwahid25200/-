@@ -163,28 +163,21 @@ export type PayMarkKey =
   | "waafi";
 
 /**
- * طرق الدفع.
+ * طرق الدفع — **فُرّغت بطلبها (٠٣-٠٨): «بدي أضيفهم من الإدارة»**.
  *
- * كلّها `soon` الآن بقرار صاحبة المشروع: تُعرض بوسم "قريباً" ولا تُختار.
- * الزبون يرى ما سيتوفّر فيطمئنّ، ولا يحوّل إلى رقم تجريبي ليس رقمها.
+ * كانت عشراً تجريبية بأرقامٍ ليست أرقامها (`612345678` وأمثالها)، كلّها
+ * `soon` فلا تُختار — تُري الزبون ما سيأتي. وقد صارت لها شاشةٌ تضيف
+ * وتحذف (**More ← Payments ← Add method**)، فأولى أن تكتب طرقها بيدها
+ * برقمها الصحيح، من أن ترث قائمةً تحتاج حذفَ ما لا تريده منها.
  *
- * لتشغيل أي طريقة: ضعي الرقم الصحيح في `numbers` ثم بدّلي `soon` إلى `on`،
- * فتعمل في الدفع والسلة والفوتر وصفحة الدعم دفعة واحدة.
+ * ⚠️ **والقائمة تبقى موجودةً فارغة**: منها تُشتقّ وسائل الدفع في الفوتر
+ *    وصفحة الدعم (`acceptedPayments`) وخطوة الدفع والسلّة — وحذفُ الاسم
+ *    يكسر البناء كلّه.
+ *
+ * ⚠️ **ولا شيء يُحذف من Firestore هنا**: مجموعة `payments` فارغةٌ أصلاً
+ *    (فُحصت)، فالعشرُ كنّ في هذا الملفّ وحده.
  */
-export const pay: PayMethod[] = [
-  // 🇸🇴 محلية — تحويل بكود USSD
-  { id: "p1", nameAr: "EVC Plus", nameEn: "EVC Plus", operator: "Hormuud", numbers: ["612345678"], ussd: "*712*{num}*{amt}#", scope: "local", mark: "evc", status: "soon" },
-  { id: "p2", nameAr: "JEEB", nameEn: "JEEB", operator: "Somnet", numbers: ["901234567"], ussd: "*789*{num}*{amt}#", scope: "local", mark: "jeeb", status: "soon" },
-  { id: "p3", nameAr: "E-Dahab", nameEn: "E-Dahab", operator: "Somtel", numbers: [], ussd: "*770*{num}*{amt}#", scope: "local", mark: "edahab", status: "soon" },
-  { id: "p4", nameAr: "ZAAD", nameEn: "ZAAD", operator: "Telesom", numbers: [], ussd: "", scope: "local", mark: "zaad", status: "soon" },
-  { id: "p5", nameAr: "SAHAL", nameEn: "SAHAL", operator: "Golis", numbers: [], ussd: "", scope: "local", mark: "sahal", status: "soon" },
-  { id: "p6", nameAr: "WAAFI", nameEn: "WAAFI", operator: "Salaam Bank", numbers: [], ussd: "", scope: "local", mark: "waafi", status: "soon" },
-  // 🌍 عالمية — تُفتح حين يجهز حساب الاستقبال
-  { id: "g1", nameAr: "PayPal", nameEn: "PayPal", numbers: [], ussd: "", scope: "global", mark: "paypal", status: "soon" },
-  { id: "g2", nameAr: "بطاقة ائتمان أو خصم", nameEn: "Credit / Debit card", numbers: [], ussd: "", scope: "global", mark: "card", status: "soon" },
-  { id: "g3", nameAr: "USDT (TRC20)", nameEn: "USDT (TRC20)", numbers: [], ussd: "", scope: "global", mark: "usdt", status: "soon" },
-  { id: "g4", nameAr: "Binance Pay", nameEn: "Binance Pay", numbers: [], ussd: "", scope: "global", mark: "binance", status: "soon" },
-];
+export const pay: PayMethod[] = [];
 
 /**
  * رابط خدمة التحقق من آيدي ببجي — يأتي من إعدادات الأدمن (DB.set.idApi).
