@@ -65,6 +65,13 @@ const cfg = {
 /** هل ضُبطت الإعدادات؟ يُستخدم في الواجهة لإظهار الوضع اليدوي بدل التعطّل */
 export const firebaseReady = Boolean(cfg.apiKey && cfg.projectId && cfg.appId);
 
+/**
+ * المعرّف والمفتاح وحدهما — يقرؤهما **الخادم** ليسأل Firestore بـREST
+ * (`lib/storeOpenServer.ts`) بلا تحميل حزمة Firebase كلّها في كل طلب.
+ */
+export const fbProjectId = cfg.projectId;
+export const fbApiKey = cfg.apiKey;
+
 let app: FirebaseApp | null = null;
 
 function ensureApp(): FirebaseApp | null {

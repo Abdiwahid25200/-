@@ -19,7 +19,7 @@ const STYLES: { v: ClosedStyle; label: string; note: string; art: React.ReactEle
   {
     v: "curtain",
     label: "Curtain",
-    note: "Brand colour + countdown",
+    note: "Hides the whole site",
     art: (
       <span className="flex h-12 flex-col items-center justify-center gap-1 rounded-[8px] bg-navy">
         <span className="size-3 rounded-full bg-white/70" />
@@ -34,7 +34,7 @@ const STYLES: { v: ClosedStyle; label: string; note: string; art: React.ReactEle
   {
     v: "sign",
     label: "Sign",
-    note: "Paper sign on the door",
+    note: "Hides the whole site",
     art: (
       <span className="flex h-12 items-center justify-center rounded-[8px] bg-surface2">
         <span className="-rotate-3 rounded-[3px] border-2 border-text bg-bg px-2 py-1 text-xs font-bold">
@@ -46,7 +46,7 @@ const STYLES: { v: ClosedStyle; label: string; note: string; art: React.ReactEle
   {
     v: "queue",
     label: "Queue",
-    note: "Keeps taking orders",
+    note: "Site stays open",
     art: (
       <span className="flex h-12 flex-col gap-1 overflow-hidden rounded-[8px] bg-surface2 p-1">
         <span className="h-3 rounded-[3px] bg-orange" />
@@ -179,6 +179,10 @@ export default function SiteEditor() {
 
     setBusy(true);
     const ok = await saveOverride("settings", "store", changed);
+    /* صفحات المتجر محفوظةٌ دقيقة — هذا النداء يُسقط المحفوظ فوراً،
+       فيجد أوّل زائرٍ بعد الحفظ الحالةَ الجديدة لا القديمة. وفشلُه لا
+       يعني فشل الحفظ: الإعداد محفوظٌ، وتصل الدقيقةُ به على كل حال. */
+    if (ok) await fetch("/api/revalidate-store", { method: "POST" }).catch(() => {});
     setBusy(false);
     setSaved(ok);
     if (ok) setBase(structuredClone(now));
@@ -238,8 +242,12 @@ export default function SiteEditor() {
           <span className="block font-bold">
             {open.closed ? "Store is CLOSED" : "Close the store"}
           </span>
+          {/* ⚠️ السطر يتبع الشكل المختار: شكلان يحجبان الموقع وواحد لا
+              يحجبه، وجملةٌ واحدة لثلاثة أشكال تكذب في اثنين منها */}
           <span className="block text-sm text-muted">
-            Customers keep browsing and seeing prices — only ordering stops.
+            {open.style === "queue"
+              ? "The site stays open. Orders still arrive — marked Reserved."
+              : "The whole site is hidden. Customers see your closed screen only."}
           </span>
         </span>
       </label>
@@ -328,7 +336,9 @@ export default function SiteEditor() {
       <div className="flex flex-col gap-2">
         <span className="text-sm font-bold">What customers see when closed</span>
         <span className="text-sm text-muted">
-          Three looks — pick one. You write every word yourself below.
+          Three looks — pick one. <strong>Curtain</strong> and{" "}
+          <strong>Sign</strong> hide the whole site; <strong>Queue</strong>{" "}
+          leaves it open. You write every word yourself below.
         </span>
 
         <div className="grid grid-cols-3 gap-2">
@@ -350,11 +360,18 @@ export default function SiteEditor() {
           ))}
         </div>
 
-        {open.style === "queue" && (
+        {open.style === "queue" ? (
           <p className="rounded-card border border-dashed border-orange/50 bg-orange/5 p-3 text-sm">
             <strong>Queue keeps selling.</strong> Customers still place orders
             while you are closed — they arrive marked <strong>Reserved</strong>
             {" "}and you do them when you open.
+          </p>
+        ) : (
+          <p className="rounded-card border border-dashed border-danger/50 bg-danger/5 p-3 text-sm">
+            <strong>This hides the store.</strong> While you are closed, every
+            page shows this screen instead — no products, no prices, no cart.
+            Working hours are different: outside them the site stays visible and
+            only ordering stops.
           </p>
         )}
 

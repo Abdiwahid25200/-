@@ -19,8 +19,10 @@ import { minutesToOpen, type OpenState } from "@/lib/storeOpen";
  * | **اللافتة** | لافتةٌ ورقية على بابٍ زجاجيّ — تُفهم بلا قراءة |
  * | **الطابور** | لا يُغلق: **يحجز** ويُنفَّذ أوّل ما تفتحين |
  *
- * ⚠️ ولا يُخفى المتجر في أيّها: الزبون يتصفّح ويرى الأسعار، والممنوع
- *    هو الطلب وحده (وفي «الطابور» ليس ممنوعاً بل مؤجَّلاً).
+ * ⚠️ **والستارة واللافتة تملآن الشاشة** حين تُغلق صاحبةُ المتجر متجرَها
+ *    بيدها (`ClosedScreen` أسفل، تستدعيها `StoreGate`) — قرارها: لا يرى
+ *    الزبون ما في الموقع ولو لحظة. أمّا في **الطابور** وفي **انتهاء
+ *    الدوام** فبطاقةٌ داخل الصفحة (`ClosedNotice`) والتصفّح مستمرّ.
  *
  * ⚠️ وكل كلمةٍ هنا تُكتب من اللوحة: العنوان والسطر والصورة — بثلاث
  *    لغات. والفارغ يعني «اتركي نصّ الترجمة»، فلا تفرغ الشاشة أبداً.
@@ -53,11 +55,55 @@ type Props = {
   title: string;
   note: string;
   settings: OpenState["settings"];
+  /** تملأ الشاشة بدل أن تكون بطاقةً داخل الصفحة */
+  full?: boolean;
 };
+
+/**
+ * شاشة الإغلاق الكاملة — **بديلُ الموقع لا طبقةٌ فوقه**.
+ *
+ * 🔒 قرارها: «إذا أغلقتُ الموقع لا يرى العميل ما فيه ولو لحظة». ولذلك
+ *    تُرسَم على الخادم (`StoreGate` تأخذ الحالة جاهزةً منه)، ولا تُرسَم
+ *    الترويسةُ ولا القائمةُ السفلية ولا الدردشة تحتها أصلاً — فلا شيء
+ *    يظهر لحظةً ثم يختفي، ولا شيء يُرى بإيقاف التحميل.
+ */
+export function ClosedScreen({ state }: { state: OpenState }) {
+  const t = useTranslations("closed");
+  const locale = useLocale();
+
+  const s = state.settings;
+  const sign = s.style === "sign";
+
+  const title = pick(s.closedTitle, locale, "") || t("title");
+  const note = pick(s.closedNote, locale, "") || t("note");
+
+  return (
+    <div
+      className={`fixed inset-0 z-[70] overflow-y-auto ${
+        sign ? "bg-surface2" : "bg-navy"
+      }`}
+    >
+      {/* عمودٌ بعرض الموقع نفسه — فلا تتمدّد الكلمات بعرض الآيباد */}
+      <div className="mx-auto flex min-h-dvh w-full max-w-[var(--app-w)] flex-col justify-center px-5 py-10">
+        {sign ? (
+          <Sign full title={title} note={note} settings={s} />
+        ) : (
+          <Curtain full title={title} note={note} settings={s} />
+        )}
+      </div>
+    </div>
+  );
+}
 
 /** صورة الإغلاق — المرفوعة من اللوحة، وإلا شعار المتجر المرسوم */
 function Mark({ src, size = 72 }: { src: string; size?: number }) {
-  if (!src) return <Logo solid className="size-18 rounded-[20px]" />;
+  if (!src)
+    return (
+      <Logo
+        solid
+        className={size > 80 ? "size-24 rounded-[24px]" : "size-18 rounded-[20px]"}
+      />
+    );
   return optimizable(src) ? (
     <Image
       src={src}
@@ -98,7 +144,7 @@ function Whatsapp({ label, phone }: { label: string; phone: string }) {
 
 /* ═══ ① الستارة ═══
    عدّادٌ تنازليّ حقيقيّ: من يرى «١٤ دقيقة» ينتظر، ومن يرى «مغلق» يذهب. */
-function Curtain({ title, note, settings }: Props) {
+function Curtain({ title, note, settings, full }: Props) {
   const t = useTranslations("closed");
   /* ⚠️ صفرٌ في الخادم ثم يُحسب في المتصفّح: لو حُسب في الموضعين
      لاختلف الرقمان بثوانٍ ووقع خطأ ترطيب في كل زيارة. */
@@ -115,9 +161,13 @@ function Curtain({ title, note, settings }: Props) {
   const m = left % 60;
 
   return (
-    <section className="flex flex-col items-center gap-4 rounded-card bg-navy px-5 py-8 text-center text-white">
-      <Mark src={settings.closedImage} />
-      <h2 className="text-xl font-bold">{title}</h2>
+    <section
+      className={`flex flex-col items-center gap-4 text-center text-white ${
+        full ? "py-4" : "rounded-card bg-navy px-5 py-8"
+      }`}
+    >
+      <Mark src={settings.closedImage} size={full ? 96 : 72} />
+      <h2 className={full ? "text-2xl font-bold" : "text-xl font-bold"}>{title}</h2>
       <p className="max-w-xs text-sm opacity-80">{note}</p>
 
       {settings.hoursOn && left > 0 && (
@@ -145,12 +195,16 @@ function Box({ n, label }: { n: number; label: string }) {
 
 /* ═══ ② اللافتة ═══
    لافتةٌ ورقية مائلة بحبلها وظلّها — تُفهم في نصف ثانية بلا قراءة. */
-function Sign({ title, note, settings }: Props) {
+function Sign({ title, note, settings, full }: Props) {
   const t = useTranslations("closed");
 
   return (
-    <section className="flex flex-col items-center gap-4 rounded-card bg-surface2 px-5 py-8">
-      <span aria-hidden className="h-10 w-0.5 bg-muted/50" />
+    <section
+      className={`flex flex-col items-center gap-4 ${
+        full ? "py-4" : "rounded-card bg-surface2 px-5 py-8"
+      }`}
+    >
+      <span aria-hidden className={`w-0.5 bg-muted/50 ${full ? "h-16" : "h-10"}`} />
 
       <div className="w-full max-w-xs -rotate-1 rounded-[6px] border-2 border-text bg-bg p-5 text-center shadow-[6px_8px_0_rgba(0,0,0,0.12)]">
         <p className="text-3xl font-bold leading-none tracking-wide rtl:tracking-normal">

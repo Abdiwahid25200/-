@@ -1,11 +1,17 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { signInWithEmailAndPassword } from "firebase/auth";
+import { useCallback, useEffect, useState } from "react";
+import {
+  browserSessionPersistence,
+  inMemoryPersistence,
+  setPersistence,
+  signInWithEmailAndPassword,
+} from "firebase/auth";
 import { doc, getDoc } from "firebase/firestore";
 import { useAuth } from "@/lib/auth";
 import { AccessProvider } from "@/lib/adminAccess";
 import { ALL, staffAccess, type Access } from "@/lib/staff";
+import { adminLeft, clearAdmin, touchAdmin } from "@/lib/adminSession";
 import { fbAuth, fbDb } from "@/lib/firebase";
 import Logo from "@/components/Logo";
 import { IconEye, IconEyeOff, IconSpinner } from "@/components/icons";
@@ -23,6 +29,9 @@ import { IconEye, IconEyeOff, IconSpinner } from "@/components/icons";
  *   ① الحساب لا يفيد شيئاً ما لم يكن له وثيقة في `admins`
  *   ② `firestore.rules` و`storage.rules` ترفضان أي كتابة من غير الأدمن،
  *     فحتى من تجاوز هذه الشاشة بأدوات المطوّر لا يكتب حرفاً واحداً
+ *
+ * 🔒 **وعمرُ الجلسة محدود** — كان بلا حدّ، فمن دخل مرّةً بقي داخلاً أبداً.
+ *    التفصيل والسبب في `lib/adminSession.ts`.
  */
 
 /** النطاق الذي يُلحَق باسم المستخدم — انظري تعليمات الإعداد في الردّ */
@@ -41,6 +50,48 @@ export default function AdminGate({ children }: { children: React.ReactNode }) {
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState("");
   const [show, setShow] = useState(false);
+  /** سطرٌ يُقال بعد الخروج التلقائي — وإلّا بدا الخروج عطلاً */
+  const [locked, setLocked] = useState(false);
+
+  /** خروجٌ فوريّ: يُسقط الرمز عند Firebase ويمحو الختم */
+  const lock = useCallback(() => {
+    clearAdmin();
+    setLocked(true);
+    const auth = fbAuth();
+    if (auth?.currentUser) void auth.signOut();
+  }, []);
+
+  /**
+   * 🔒 **حارس المهلة** — ثلاثون دقيقة بلا لمس ⇒ خروج.
+   *
+   * ويفحص عند كل فتحة: جلسةٌ محفوظة في الجهاز بلا ختمٍ حيّ لا تدخل.
+   * وهذه بالضبط حالُ الجلسات القديمة التي كانت مفتوحةً إلى الأبد.
+   */
+  useEffect(() => {
+    /* ⚠️ للأدمن والمساعد وحدهما: حسابُ زبونةٍ عاديّ لا صلاحية له أصلاً،
+       وإخراجُه من هنا يُخرج صاحبةَ المتجر من متجرها وهي تتصفّحه */
+    if (!user || !access || access.role === "none") return;
+    if (adminLeft() <= 0) return lock();
+
+    const seen = () => touchAdmin();
+    const check = () => {
+      if (adminLeft() <= 0) lock();
+    };
+    /* ⚠️ الرجوع إلى التبويب يُفحص فوراً لا بعد ربع دقيقة: من ترك اللوحة
+       ساعةً وعاد يجب أن يجد شاشة الدخول، لا اللوحةَ لحظةً ثم الشاشة. */
+    const wake = () => (document.hidden ? undefined : check());
+
+    const events = ["pointerdown", "keydown"] as const;
+    events.forEach((e) => window.addEventListener(e, seen, { passive: true }));
+    document.addEventListener("visibilitychange", wake);
+    const id = setInterval(check, 15_000);
+
+    return () => {
+      events.forEach((e) => window.removeEventListener(e, seen));
+      document.removeEventListener("visibilitychange", wake);
+      clearInterval(id);
+    };
+  }, [user, access, lock]);
 
   /**
    * من يدخل؟ صاحبة المتجر (وثيقة في `admins`) أم مساعد (وثيقة بالبريد
@@ -88,6 +139,7 @@ export default function AdminGate({ children }: { children: React.ReactNode }) {
 
     setBusy(true);
     setErr("");
+    setLocked(false);
     try {
       /**
        * 🔒 نُخرج الجلسة القائمة أولاً.
@@ -96,7 +148,20 @@ export default function AdminGate({ children }: { children: React.ReactNode }) {
        * الآن كل محاولة تُفحص عند Firebase من جديد.
        */
       if (auth.currentUser) await auth.signOut();
+
+      /**
+       * 🔒 **الجلسة للتبويب لا للجهاز.**
+       * افتراض Firebase أن تُحفظ في `localStorage` بلا نهاية — وهذا ما
+       * كان يُبقي اللوحة مفتوحةً بعد إغلاق المتصفّح وإطفاء الجهاز.
+       * والاحتياط إن مُنع التخزين: الذاكرة وحدها (تموت بتحديث الصفحة).
+       */
+      await setPersistence(auth, browserSessionPersistence).catch(() =>
+        setPersistence(auth, inMemoryPersistence),
+      );
+
       await signInWithEmailAndPassword(auth, toEmail(username), password);
+      // الختم يُوضع قبل أن تُرسم اللوحة، وإلّا رآها الحارس بلا ختمٍ فأخرجها
+      touchAdmin();
     } catch (e) {
       const code = (e as { code?: string })?.code ?? "";
       setErr(
@@ -203,7 +268,12 @@ export default function AdminGate({ children }: { children: React.ReactNode }) {
       </>,
     );
 
-  if (!user) return form();
+  if (!user)
+    return form(
+      locked
+        ? "Locked after 30 minutes with no use. Sign in again."
+        : undefined,
+    );
 
   /**
    * 🔒 حسابٌ ليس أدمن ⇒ نموذج الدخول وسطرٌ محايد، **بلا معرّف ولا شرح**.

@@ -10,6 +10,10 @@ import TopBar from "@/components/TopBar";
 import Header from "@/components/Header";
 import BottomNav from "@/components/BottomNav";
 import LiveChat from "@/components/LiveChat";
+import StoreGate from "@/components/StoreGate";
+import { ClosedScreen } from "@/components/ClosedNotice";
+import { blocksSite, openNow } from "@/lib/openCore";
+import { readOpenSettingsServer } from "@/lib/storeOpenServer";
 import { themeInitScript } from "@/components/ThemeToggle";
 import { site } from "@/lib/content";
 import { SITE, languages, pathFor } from "@/lib/seo";
@@ -95,6 +99,17 @@ export default async function LocaleLayout({
   // يسمح ببناء الصفحة مسبقاً بدل توليدها عند كل طلب
   setRequestLocale(locale);
 
+  /**
+   * 🔒 هل المتجر محجوب الآن؟ — **يُسأل هنا، قبل أن يُرسم شيء**.
+   *
+   * قرارها: «إذا أغلقتُ الموقع لا يرى العميل ما فيه ولو لحظة». ولذلك
+   * لا يُكتفى بحارسٍ في المتصفّح: حين يكون محجوباً **لا تُرسَم الصفحة
+   * أصلاً** — لا ترويسة ولا قائمة ولا أسعار، لا في الشاشة ولا في مصدر
+   * الصفحة. والجواب محفوظٌ دقيقةً فلا يُسأل Firestore لكل زائر، ويسقط
+   * الحفظ لحظةَ ضغطها «Save» في اللوحة (`/api/revalidate-store`).
+   */
+  const store = openNow(await readOpenSettingsServer());
+
   return (
     <html
       lang={locale}
@@ -142,21 +157,29 @@ export default async function LocaleLayout({
           يقع تحته فيُقرأ نصفه — وهذا ما حدث في آخر سطر بطاقة الدعوة. */}
       <body className="flex min-h-dvh flex-col pb-[calc(8.75rem+env(safe-area-inset-bottom))]">
         <NextIntlClientProvider>
-          <AuthProvider>
-            <CartProvider>
-              <TopBar />
-              {/* الإطار المدوّر — الانحناءات التي طلبتها صاحبة المشروع */}
-              <div className="app-shell flex flex-1 flex-col">
-                <Header />
-                {/* الفوتر ليس هنا: مكانه صفحة الدعم وحدها — قرارها.
-                    راجعي `components/Footer.tsx` للسبب. */}
-                <div className="flex-1">{children}</div>
-              </div>
-              <BottomNav />
-              {/* الدردشة المباشرة — على كل صفحة، فوق القائمة السفلية */}
-              <LiveChat />
-            </CartProvider>
-          </AuthProvider>
+          {blocksSite(store) ? (
+            <ClosedScreen state={store} />
+          ) : (
+            /* والبوّابة تُكمل ما بدأه الخادم: تُراجع كل دقيقة، فمن أغلقتِ
+               المتجر وهو يتصفّح تنزل عليه الستارة بلا أن يحدّث الصفحة */
+            <StoreGate initial={store.settings}>
+              <AuthProvider>
+                <CartProvider>
+                  <TopBar />
+                  {/* الإطار المدوّر — الانحناءات التي طلبتها صاحبة المشروع */}
+                  <div className="app-shell flex flex-1 flex-col">
+                    <Header />
+                    {/* الفوتر ليس هنا: مكانه صفحة الدعم وحدها — قرارها.
+                        راجعي `components/Footer.tsx` للسبب. */}
+                    <div className="flex-1">{children}</div>
+                  </div>
+                  <BottomNav />
+                  {/* الدردشة المباشرة — على كل صفحة، فوق القائمة السفلية */}
+                  <LiveChat />
+                </CartProvider>
+              </AuthProvider>
+            </StoreGate>
+          )}
         </NextIntlClientProvider>
       </body>
     </html>
