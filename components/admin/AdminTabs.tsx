@@ -6,6 +6,7 @@ import SectionsEditor from "./SectionsEditor";
 import ItemsEditor from "./ItemsEditor";
 import FaqEditor from "./FaqEditor";
 import OrdersEditor from "./OrdersEditor";
+import OrderQueue from "./OrderQueue";
 import PointsEditor from "./PointsEditor";
 import CustomersEditor from "./CustomersEditor";
 import StaffEditor from "./StaffEditor";
@@ -129,18 +130,36 @@ const MORE: Screen[] = [
   { v: "bin", label: "Deleted", note: "Bring anything back", owner: true },
 ];
 
-/** شاشة الطلبات تعيش تحت Today — يفتحها زرّ الطابور */
-const ORDERS: Screen = {
-  v: "orders",
-  label: "Orders",
-  note: "Accept, mark paid, deliver",
+/**
+ * بابان للطلبات، وكلاهما تحت Today:
+ *
+ * | | |
+ * |---|---|
+ * | **Do orders** | الطابور: طلبٌ واحد وزرٌّ واحد ثم التالي — طريقُ كل يوم |
+ * | **All orders** | القائمة الكاملة: بحثٌ ومدىً وحالاتٌ وملفّ إكسل — للمراجعة |
+ *
+ * ⚠️ ولا يظهر الطابور في شبكة More: بابٌ ثالثٌ لشيءٍ واحد يُربك.
+ *    مدخلُه زرُّ Today الكبير، ومن الطابور رابطٌ إلى القائمة والعكس.
+ */
+const QUEUE: Screen = {
+  v: "queue",
+  label: "Do orders",
+  note: "One at a time, nothing else",
   perm: "orders",
 };
 
-const ALL: Screen[] = [ORDERS, ...Object.values(ROOTS), ...MORE];
+const ORDERS: Screen = {
+  v: "orders",
+  label: "All orders",
+  note: "Search, dates, export",
+  perm: "orders",
+};
+
+const ALL: Screen[] = [QUEUE, ORDERS, ...Object.values(ROOTS), ...MORE];
 
 /** أيّ تبويبٍ يملك كل شاشة — فيبقى الشريط السفلي صادقاً أينما فُتحت */
 const TAB_OF: Partial<Record<AdminTab, Tab>> = {
+  queue: "today",
   orders: "today",
   items: "items",
   customers: "people",
@@ -242,13 +261,13 @@ export default function AdminTabs() {
       {/* ── المحتوى ── */}
       <div className="flex-1">
         {open ? (
-          <Body tab={open.v} />
+          <Body tab={open.v} go={go} />
         ) : tab === "today" ? (
           <Dashboard onTab={go} hints={hints} canOrders={allowed(ORDERS)} />
         ) : tab === "more" ? (
           <MoreGrid items={more} hints={hints} onOpen={go} onSignOut={signOut} email={user?.email} />
         ) : root ? (
-          <Body tab={root.v} />
+          <Body tab={root.v} go={go} />
         ) : null}
       </div>
 
@@ -361,8 +380,10 @@ function todayLine() {
   });
 }
 
-function Body({ tab }: { tab: AdminTab }) {
+function Body({ tab, go }: { tab: AdminTab; go: (t: AdminTab) => void }) {
   switch (tab) {
+    case "queue":
+      return <OrderQueue onAll={() => go("orders")} />;
     case "orders":
       return <OrdersEditor />;
     case "chats":

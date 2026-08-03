@@ -179,8 +179,8 @@ export default function Dashboard({
         </span>
 
         {canOrders && (
-          <button type="button" onClick={() => onTab("orders")} className="go relative">
-            Open the queue
+          <button type="button" onClick={() => onTab("queue")} className="go relative">
+            Do them one by one
             <IconChevron className="size-4" />
           </button>
         )}
@@ -236,7 +236,7 @@ export default function Dashboard({
       {/* ⚠️ لافتةٌ لا مربّع: طلبٌ عالقٌ زبونٌ ينتظر، والمربّع الصامت
           يُقرأ رقماً لا نداءً. ولصاحبة المتجر وحدها — هي من تفكّ. */}
       {owner && s.stuck > 0 && (
-        <button type="button" onClick={() => onTab("orders")} className="adm-warn">
+        <button type="button" onClick={() => onTab("queue")} className="adm-warn">
           <span className="text-sm">
             <b className="block">
               <span className="num">{s.stuck}</span>{" "}
@@ -262,7 +262,7 @@ export default function Dashboard({
       ) : (
         <div className="flex flex-col gap-2.5">
           {s.queue.map((o) => (
-            <Row key={o.id} o={o} onOpen={() => canOrders && onTab("orders")} />
+            <Row key={o.id} o={o} onOpen={() => canOrders && onTab("queue")} />
           ))}
         </div>
       )}

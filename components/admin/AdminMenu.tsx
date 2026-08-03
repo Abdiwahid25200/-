@@ -1,4 +1,5 @@
 import {
+  IconBolt,
   IconBadge,
   IconCard,
   IconChart,
@@ -30,6 +31,7 @@ import {
  */
 export type AdminTab =
   | "home"
+  | "queue"
   | "orders"
   | "customers"
   | "items"
@@ -52,6 +54,9 @@ export const ICONS: Record<
   (p: { className?: string }) => React.ReactElement
 > = {
   home: IconHome,
+  /* ⚠️ الطابور والطلبات بابان مختلفان فأيقونتاهما مختلفتان
+     (القرار المقفول ج): البرق للعمل السريع، والإيصال للسجلّ. */
+  queue: IconBolt,
   orders: IconReceipt,
   customers: IconUsers,
   items: IconTag,
