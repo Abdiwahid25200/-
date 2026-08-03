@@ -7,14 +7,16 @@ import { fmt } from "@/lib/format";
 import {
   IconBarwaaqo,
   IconChevron,
+  IconGlobe,
   IconDoc,
   IconShieldCheck,
   IconSpinner,
   IconUser,
 } from "@/components/icons";
 import { DEFAULT_POINTS, readPointsSettings } from "@/lib/points";
-import { Link } from "@/i18n/navigation";
+import { Link, usePathname } from "@/i18n/navigation";
 import { getProfile, isComplete, type Profile } from "@/lib/profile";
+import { localeNames, routing, type Locale } from "@/i18n/routing";
 import DeleteAccount from "./DeleteAccount";
 
 /**
@@ -137,7 +139,20 @@ export default function AccountPanel() {
 
       <nav className="flex flex-col gap-2.5">
         <AccountRow href="/orders" Icon={IconDoc} label={t("myOrders")} />
-        <AccountRow href="/points" Icon={IconBarwaaqo} label={pointsBrand} gold />
+        <AccountRow
+          href="/points"
+          Icon={IconBarwaaqo}
+          label={pointsBrand}
+          gold
+          /* رصيدُه في طرف صفّه كما في النموذج — ويُقرأ من الوثيقة نفسها
+             التي قرأناها لبياناته، فلا قراءةَ ثانية على كل فتح */
+          value={typeof profile?.points === "number" ? String(profile.points) : undefined}
+          num
+        />
+        {/* ⚠️ **صفّ اللغة** — رابعُ صفوف النموذج، وكان ناقصاً. تبديلُ
+            اللغة كان في القائمة الجانبية وحدها، ومن فتح «حسابي» ليبدّلها
+            لم يجد شيئاً. يُفتح فيُظهر الثلاث في مكانها. */}
+        <LangRow />
         <AccountRow href="/policy" Icon={IconShieldCheck} label={t("policyRow")} />
       </nav>
 
@@ -167,17 +182,81 @@ export default function AccountPanel() {
   );
 }
 
+/**
+ * صفّ اللغة في «حسابي» — الصفّ الرابع في النموذج.
+ *
+ * ⚠️ **يُفتح في مكانه ولا يذهب بك إلى صفحة**: تبديل اللغة ضغطةٌ واحدة،
+ *    وصفحةٌ كاملة لثلاثة أزرار طريقٌ ذهاباً وإياباً بلا داعٍ.
+ */
+function LangRow() {
+  const t = useTranslations("accountPage");
+  const active = useLocale();
+  const pathname = usePathname();
+  const [open, setOpen] = useState(false);
+
+  return (
+    <div className="flex flex-col gap-2">
+      <button
+        type="button"
+        onClick={() => setOpen((v) => !v)}
+        aria-expanded={open}
+        className="lift flex min-h-14 items-center gap-3 rounded-card border border-line bg-surface p-3 text-start"
+      >
+        <span
+          aria-hidden
+          className="flex size-10 shrink-0 items-center justify-center rounded-card bg-orange/10 text-orange"
+        >
+          <IconGlobe className="size-5" />
+        </span>
+        <span className="min-w-0 flex-1 truncate font-bold">{t("langRow")}</span>
+        <span className="shrink-0 text-sm text-muted">
+          {localeNames[active as Locale]}
+        </span>
+        <IconChevron
+          className={`size-4 shrink-0 text-muted transition-transform rtl:rotate-180 ${
+            open ? "-rotate-90 rtl:rotate-90" : ""
+          }`}
+        />
+      </button>
+
+      {open && (
+        <div className="flex gap-2">
+          {routing.locales.map((l) => (
+            <Link
+              key={l}
+              href={pathname}
+              locale={l}
+              className={`flex min-h-11 flex-1 items-center justify-center rounded-full border text-sm font-bold transition-colors ${
+                l === active
+                  ? "border-orange bg-orange text-onaccent"
+                  : "border-line text-muted hover:border-orange/50"
+              }`}
+            >
+              {localeNames[l as Locale]}
+            </Link>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
 /** صفٌّ في «حسابي» — صفيحةٌ وأيقونة واسمٌ وسهم، كما في النموذج */
 function AccountRow({
   href,
   Icon,
   label,
   gold,
+  value,
+  num,
 }: {
   href: string;
   Icon: (p: { className?: string }) => React.ReactElement;
   label: string;
   gold?: boolean;
+  /** ما يُقال في طرف الصفّ قبل السهم — الرصيد أو اللغة، كما في النموذج */
+  value?: string;
+  num?: boolean;
 }) {
   return (
     <Link
@@ -193,6 +272,15 @@ function AccountRow({
         <Icon className="size-5" />
       </span>
       <span className="min-w-0 flex-1 truncate font-bold">{label}</span>
+      {value && (
+        <span
+          className={`shrink-0 text-sm ${num ? "num font-bold" : "text-muted"} ${
+            gold ? "text-yellow" : ""
+          }`}
+        >
+          {value}
+        </span>
+      )}
       <IconChevron className="size-4 shrink-0 text-muted rtl:rotate-180" />
     </Link>
   );

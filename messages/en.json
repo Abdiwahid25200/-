@@ -447,7 +447,8 @@
     },
     "earlier": "Earlier orders",
     "nextTitle": "What happens after you pay?",
-    "policyRow": "Policies"
+    "policyRow": "Policies",
+    "langRow": "Language"
   },
   "tiktokFlow": {
     "title": "Contact details",

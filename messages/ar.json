@@ -447,7 +447,8 @@
     },
     "earlier": "طلبات سابقة",
     "nextTitle": "ماذا يحدث بعد الدفع؟",
-    "policyRow": "السياسات"
+    "policyRow": "السياسات",
+    "langRow": "اللغة"
   },
   "tiktokFlow": {
     "title": "بيانات التواصل",
