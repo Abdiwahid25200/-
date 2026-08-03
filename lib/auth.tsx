@@ -20,6 +20,7 @@ import {
 import { createContext, useContext, useEffect, useState } from "react";
 import { fbAuth, firebaseReady } from "./firebase";
 import { clearLast } from "./lastOrder";
+import { detectApp } from "./platform";
 
 type Ctx = {
   user: User | null;
@@ -54,9 +55,21 @@ const POPUP_FAILED = new Set([
  *
  * سفاري على الآيفون والآيباد يحجب النوافذ المنبثقة افتراضياً، فتفشل
  * بلا سبب ظاهر للزبون. التحويل المباشر أسرع وأضمن على هذي الأجهزة.
+ *
+ * 🐞 **إلا في التطبيق المثبَّت** — بلاغها (٠٣-٠٨): «لا يشتغل في التطبيق».
+ *
+ * التحويل يخرج من التطبيق إلى صفحة جوجل، ويعود بعدها إلى **جلسةٍ
+ * جديدة**: نظام آيفون يفتح ما يخرج عن نطاق التطبيق في سفاري، فتضيع
+ * `sessionStorage` التي يحفظ فيها Firebase «أنا في وسط تحويل» —
+ * فيعود الزبون زائراً كأن شيئاً لم يكن، بلا رسالة خطأ تدلّه.
+ *
+ * والنافذة المنبثقة تبقى **داخل التطبيق** وتعيد نتيجتها إلى الصفحة
+ * نفسها (`postMessage`)، فلا جلسةَ تُفقد. وإن حُجبت رجعنا إلى التحويل
+ * كما كان — فلا يخسر أحدٌ طريقاً.
  */
 function prefersRedirect() {
   if (typeof window === "undefined") return false;
+  if (detectApp()) return false;
   const touch = window.matchMedia?.("(pointer: coarse)")?.matches ?? false;
   const narrow = window.innerWidth < 1024;
   return touch || narrow;
