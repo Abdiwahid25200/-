@@ -186,7 +186,14 @@ export default function OrderCard({
                     <span className="size-1.5 rounded-full bg-current" />
                   )}
                 </span>
-                <span className={`lb w-full truncate ${reached ? "font-bold" : "mu"}`}>
+                {/* ⚠️ **سطران لا قصٌّ بثلاث نقاط** (٠٣-٠٨): كان `truncate`،
+                    فلمّا صارت حالة «مدفوع» بالصومالية «Lacagta waa la
+                    bixiyay» قُصّت إلى «Lacagta waa la…» — وكلمةٌ مقطوعة
+                    في مسار الطلب أسوأ من سطرٍ ثانٍ. و`line-clamp-2`
+                    يحدّ النموّ فلا يرتفع المسار بلا حساب. */}
+                <span
+                  className={`lb line-clamp-2 w-full ${reached ? "font-bold" : "mu"}`}
+                >
                   {s === "done" ? t(`done.${doneKey}`) : t(`status.${s}`)}
                 </span>
               </li>

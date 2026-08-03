@@ -37,7 +37,7 @@
   },
   "theme": {
     "label": "Muuqaalka",
-    "auto": "Toos",
+    "auto": "Toos ah",
     "light": "Iftiin",
     "dark": "Mugdi"
   },
@@ -198,10 +198,10 @@
     },
     "support": {
       "title": "Taageero toos ah",
-      "note": "WhatsApp 24 saac"
+      "note": "Taageero WhatsApp 24 saac"
     },
     "trusted": {
-      "title": "Dalabyo dammaanad qaadan",
+      "title": "Dalabyo dammaanad leh",
       "note": "Ama lacagtaada waa laguu celinayaa"
     }
   },
@@ -218,42 +218,42 @@
     "browse": "FIIRI"
   },
   "menu": {
-    "open": "Menu-ka",
+    "open": "Liiska",
     "close": "Xir",
-    "title": "Menu-ka dukaanka",
-    "shop": "Iibso",
+    "title": "Liiska dukaanka",
+    "shop": "Wax iibso",
     "mine": "Akoonkayga",
     "info": "Dukaanka",
-    "whatsapp": "Nagala hadal WhatsApp"
+    "whatsapp": "Nagala sheekayso WhatsApp"
   },
   "cart": {
     "title": "Dambiisha Wax-iibsiga",
-    "note": "Elektaroonig kaliya",
+    "note": "Qalabka elektarooniga ah oo keliya",
     "add": "Ku dar dambiisha",
-    "added": "Waa la daray",
-    "empty": "Dambiishaada waa madhan",
+    "added": "Waa lagu daray",
+    "empty": "Dambiishaadu waa madhan",
     "emptyNote": "Fiiri elektaroonigga oo ku dar wixii ku qanciya",
-    "keepShopping": "Sii wad wax-iibsiga",
+    "keepShopping": "Sii wad wax iibsiga",
     "remove": "Ka saar",
-    "clear": "Madhi dambiisha",
+    "clear": "Faaruqi dambiisha",
     "delivery": "Faahfaahinta gaarsiinta",
     "name": "Magaca oo buuxa",
     "contact": "Lambarka WhatsApp",
     "address": "Cinwaanka",
     "fillFirst": "Marka hore buuxi faahfaahinta gaarsiinta",
-    "goDelivery": "Xogta gaarsiinta",
+    "goDelivery": "Faahfaahinta gaarsiinta",
     "less": "Mid ka jar",
     "more": "Mid ku dar"
   },
   "help": {
     "title": "Caawimaad & taageero",
-    "note": "Kooxdayada waa diyaar",
+    "note": "Kooxdayadu way kuu diyaar tahay",
     "soon": "Dhawaan",
     "hoursValue": "Sabti – Khamiis · 9am – 11pm",
-    "faqTitle": "Su'aalaha inta badan la weydiiyo",
+    "faqTitle": "Su’aalaha inta badan la isweydiiyo",
     "whatsapp": {
       "title": "WhatsApp",
-      "action": "Noo soo qor"
+      "action": "Noo soo dir fariin"
     },
     "email": {
       "title": "Iimayl",
@@ -321,7 +321,7 @@
   },
   "points": {
     "eyebrow": "Dhibcaha macmiilka",
-    "unit": "dhibco",
+    "unit": "Dhibco",
     "worth": "Waxay le'eg tahay {usd}",
     "toRedeem": "Waxaa kuu haray {n} dhibcood si aad u isticmaasho (ugu yaraan {min})",
     "canRedeem": "Waad isticmaali kartaa dhibcahaaga qiimo-dhimis ahaan",
@@ -342,7 +342,7 @@
     "tabSend": "Dir",
     "tabReceive": "Hel",
     "tabSell": "Iibi",
-    "sendTitle": "U dir dhibco saaxiib",
+    "sendTitle": "U dir dhibco saaxiibkaa",
     "sendPhone": "Lambarka WhatsApp ee qofka",
     "sendCta": "Dir {n} dhibcood",
     "sendDone": "Waa la diray — wuu heli doonaa marka aan eegno ({code})",
@@ -396,7 +396,7 @@
   "accountPage": {
     "title": "Akoonkayga",
     "note": "Xogtaada",
-    "guest": "Waxaad u fiirinaysaa sida marti",
+    "guest": "Waxaad u isticmaalaysaa sidii marti",
     "guestNote": "Gal si aad ula socoto dalabyadaada",
     "login": "Gal",
     "register": "Samee akoon",
@@ -415,17 +415,17 @@
     "retry": "Isku day mar kale",
     "loginError": "Gelitaanku ma dhammaan. Fadlan isku day mar kale.",
     "status": {
-      "pending": "La eegayo",
-      "paid": "La bixiyay",
-      "done": "La gaarsiiyay",
-      "cancelled": "La joojiyay"
+      "pending": "Sugaya",
+      "paid": "Lacagta waa la bixiyay",
+      "done": "Waa la gaarsiiyay",
+      "cancelled": "Waa la joojiyay"
     },
     "completeProfile": "Dhameystir is-diiwaangelintaada →",
     "cancel": "Jooji dalabka",
     "cancelWhy": "Maxaad u joojinaysaa?",
     "cancelPlaceholder": "Si kooban noo sheeg sababta",
     "cancelConfirm": "Xaqiiji joojinta",
-    "cancelBack": "Sii hay dalabka",
+    "cancelBack": "Sii wad dalabka",
     "cancelHint": "Sababta waa lagama maarmaan",
     "cancelError": "Waa la joojin kari waayay. Isku day mar kale.",
     "cancelReason": "Sababta: {reason}",
@@ -442,9 +442,9 @@
       "points-sell": "Qiimaha ayaan lambarkaaga ugu soo dirnaa."
     },
     "done": {
-      "toppedUp": "La buuxiyay",
-      "handedOver": "La gudbiyay",
-      "shipped": "La gaarsiiyay"
+      "toppedUp": "Waa la buuxiyay",
+      "handedOver": "Waa la wareejiyay",
+      "shipped": "Waa la gaarsiiyay"
     },
     "earlier": "Dalabyadii hore",
     "nextTitle": "Maxaa dhacaya markaad bixiso?",
