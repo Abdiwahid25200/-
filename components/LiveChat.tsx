@@ -13,6 +13,7 @@ import {
   MAX_LEN,
   type ChatMessage,
 } from "@/lib/chat";
+import { usePathname } from "@/i18n/navigation";
 import { site } from "@/lib/content";
 import { useWhatsApp } from "@/lib/useWhatsApp";
 import { faqSlots, pick, readFaq, type FaqDoc, type FaqKey } from "@/lib/faq";
@@ -50,6 +51,7 @@ export default function LiveChat() {
   const t = useTranslations("chat");
   const waNum = useWhatsApp();
   const locale = useLocale();
+  const pathname = usePathname();
   const { user, ready, enabled, signIn } = useAuth();
 
   const [open, setOpen] = useState(false);
@@ -177,6 +179,14 @@ export default function LiveChat() {
   const unread = unreadCount(msgs, seen);
   /* الرقم من اللوحة لا من الملف — الثابت فارغ فكان البديل غائباً */
   const waHref = waNum ? `https://wa.me/${waNum.replace(/\D/g, "")}` : null;
+
+  /* 🛒 **بلا زرّ دردشة في السلّة** — قرارها (٠٣-٠٨).
+     الزرّ عائمٌ في طرف الشاشة، وشريط التأكيد يرفعه فيجلس فوق طرف حقل
+     «رقم واتساب». ومن وصل السلّة يريد أن يُتمّ طلبه لا أن يسأل،
+     والدردشة قائمةٌ في كل صفحةٍ أخرى — فلا يُفقد الباب، يُزاح فقط
+     عن الحقل الذي يُكتب فيه.
+     ⚠️ وبعد كل الخطّافات لا قبلها: عودةٌ مبكّرة تُغيّر ترتيبها فتكسر React. */
+  if (pathname === "/cart") return null;
 
   return (
     <>
