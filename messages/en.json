@@ -88,7 +88,8 @@
     "googleSignIn": "Continue with Google",
     "manual": "Manual",
     "shipped": "Shipped",
-    "hot": "{n} bought this today"
+    "hot": "{n} bought this today",
+    "details": "See details"
   },
   "games": {
     "title": "Games",
@@ -747,5 +748,10 @@
     "send": "Share on WhatsApp",
     "save": "Save image",
     "open": "Share"
+  },
+  "item": {
+    "about": "About this item",
+    "buy": "Buy it",
+    "details": "See details"
   }
 }

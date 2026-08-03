@@ -66,3 +66,37 @@ export async function pageMeta(
 export const privateMeta: Metadata = {
   robots: { index: false, follow: true },
 };
+
+/**
+ * عنوان صفحة الصنف ووصفها — **اسم الصنف أوّلاً**.
+ *
+ * ⚠️ جوجل يقصّ العنوان عند نحو ٦٠ حرفاً، فلو بدأ باسم المتجر لضاع اسم
+ *    الحساب أو المنتج — وهو ما يبحث عنه الزبون فعلاً.
+ *
+ * ⚠️ **وصورةُ الصنف صورةَ المشاركة**: الرابط يُرسَل في واتساب، وبلا
+ *    صورةٍ يظهر مستطيلٌ فارغ فلا يُضغط.
+ */
+export async function itemMeta(
+  locale: string,
+  item: { title: string; sub?: string; desc?: string; img?: string; imgs?: string[] } | null,
+  path: string,
+): Promise<Metadata> {
+  const tm = await getTranslations({ locale, namespace: "meta" });
+  if (!item) return { title: tm("brand"), robots: { index: false, follow: true } };
+
+  const title = `${item.title} · ${tm("brand")}`;
+  const description = item.desc || item.sub || tm("description");
+  const image = item.imgs?.[0] || item.img;
+
+  return {
+    title,
+    description,
+    alternates: { canonical: `${SITE}${pathFor(locale, path)}`, languages: languages(path) },
+    openGraph: {
+      title,
+      description,
+      url: `${SITE}${pathFor(locale, path)}`,
+      images: image ? [image] : undefined,
+    },
+  };
+}

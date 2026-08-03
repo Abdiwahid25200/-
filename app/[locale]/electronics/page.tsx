@@ -41,6 +41,7 @@ export default async function ElectronicsPage({
   const te = await getTranslations("eyebrow");
   const tc = await getTranslations("common");
   const tp = await getTranslations("short");
+  const ti = await getTranslations("item");
 
   const items = await mergedItems("elec");
   const over = await sectionOverride("electronics");
@@ -65,6 +66,7 @@ export default async function ElectronicsPage({
           <ProductCard
             key={p.id}
             id={p.id}
+            detailsLabel={ti("details")}
             name={p.title}
             price={p.price}
             old={p.old}

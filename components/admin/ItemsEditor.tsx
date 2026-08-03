@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import {
   allItems,
+  DETAIL_KINDS,
   newItemId,
   removeItem,
   restoreItem,
@@ -15,6 +16,7 @@ import { customSections } from "@/lib/overrides";
 import { diff, hasChanges } from "@/lib/dirty";
 import { profitOf, readCosts, saveCost, type Costs } from "@/lib/costs";
 import ImagePicker from "./ImagePicker";
+import GalleryPicker from "./GalleryPicker";
 import { IconCheckCircle, IconSpinner, IconTrash } from "@/components/icons";
 
 type KindOption = { v: ItemKind; label: string; titleLabel: string };
@@ -277,6 +279,17 @@ export default function ItemsEditor() {
                       folder={kind}
                       onChange={(url) => patch(it.id, { img: url ?? "" })}
                     />
+
+                    {/* معرض صفحة الصنف — للحسابات والإلكترونيات وحدها:
+                        باقةُ شدّاتٍ لا صفحة لها فلا معرض لها. */}
+                    {DETAIL_KINDS.includes(kind) && (
+                      <GalleryPicker
+                        value={it.imgs}
+                        folder={kind}
+                        label="Photos on the item page"
+                        onChange={(imgs) => patch(it.id, { imgs })}
+                      />
+                    )}
 
                     <label className="flex flex-col gap-1.5 text-sm">
                       <span className="font-medium">{meta.titleLabel}</span>

@@ -32,6 +32,8 @@ export type Pack = {
   popular?: boolean;
   /** "قريباً" — تُعرض الباقة معطّلة ولا تُختار */
   soon?: boolean;
+  /** رابط صفحة الصنف — للحسابات وحدها. بلاه لا يظهر سطر التفاصيل */
+  details?: string;
 };
 
 /** رمز الطلب بنفس صيغة الموقع القديم: M-123456 */
@@ -390,8 +392,11 @@ export default function BuyFlow({
         {/* صفٌّ واحد: يُقرأ كقائمة أسعار، لا شبكةٌ تُقارَن فيها أربعٌ في آن */}
         <div className="flex flex-col gap-2.5">
           {packs.map((p) => (
+            /* ⚠️ **سطر التفاصيل خارج القسيمة لا داخلها**: القسيمة زرٌّ،
+               ورابطٌ داخل زرٍّ ترميزٌ باطل — يبتلع المتصفّح إحدى
+               الضغطتين فيختار الزبون الباقة وهو يريد الصور. */
+            <div key={p.id} className="flex flex-col">
             <PackageCard
-              key={p.id}
               title={p.title}
               sub={p.sub}
               price={p.price}
@@ -413,6 +418,15 @@ export default function BuyFlow({
                 hot: tc.raw("hot") as string,
               }}
             />
+            {p.details && (
+              <Link
+                href={p.details}
+                className="f12 mu mt-1 flex min-h-11 items-center justify-center gap-1 font-semibold transition-colors hover:text-orange hover:underline"
+              >
+                {tc("details")}
+              </Link>
+            )}
+            </div>
           ))}
         </div>
       </section>

@@ -27,6 +27,8 @@ export type Product = Controllable & {
   name: string;
   /** مسار الصورة داخل public/ — مثال: "/images/elec/headset.jpg" */
   img?: string;
+  /** معرض صفحة المنتج — ثلاث صور فأكثر. تُرفع من اللوحة */
+  imgs?: string[];
   price: number;
   old?: number;
   disc?: number;
@@ -60,6 +62,13 @@ export type GameAccount = Controllable & {
   id: string;
   title: string;
   img?: string;
+  /**
+   * 🖼️ **معرض الحساب** — قرارها: «ثلاث صور على الأقل في كل حساب».
+   * وهو ما يبيع الحساب فعلاً: الزبون يشتري ما يراه، لا ما يُوصف له.
+   */
+  imgs?: string[];
+  /** الوصف الكامل في صفحة الحساب — أطول من `note` سطر البطاقة */
+  desc?: string;
   price: number;
   note?: string;
 };

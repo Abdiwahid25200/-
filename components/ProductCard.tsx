@@ -1,9 +1,12 @@
 import { fin, fmt } from "@/lib/format";
+import { Link } from "@/i18n/navigation";
 import Thumb from "./Thumb";
 import AddToCart from "./AddToCart";
 
 type Props = {
   id: string;
+  /** نصّ زرّ التفاصيل — بلا نصٍّ لا يظهر الزرّ */
+  detailsLabel?: string;
   name: string;
   price: number;
   old?: number;
@@ -20,6 +23,7 @@ type Props = {
 
 export default function ProductCard({
   id,
+  detailsLabel,
   name,
   price,
   old,
@@ -71,6 +75,20 @@ export default function ProductCard({
           </span>
         ) : (
           <AddToCart id={id} name={name} price={final} img={img} />
+        )}
+
+        {/* ⚠️ **«شاهد التفاصيل» سطرٌ تحت زرّ الشراء لا زرٌّ ثانٍ بجانبه**:
+            زرّان بوزنٍ واحد في بطاقةٍ عرضُها نصف الشاشة يقتسمان الانتباه
+            فلا يُضغط أيّهما. والشراء يبقى المصمت، والتفاصيل سطرٌ هادئ
+            لمن أراد أن يرى أكثر — وهو ما تفعله المتاجر الكبرى.
+            ويبقى هدف اللمس ٤٤px بالحشوة. */}
+        {detailsLabel && (
+          <Link
+            href={`/p/${id}`}
+            className="f12 mu -mb-1 flex min-h-11 items-center justify-center font-semibold underline-offset-4 transition-colors hover:text-orange hover:underline"
+          >
+            {detailsLabel}
+          </Link>
         )}
       </div>
     </article>

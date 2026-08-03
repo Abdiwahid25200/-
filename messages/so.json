@@ -88,7 +88,8 @@
     "googleSignIn": "Ku sii wad Google",
     "manual": "Gacanta",
     "shipped": "La diray",
-    "hot": "{n} qof ayaa maanta iibsaday"
+    "hot": "{n} qof ayaa maanta iibsaday",
+    "details": "Faahfaahin"
   },
   "games": {
     "title": "Ciyaaraha",
@@ -747,5 +748,10 @@
     "send": "Ku wadaag WhatsApp",
     "save": "Kaydi sawirka",
     "open": "Wadaag"
+  },
+  "item": {
+    "about": "Ku saabsan",
+    "buy": "Iibso",
+    "details": "Faahfaahin"
   }
 }

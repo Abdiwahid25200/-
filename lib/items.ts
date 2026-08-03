@@ -45,6 +45,18 @@ export type ShopItem = {
   old?: number;
   disc?: number;
   img?: string;
+  /**
+   * 🖼️ **معرض الصور** — قرارها (٠٣-٠٨): «ثلاث صور على الأقل لكل حساب».
+   *
+   * ⚠️ **و`img` تبقى منفصلةً عنه**: هي صورة **البطاقة** في القوائم —
+   *    واحدةٌ تُحمَّل في شبكةٍ فيها عشرون صنفاً. أمّا `imgs` فلا تُقرأ
+   *    إلا في صفحة الصنف. ولو دُمجا لحُمِّل المعرضُ كلّه في كل قائمة.
+   *
+   * ⚠️ **وبلا معرضٍ تُعرض `img` وحدها** فلا تفرغ الصفحة قبل رفع الصور.
+   */
+  imgs?: string[];
+  /** الوصف الكامل — يُقرأ في صفحة الصنف لا في بطاقتها */
+  desc?: string;
   instant?: boolean;
   popular?: boolean;
   status: ItemStatus;
@@ -81,19 +93,22 @@ const fromStatic: Record<string, () => ShopItem[]> = {
     tiktok.map((a) => ({
       id: a.id, kind: "tiktok" as const,
       title: a.title, sub: a.note, price: a.price, img: a.img,
+      imgs: a.imgs, desc: a.desc,
       status: a.status ?? "on", order: a.order,
     })),
   accounts: () =>
     accounts.map((a) => ({
       id: a.id, kind: "accounts" as const,
       title: a.title, sub: a.note, price: a.price, img: a.img,
+      imgs: a.imgs, desc: a.desc,
       status: a.status ?? "on", order: a.order,
     })),
   elec: () =>
     elec.map((p) => ({
       id: p.id, kind: "elec" as const,
       title: p.name, sub: p.desc, price: p.price, old: p.old, disc: p.disc,
-      img: p.img, status: p.status ?? "on", order: p.order,
+      img: p.img, imgs: p.imgs, desc: p.desc,
+      status: p.status ?? "on", order: p.order,
     })),
 };
 
@@ -159,6 +174,8 @@ export async function mergedItems(kind: ItemKind): Promise<ShopItem[]> {
       old: o.old,
       disc: o.disc,
       img: o.img,
+      imgs: o.imgs,
+      desc: o.desc,
       instant: o.instant,
       popular: o.popular,
       status: (o.status ?? "on") as ItemStatus,
@@ -189,7 +206,7 @@ export async function allItems(kind: ItemKind): Promise<ShopItem[]> {
     .filter(([id, o]) => o.kind === kind && !base.some((b) => b.id === id))
     .map(([id, o]) => ({
       id, kind, title: o.title ?? "", sub: o.sub,
-      price: Number(o.price ?? 0), img: o.img,
+      price: Number(o.price ?? 0), img: o.img, imgs: o.imgs, desc: o.desc,
       status: (o.status ?? "on") as ItemStatus, order: o.order, custom: true,
       hidden: o.hidden === true,
     }));
@@ -208,6 +225,8 @@ function strip(o: ItemDoc): Partial<ShopItem> {
   for (const [k, v] of Object.entries(o)) {
     if (v === undefined || v === null) continue;
     if (v === "" && k !== "img") continue;
+    // مصفوفةٌ فارغة = «امسحي المعرض» — قرارٌ صريح كفراغ الصورة تماماً
+    if (Array.isArray(v) && v.length === 0 && k !== "imgs") continue;
     out[k] = v;
   }
   delete out.hidden;
@@ -287,5 +306,43 @@ export function toPack(i: ShopItem) {
     img: i.img,
     instant: i.instant,
     popular: i.popular,
+    // الحساب له صفحةٌ بمعرضه، وباقةُ الشدّات لا صفحة لها
+    details: DETAIL_KINDS.includes(i.kind) ? `/p/${i.id}` : undefined,
   };
 }
+
+/** الأقسام التي لها صفحة صنفٍ مستقلّة — وما عداها باقاتٌ لا منتجات */
+export const DETAIL_KINDS: ItemKind[] = ["tiktok", "accounts", "elec"];
+
+/**
+ * صنفٌ واحد بمعرّفه، مهما كان قسمه — لصفحة `/p/{id}`.
+ *
+ * ⚠️ **يبحث في الأقسام ذات الصفحات وحدها** (`DETAIL_KINDS`): شدّة ببجي
+ *    لا صفحة لها — تُشترى بآيدي اللاعب من صفحة القسم، وصفحةٌ لكل باقة
+ *    تُغرق جوجل بعشرين صفحةً لا تختلف إلا برقمٍ فيها.
+ *
+ * ⚠️ **وقراءةٌ واحدة تكفي الثلاثة**: `mergedItems` تقرأ مجموعة
+ *    `packages` كاملةً ثم تُصفّيها، فالثلاث نداءاتٍ لا تكلّف ثلاث قراءات.
+ */
+export async function findItem(
+  id: string,
+): Promise<ShopItem | null> {
+  for (const kind of DETAIL_KINDS) {
+    const hit = (await mergedItems(kind)).find((i) => i.id === id);
+    if (hit) return hit;
+  }
+  return null;
+}
+
+/** كل ما له صفحة — لخريطة الموقع، فيعرف جوجل الصفحات الجديدة وحده */
+export async function detailItems(): Promise<ShopItem[]> {
+  const all = await Promise.all(DETAIL_KINDS.map((k) => mergedItems(k)));
+  return all.flat();
+}
+
+/**
+ * معرض الصنف: المعرض إن وُجد، وإلا صورة البطاقة وحدها.
+ * ⚠️ **ولا يُعاد الفارغ**: صفحةٌ بمعرضٍ فارغ تترك فجوةً بيضاء مكانه.
+ */
+export const galleryOf = (i: ShopItem): string[] =>
+  (i.imgs?.filter(Boolean).length ? i.imgs.filter(Boolean) : i.img ? [i.img] : []);
