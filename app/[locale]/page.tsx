@@ -1,5 +1,7 @@
 import { setRequestLocale } from "next-intl/server";
 import ResumeHero from "@/components/ResumeHero";
+import { mergedItems } from "@/lib/items";
+import { isBuyable } from "@/lib/data";
 import HomeBarwaaqo from "@/components/HomeBarwaaqo";
 import LiveTicker from "@/components/LiveTicker";
 import SectionTiles from "@/components/SectionTiles";
@@ -22,6 +24,14 @@ export default async function Home({
   const { locale } = await params;
   setRequestLocale(locale);
 
+  /**
+   * ⏱️ **الباقة الأشهر تُقرأ هنا لا في المتصفّح** — بلاغها (٠٣-٠٨):
+   *    «هذه تظهر متأخّرة». صار البطل يقرأ من اللوحة حين فُرّغت الباقات
+   *    من الملفّ، فبقيت الرئيسية بلا بطلٍ لحظةً ثم ظهر فجأة.
+   */
+  const packs = (await mergedItems("pubg")).filter(isBuyable);
+  const star = packs.find((p) => p.popular) ?? packs[0];
+
 
   return (
     /* ⚠️ **التباعد تباعد النموذج** (`.scr-body` = ٢٢ بين الكتل و١٤ فوقها)
@@ -32,7 +42,7 @@ export default async function Home({
       {/* ⚠️ **البطل هو الشراء لا صورة**: من فتح المتجر يريد شحنةً، فيجد
           طلبه الأخير جاهزاً قبل أن يفكّر. والبانر ينزل تحته — يبقى
           للعروض ولا يسبق ما جاء الزبون من أجله. */}
-      <ResumeHero />
+      <ResumeHero pack={star ? { title: star.title, price: star.price } : null} />
 
       {/* دليلُ حياة: آخر تسليمٍ حقيقيّ وعددُ ما سُلّم — ويُخفي نفسه إن قدُم.
           ⚠️ كان فوقه شريطُ أرقامٍ يقول الشيء نفسه، فدُمج فيه. وحالةُ

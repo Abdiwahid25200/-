@@ -23,13 +23,21 @@ const TTL = 60_000;
 export async function readPayOverrides(): Promise<Record<string, PayOverride>> {
   const db = fbDb();
   if (!db) return {};
-  if (cache && Date.now() - cache.at < TTL) return cache.data;
+
+  /**
+   * ⚠️ **الذاكرة للمتصفّح وحده** — وإلّا عاشت في الخادم عبر الطلبات كلّها،
+   *    فتُعاد الصفحة بناءً بعد الحفظ (`revalidatePath`) وتقرأ من ذاكرةٍ
+   *    قديمة فتخرج بالقديم نفسه. وهذا نصفُ سبب «طرق الدفع تظهر متأخّرة»:
+   *    الطريقة الجديدة تنتظر انتهاء الدقيقة مرّتين لا مرّة.
+   */
+  const onClient = typeof window !== "undefined";
+  if (onClient && cache && Date.now() - cache.at < TTL) return cache.data;
 
   try {
     const snap = await getDocs(collection(db, "payments"));
     const out: Record<string, PayOverride> = {};
     snap.docs.forEach((d) => (out[d.id] = d.data() as PayOverride));
-    cache = { at: Date.now(), data: out };
+    if (onClient) cache = { at: Date.now(), data: out };
     return out;
   } catch {
     return {};

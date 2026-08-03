@@ -11,12 +11,14 @@ import Header from "@/components/Header";
 import BottomNav from "@/components/BottomNav";
 import LiveChat from "@/components/LiveChat";
 import StoreGate from "@/components/StoreGate";
+import { PayProvider } from "@/components/PayProvider";
 import InstallApp from "@/components/InstallApp";
 import PwaRegister from "@/components/PwaRegister";
 import StartAtHome from "@/components/StartAtHome";
 import { ClosedScreen } from "@/components/ClosedNotice";
 import { blocksSite, openNow } from "@/lib/openCore";
 import { readOpenSettingsServer } from "@/lib/storeOpenServer";
+import { mergedPay } from "@/lib/payments";
 import { themeInitScript } from "@/components/ThemeToggle";
 import { site } from "@/lib/content";
 import { SITE, languages, pathFor } from "@/lib/seo";
@@ -131,6 +133,13 @@ export default async function LocaleLayout({
    */
   const store = openNow(await readOpenSettingsServer());
 
+  /**
+   * ⏱️ **طرق الدفع تُقرأ هنا، مرّةً، على الخادم** — بلاغها (٠٣-٠٨):
+   *    «طرق الدفع تظهر متأخّرة». كانت تُقرأ في متصفّح الزبون بعد رسم
+   *    الصفحة، فيرى قسم الدفع فارغاً ثم تقفز فيه الطرق.
+   */
+  const payMethods = await mergedPay();
+
   return (
     <html
       lang={locale}
@@ -189,6 +198,7 @@ export default async function LocaleLayout({
             /* والبوّابة تُكمل ما بدأه الخادم: تُراجع كل دقيقة، فمن أغلقتِ
                المتجر وهو يتصفّح تنزل عليه الستارة بلا أن يحدّث الصفحة */
             <StoreGate initial={store.settings}>
+              <PayProvider value={payMethods}>
               <AuthProvider>
                 <CartProvider>
                   <TopBar />
@@ -221,6 +231,7 @@ export default async function LocaleLayout({
                   <StartAtHome />
                 </CartProvider>
               </AuthProvider>
+              </PayProvider>
             </StoreGate>
           )}
         </NextIntlClientProvider>

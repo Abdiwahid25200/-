@@ -29,19 +29,27 @@ import { IconBolt, IconChevron } from "@/components/icons";
  * ⚠️ **ومتجرٌ بلا بضاعةٍ بعد ⇒ لا بطل**: تذكرةٌ بلا سعرٍ ولا اسم أسوأ
  *    من غيابها. تختفي وحدها، وتعود أوّلَ ما تُضاف باقة.
  */
-export default function ResumeHero() {
+export default function ResumeHero({
+  pack: fromServer = null,
+}: {
+  /** الباقة الأشهر — تُقرأ على الخادم فتصل مرسومةً مع الصفحة */
+  pack?: { title: string; price: number } | null;
+}) {
   const t = useTranslations("resume");
   const [last, setLast] = useState<LastOrder | null>(null);
 
   /** الأشهر من الباقات الحيّة — بديلُ من لم يشترِ بعد */
   const fromFile = pubg.filter(isBuyable).find((p) => p.popular) ?? pubg[0];
   const [pack, setPack] = useState<{ title: string; price: number } | null>(
-    fromFile ? { title: t("uc", { n: fromFile.amount }), price: fromFile.price } : null,
+    fromServer ??
+      (fromFile ? { title: t("uc", { n: fromFile.amount }), price: fromFile.price } : null),
   );
 
   useEffect(() => setLast(readLast()), []);
 
   useEffect(() => {
+    // جاءت مع الصفحة ⇒ لا قراءةَ ثانية ولا ظهورٌ متأخّر
+    if (fromServer) return;
     let alive = true;
     void mergedItems("pubg")
       .then((list) => {
@@ -53,7 +61,7 @@ export default function ResumeHero() {
     return () => {
       alive = false;
     };
-  }, []);
+  }, [fromServer]);
 
   const title = last?.title ?? pack?.title;
   const price = last?.price ?? pack?.price;
