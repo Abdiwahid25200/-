@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { revalidateTag } from "next/cache";
+import { revalidatePath, revalidateTag } from "next/cache";
 import { OPEN_TAG } from "@/lib/storeOpenServer";
 
 /**
@@ -15,8 +15,22 @@ import { OPEN_TAG } from "@/lib/storeOpenServer";
  *    الحدُّ أدناه: نداءٌ كل خمس ثوانٍ لا أكثر، والباقي يُردّ بلا عمل.
  */
 
+/**
+ * ⏱️ **ولم يعد للإغلاق وحده** — بلاغها (٠٣-٠٨): «بعض الأشياء تظهر
+ *    متأخّرة».
+ *
+ * كل صفحاتِ المتجر `revalidate = 60`، فما تحفظه في اللوحة كان ينتظر
+ * **حتى دقيقة** قبل أن يراه الزبون (وتراه هي). وكانت شاشة «Store info»
+ * وحدها تنادي هذا المسار، فبقيت الأصناف والأقسام وطرق الدفع تنتظر.
+ *
+ * الآن تناديه **كل حفظةٍ في اللوحة**، ويُسقط `revalidatePath` الصفحات
+ * كلّها لا وسمَ الفتح وحده — فتظهر في ثوانٍ.
+ */
+
 let last = 0;
-const GAP_MS = 5000;
+/* ⚠️ ثانيتان لا خمس: من تحفظ ثلاثة أصناف متتابعة كانت الثالثة تُتخطّى
+   فتنتظر الدقيقة كاملة — وهي بالضبط الحالة التي اشتكت منها. */
+const GAP_MS = 2000;
 
 export async function POST() {
   const now = Date.now();
@@ -26,5 +40,11 @@ export async function POST() {
   /* ⚠️ Next 16 يطلب «عمرَ الحفظ» مع الوسم — و`max` تعني: أسقِط كل
      نسخةٍ محفوظة مهما كان عمرها، وهو المقصود هنا بالضبط. */
   revalidateTag(OPEN_TAG, "max");
+
+  /* ⚠️ **`layout` لا `page`**: الأصناف تظهر في الرئيسية وصفحة قسمها
+     وصفحة الصنف والبحث والخريطة — ونوعُ `layout` يُسقط الشجرة كلّها
+     تحت الجذر، فلا نعدّد مساراتٍ يُنسى أحدها كلّما أُضيفت صفحة. */
+  revalidatePath("/", "layout");
+
   return NextResponse.json({ ok: true });
 }

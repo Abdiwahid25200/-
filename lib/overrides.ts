@@ -106,6 +106,22 @@ export const readPackages = () => readAll<ItemOverride>("packages");
 export const readProducts = () => readAll<ItemOverride>("products");
 
 /** حفظ تعديل — `merge` فلا يمحو حقلاً لم تلمسه صاحبة المتجر */
+/**
+ * ⏱️ **«ظهرت متأخّرة»** — تُنادى بعد كل حفظةٍ تمسّ ما يراه الزبون.
+ *
+ * صفحات المتجر محفوظةٌ ستّين ثانية، فبلا هذا النداء تنتظر صاحبةُ المتجر
+ * دقيقةً كاملة لترى ما حفظته — وتظنّ الحفظ لم ينجح فتحفظ ثانية.
+ *
+ * ⚠️ **ولا يُنتظَر ولا يُفشِل الحفظ**: الحفظ وقع في Firestore، وهذا
+ *    تسريعُ عرضٍ لا شرطٌ له. فلو تعثّر ظهر التغيير بعد دقيقة كما كان.
+ */
+export function bustCache(): void {
+  /* ⚠️ في المتصفّح وحده: الرابط نسبيّ، ونداؤه من الخادم يرمي خطأً
+     **قبل** أن يصير وعداً — فلا يلتقطه `catch` ويسقط الحفظ معه. */
+  if (typeof window === "undefined") return;
+  void fetch("/api/revalidate-store", { method: "POST" }).catch(() => {});
+}
+
 export async function saveOverride(
   col: "sections" | "packages" | "products" | "settings" | "slides" | "payments",
   id: string,
@@ -118,6 +134,7 @@ export async function saveOverride(
     const clean: Record<string, unknown> = {};
     for (const [k, v] of Object.entries(data)) if (v !== undefined) clean[k] = v;
     await setDoc(doc(db, col, id), clean, { merge: true });
+    bustCache();
     return true;
   } catch {
     return false;
@@ -139,6 +156,7 @@ export async function deleteOverride(
   if (!db) return false;
   try {
     await deleteDoc(doc(db, col, id));
+    bustCache();
     return true;
   } catch {
     return false;

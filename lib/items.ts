@@ -11,6 +11,7 @@
 
 import { collection, deleteDoc, doc, getDocs, setDoc } from "firebase/firestore";
 import { fbDb } from "./firebase";
+import { bustCache } from "./overrides";
 import {
   accounts,
   elec,
@@ -252,6 +253,7 @@ export async function saveItem(id: string, data: ItemDoc): Promise<boolean> {
       merge: true,
     });
     clearItemsCache();
+    bustCache();
     return true;
   } catch {
     return false;
@@ -270,6 +272,7 @@ export async function removeItem(item: ShopItem): Promise<boolean> {
     if (item.custom) await deleteDoc(doc(db, "packages", item.id));
     else await setDoc(doc(db, "packages", item.id), { hidden: true }, { merge: true });
     clearItemsCache();
+    bustCache();
     return true;
   } catch {
     return false;
@@ -308,6 +311,7 @@ export async function restoreItem(item: ShopItem): Promise<boolean> {
   try {
     await setDoc(doc(db, "packages", item.id), { hidden: false }, { merge: true });
     clearItemsCache();
+    bustCache();
     return true;
   } catch {
     return false;
