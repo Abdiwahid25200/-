@@ -79,6 +79,14 @@ export async function generateMetadata({
      */
     applicationName: "eRamaan",
     appleWebApp: { capable: true, title: "eRamaan", statusBarStyle: "default" },
+    /**
+     * 🐞 **بطاقة التطبيق بلغة هذه الصفحة**.
+     *
+     * كانت بطاقةً واحدة تبدأ من «/» — وهي الإنجليزية. فمن ثبّتته وهي
+     * على الصفحة العربية فتحته فوجدت موقعاً إنجليزياً: تطبيقٌ لا يشبه
+     * الموقع الذي جاء منه. والآن كل لغةٍ تشير إلى بطاقتها.
+     */
+    manifest: `/app-manifest/${locale}`,
     // بطاقة المشاركة: ما يظهر عند إرسال الرابط بواتساب أو نشره
     openGraph: {
       title,

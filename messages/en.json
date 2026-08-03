@@ -14,6 +14,7 @@
   },
   "nav": {
     "label": "Navigation",
+    "elec": "Devices",
     "home": "Home",
     "games": "Games",
     "accounts": "Accounts",

@@ -5,6 +5,7 @@ import { Link, usePathname } from "@/i18n/navigation";
 import { useIsApp } from "@/lib/platform";
 import {
   IconBarwaaqoLine,
+  IconDevice,
   IconNavAccounts,
   IconNavGames,
   IconNavHelp,
@@ -12,23 +13,31 @@ import {
 } from "./icons";
 
 /**
- * ⚠️ **الخانة الثالثة تختلف بين الموقع والتطبيق** — قرار صاحبة المتجر:
+ * ⚠️ **خمس خانات، والرئيسية في الوسط** — قرار صاحبة المتجر (٠٣-٠٨):
  *
- *    الموقع:  Home · Games · **Accounts** · Help
- *    التطبيق: Home · Games · **Barwaaqo** · Help
+ *    الموقع:  Devices · Games · **Home** · Accounts · Help
+ *    التطبيق: Devices · Games · **Home** · Barwaaqo · Help
  *
- *    لأن بيع الحسابات يبقى على الموقع وحده، فمكانُه في التطبيق يأخذه
- *    برنامج النقاط. وما عدا الخانة الثالثة فواحدٌ في السطحين — فلا
- *    يتعلّم الزبون تنقّلين لمتجرٍ واحد.
+ * ⚠️ **والرابعة وحدها تختلف بين السطحين**: بيع الحسابات يبقى على الموقع،
+ *    ومكانُه في التطبيق يأخذه برنامج النقاط. وما عداها واحدٌ في الاثنين —
+ *    فلا يتعلّم الزبون تنقّلين لمتجرٍ واحد.
+ *
+ * ⚠️ **والرئيسية في الوسط لا في الطرف**: خمسُ خاناتٍ يصلها الإبهام
+ *    بأطوالٍ مختلفة، وأقصرُها الوسط. والرئيسية هي المضغوطة أكثر من غيرها.
+ *
+ * ⚠️ **و«إلكترونيات» في العربية و«Devices» في الإنجليزية**: الخانة
+ *    ٧٥ بكسلاً، و«Electronics» بحرفٍ لا ينزل عن ١٢٫٥px تلتفّ سطرين
+ *    فيرتفع الشريط كلّه. والمعنى واحدٌ والاسم أقصر.
  */
-const WEB_THIRD = { key: "accounts", href: "/accounts", Icon: IconNavAccounts } as const;
-const APP_THIRD = { key: "barwaaqo", href: "/points", Icon: IconBarwaaqoLine } as const;
+const WEB_FOURTH = { key: "accounts", href: "/accounts", Icon: IconNavAccounts } as const;
+const APP_FOURTH = { key: "barwaaqo", href: "/points", Icon: IconBarwaaqoLine } as const;
 
 const tabsFor = (isApp: boolean) =>
   [
-    { key: "home", href: "/", Icon: IconNavHome },
+    { key: "elec", href: "/electronics", Icon: IconDevice },
     { key: "games", href: "/games", Icon: IconNavGames },
-    isApp ? APP_THIRD : WEB_THIRD,
+    { key: "home", href: "/", Icon: IconNavHome },
+    isApp ? APP_FOURTH : WEB_FOURTH,
     { key: "help", href: "/help", Icon: IconNavHelp },
   ] as const;
 
