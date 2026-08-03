@@ -105,39 +105,49 @@ export default function InstallApp() {
 
   return (
     <section className="page-w px-4 pb-1 pt-4">
-      <div className="lift flex items-center gap-3 rounded-card border border-orange/35 bg-orange/5 p-3">
-        <Logo solid className="size-11 shrink-0 rounded-[14px]" />
+      {/**
+       * ⚠️ **صفّان لا صفّ واحد** (٠٣-٠٨): كان الشعار والنصّ والزرّ وزرّ
+       *    الإغلاق في سطرٍ واحد، وكلّها ثابتةُ العرض إلا النصّ — فبقي له
+       *    نحو مئة بكسل على شاشة ٣٩٠، فالتفّ العنوان ثلاثة أسطر وانقصّ
+       *    زرّ التثبيت عند الحافة. الآن: السطر الأعلى للتعريف، وزرُّ
+       *    التثبيت تحته بعرض البطاقة — أظهرُ وأسهلُ في الإصابة.
+       */}
+      <div className="lift flex flex-col gap-2.5 rounded-card border border-orange/35 bg-orange/5 p-3">
+        <div className="flex items-center gap-3">
+          <Logo solid className="size-11 shrink-0 rounded-[14px]" />
 
-        <span className="min-w-0 flex-1">
-          <span className="block font-bold leading-tight">{t("title")}</span>
-          <span className="block text-sm leading-tight text-muted">
-            {ios ? t("ios") : t("note")}
+          <span className="min-w-0 flex-1">
+            <span className="block font-bold leading-tight">{t("title")}</span>
+            <span className="block text-sm leading-tight text-muted">
+              {ios ? t("ios") : t("note")}
+            </span>
           </span>
-        </span>
 
-        {/* آيفون: لا زرّ — الخطوة بيد الزبون في قائمة سفاري، وزرٌّ لا يفعل
-            شيئاً أسوأ من لا زرّ. أندرويد: زرٌّ يفتح نافذة التثبيت فعلاً. */}
-        {ios ? (
-          <IconShare className="size-6 shrink-0 text-orange" />
-        ) : (
+          {/* آيفون: لا زرّ — الخطوة بيد الزبون في قائمة سفاري، وزرٌّ لا يفعل
+              شيئاً أسوأ من لا زرّ. وأيقونة المشاركة نفسها تدلّ على الطريق. */}
+          {ios && <IconShare className="size-6 shrink-0 text-orange" />}
+
+          <button
+            type="button"
+            onClick={() => hide(true)}
+            aria-label={t("later")}
+            className="flex size-11 shrink-0 items-center justify-center rounded-card text-muted"
+          >
+            <IconClose className="size-4" />
+          </button>
+        </div>
+
+        {/* أندرويد وحده: زرٌّ يفتح نافذة التثبيت فعلاً */}
+        {!ios && (
           <button
             type="button"
             onClick={install}
-            className="flex min-h-11 shrink-0 items-center gap-1.5 rounded-card bg-orange px-3.5 font-bold text-onaccent"
+            className="flex min-h-11 w-full items-center justify-center gap-1.5 rounded-card bg-orange px-3.5 font-bold text-onaccent"
           >
             <IconDownload className="size-4" />
             {t("button")}
           </button>
         )}
-
-        <button
-          type="button"
-          onClick={() => hide(true)}
-          aria-label={t("later")}
-          className="flex size-11 shrink-0 items-center justify-center rounded-card text-muted"
-        >
-          <IconClose className="size-4" />
-        </button>
       </div>
     </section>
   );

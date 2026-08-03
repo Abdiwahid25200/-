@@ -276,6 +276,31 @@ export async function removeItem(item: ShopItem): Promise<boolean> {
   }
 }
 
+/**
+ * 🧹 **إفراغ قسمٍ كامل** — طلبها (٠٣-٠٨): «أنا أضيفهم من الإدارة».
+ *
+ * ⚠️ **ولماذا زرٌّ لا رحلةٌ إلى Firebase Console**: كانت الطريقة الوحيدة
+ *    لحذف عشرين صنفاً دفعةً واحدة أن تفتح Console على جوّالها وتغوص في
+ *    المجموعات وتكتب اسم المجموعة لتأكيد الحذف — أدواتُ مبرمجٍ لا
+ *    صاحبةِ متجر. وضغطةٌ واحدة هنا تكفي.
+ *
+ * ⚠️ **ويحترم الفرق بين المضاف والأصلي**: يمرّ على `removeItem` نفسها،
+ *    فما أضافته يُمحى وما جاء من الملفّات يُخفى — وإلّا عاد المحذوف
+ *    الأصلي عند أوّل نشرٍ فحارت من حذفه.
+ *
+ * ⚠️ **وواحداً بعد واحد لا دفعةً واحدة**: القواعد تفحص كل حذفٍ على حدة،
+ *    وفشلُ واحدٍ لا يُسقط الباقي. والعدد الراجع هو ما نجح فعلاً.
+ */
+export async function removeAllItems(kind: ItemKind): Promise<number> {
+  const list = await allItems(kind);
+  let done = 0;
+  for (const it of list) {
+    if (await removeItem(it)) done += 1;
+  }
+  clearItemsCache();
+  return done;
+}
+
 /** إرجاع صنفٍ أصلي حُذف — يعود للزبون كما كان بضغطة */
 export async function restoreItem(item: ShopItem): Promise<boolean> {
   const db = fbDb();

@@ -58,6 +58,15 @@ export default async function ElectronicsPage({
 
       <p className="num -mt-2 text-sm text-muted">{tc("count", { n: items.length })}</p>
 
+      {/* 🕳️ **لا شبكةٌ فارغة**: «0 products» وحدها تُقرأ عطلاً. والسطر
+          يقول إن المكان صحيح وإن البضاعة قادمة (ظهر حين فُرّغ المتجر
+          ليُملأ من اللوحة — ٠٣-٠٨). */}
+      {items.length === 0 && (
+        <p className="rounded-card border border-dashed border-line p-6 text-center text-sm text-muted">
+          {tc("soon")}
+        </p>
+      )}
+
       {/* ⚠️ **لا تجعل الصنف الواحد بعرض الصفّ.** جُرّب فصارت البطاقة
           عملاقة على الجوّال — نصفُ صفٍّ فارغ أهونُ من بطاقةٍ بطول
           الشاشة. البطاقة تبقى بمقاسها في كل الأحوال. */}

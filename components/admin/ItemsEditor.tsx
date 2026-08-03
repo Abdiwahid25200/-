@@ -5,6 +5,7 @@ import {
   allItems,
   DETAIL_KINDS,
   newItemId,
+  removeAllItems,
   removeItem,
   restoreItem,
   saveItem,
@@ -157,6 +158,19 @@ export default function ItemsEditor() {
     setBusy(null);
     if (ok) load(kind);
     else alert("Could not restore.");
+  }
+
+  /** إفراغ القسم كلّه — سؤالٌ واحد فيه العدد، ثم حذفٌ صنفاً صنفاً */
+  async function wipe() {
+    const n = (items ?? []).length;
+    if (!n) return;
+    if (!confirm(`Delete all ${n} items in ${meta.label}? This cannot be undone.`)) return;
+
+    setBusy("all");
+    const done = await removeAllItems(kind);
+    setBusy(null);
+    load(kind);
+    if (done < n) alert(`Deleted ${done} of ${n}. Try again for the rest.`);
   }
 
   function add() {
@@ -474,10 +488,36 @@ export default function ItemsEditor() {
           <button
             type="button"
             onClick={add}
-            className="min-h-12 rounded-card border border-dashed border-orange font-bold text-orange"
+            className="flex min-h-12 items-center justify-center gap-2 rounded-card border border-dashed border-orange font-bold text-orange"
           >
-            + Add new item
+            {/* 🔒 أيقونةٌ مرسومة لا محرف `+` — القرار المقفل (ب) */}
+            <IconPlus className="size-4" />
+            Add new item
           </button>
+
+          {/**
+           * 🧹 **إفراغ القسم دفعةً واحدة** — طلبها (٠٣-٠٨).
+           *
+           * ⚠️ **ولا يظهر إلا حين يكون فيه ما يُحذف**: زرُّ حذفٍ دائمٌ
+           *    فوق قائمةٍ فارغة تهديدٌ بلا معنى.
+           * ⚠️ **والسؤال يقول العدد لا «هل أنتِ متأكّدة؟»**: الرقم هو ما
+           *    يوقظ الانتباه — «٢٩ صنفاً» تُقرأ، والسؤال المجرّد يُضغط.
+           */}
+          {items.length > 0 && (
+            <button
+              type="button"
+              disabled={busy === "all"}
+              onClick={() => void wipe()}
+              className="flex min-h-12 items-center justify-center gap-2 rounded-card border border-danger/40 font-bold text-danger disabled:opacity-50"
+            >
+              {busy === "all" ? (
+                <IconSpinner className="size-4" />
+              ) : (
+                <IconTrash className="size-4" />
+              )}
+              Delete all {items.length} in {meta.label}
+            </button>
+          )}
         </>
       )}
     </div>

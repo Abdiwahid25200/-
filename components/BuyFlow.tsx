@@ -398,6 +398,21 @@ export default function BuyFlow({
 
       <section ref={packsRef}>
         <h2 className="mb-3 text-lg font-bold">{t("selectPackage")}</h2>
+
+        {/**
+         * 🕳️ **قسمٌ بلا باقاتٍ بعد** — لا عنوانٌ فوق فراغ.
+         *
+         * ⚠️ ظهر هذا حين فُرّغ المتجر ليُملأ من اللوحة (٠٣-٠٨): كانت
+         *    الصفحة تقول «اختر باقة» ثم لا شيء تحتها — فيظنّ الزبون
+         *    الموقعَ مكسوراً ويخرج. والسطر يقول: المكان صحيح، والبضاعة
+         *    قادمة.
+         */}
+        {packs.length === 0 && (
+          <p className="rounded-card border border-dashed border-line p-6 text-center text-sm text-muted">
+            {tc("soon")}
+          </p>
+        )}
+
         {/* صفٌّ واحد: يُقرأ كقائمة أسعار، لا شبكةٌ تُقارَن فيها أربعٌ في آن */}
         <div className="flex flex-col gap-2.5">
           {packs.map((p) => (
