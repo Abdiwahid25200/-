@@ -24,9 +24,10 @@ const GROUPS = [
     doc: "how",
     label: "How it works",
     fields: [
-      { k: "badge", label: "Small line on top" },
-      { k: "title", label: "Headline" },
-      { k: "note", label: "Paragraph", big: true },
+      // ⚠️ حُذف «Small line on top» و«Paragraph»: صفحة الدعم صارت بطاقةً
+      // بعنوانٍ صغير كما في النموذج، فلم يعد لهما موضعٌ يظهران فيه.
+      // وحقلٌ يُكتب فيه ولا يظهر أثرُه أسوأ من حقلٍ غير موجود.
+      { k: "title", label: "Card title" },
       { k: "steps.choose.title", label: "Step 1 — title" },
       { k: "steps.choose.note", label: "Step 1 — line under it" },
       { k: "steps.pay.title", label: "Step 2 — title" },

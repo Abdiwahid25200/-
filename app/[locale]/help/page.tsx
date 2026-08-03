@@ -66,14 +66,19 @@ export default async function HelpPage({
   return (
     <main className="seq page-w flex flex-col gap-8 px-4 py-6">
       <BackLink href="/" />
-      <SectionHead
-        eyebrow={te("help")} title={t("title")} note={t("note")} />
+      {/* ⚠️ **بلا وصفٍ تحت العنوان** (النموذج): «فريقنا جاهز لخدمتك» جملةٌ
+          لا تُجيب سؤالاً، ومن فتح الدعم فتحه بسؤال. والترويسة الواحدة
+          تُبقي أوّل بطاقةٍ في الشاشة بلا تمرير. */}
+      <SectionHead eyebrow={te("help")} title={t("title")} />
 
       <HowItWorks />
 
-      {/* تواصل معنا — بطاقتان بالصفّ، أيقونةٌ فوق النصّ كما في النموذج */}
-      <section>
-        <h2 className="mb-3.5 text-xl font-bold">{t("reach")}</h2>
+      {/* تواصل معنا — بطاقتان بالصفّ، أيقونةٌ فوق النصّ كما في النموذج.
+          ⚠️ **بلا عنوانٍ فوقهما** (النموذج): بطاقةُ واتساب تقول «واتساب»
+          وتحتها الرقم، فعنوانُ «تواصل معنا» يعيد ما تحته بكلمةٍ أكبر.
+          ويبقى اسمُ الكتلة لقارئ الشاشة في `aria-label` — الحذفُ من العين
+          لا من الوصول. */}
+      <section aria-label={t("reach")}>
         <div className="grid grid-cols-2 gap-2.5">
           {/* ⚠️ **لا تُعرض قناةٌ فارغة.** كانت أربع بطاقاتٍ اثنتان منها
               «يُضاف قريباً» — ووعدٌ لا موعد له يُضعف الثقة ولا يبنيها.
@@ -131,7 +136,8 @@ export default async function HelpPage({
       </section>
 
       <section>
-        <h2 className="mb-4 text-xl font-bold">{t("faqTitle")}</h2>
+        {/* سطرٌ صغير غامق كعنوان بطاقة «كيف يعمل المتجر» — لا عنوانَ صفحةٍ ثانياً */}
+        <h2 className="mb-2.5 text-sm font-bold">{t("faqTitle")}</h2>
         <Faq
           items={faqSlots.map((k) => ({
             q: pickFaq(faq, k, locale, "q", tc(`faq.${k}.q`)),
