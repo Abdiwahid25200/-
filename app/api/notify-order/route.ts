@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { orderLines } from "@/lib/orderNote";
 
 /**
  * إشعار صاحبة المتجر بكل طلب جديد.
@@ -39,32 +40,9 @@ function tooMany(ip: string) {
   return rec.n > LIMIT;
 }
 
-/** وسم القسم — سطر واحد يقول لصاحبة المتجر ما نوع العمل المطلوب */
-const KIND_LABEL: Record<string, string> = {
-  pubg: "🎮 شدات ببجي",
-  efootball: "⚽ كوينز eFootball",
-  tiktok: "🎵 حساب تيك توك",
-  accounts: "⚽ حساب eFootball",
-  elec: "📦 إلكترونيات",
-};
-
-/**
- * الأقسام التي يكون الرقم فيها **رقم هاتف** لا آيدي لعبة.
- * في ببجي وeFootball الرقم آيدي حساب اللعبة — وبناء رابط واتساب منه
- * يفتح محادثة مع شخص لا علاقة له بالطلب.
- */
-const PHONE_KINDS = new Set(["tiktok", "accounts", "elec"]);
-
-/** أطول سلسلة أرقام في النص — رقم الزبون، فنبني منه رابط واتساب */
-function phoneIn(text: string): string {
-  const runs = text.match(/\d[\d\s-]{6,}\d/g) ?? [];
-  const best = runs
-    .map((r) => r.replace(/\D/g, ""))
-    .filter((d) => d.length >= 7 && d.length <= 15)
-    .sort((a, b) => b.length - a.length)[0];
-  return best ?? "";
-}
-
+/* ⚠️ **وسمُ القسم ورابطُ واتساب خرجا إلى `lib/orderNote.ts`**: بريدُ
+   التأخير (`/api/late-orders`) يرسل الطلب نفسه، ونصّان مختلفان يعنيان
+   أن أحدهما سيكذب يوماً. */
 const clip = (v: unknown, max: number) => String(v ?? "").slice(0, max);
 
 export async function POST(request: Request) {
@@ -93,18 +71,10 @@ export async function POST(request: Request) {
 
   if (!code) return NextResponse.json({ ok: false, reason: "bad" }, { status: 400 });
 
-  const phone = PHONE_KINDS.has(kind) ? phoneIn(account) : "";
-
   const lines = [
     `🆕 طلب جديد · ${code}`,
-    KIND_LABEL[kind] ?? "🛒 طلب",
-    items,
-    total && `💵 ${total}`,
-    account && `📌 ${account}`,
-    buyer && `👤 ${buyer}`,
-    // رابط جاهز: ضغطة واحدة وتبدأ المحادثة مع صاحب الطلب
-    phone && `💬 https://wa.me/${phone}`,
-  ].filter(Boolean);
+    ...orderLines({ code, kind, items, total, account, buyer }),
+  ];
 
   try {
     const url = HOOK.includes("{msg}")

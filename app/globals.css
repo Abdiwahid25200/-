@@ -1064,10 +1064,14 @@ input.field::placeholder, textarea.field::placeholder { color: var(--muted); }
   display: flex;
   background: var(--surface);
   border-top: 1px solid var(--line);
-  padding: 8px 6px 14px;
+  /* ⚠️ الحشوة الجانبية ٣ لا ٦: كل بكسلٍ هنا يُقسم على خمس خانات، و«Electronics»
+     تحتاج ما تحتاج. والعينُ لا ترى الفرق لأن الخانات الطرفية بلا حدّ. */
+  padding: 8px 3px 14px;
 }
 .nav a {
   flex: 1;
+  /* بلا هذا يرفض عنصرُ الفلكس أن ينزل عن عرض نصّه، فتتباين الخانات */
+  min-width: 0;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -1078,6 +1082,18 @@ input.field::placeholder, textarea.field::placeholder { color: var(--muted); }
   font-size: max(11px, var(--pf-floor));
   font-weight: 600;
   line-height: 1.2;
+}
+/* ⚠️ **سطرٌ واحد مهما طال الاسم** — «Electronics» بطلبها (٠٣-٠٨) بدل
+   «Devices». وبلا هذا يلتفّ الاسم سطرين فيرتفع الشريط كلّه وتقفز الأيقونات.
+   والاسم الطويل يتّسع في فراغ جاره ولا يلامسه: أطول ما بعده «Accounts» وهو
+   أقصر بثلاثة عشر بكسلاً، فالفجوة باقية على ٣٩٠ وعلى ٤٣٠ معاً. */
+.nav a span {
+  white-space: nowrap;
+  letter-spacing: -0.1px;
+}
+/* والعربية خطٌّ متّصل لا يقبل التباعد ولا انقباضه */
+html[dir="rtl"] .nav a span {
+  letter-spacing: normal;
 }
 .nav a svg { width: 22px; height: 22px; }
 /* ⚠️ **القرص يشمل الأيقونة والاسم معاً** — كان خلف الأيقونة وحدها،

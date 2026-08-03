@@ -12,6 +12,12 @@ import { useAuth } from "@/lib/auth";
 import { AccessProvider } from "@/lib/adminAccess";
 import { ALL, staffAccess, type Access } from "@/lib/staff";
 import { adminLeft, clearAdmin, touchAdmin } from "@/lib/adminSession";
+import {
+  DEVICE_DAYS,
+  devTicket,
+  saveDevTicket,
+  toAdminEmail,
+} from "@/lib/adminLogin";
 import { fbAuth, fbDb } from "@/lib/firebase";
 import Logo from "@/components/Logo";
 import { IconEye, IconEyeOff, IconSpinner } from "@/components/icons";
@@ -32,13 +38,15 @@ import { IconEye, IconEyeOff, IconSpinner } from "@/components/icons";
  *
  * 🔒 **وعمرُ الجلسة محدود** — كان بلا حدّ، فمن دخل مرّةً بقي داخلاً أبداً.
  *    التفصيل والسبب في `lib/adminSession.ts`.
+ *
+ * 🔒 **وخطوةٌ ثانية: رمزٌ إلى البريد** (طلبها ٠٣-٠٨) — كلمة السرّ تُفحص
+ *    عند الخادم أوّلاً، ثم يُرسل رمزٌ من ستّة أرقام إلى بريد صاحب
+ *    الحساب. والجهاز الذي كُتب فيه الرمز صحيحاً يُعرف **سبعة أيام**
+ *    فلا يُسأل ثانيةً (قرارها). التفصيل في `app/api/admin-otp/route.ts`.
+ *
+ * ⚠️ **والاسم لا يصير بريداً هنا بعد اليوم**: `toAdminEmail` في
+ *    `lib/adminLogin.ts` — يقرؤها الخادم أيضاً ليفحص كلمة السرّ.
  */
-
-/** النطاق الذي يُلحَق باسم المستخدم — انظري تعليمات الإعداد في الردّ */
-const DOMAIN = "eramaan.com";
-
-const toEmail = (u: string) =>
-  u.includes("@") ? u.trim() : `${u.trim().toLowerCase()}@${DOMAIN}`;
 
 export default function AdminGate({ children }: { children: React.ReactNode }) {
   const { user, ready, enabled } = useAuth();
@@ -52,6 +60,13 @@ export default function AdminGate({ children }: { children: React.ReactNode }) {
   const [show, setShow] = useState(false);
   /** سطرٌ يُقال بعد الخروج التلقائي — وإلّا بدا الخروج عطلاً */
   const [locked, setLocked] = useState(false);
+
+  /** خطوة الرمز: `cred` الاسم وكلمة السرّ · `code` الأرقام الستّة */
+  const [step, setStep] = useState<"cred" | "code">("cred");
+  /** ورقةٌ موقّعة من الخادم — لا الرمزُ نفسه (انظري `lib/signed.ts`) */
+  const [token, setToken] = useState("");
+  const [sentTo, setSentTo] = useState("");
+  const [code, setCode] = useState("");
 
   /** خروجٌ فوريّ: يُسقط الرمز عند Firebase ويمحو الختم */
   const lock = useCallback(() => {
@@ -132,14 +147,14 @@ export default function AdminGate({ children }: { children: React.ReactNode }) {
     };
   }, [user]);
 
-  async function submit(e: React.FormEvent) {
-    e.preventDefault();
+  /**
+   * الدخول الحقيقيّ عند Firebase — بعد أن يُقبل الرمز (أو حين لا يُطلب).
+   * كان جسدَ `submit` كلَّه، وفُصل لأن له الآن مدخلين: كلمة السرّ وحدها
+   * على الجهاز المعروف، والرمزُ على الجهاز الغريب.
+   */
+  async function finish() {
     const auth = fbAuth();
-    if (!auth || busy) return;
-
-    setBusy(true);
-    setErr("");
-    setLocked(false);
+    if (!auth) return;
     try {
       /**
        * 🔒 نُخرج الجلسة القائمة أولاً.
@@ -159,22 +174,101 @@ export default function AdminGate({ children }: { children: React.ReactNode }) {
         setPersistence(auth, inMemoryPersistence),
       );
 
-      await signInWithEmailAndPassword(auth, toEmail(username), password);
+      await signInWithEmailAndPassword(auth, toAdminEmail(username), password);
       // الختم يُوضع قبل أن تُرسم اللوحة، وإلّا رآها الحارس بلا ختمٍ فأخرجها
       touchAdmin();
     } catch (e) {
-      const code = (e as { code?: string })?.code ?? "";
+      const fail = (e as { code?: string })?.code ?? "";
+      /* عادت الشاشة إلى الاسم وكلمة السرّ: الرمز الذي قُبل صار وراءنا،
+         وإبقاءُ خانة الأرقام أمام من لم يدخل يُوهم أن العطل فيها. */
+      setStep("cred");
       setErr(
-        code === "auth/invalid-credential" ||
-          code === "auth/wrong-password" ||
-          code === "auth/user-not-found"
+        fail === "auth/invalid-credential" ||
+          fail === "auth/wrong-password" ||
+          fail === "auth/user-not-found"
           ? "Wrong username or password."
-          : code === "auth/too-many-requests"
+          : fail === "auth/too-many-requests"
             ? "Too many attempts — wait a moment and try again."
             : "Sign-in failed. Check your connection.",
       );
     }
     setBusy(false);
+  }
+
+  /** نداء بوّابة الرمز — وأي تعثّرٍ فيها يعني «امضِ بلا رمز» لا «قف» */
+  async function askOtp(payload: Record<string, unknown>) {
+    try {
+      const r = await fetch("/api/admin-otp", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+      const d = (await r.json().catch(() => ({}))) as Record<string, unknown>;
+      return { status: r.status, d };
+    } catch {
+      return { status: 0, d: {} as Record<string, unknown> };
+    }
+  }
+
+  /**
+   * ① الاسم وكلمة السرّ.
+   *
+   * ⚠️ **ولا نمسّ Firebase قبل أن يردّ الخادم**: لو دخلنا ثم طلبنا الرمز
+   *    لَكانت الجلسة مفتوحةً فعلاً قبل أن يُكتب رقمٌ واحد — ومن أغلق
+   *    الشاشة عندها بقي داخلاً. فالفحص عند الخادم أوّلاً، والدخول آخراً.
+   */
+  async function submit(e: React.FormEvent) {
+    e.preventDefault();
+    if (busy) return;
+    setBusy(true);
+    setErr("");
+    setLocked(false);
+
+    const { status, d } = await askOtp({
+      step: "start",
+      u: username,
+      p: password,
+      dev: devTicket(username),
+    });
+
+    if (status === 401 || d.reason === "bad") {
+      setErr("Wrong username or password.");
+      return setBusy(false);
+    }
+    if (status === 429) {
+      setErr("Too many attempts — wait a moment and try again.");
+      return setBusy(false);
+    }
+    if (typeof d.token === "string" && d.token) {
+      setToken(d.token);
+      setSentTo(typeof d.sent === "string" ? d.sent : "your email");
+      setCode("");
+      setStep("code");
+      return setBusy(false);
+    }
+    // جهازٌ معروف · أو الخدمة غير مضبوطة ⇒ الدخول كما كان
+    await finish();
+  }
+
+  /** ② الأرقام الستّة */
+  async function confirmCode(e: React.FormEvent) {
+    e.preventDefault();
+    if (busy) return;
+    setBusy(true);
+    setErr("");
+
+    const { status, d } = await askOtp({ step: "verify", token, code });
+    if (!d.ok) {
+      setErr(
+        status === 429
+          ? "Too many attempts — wait a moment and try again."
+          : "Wrong or expired code. Check your email again.",
+      );
+      return setBusy(false);
+    }
+    // هذا الجهاز معروفٌ من اليوم: لا رمز قبل سبعة أيام
+    if (typeof d.ticket === "string") saveDevTicket(username, d.ticket);
+    await finish();
   }
 
   const shell = (inner: React.ReactNode) => (
@@ -268,12 +362,81 @@ export default function AdminGate({ children }: { children: React.ReactNode }) {
       </>,
     );
 
-  if (!user)
-    return form(
-      locked
-        ? "Locked after 30 minutes with no use. Sign in again."
-        : undefined,
+  /**
+   * ② شاشة الرمز — لا تُعرض إلا بعد أن يقبل الخادمُ كلمةَ السرّ.
+   *
+   * ⚠️ **والبريد مُقنَّع** (`abdi***@gmail.com`): يكفيها لتعرف أي صندوق
+   *    تفتح، ولا يهدي عنوانَ بريدها لمن يقف أمام الشاشة.
+   */
+  const codeForm = () =>
+    shell(
+      <>
+        <h1 className="text-xl font-bold">Check your email</h1>
+        <p className="text-sm text-muted">
+          We sent a 6-digit code to <span dir="ltr">{sentTo}</span>. It expires in
+          10 minutes.
+        </p>
+
+        <form onSubmit={confirmCode} className="mt-2 flex w-full flex-col gap-3">
+          <input
+            value={code}
+            /* أرقامٌ فقط: من نسخ الرمز من البريد قد يجرّ معه مسافة */
+            onChange={(e) => setCode(e.target.value.replace(/\D/g, "").slice(0, 6))}
+            placeholder="000000"
+            aria-label="Six digit code"
+            /* لوحة الأرقام على الجوّال، واقتراح الرمز من الرسالة نفسها */
+            inputMode="numeric"
+            autoComplete="one-time-code"
+            maxLength={6}
+            autoFocus
+            dir="ltr"
+            className="num min-h-12 w-full rounded-card border border-line bg-surface px-3 text-center text-xl tracking-[0.4em] outline-none focus:border-orange"
+          />
+
+          {err && (
+            <p className="rounded-card border border-danger/40 bg-danger/5 p-2.5 text-sm text-danger">
+              {err}
+            </p>
+          )}
+
+          <button
+            type="submit"
+            disabled={busy || code.length < 6}
+            className="flex min-h-12 items-center justify-center gap-2 rounded-card bg-orange font-bold text-onaccent disabled:opacity-40"
+          >
+            {busy && <IconSpinner className="size-4" />}
+            Confirm
+          </button>
+
+          <p className="text-sm text-muted">
+            This device will not ask again for {DEVICE_DAYS} days.
+          </p>
+
+          {/* بابُ الرجوع: من أخطأ في الاسم لا يبقى حبيس خانة الأرقام */}
+          <button
+            type="button"
+            onClick={() => {
+              setStep("cred");
+              setErr("");
+              setToken("");
+              setPassword("");
+            }}
+            className="min-h-12 rounded-card border border-line font-semibold"
+          >
+            Use a different account
+          </button>
+        </form>
+      </>,
     );
+
+  if (!user)
+    return step === "code"
+      ? codeForm()
+      : form(
+          locked
+            ? "Locked after 30 minutes with no use. Sign in again."
+            : undefined,
+        );
 
   /**
    * 🔒 حسابٌ ليس أدمن ⇒ نموذج الدخول وسطرٌ محايد، **بلا معرّف ولا شرح**.
