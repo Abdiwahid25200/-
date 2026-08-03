@@ -1280,3 +1280,78 @@ input.field::placeholder, textarea.field::placeholder { color: var(--muted); }
   background: color-mix(in srgb, var(--accent-2) 15%, transparent);
   color: var(--accent-2);
 }
+
+/* ── وسم المجموعة — يفصل الكتل بلا عنوانٍ كبير يأكل سطراً ───── */
+.adm-ttl {
+  margin: 4px 0 0;
+  font-size: 0.815rem;
+  font-weight: 800;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+/* ── ثلاثة أرقامٍ صغيرة تحت الرقم الكبير ────────────────────── */
+.adm-stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 9px;
+}
+.adm-stat {
+  padding: 11px 12px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: var(--surface);
+}
+.adm-stat > .k {
+  display: block;
+  margin-bottom: 3px;
+  font-size: 0.79rem;
+  color: var(--muted);
+}
+.adm-stat > .v {
+  display: block;
+  font-size: 1.19rem;
+  font-weight: 800;
+}
+/* الخطّ الصغير: اتجاهُ الرقم يُرى قبل أن يُقرأ الرقم نفسه */
+.adm-spark {
+  display: block;
+  width: 100%;
+  height: 22px;
+  margin-top: 7px;
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* ── حالة الشيء: تُرى قبل أن تُقرأ ─────────────────────────── */
+.adm-st {
+  flex: none;
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: 0.79rem;
+  font-weight: 800;
+  background: var(--surface-2);
+  color: var(--muted);
+}
+.adm-st.on { background: color-mix(in srgb, var(--accent-3) 14%, transparent); color: var(--accent-3); }
+.adm-st.soon { background: color-mix(in srgb, var(--accent-2) 15%, transparent); color: var(--accent-2); }
+
+/* ── اللافتة التي تقول ما ينقص — لا رقمٌ صامت ───────────────── */
+.adm-warn {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  width: 100%;
+  padding: 12px 13px;
+  text-align: start;
+  border-radius: 14px;
+  border: 1px solid color-mix(in srgb, var(--danger) 45%, transparent);
+  background: color-mix(in srgb, var(--danger) 7%, transparent);
+  color: var(--text);
+}
+.adm-warn.soft {
+  border-color: color-mix(in srgb, var(--accent-2) 45%, transparent);
+  background: color-mix(in srgb, var(--accent-2) 8%, transparent);
+}

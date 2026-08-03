@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { ICONS, type AdminTab } from "./AdminMenu";
 import SectionsEditor from "./SectionsEditor";
 import ItemsEditor from "./ItemsEditor";
@@ -21,127 +21,196 @@ import ChatsEditor from "./ChatsEditor";
 import Dashboard from "./Dashboard";
 import { useAccess } from "@/lib/adminAccess";
 import { useAuth } from "@/lib/auth";
-import Logo from "@/components/Logo";
+import { useHints, type Hints } from "@/lib/adminHints";
 import type { Perm } from "@/lib/staff";
 import {
   IconChart,
   IconChevron,
   IconClose,
-  IconGear,
+  IconGrid,
   IconHome,
-  IconBag,
-  IconReceipt,
+  IconTag,
+  IconUsers,
 } from "@/components/icons";
 
 /**
- * تنقّل اللوحة — **أربعة تبويبات أسفل الشاشة، كتطبيق بنك**.
- *
- * اختيار صاحبة المتجر (اتجاه «العدّاد»): ستّة عشر باباً في قائمةٍ
- * منسدلة تطلب منها أن تعرف ماذا تريد قبل أن تفتح. أربعةٌ ثابتة في
- * الأسفل تُلمس بالإبهام، ولا شيء مخفيّ خلف همبرغر:
+ * تنقّل اللوحة — **خمسة تبويبات أسفل الشاشة**، كالنموذج المعتمد.
  *
  * | التبويب | ما فيه |
  * |---|---|
- * | الرئيسية | رقم اليوم ثم آخر الطلبات |
- * | الطلبات | الطلبات · الدردشة · الزبائن — عملُ اليوم كلّه |
- * | متجري | المنتجات · الأقسام · البانر · طرق الدفع |
- * | أرقامي | الأرباح · تقرير المساعدين · الدعوات |
+ * | Today | رقم الانتظار · ثلاثة أرقام · طابور الطلبات |
+ * | Items | المنتجات وأسعارها |
+ * | People | الزبائن وأرقامهم ونقاطهم |
+ * | Money | الأرباح والدخل والتكلفة |
+ * | More | الاثنتا عشرة الباقية بلاطاتٍ في شبكة |
  *
- * ⚠️ والإعدادات في **ترس الترويسة** لا تبويباً خامساً: تُفتح مرّةً كل
- *    شهر، وتبويبٌ خامس يسرق مكاناً من الأربعة التي تُفتح كل يوم.
+ * ⚠️ **الأربعة الأولى تُفتح كل يوم، والباقي لا** — ولذلك أربعةٌ باسمها
+ *    في الأسفل وبابٌ واحد لكل ما عداها. وشريطٌ من ستّة عشر تبويباً لا
+ *    يُلمس بالإبهام، وقائمةٌ منسدلة تطلب أن تعرف ماذا تريد قبل أن تفتح.
  *
- * ⚠️ المساعد لا يرى إلا ما فُتح له، والتبويب الفارغ لا يظهر أصلاً.
- *    وإخفاء التبويب راحةٌ لا حماية — المنع في `firestore.rules`.
+ * ⚠️ **والطلبات تحت Today لا More**: طابور اليوم هو الطلبات، وبابٌ ثانٍ
+ *    إليها في الشبكة يجعل لشيءٍ واحد مدخلَين.
+ *
+ * ⚠️ المساعد لا يرى إلا ما فُتح له: تبويبٌ جذرُه مغلق لا يظهر أصلاً،
+ *    و«More» تسقط كلّها لو لم يبقَ فيها بلاطة. وإخفاء التبويب **راحةٌ
+ *    لا حماية** — المنع الحقيقي في `firestore.rules`.
  */
 
-type Zone = "home" | "work" | "shop" | "money" | "settings";
+type Tab = "today" | "items" | "people" | "money" | "more";
 
-type Item = { v: AdminTab; label: string; note: string; perm?: Perm; owner?: boolean };
-
-const ZONES: {
-  v: Zone;
+type Screen = {
+  v: AdminTab;
+  /** العنوان في الترويسة، والاسم على البلاطة */
   label: string;
-  icon: (p: { className?: string }) => React.ReactElement;
-  items: Item[];
-}[] = [
-  { v: "home", label: "Home", icon: IconHome, items: [] },
+  /** السطر تحته — ما تفعله الشاشة بكلماتها */
+  note: string;
+  perm?: Perm;
+  owner?: boolean;
+  /** سطرٌ حيّ يحلّ محلّ `note` حين يكون في الشاشة شيءٌ ينتظر */
+  hint?: (h: Hints) => string | null;
+};
+
+/** جذر كل تبويب — الشاشة التي تفتح بضغطة التبويب نفسه */
+const ROOTS: Record<Exclude<Tab, "today" | "more">, Screen> = {
+  items: {
+    v: "items",
+    label: "Items",
+    note: "What you sell",
+    perm: "products",
+  },
+  people: {
+    v: "customers",
+    label: "People",
+    note: "Your customers",
+    perm: "customers",
+  },
+  money: { v: "analytics", label: "Money", note: "Income and profit", owner: true },
+};
+
+/** بلاطات «More» — بترتيب النموذج */
+const MORE: Screen[] = [
   {
-    v: "work",
-    label: "Orders",
-    icon: IconReceipt,
-    items: [
-      { v: "orders", label: "Orders", note: "Accept, mark paid, deliver", perm: "orders" },
-      { v: "chats", label: "Live chat", note: "Customer messages and replies", perm: "chat" },
-      { v: "customers", label: "Customers", note: "Their phones and points", perm: "customers" },
-    ],
+    v: "chats",
+    label: "Live chat",
+    note: "Customer messages and replies",
+    perm: "chat",
+    hint: (h) =>
+      h.waitingChats > 0
+        ? `${h.waitingChats} ${h.waitingChats === 1 ? "person is" : "people are"} waiting`
+        : null,
   },
   {
-    v: "shop",
-    label: "Shop",
-    icon: IconBag,
-    items: [
-      { v: "items", label: "Products & prices", note: "Packages · price · cost · points", perm: "products" },
-      { v: "sections", label: "Sections & games", note: "Add a game or hide a section", perm: "sections" },
-      { v: "slides", label: "Home banner", note: "Slide images and their text", perm: "sections" },
-      { v: "payments", label: "Payment methods", note: "EVC · transfer numbers · status", perm: "payments" },
-    ],
+    v: "sections",
+    label: "Sections",
+    note: "Open, soon or hidden",
+    perm: "sections",
   },
   {
-    v: "money",
-    label: "Money",
-    icon: IconChart,
-    items: [
-      { v: "analytics", label: "Profit & analytics", note: "Revenue, cost and profit", owner: true },
-      { v: "report", label: "Helper report", note: "Who handled which order, and when", owner: true },
-      { v: "referrals", label: "Invites", note: "Who invited whom, and the cost", owner: true },
-    ],
+    v: "payments",
+    label: "Payments",
+    note: "How they pay you",
+    perm: "payments",
+    hint: (h) => (h.livePay === 0 ? "All off — turn one on" : null),
   },
+  { v: "points", label: "Barwaaqo", note: "Points and rewards", perm: "points" },
+  { v: "faq", label: "Questions", note: "Answers customers see", perm: "faq" },
+  { v: "staff", label: "Helpers", note: "Who can open what", owner: true },
+  { v: "referrals", label: "Invites", note: "Who brought whom", owner: true },
   {
-    v: "settings",
-    label: "Settings",
-    icon: IconHome,
-    items: [
-      { v: "points", label: "Barwaaqo points", note: "Point value · invites · buying", perm: "points" },
-      { v: "store", label: "Store info", note: "Name · WhatsApp · closing and hours", owner: true },
-      { v: "texts", label: "Page texts", note: "“How it works” and the policies", perm: "sections" },
-      { v: "faq", label: "Q&A", note: "Customer questions and answers", perm: "faq" },
-      { v: "staff", label: "Helpers", note: "Their logins and what they may do", owner: true },
-      { v: "bin", label: "Recycle bin", note: "Restore anything you deleted", owner: true },
-    ],
+    v: "store",
+    label: "Store info",
+    note: "Number, hours, days off",
+    owner: true,
+    hint: (h) => (h.noWhatsapp ? "WhatsApp number is empty" : null),
   },
+  { v: "texts", label: "Wording", note: "Text customers read", perm: "sections" },
+  { v: "slides", label: "Banner", note: "Slides on the home screen", perm: "sections" },
+  { v: "report", label: "Helper report", note: "Who handled what, and when", owner: true },
+  { v: "bin", label: "Deleted", note: "Bring anything back", owner: true },
+];
+
+/** شاشة الطلبات تعيش تحت Today — يفتحها زرّ الطابور */
+const ORDERS: Screen = {
+  v: "orders",
+  label: "Orders",
+  note: "Accept, mark paid, deliver",
+  perm: "orders",
+};
+
+const ALL: Screen[] = [ORDERS, ...Object.values(ROOTS), ...MORE];
+
+/** أيّ تبويبٍ يملك كل شاشة — فيبقى الشريط السفلي صادقاً أينما فُتحت */
+const TAB_OF: Partial<Record<AdminTab, Tab>> = {
+  orders: "today",
+  items: "items",
+  customers: "people",
+  analytics: "money",
+  ...Object.fromEntries(MORE.map((s) => [s.v, "more" as Tab])),
+};
+
+const BAR: { v: Tab; label: string; icon: (p: { className?: string }) => React.ReactElement }[] = [
+  { v: "today", label: "Today", icon: IconHome },
+  { v: "items", label: "Items", icon: IconTag },
+  { v: "people", label: "People", icon: IconUsers },
+  { v: "money", label: "Money", icon: IconChart },
+  { v: "more", label: "More", icon: IconGrid },
 ];
 
 export default function AdminTabs() {
   const access = useAccess();
   const { user, signOut } = useAuth();
   const owner = access.role === "owner";
+  const hints = useHints(owner);
 
-  const allowed = (t: Item) =>
-    t.owner ? owner : owner || access.can[t.perm as Perm] === true;
+  const allowed = (s: Screen) =>
+    s.owner ? owner : owner || access.can[s.perm as Perm] === true;
 
-  const zones = ZONES.map((z) => ({ ...z, items: z.items.filter(allowed) })).filter(
-    (z) => z.v === "home" || z.items.length > 0,
+  const more = MORE.filter(allowed);
+  const roots = {
+    items: allowed(ROOTS.items),
+    people: allowed(ROOTS.people),
+    money: allowed(ROOTS.money),
+  };
+
+  const bar = BAR.filter((b) =>
+    b.v === "today" ? true : b.v === "more" ? more.length > 0 : roots[b.v as "items"],
   );
 
-  const [zone, setZone] = useState<Zone>("home");
-  /** الشاشة المفتوحة داخل التبويب — `null` يعني صفحة التبويب نفسها */
+  const [tab, setTab] = useState<Tab>("today");
+  /** الشاشة المفتوحة داخل التبويب — `null` يعني جذر التبويب نفسه */
   const [screen, setScreen] = useState<AdminTab | null>(null);
 
-  const bar = zones.filter((z) => z.v !== "settings");
-  const settings = zones.find((z) => z.v === "settings");
-  const here = zones.find((z) => z.v === zone) ?? zones[0];
+  /** ⚠️ التبويب المخفيّ لا يُترك مفتوحاً: الصلاحيات تصل بعد أوّل رسم،
+      فمن فُتح له Today وحده كان يقف على تبويبٍ اختفى من تحته. */
+  useEffect(() => {
+    if (!bar.some((b) => b.v === tab)) {
+      setTab("today");
+      setScreen(null);
+    }
+  }, [bar, tab]);
 
-  /** فتح شاشة من أي مكان — تنقل التبويب معها فيبقى الأسفل صادقاً */
+  /** فتح شاشة من أي مكان — ينتقل التبويب معها */
   function go(t: AdminTab) {
-    const z = zones.find((x) => x.items.some((i) => i.v === t));
+    const z = TAB_OF[t];
     if (!z) return;
-    setZone(z.v);
+    setTab(z);
     setScreen(t);
+    window.scrollTo({ top: 0 });
   }
 
-  const open = zones.flatMap((z) => z.items).find((i) => i.v === screen);
+  const open = screen ? ALL.find((s) => s.v === screen) : null;
+  const root = tab === "items" || tab === "people" || tab === "money" ? ROOTS[tab] : null;
 
-  if (bar.length <= 1 && !settings)
+  /* العنوان: الشاشة المفتوحة، وإلا جذر التبويب، وإلا Today أو More */
+  const head: { t: string; s: string } = open
+    ? { t: open.label, s: open.note }
+    : root
+      ? { t: root.label, s: root.note }
+      : tab === "more"
+        ? { t: "More", s: "Every other screen" }
+        : { t: "Today", s: todayLine() };
+
+  if (bar.length === 1 && more.length === 0 && !allowed(ORDERS))
     return (
       <p className="rounded-card border border-dashed border-line p-6 text-center text-sm text-muted">
         No sections are open for this account yet.
@@ -149,116 +218,61 @@ export default function AdminTabs() {
     );
 
   return (
-    <div className="flex flex-1 flex-col gap-4">
-      {/* ── الترويسة: العنوان، والرجوع، والترس ── */}
-      <div className="flex items-center gap-2">
-        {screen && (
+    <div className="flex flex-1 flex-col gap-3.5">
+      {/* ── الترويسة: عنوانٌ وسطرٌ تحته، ورجوعٌ حين نكون في شاشة ── */}
+      <div className="flex items-center gap-2.5">
+        {open && (
           <button
             type="button"
             onClick={() => setScreen(null)}
             aria-label="Back"
-            className="flex size-11 shrink-0 items-center justify-center rounded-card border border-line text-lg text-muted"
+            className="flex size-10 shrink-0 items-center justify-center rounded-card border border-line text-muted"
           >
-            <IconChevron className="size-5 rotate-180 rtl:rotate-0" />
+            <IconChevron className="size-5 rotate-180" />
           </button>
         )}
-
-        {!screen && zone === "home" ? (
-          /* الرئيسية تحمل تحيّتها في المحتوى، فالترويسة للهويّة وحدها */
-          <span className="flex min-w-0 flex-1 items-center gap-2.5">
-            <Logo solid className="size-9 shrink-0 rounded-[11px] shadow-sm" />
-            <span className="truncate text-sm font-bold text-muted">Ramaan Admin</span>
-          </span>
-        ) : (
-          <span className="min-w-0 flex-1">
-            <h2 className="truncate text-lg font-bold">
-              {open?.label ?? here.label}
-            </h2>
-            {open?.note && (
-              <span className="block truncate text-xs text-muted">{open.note}</span>
-            )}
-          </span>
-        )}
-
-        {settings && !screen && (
-          <button
-            type="button"
-            onClick={() => {
-              setZone("settings");
-              setScreen(null);
-            }}
-            aria-label="Settings"
-            aria-pressed={zone === "settings"}
-            className={`flex size-11 shrink-0 items-center justify-center rounded-card border text-lg ${
-              zone === "settings"
-                ? "border-orange text-orange"
-                : "border-line text-muted"
-            }`}
-          >
-            <IconGear className="size-5" />
-          </button>
-        )}
+        <span className="min-w-0 flex-1 leading-tight">
+          <b className="block truncate text-[1.19rem] font-extrabold tracking-tight">
+            {head.t}
+          </b>
+          <i className="block truncate text-xs not-italic text-muted">{head.s}</i>
+        </span>
       </div>
 
       {/* ── المحتوى ── */}
       <div className="flex-1">
-        {screen ? (
-          <Screen tab={screen} />
-        ) : zone === "home" ? (
-          <Dashboard onTab={go} name={user?.displayName?.split(" ")[0]} />
-        ) : (
-          <Menu
-            items={here.items}
-            onOpen={setScreen}
-            footer={
-              zone === "settings" ? (
-                <div className="mt-2 flex flex-col gap-2">
-                  <a
-                    href="https://eramaan.com"
-                    className="rounded-card border border-line bg-surface p-3 text-center font-bold"
-                  >
-                    View store
-                  </a>
-                  <button
-                    type="button"
-                    onClick={() => signOut()}
-                    className="flex min-h-12 items-center justify-center gap-2 rounded-card border border-danger/40 text-danger"
-                  >
-                    <IconClose className="size-4" />
-                    Sign out
-                  </button>
-                  {user?.email && (
-                    <p className="num break-all text-center text-xs text-muted" dir="ltr">
-                      {user.email}
-                    </p>
-                  )}
-                </div>
-              ) : null
-            }
-          />
-        )}
+        {open ? (
+          <Body tab={open.v} />
+        ) : tab === "today" ? (
+          <Dashboard onTab={go} hints={hints} canOrders={allowed(ORDERS)} />
+        ) : tab === "more" ? (
+          <MoreGrid items={more} hints={hints} onOpen={go} onSignOut={signOut} email={user?.email} />
+        ) : root ? (
+          <Body tab={root.v} />
+        ) : null}
       </div>
 
-      {/* ── التبويبات الأربعة ── */}
-      <nav className="adm-nav -mx-4 mt-2 flex px-2">
-        {bar.map((z) => {
-          const on = zone === z.v;
-          const Icon = z.icon;
+      {/* ── الشريط السفلي ── */}
+      <nav className="adm-nav -mx-4 mt-1 flex gap-1 px-2" aria-label="Sections">
+        {bar.map((b) => {
+          const on = tab === b.v;
+          const Icon = b.icon;
           return (
             <button
-              key={z.v}
+              key={b.v}
               type="button"
               onClick={() => {
-                setZone(z.v);
+                setTab(b.v);
                 setScreen(null);
+                window.scrollTo({ top: 0 });
               }}
               aria-current={on ? "page" : undefined}
-              className={`flex min-h-14 flex-1 flex-col items-center justify-center gap-1 text-xs font-bold ${
-                on ? "text-orange" : "text-muted"
+              className={`flex min-h-12 flex-1 flex-col items-center justify-center gap-0.5 rounded-[12px] py-1.5 text-xs ${
+                on ? "bg-orange/10 font-extrabold text-orange" : "font-semibold text-muted"
               }`}
             >
-              <Icon className="size-5" />
-              {z.label}
+              <Icon className="size-[22px]" />
+              {b.label}
             </button>
           );
         })}
@@ -267,44 +281,85 @@ export default function AdminTabs() {
   );
 }
 
-/** صفحة التبويب — قائمة أبوابه، كلٌّ باسمه وسطرِ ما يفعل */
-function Menu({
+/** شبكة «More» — بلاطةٌ لكل باب، وسطرُها يقول ما ينتظر فيه */
+function MoreGrid({
   items,
+  hints,
   onOpen,
-  footer,
+  onSignOut,
+  email,
 }: {
-  items: Item[];
+  items: Screen[];
+  hints: Hints;
   onOpen: (t: AdminTab) => void;
-  footer?: React.ReactNode;
+  onSignOut: () => void;
+  email?: string | null;
 }) {
   return (
-    <div className="flex flex-col gap-2">
-      {items.map((t) => {
-        const Icon = ICONS[t.v];
-        return (
-          <button
-            key={t.v}
-            type="button"
-            onClick={() => onOpen(t.v)}
-            className="flex min-h-16 items-center gap-3 rounded-card border border-line bg-surface p-3 text-start"
-          >
-            <span className="flex size-10 shrink-0 items-center justify-center rounded-card bg-orange/10 text-orange">
-              <Icon className="size-5" />
-            </span>
-            <span className="min-w-0 flex-1">
-              <span className="block truncate font-bold">{t.label}</span>
-              <span className="block truncate text-sm text-muted">{t.note}</span>
-            </span>
-            <IconChevron className="size-5 shrink-0 text-muted rtl:rotate-180" />
-          </button>
-        );
-      })}
-      {footer}
+    <div className="flex flex-col gap-3">
+      <p className="adm-ttl">Everything else</p>
+
+      <div className="grid grid-cols-2 gap-2.5">
+        {items.map((s) => {
+          const Icon = ICONS[s.v];
+          const live = s.hint?.(hints) ?? null;
+          return (
+            <button
+              key={s.v}
+              type="button"
+              onClick={() => onOpen(s.v)}
+              className="adm-tile"
+            >
+              <span className="pl">
+                <Icon className="size-5" />
+              </span>
+              <b className="block truncate font-extrabold">{s.label}</b>
+              {/* ⚠️ السطر الحيّ يعلو الوصف الثابت: «كلّها مطفأة» تُقال
+                  مرّة، ووصفُ الباب يبقى مكتوباً في كل مرّة. */}
+              <span
+                className={`block truncate text-xs ${live ? "font-bold text-danger" : "text-muted"}`}
+              >
+                {live ?? s.note}
+              </span>
+            </button>
+          );
+        })}
+      </div>
+
+      <div className="mt-1 flex flex-col gap-2">
+        <a
+          href="https://eramaan.com"
+          className="flex min-h-12 items-center justify-center rounded-card border border-line bg-surface font-bold"
+        >
+          View store
+        </a>
+        <button
+          type="button"
+          onClick={() => onSignOut()}
+          className="flex min-h-12 items-center justify-center gap-2 rounded-card border border-danger/40 font-bold text-danger"
+        >
+          <IconClose className="size-4" />
+          Sign out
+        </button>
+        {email && (
+          <p className="num break-all text-center text-xs text-muted" dir="ltr">
+            {email}
+          </p>
+        )}
+      </div>
     </div>
   );
 }
 
-function Screen({ tab }: { tab: AdminTab }) {
+function todayLine() {
+  return new Date().toLocaleDateString("en-GB", {
+    weekday: "long",
+    day: "numeric",
+    month: "long",
+  });
+}
+
+function Body({ tab }: { tab: AdminTab }) {
   switch (tab) {
     case "orders":
       return <OrdersEditor />;

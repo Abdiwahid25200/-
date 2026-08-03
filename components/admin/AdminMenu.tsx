@@ -4,11 +4,11 @@ import {
   IconChart,
   IconChat,
   IconGift,
-  IconGrid,
   IconHelp,
   IconHome,
   IconImage,
   IconInvite,
+  IconLayout,
   IconMoney,
   IconReceipt,
   IconStore,
@@ -54,7 +54,9 @@ export const ICONS: Record<
   orders: IconReceipt,
   customers: IconUsers,
   items: IconTag,
-  sections: IconGrid,
+  /* ⚠️ `IconGrid` صارت أيقونة **More** في الشريط السفلي — والأقسام
+     أخذت `IconLayout`. القرار المقفول (ج): لكل باب أيقونته هو. */
+  sections: IconLayout,
   slides: IconImage,
   store: IconStore,
   payments: IconCard,

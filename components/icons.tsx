@@ -1058,6 +1058,22 @@ export function IconCalendar({ className = "" }: IconProps) {
   );
 }
 
+/**
+ * الأقسام — إطارٌ مقسومٌ إلى صفٍّ وعمود، أي **تخطيط الصفحة نفسه**.
+ *
+ * ⚠️ كانت الأقسام على `IconGrid` (أربعة مربّعات)، وهي أيقونة **More**
+ *    في الشريط السفلي. أيقونةٌ واحدة لبابين تصير زينةً لا علامة —
+ *    القرار المقفول (ج).
+ */
+export function IconLayout({ className = "" }: IconProps) {
+  return (
+    <svg viewBox="0 0 24 24" strokeWidth="1.8" className={`${base} ${className}`} aria-hidden>
+      <rect x="3.5" y="4" width="17" height="16" rx="2.5" />
+      <path strokeLinecap="round" d="M3.5 9.5h17M9 9.5V20" />
+    </svg>
+  );
+}
+
 /** صحّان — «وصلت وقُرئت» في قوائم الدردشة */
 export function IconChecks({ className = "" }: IconProps) {
   return (
