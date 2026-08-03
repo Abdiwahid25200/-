@@ -423,6 +423,8 @@ export default function BuyFlow({
             <PackageCard
               title={p.title}
               sub={p.sub}
+              /* الصورة تُعرض إن رفعتها صاحبة المتجر لهذه الباقة وحدها */
+              img={p.img}
               price={p.price}
               old={p.old}
               disc={p.disc}

@@ -1,11 +1,15 @@
 "use client";
 
+import Image from "next/image";
 import { IconCheckCircle, IconFlame } from "./icons";
 import { fin, fmt } from "@/lib/format";
+import { optimizable } from "@/lib/img";
 
 type Props = {
   title: string;
   sub?: string;
+  /** صورة الباقة — **تظهر إن رُفعت وحدها**، انظري الملاحظة أسفل */
+  img?: string;
   price: number;
   old?: number;
   disc?: number;
@@ -50,6 +54,7 @@ type Props = {
 export default function PackageCard({
   title,
   sub,
+  img,
   price,
   old,
   disc,
@@ -84,10 +89,25 @@ export default function PackageCard({
         soon ? "cursor-not-allowed opacity-60" : selected ? "sel" : "hover:border-orange/60"
       }`}
     >
+      {/**
+       * 🖼️ **الصورة تظهر إن رُفعت لها وحدها** — بلاغها (٠٣-٠٨): «ليش ما
+       *    تظهر الصورة على 60 UC؟». كانت القسيمة بلا صورة **عمداً**:
+       *    جُرّبت فصار كل صفٍّ صورةً تتكرّر ستّ مرّات بلا معنى — الباقات
+       *    تختلف في **الرقم** لا في الشكل.
+       *
+       * ⚠️ **والحلّ ليس نقض القرار بل تعليقه على فعلها**: من رفعت صورةً
+       *    لباقةٍ أرادتها تُرى، ومن لم ترفع تبقى قسيمتها كما هي بالرقم
+       *    بطلاً. فلا صورةٌ مكرّرة تُفرض، ولا صورةٌ مرفوعة تُهمَل.
+       */}
+      {img &&
+        (optimizable(img) ? (
+          <Image src={img} alt="" width={56} height={56} className="pic" />
+        ) : (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img src={img} alt="" className="pic" />
+        ))}
+
       {/* ── حزّة الوصف ── */}
-      {/* ⚠️ **بلا صورة عمداً.** جُرّبت فصار كل صفٍّ صورةً صغيرة تتكرّر
-          ستّ مرّات بلا معنى — الباقات تختلف في **الرقم** لا في الشكل،
-          وصورةٌ واحدة مكرّرة تزحم القسيمة ولا تدلّ على شيء. */}
       <span className="l">
         {/* 🔥 الدليل فوق الاسم — يُقرأ قبله فيُلوّن ما بعده. صنف `.hot` */}
         {hot > 0 && !soon && (

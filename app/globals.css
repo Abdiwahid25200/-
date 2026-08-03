@@ -880,6 +880,19 @@ input.field::placeholder, textarea.field::placeholder { color: var(--muted); }
 }
 .vch.sel { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent); }
 .vch .l { flex: 1; padding: 12px 14px; display: flex; flex-direction: column; gap: 2px; }
+/* 🖼️ صورة الباقة — مربّعٌ صغير في صدر القسيمة، ولا تُرسم إلا إن رُفعت.
+   ⚠️ `align-self: center` لا `stretch`: القسيمة يعلو ارتفاعها بالوصف،
+      وصورةٌ تمتدّ بطولها تصير شريطاً لا صورة. */
+.vch .pic {
+  flex: none;
+  align-self: center;
+  width: 56px;
+  height: 56px;
+  margin-inline-start: 12px;
+  border-radius: 12px;
+  object-fit: cover;
+  background: color-mix(in srgb, var(--accent-2) 10%, transparent);
+}
 .vch .r {
   width: 96px;
   flex: none;
