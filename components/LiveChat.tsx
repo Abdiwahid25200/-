@@ -64,10 +64,46 @@ export default function LiveChat() {
   const [faq, setFaq] = useState<FaqDoc>({});
   /** الأسئلة التي فتحها الزبون في هذه الجلسة — تُعرض محلياً بلا كتابة */
   const [opened, setOpened] = useState<FaqKey[]>([]);
+
+  /**
+   * ⌨️ **الشاشة تثبت حين تفتح لوحة المفاتيح** — بلاغها (٠٣-٠٨): «ليش
+   *    الشاشة ما تبقى ثابتة في الدردشة؟».
+   *
+   * على الآيفون تُقاس `fixed` على الصفحة لا على ما يُرى منها، فإذا طلعت
+   * لوحة المفاتيح بقي اللوح بطوله الأوّل: تختفي الترويسة فوق، ويغرق
+   * صندوق الكتابة تحت اللوحة، وتنزلق الصفحة كلّها.
+   *
+   * و`visualViewport` هي ما يراه الزبون فعلاً: نقيس عليها ارتفاع اللوح
+   * وموضعه، فيبقى صندوق الكتابة فوق اللوحة تماماً مهما فُتحت أو أُغلقت.
+   *
+   * ⚠️ **وتُنظَّف الأنماط عند الإغلاق**: لو بقيت مكتوبةً على العنصر
+   *    لَورثها الفتحُ التالي بمقاسٍ من جلسةٍ ماضية.
+   */
+  useEffect(() => {
+    const vv = typeof window !== "undefined" ? window.visualViewport : null;
+    const el = panelRef.current;
+    if (!open || !vv || !el) return;
+
+    const apply = () => {
+      el.style.height = `${vv.height}px`;
+      el.style.transform = `translateY(${vv.offsetTop}px)`;
+    };
+    apply();
+    vv.addEventListener("resize", apply);
+    vv.addEventListener("scroll", apply);
+    return () => {
+      vv.removeEventListener("resize", apply);
+      vv.removeEventListener("scroll", apply);
+      el.style.height = "";
+      el.style.transform = "";
+    };
+  }, [open]);
   /** ضغط "أريد التحدّث مع شخص" — فلا يُعاد الزرّ ولا يُكرَّر الطلب */
   const [asked, setAsked] = useState(false);
 
   const boxRef = useRef<HTMLDivElement>(null);
+  /** لوح الدردشة نفسه — يُقاس على الشاشة المرئية حين تفتح لوحة المفاتيح */
+  const panelRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
 
   useEffect(() => setSeen(lastSeen()), []);
@@ -238,6 +274,7 @@ export default function LiveChat() {
              محادثةٌ في مربّعٍ صغير فوق صفحةٍ تظهر من حوله تُقرأ كإعلان،
              والزبون الذي فتحها يريدها وحدها. `fx-w` يحبسها في عرض
              الموقع فلا تمتدّ بعرض الآيباد. */
+          ref={panelRef}
           className="chat-in fx-w fixed inset-y-0 z-50 flex flex-col bg-bg"
         >
           {/* الترويسة — بأرضية الصفحة وخطٍّ سفليّ كما في النموذج، لا

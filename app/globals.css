@@ -1072,6 +1072,19 @@ input.field::placeholder, textarea.field::placeholder { color: var(--muted); }
 .chip { font-size: max(12px, var(--pf-floor)); padding: 7px 13px; border-radius: 999px; border: 1px solid var(--line); }
 .chip.on { background: var(--accent); color: var(--on-accent); border-color: var(--accent); font-weight: 700; }
 
+/* ⌨️ **حقول الكتابة ١٦px على الشاشات اللمسية** — وإلّا **كبّر سفاري
+   الصفحة** بنفسه لحظةَ اللمس (قاعدةٌ في آيفون: أيّ حقلٍ دون ١٦ يُقرّب
+   إليه)، فينزلق ما حوله ويُقصّ من الجانب — وهو ما رأته في الدردشة:
+   شاشةٌ «لا تبقى ثابتة». والحلّ لا يكون بالمكوّن وحده لأن العلّة في كل
+   حقلٍ بالموقع: آيدي اللاعب · رقم الواتساب · العنوان · البحث. */
+@media (pointer: coarse) {
+  input,
+  textarea,
+  select {
+    font-size: max(16px, 1rem);
+  }
+}
+
 /* ── القائمة السفلية — ملتصقةٌ بالأرض ───────────────────────── */
 .nav {
   display: flex;
