@@ -1,0 +1,690 @@
+<title>Ramaan Admin — model</title>
+<style>
+/* ── Coast tokens — the store's own palette, not a new one ───────── */
+:root{
+  --bg:#eff7f7; --sur:#fff; --sur2:#e9f4f4; --line:#cde4e4;
+  --ink:#062730; --mut:#4d7580; --acc:#067a6e; --gold:#a56200;
+  --ok:#1c7a3a; --dan:#c62633; --on:#fff;
+  --r:16px; --f-ui:-apple-system,BlinkMacSystemFont,system-ui,"Segoe UI",Roboto,sans-serif;
+  --f-num:ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+  color-scheme:light;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme]){
+  --bg:#04121a; --sur:#0b2230; --sur2:#113044; --line:#1c4457;
+  --ink:#ecf6f5; --mut:#8fb3be; --acc:#4fe3d0; --gold:#ffc65c;
+  --ok:#7be38b; --dan:#ff6b73; --on:#04121a; color-scheme:dark;}}
+:root[data-theme="dark"]{
+  --bg:#04121a; --sur:#0b2230; --sur2:#113044; --line:#1c4457;
+  --ink:#ecf6f5; --mut:#8fb3be; --acc:#4fe3d0; --gold:#ffc65c;
+  --ok:#7be38b; --dan:#ff6b73; --on:#04121a; color-scheme:dark;}
+:root[data-theme="light"]{
+  --bg:#eff7f7; --sur:#fff; --sur2:#e9f4f4; --line:#cde4e4;
+  --ink:#062730; --mut:#4d7580; --acc:#067a6e; --gold:#a56200;
+  --ok:#1c7a3a; --dan:#c62633; --on:#fff; color-scheme:light;}
+
+*{box-sizing:border-box}
+html,body{background:var(--bg)}
+body{margin:0;font-family:var(--f-ui);color:var(--ink);font-size:15px;line-height:1.55;-webkit-text-size-adjust:100%}
+.num{font-family:var(--f-num);font-variant-numeric:tabular-nums}
+button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:pointer;text-align:inherit}
+:focus-visible{outline:2px solid var(--acc);outline-offset:2px;border-radius:10px}
+svg{display:block;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+
+/* ── Phone stage — she works from a phone and an iPad ───────────── */
+.app{width:100%;max-width:430px;margin:0 auto;min-height:100dvh;
+  background:var(--bg);display:flex;flex-direction:column;position:relative}
+@media (min-width:471px){
+  body{background:var(--sur2)}
+  .app{min-height:100dvh;border-inline:1px solid var(--line);
+    box-shadow:0 24px 70px -34px rgba(6,39,48,.5)}
+}
+
+/* ── Header ─────────────────────────────────────────────────────── */
+.hd{display:flex;align-items:center;gap:11px;padding:18px 16px 12px;flex:none}
+.hd .who{flex:1;min-width:0;line-height:1.2}
+.hd .who b{display:block;font-size:19px;font-weight:800;letter-spacing:-.01em}
+.hd .who i{display:block;font-size:12.5px;color:var(--mut);font-style:normal}
+.ico-btn{width:40px;height:40px;border-radius:12px;display:grid;place-items:center;
+  border:1px solid var(--line);background:var(--sur);flex:none;position:relative}
+.ico-btn svg{width:19px;height:19px}
+.ico-btn .pip{position:absolute;top:8px;right:9px;width:7px;height:7px;border-radius:50%;
+  background:var(--dan);border:1.5px solid var(--sur)}
+
+/* ── Screens ────────────────────────────────────────────────────── */
+.scr{display:none;flex:1;min-height:0;flex-direction:column;padding:0 16px 104px;gap:14px}
+.scr.on{display:flex}
+@media (prefers-reduced-motion:no-preference){
+  .scr.on{animation:in .2s ease}
+  @keyframes in{from{opacity:0;transform:translateY(5px)}}
+}
+.ttl{font-size:13px;font-weight:800;letter-spacing:.09em;text-transform:uppercase;color:var(--mut);margin:4px 0 0}
+
+/* ── Cards ──────────────────────────────────────────────────────── */
+.card{background:var(--sur);border:1px solid var(--line);border-radius:var(--r);padding:14px}
+.row{display:flex;align-items:center;gap:12px}
+.gr{flex:1;min-width:0}
+.mu{color:var(--mut)}
+.f12{font-size:12.5px}.f13{font-size:13.5px}.f18{font-size:18px}.f26{font-size:26px}
+.b{font-weight:700}.b8{font-weight:800}
+.trunc{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
+/* ── The one number that matters ────────────────────────────────── */
+.needs{background:linear-gradient(150deg,var(--acc),color-mix(in srgb,var(--acc) 72%,#000));
+  color:#fff;border-radius:20px;padding:18px;display:flex;flex-direction:column;gap:14px;position:relative;overflow:hidden}
+.needs .halo{position:absolute;width:190px;height:190px;border-radius:50%;
+  border:1px solid rgba(255,255,255,.14);top:-72px;right:-46px}
+.needs .n{font-size:44px;font-weight:800;line-height:1;letter-spacing:-.02em}
+.needs .go{background:#fff;color:#05655c;border-radius:999px;min-height:46px;padding:0 20px;
+  display:inline-flex;align-items:center;gap:8px;font-weight:800;width:fit-content}
+.needs .go svg{width:15px;height:15px}
+
+/* ── Stat strip ─────────────────────────────────────────────────── */
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:9px}
+.stat{background:var(--sur);border:1px solid var(--line);border-radius:14px;padding:11px 12px}
+.stat .k{font-size:12.5px;color:var(--mut);display:block;margin-bottom:3px}
+.stat .v{font-size:19px;font-weight:800;display:block}
+.spark{margin-top:7px;display:block;width:100%;height:22px}
+
+/* ── Queue rows — severity reads before the words ───────────────── */
+.q{background:var(--sur);border:1px solid var(--line);border-radius:14px;
+  padding:12px 13px 12px 0;display:flex;align-items:stretch;gap:12px;width:100%;text-align:start}
+.q .sv{width:4px;border-radius:999px;flex:none;background:var(--line);margin-inline-start:12px}
+.q.wait .sv{background:var(--gold)} .q.late .sv{background:var(--dan)} .q.done .sv{background:var(--ok)}
+.q .bd{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
+.pill{font-size:12.5px;font-weight:800;padding:2px 9px;border-radius:999px;width:fit-content;
+  background:var(--sur2);color:var(--mut)}
+.pill.wait{background:color-mix(in srgb,var(--gold) 15%,transparent);color:var(--gold)}
+.pill.late{background:color-mix(in srgb,var(--dan) 13%,transparent);color:var(--dan)}
+.pill.done{background:color-mix(in srgb,var(--ok) 14%,transparent);color:var(--ok)}
+
+/* ── Buttons ────────────────────────────────────────────────────── */
+.btn{display:flex;align-items:center;justify-content:center;gap:8px;min-height:50px;
+  border-radius:14px;background:var(--acc);color:var(--on);font-weight:800;padding:0 16px;width:100%}
+.btn.o{background:transparent;color:var(--ink);border:1px solid var(--line)}
+.btn.dan{background:transparent;color:var(--dan);border:1px solid color-mix(in srgb,var(--dan) 40%,transparent)}
+.btn svg{width:18px;height:18px}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+
+/* ── Fields ─────────────────────────────────────────────────────── */
+.lab{font-size:12.5px;font-weight:700;color:var(--mut);display:block;margin-bottom:6px}
+.fld{width:100%;min-height:48px;border:1px solid var(--line);border-radius:14px;
+  background:var(--sur);padding:12px 13px;color:var(--ink);font:inherit}
+textarea.fld{min-height:84px;resize:vertical}
+
+/* ── Auto-translate — the reason this panel is restful ──────────── */
+.tr{border:1px solid var(--line);border-radius:var(--r);background:var(--sur);overflow:hidden}
+.tr .hdr{display:flex;align-items:center;gap:9px;padding:11px 13px;border-bottom:1px solid var(--line)}
+.tr .hdr svg{width:17px;height:17px;color:var(--acc);flex:none}
+.tr .body{padding:13px;display:flex;flex-direction:column;gap:11px}
+.lng{display:flex;align-items:center;gap:8px;margin-bottom:6px}
+.lng .code{font-family:var(--f-num);font-size:12.5px;font-weight:800;color:var(--mut);letter-spacing:.06em}
+.auto{display:inline-flex;align-items:center;gap:5px;font-size:12.5px;font-weight:800;
+  padding:2px 8px;border-radius:999px;background:color-mix(in srgb,var(--acc) 12%,transparent);color:var(--acc)}
+.auto svg{width:11px;height:11px}
+.edited{background:color-mix(in srgb,var(--gold) 15%,transparent);color:var(--gold)}
+.tr .note{font-size:12.5px;color:var(--mut);display:flex;gap:7px;align-items:flex-start}
+.tr .note svg{width:14px;height:14px;flex:none;margin-top:3px}
+
+/* ── Photos ─────────────────────────────────────────────────────── */
+.shots{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.shot{aspect-ratio:1;border-radius:12px;border:1px solid var(--line);background:var(--sur2);
+  display:grid;place-items:center;color:var(--mut);position:relative;overflow:hidden}
+.shot svg{width:22px;height:22px}
+.shot.add{border-style:dashed;color:var(--acc)}
+.shot .x{position:absolute;top:5px;inset-inline-end:5px;width:24px;height:24px;border-radius:8px;
+  background:color-mix(in srgb,var(--sur) 88%,transparent);display:grid;place-items:center;color:var(--dan)}
+.shot .x svg{width:13px;height:13px}
+
+/* ── More grid ──────────────────────────────────────────────────── */
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+.tile{background:var(--sur);border:1px solid var(--line);border-radius:var(--r);padding:14px;
+  display:flex;flex-direction:column;gap:9px;text-align:start;min-height:96px}
+.tile .pl{width:36px;height:36px;border-radius:11px;display:grid;place-items:center;
+  background:color-mix(in srgb,var(--acc) 11%,transparent);color:var(--acc)}
+.tile .pl svg{width:19px;height:19px}
+.tile b{font-size:14.5px}
+.tile span{font-size:12.5px;color:var(--mut);line-height:1.35}
+
+/* ── Bottom bar ─────────────────────────────────────────────────── */
+.nav{position:fixed;bottom:0;left:0;right:0;max-width:430px;margin-inline:auto;
+  background:var(--sur);border-top:1px solid var(--line);padding:8px 6px 14px;display:flex;z-index:20}
+.nav button{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;
+  padding:6px 0;border-radius:12px;color:var(--mut);font-size:12.5px;font-weight:600;min-height:48px}
+.nav button svg{width:22px;height:22px}
+.nav button.on{color:var(--acc);background:color-mix(in srgb,var(--acc) 12%,transparent);font-weight:800}
+
+.back{display:flex;align-items:center;gap:7px;color:var(--mut);font-size:13.5px;
+  min-height:44px;width:fit-content;margin-top:4px}
+.back svg{width:15px;height:15px}
+.sep{height:1px;background:var(--line);border:0;margin:2px 0}
+
+/* حالة الشيء تُرى قبل أن تُقرأ */
+.st{font-size:12.5px;font-weight:800;padding:3px 10px;border-radius:999px;flex:none}
+.st.on{background:color-mix(in srgb,var(--ok) 14%,transparent);color:var(--ok)}
+.st.soon{background:color-mix(in srgb,var(--gold) 15%,transparent);color:var(--gold)}
+.st.off{background:var(--sur2);color:var(--mut)}
+/* مفتاح — الإصبع تجده والعين تقرؤه */
+.sw{width:50px;height:30px;border-radius:999px;background:var(--sur2);border:1px solid var(--line);
+  flex:none;padding:2px;display:flex;align-items:center}
+.sw i{width:24px;height:24px;border-radius:50%;background:var(--mut);display:block;transition:.16s}
+.sw.on{background:color-mix(in srgb,var(--acc) 18%,transparent);border-color:var(--acc);justify-content:flex-end}
+.sw.on i{background:var(--acc)}
+@media (prefers-reduced-motion:reduce){.sw i{transition:none}}
+.lst{display:flex;flex-direction:column;gap:9px}
+.mark{width:34px;height:34px;border-radius:10px;flex:none;display:grid;place-items:center;
+  font-family:var(--f-num);font-size:12.5px;font-weight:800;color:#fff}
+/* فقاعات المحادثة */
+.bub{max-width:78%;padding:9px 13px;border-radius:16px;font-size:13.5px;line-height:1.5}
+.bub.them{background:var(--sur);border:1px solid var(--line);align-self:flex-start;border-end-start-radius:5px}
+.bub.me{background:var(--acc);color:var(--on);align-self:flex-end;border-end-end-radius:5px}
+</style>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+<symbol id="i-today" viewBox="0 0 24 24"><path d="M3 10.5 12 4l9 6.5V20a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></symbol>
+<symbol id="i-orders" viewBox="0 0 24 24"><path d="M6 3h12v18l-3-2-3 2-3-2-3 2z"/><path d="M9 8h6M9 12h6"/></symbol>
+<symbol id="i-people" viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.2"/><path d="M3 20a6 6 0 0 1 12 0"/><path d="M16 5.5a3 3 0 0 1 0 5.5M17.5 20a5.6 5.6 0 0 0-2-4"/></symbol>
+<symbol id="i-money" viewBox="0 0 24 24"><path d="M4 19V5M4 19h16"/><path d="m7 15 3.5-4 3 2.5L20 7"/></symbol>
+<symbol id="i-more" viewBox="0 0 24 24"><rect x="3.5" y="3.5" width="7" height="7" rx="2"/><rect x="13.5" y="3.5" width="7" height="7" rx="2"/><rect x="3.5" y="13.5" width="7" height="7" rx="2"/><rect x="13.5" y="13.5" width="7" height="7" rx="2"/></symbol>
+<symbol id="i-bell" viewBox="0 0 24 24"><path d="M18 15V10a6 6 0 1 0-12 0v5l-1.6 2.4A.5.5 0 0 0 4.8 18h14.4a.5.5 0 0 0 .4-.6z"/><path d="M10 21h4"/></symbol>
+<symbol id="i-chev" viewBox="0 0 24 24"><path d="m9 5 7 7-7 7"/></symbol>
+<symbol id="i-back" viewBox="0 0 24 24"><path d="m15 5-7 7 7 7"/></symbol>
+<symbol id="i-lang" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M3.4 9h17.2M3.4 15h17.2"/><path d="M12 3c2.4 2.6 3.6 5.6 3.6 9s-1.2 6.4-3.6 9c-2.4-2.6-3.6-5.6-3.6-9S9.6 5.6 12 3z"/></symbol>
+<symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/></symbol>
+<symbol id="i-img" viewBox="0 0 24 24"><rect x="3.5" y="5" width="17" height="14" rx="2.5"/><circle cx="9" cy="10" r="1.6"/><path d="m4.5 17 4.6-4.2 3.4 2.8 2.6-2.2 4.4 3.6"/></symbol>
+<symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+<symbol id="i-x" viewBox="0 0 24 24"><path d="m6 6 12 12M18 6 6 18"/></symbol>
+<symbol id="i-box" viewBox="0 0 24 24"><path d="M12 3 3.5 7.5v9L12 21l8.5-4.5v-9z"/><path d="M3.5 7.5 12 12l8.5-4.5M12 12v9"/></symbol>
+<symbol id="i-chat" viewBox="0 0 24 24"><path d="M20 14.5a2.5 2.5 0 0 1-2.5 2.5H9l-4.5 3.5v-3.5H4a2 2 0 0 1-2-2v-9A2.5 2.5 0 0 1 4.5 4h13A2.5 2.5 0 0 1 20 6.5z"/></symbol>
+<symbol id="i-grid" viewBox="0 0 24 24"><rect x="3.5" y="4" width="17" height="16" rx="2.5"/><path d="M3.5 9.5h17M9 9.5V20"/></symbol>
+<symbol id="i-card" viewBox="0 0 24 24"><rect x="2.5" y="5.5" width="19" height="13" rx="2.5"/><path d="M2.5 10h19M6 15h3"/></symbol>
+<symbol id="i-drop" viewBox="0 0 24 24"><path d="M12 3.5c3.4 4 5.5 6.7 5.5 9.4A5.5 5.5 0 0 1 6.5 13c0-2.7 2.1-5.4 5.5-9.5z"/></symbol>
+<symbol id="i-ask" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M9.6 9.4a2.5 2.5 0 1 1 3.3 2.4c-.6.2-.9.8-.9 1.4v.4M12 17h.01"/></symbol>
+<symbol id="i-badge" viewBox="0 0 24 24"><circle cx="12" cy="9" r="4.5"/><path d="M8.5 13 7 21l5-2.6L17 21l-1.5-8"/></symbol>
+<symbol id="i-tag" viewBox="0 0 24 24"><path d="M11 3H4v7l10 10 7-7z"/><path d="M7.6 7.6h.01"/></symbol>
+<symbol id="i-store" viewBox="0 0 24 24"><path d="M4 9.5V20h16V9.5"/><path d="M3 9.5 5 4h14l2 5.5a3 3 0 0 1-5.5 1.7 3 3 0 0 1-5 0 3 3 0 0 1-5.5-1.7z"/></symbol>
+<symbol id="i-text" viewBox="0 0 24 24"><path d="M5 5h14M5 5v2M12 5v14M9.5 19h5"/></symbol>
+<symbol id="i-slide" viewBox="0 0 24 24"><rect x="4.5" y="6" width="15" height="12" rx="2.5"/><path d="M2 9v6M22 9v6"/></symbol>
+<symbol id="i-undo" viewBox="0 0 24 24"><path d="M4 9h9a5.5 5.5 0 0 1 0 11H8"/><path d="M7.5 5.5 4 9l3.5 3.5"/></symbol>
+<symbol id="i-check" viewBox="0 0 24 24"><path d="m5 12.5 4.5 4.5L19 7"/></symbol>
+<symbol id="i-wand" viewBox="0 0 24 24"><path d="M5 19 16 8"/><path d="M14.5 4.5 15 6l1.5.5L15 7l-.5 1.5L14 7l-1.5-.5L14 6zM19.5 10l.4 1.2 1.2.4-1.2.4-.4 1.2-.4-1.2-1.2-.4 1.2-.4z"/></symbol>
+</defs></svg>
+
+<div class="app">
+
+  <header class="hd">
+    <span class="who"><b id="hdT">Today</b><i id="hdS">Tuesday, 3 August</i></span>
+    <button class="ico-btn" aria-label="Alerts"><svg><use href="#i-bell"/></svg><span class="pip"></span></button>
+    <button class="ico-btn" id="theme" aria-label="Switch theme"><svg><use href="#i-drop"/></svg></button>
+  </header>
+
+  <!-- ═══ TODAY ═══ -->
+  <section class="scr on" id="today">
+    <div class="needs">
+      <span class="halo"></span>
+      <span style="position:relative">
+        <span class="num n">4</span>
+        <span style="display:block;font-weight:700;margin-top:4px">orders need you</span>
+        <span class="f13" style="opacity:.8">1 waiting over an hour</span>
+      </span>
+      <button class="go" data-go="orders" style="position:relative">Open the queue <svg><use href="#i-chev"/></svg></button>
+    </div>
+
+    <div class="stats">
+      <div class="stat"><span class="k">Today</span><span class="num v">$86</span>
+        <svg class="spark" viewBox="0 0 60 22" preserveAspectRatio="none" aria-hidden="true">
+          <path d="M0 17 10 14 20 15 30 9 40 11 50 5 60 3" stroke="var(--acc)" stroke-width="2"/>
+          <circle cx="60" cy="3" r="2.4" fill="var(--acc)" stroke="none"/></svg></div>
+      <div class="stat"><span class="k">Orders</span><span class="num v">12</span>
+        <svg class="spark" viewBox="0 0 60 22" preserveAspectRatio="none" aria-hidden="true">
+          <path d="M0 12 10 15 20 10 30 13 40 8 50 10 60 6" stroke="var(--gold)" stroke-width="2"/>
+          <circle cx="60" cy="6" r="2.4" fill="var(--gold)" stroke="none"/></svg></div>
+      <div class="stat"><span class="k">Profit</span><span class="num v">$31</span>
+        <svg class="spark" viewBox="0 0 60 22" preserveAspectRatio="none" aria-hidden="true">
+          <path d="M0 15 10 13 20 14 30 10 40 12 50 7 60 8" stroke="var(--ok)" stroke-width="2"/>
+          <circle cx="60" cy="8" r="2.4" fill="var(--ok)" stroke="none"/></svg></div>
+    </div>
+
+    <p class="ttl">The queue</p>
+    <button class="q late" data-go="order"><span class="sv"></span><span class="bd">
+      <span class="row"><b class="gr trunc">660 UC &times;1</b><span class="num b" style="color:var(--gold)">$10.50</span></span>
+      <span class="row f12 mu"><span class="gr trunc">Amina H. &middot; <span class="num">5123456789</span></span><span class="num">1h 20m</span></span>
+      <span class="pill late">Waiting too long</span></span></button>
+
+    <button class="q wait" data-go="order"><span class="sv"></span><span class="bd">
+      <span class="row"><b class="gr trunc">TikTok account &mdash; 12k</b><span class="num b" style="color:var(--gold)">$45.00</span></span>
+      <span class="row f12 mu"><span class="gr trunc">Yusuf A. &middot; <span class="num">+252 61 …</span></span><span class="num">12m</span></span>
+      <span class="pill wait">Waiting</span></span></button>
+
+    <button class="q wait" data-go="order"><span class="sv"></span><span class="bd">
+      <span class="row"><b class="gr trunc">325 UC &times;2</b><span class="num b" style="color:var(--gold)">$10.80</span></span>
+      <span class="row f12 mu"><span class="gr trunc">Sagal M. &middot; paid with points</span><span class="num">4m</span></span>
+      <span class="pill wait">Waiting</span></span></button>
+
+    <button class="q done"><span class="sv"></span><span class="bd">
+      <span class="row"><b class="gr trunc">100 Coins</b><span class="num b" style="color:var(--gold)">$1.50</span></span>
+      <span class="row f12 mu"><span class="gr trunc">Handed over by Ali</span><span class="num">31m</span></span>
+      <span class="pill done">Topped up</span></span></button>
+  </section>
+
+  <!-- ═══ ONE ORDER ═══ -->
+  <section class="scr" id="order">
+    <button class="back" data-go="today"><svg><use href="#i-back"/></svg> Today</button>
+
+    <div class="card" style="display:flex;flex-direction:column;gap:11px">
+      <div class="row"><span class="gr"><b class="f18">660 UC &times;1</b>
+        <span class="num f12 mu" style="display:block">M-537817</span></span>
+        <span class="pill late">Waiting 1h 20m</span></div>
+      <hr class="sep">
+      <div class="row f13"><span class="gr mu">Customer</span><b>Amina H.</b></div>
+      <div class="row f13"><span class="gr mu">Game ID</span><b class="num">5123456789</b></div>
+      <div class="row f13"><span class="gr mu">Paid</span><b class="num">$10.50 &middot; EVC Plus</b></div>
+      <div class="row f13"><span class="gr mu">Points earned</span><b class="num">105</b></div>
+    </div>
+
+    <p class="ttl">What happens next</p>
+    <button class="btn"><svg><use href="#i-check"/></svg> Mark topped up</button>
+    <div class="two">
+      <button class="btn o">Message her</button>
+      <button class="btn dan">Reject</button>
+    </div>
+    <p class="f12 mu" style="margin:0">She sees <b>Topped up</b> and keeps her 105 points. You can undo this for 10 minutes.</p>
+  </section>
+
+  <!-- ═══ PRODUCTS ═══ -->
+  <section class="scr" id="products">
+    <p class="ttl">Products &middot; 6 live</p>
+    <button class="btn"><svg><use href="#i-plus"/></svg> Add a product</button>
+
+    <button class="q done" data-go="edit"><span class="sv"></span><span class="bd">
+      <span class="row"><b class="gr trunc">660 UC</b><span class="num b" style="color:var(--gold)">$10.50</span></span>
+      <span class="f12 mu">PUBG &middot; instant &middot; 105 points</span></span></button>
+    <button class="q done" data-go="edit"><span class="sv"></span><span class="bd">
+      <span class="row"><b class="gr trunc">TikTok account &mdash; 12k</b><span class="num b" style="color:var(--gold)">$45.00</span></span>
+      <span class="f12 mu">Accounts &middot; 3 photos</span></span></button>
+    <button class="q wait" data-go="edit"><span class="sv"></span><span class="bd">
+      <span class="row"><b class="gr trunc">Wireless headset</b><span class="num b" style="color:var(--gold)">$24.00</span></span>
+      <span class="f12 mu">Electronics &middot; <b style="color:var(--gold)">no photos yet</b></span></span></button>
+  </section>
+
+  <!-- ═══ EDIT ONE PRODUCT — the auto-translate moment ═══ -->
+  <section class="scr" id="edit">
+    <button class="back" data-go="products"><svg><use href="#i-back"/></svg> Products</button>
+
+    <div class="tr">
+      <div class="hdr"><svg><use href="#i-lang"/></svg><b class="gr f13">Name</b>
+        <span class="auto"><svg><use href="#i-wand"/></svg> Auto</span></div>
+      <div class="body">
+        <div>
+          <span class="lng"><span class="code">EN</span></span>
+          <input class="fld" value="TikTok account — 12k followers">
+        </div>
+        <div>
+          <span class="lng"><span class="code">AR</span><span class="auto"><svg><use href="#i-wand"/></svg> translated</span></span>
+          <input class="fld" dir="rtl" value="حساب تيك توك — ١٢ ألف متابع">
+        </div>
+        <div>
+          <span class="lng"><span class="code">SO</span><span class="auto edited"><svg><use href="#i-check"/></svg> you edited</span></span>
+          <input class="fld" value="Akoon TikTok ah — 12k taageere">
+        </div>
+        <p class="note"><svg><use href="#i-info"/></svg>
+          <span>Write English once. Arabic and Somali fill themselves. Change either and it stays yours &mdash; auto never overwrites your words.</span></p>
+      </div>
+    </div>
+
+    <div>
+      <span class="lab">Photos on the item page</span>
+      <div class="shots">
+        <span class="shot"><svg><use href="#i-img"/></svg><span class="x"><svg><use href="#i-x"/></svg></span></span>
+        <span class="shot"><svg><use href="#i-img"/></svg><span class="x"><svg><use href="#i-x"/></svg></span></span>
+        <span class="shot"><svg><use href="#i-img"/></svg><span class="x"><svg><use href="#i-x"/></svg></span></span>
+        <span class="shot add"><svg><use href="#i-plus"/></svg></span>
+      </div>
+      <p class="f12 mu" style="margin:7px 0 0">3 photos &mdash; customers buy what they can see.</p>
+    </div>
+
+    <div class="two">
+      <div><span class="lab">Price</span><input class="fld num" value="45.00" inputmode="decimal"></div>
+      <div><span class="lab">Your cost</span><input class="fld num" value="31.00" inputmode="decimal"></div>
+    </div>
+    <p class="f12 mu" style="margin:-4px 0 0">Profit <b class="num" style="color:var(--ok)">$14.00</b> &middot; 31% margin. Only you see this.</p>
+
+    <button class="btn"><svg><use href="#i-check"/></svg> Save</button>
+  </section>
+
+  <!-- ═══ CUSTOMERS ═══ -->
+  <section class="scr" id="people">
+    <p class="ttl">Customers &middot; 148</p>
+    <input class="fld" placeholder="Search a name, number or code">
+    <button class="q done"><span class="sv"></span><span class="bd">
+      <span class="row"><b class="gr trunc">Amina H.</b><span class="num b" style="color:var(--gold)">120 pts</span></span>
+      <span class="num f12 mu">+252 61 234 5678 &middot; 9 orders</span></span></button>
+    <button class="q done"><span class="sv"></span><span class="bd">
+      <span class="row"><b class="gr trunc">Yusuf A.</b><span class="num b" style="color:var(--gold)">40 pts</span></span>
+      <span class="num f12 mu">+252 61 998 1122 &middot; 3 orders</span></span></button>
+    <button class="q wait"><span class="sv"></span><span class="bd">
+      <span class="row"><b class="gr trunc">Sagal M.</b><span class="num b" style="color:var(--gold)">0 pts</span></span>
+      <span class="num f12 mu">+252 61 445 0090 &middot; first order today</span></span></button>
+  </section>
+
+  <!-- ═══ MONEY ═══ -->
+  <section class="scr" id="money">
+    <p class="ttl">Last 30 days</p>
+    <div class="card" style="display:flex;flex-direction:column;gap:12px">
+      <div class="row"><span class="gr"><span class="f12 mu" style="display:block">Profit</span>
+        <b class="num f26" style="color:var(--ok)">$412.60</b></span>
+        <span class="pill done">+18%</span></div>
+      <svg viewBox="0 0 300 74" preserveAspectRatio="none" style="width:100%;height:74px" aria-hidden="true">
+        <path d="M0 60 30 55 60 58 90 44 120 48 150 35 180 38 210 26 240 30 270 18 300 14"
+          stroke="var(--ok)" stroke-width="2.4"/>
+        <path d="M0 60 30 55 60 58 90 44 120 48 150 35 180 38 210 26 240 30 270 18 300 14 300 74 0 74Z"
+          fill="color-mix(in srgb,var(--ok) 14%,transparent)" stroke="none"/>
+        <circle cx="300" cy="14" r="3.4" fill="var(--ok)" stroke="none"/></svg>
+      <hr class="sep">
+      <div class="row f13"><span class="gr mu">Income</span><b class="num">$1,284.00</b></div>
+      <div class="row f13"><span class="gr mu">Cost</span><b class="num">$871.40</b></div>
+    </div>
+
+    <p class="ttl">Best sellers</p>
+    <div class="card" style="display:flex;flex-direction:column;gap:10px">
+      <div class="row f13"><span class="gr">660 UC</span><span class="num mu">41 sold</span><b class="num" style="color:var(--ok)">$168</b></div>
+      <div class="row f13"><span class="gr">325 UC</span><span class="num mu">28 sold</span><b class="num" style="color:var(--ok)">$92</b></div>
+      <div class="row f13"><span class="gr">TikTok accounts</span><span class="num mu">6 sold</span><b class="num" style="color:var(--ok)">$84</b></div>
+    </div>
+    <button class="btn o">Download to Excel</button>
+  </section>
+
+  <!-- ═══ MORE ═══ -->
+  <section class="scr" id="more">
+    <p class="ttl">Everything else</p>
+    <div class="grid">
+      <button class="tile" data-go="chat"><span class="pl"><svg><use href="#i-chat"/></svg></span><b>Live chat</b><span>2 people waiting</span></button>
+      <button class="tile" data-go="sections"><span class="pl"><svg><use href="#i-grid"/></svg></span><b>Sections</b><span>Open, soon or hidden</span></button>
+      <button class="tile" data-go="pay"><span class="pl"><svg><use href="#i-card"/></svg></span><b>Payments</b><span>All 10 off &mdash; turn one on</span></button>
+      <button class="tile" data-go="points"><span class="pl"><svg><use href="#i-drop"/></svg></span><b>Barwaaqo</b><span>Points and rewards</span></button>
+      <button class="tile" data-go="qa"><span class="pl"><svg><use href="#i-ask"/></svg></span><b>Questions</b><span>4 answers customers see</span></button>
+      <button class="tile" data-go="helpers"><span class="pl"><svg><use href="#i-badge"/></svg></span><b>Helpers</b><span>2 people, 6 doors each</span></button>
+      <button class="tile" data-go="invites"><span class="pl"><svg><use href="#i-tag"/></svg></span><b>Invites</b><span>Who brought whom</span></button>
+      <button class="tile" data-go="store"><span class="pl"><svg><use href="#i-store"/></svg></span><b>Store info</b><span>Number, hours, days off</span></button>
+      <button class="tile" data-go="wording"><span class="pl"><svg><use href="#i-text"/></svg></span><b>Wording</b><span>Text customers read</span></button>
+      <button class="tile" data-go="banner"><span class="pl"><svg><use href="#i-slide"/></svg></span><b>Banner</b><span>3 slides running</span></button>
+      <button class="tile" data-go="products"><span class="pl"><svg><use href="#i-box"/></svg></span><b>Products</b><span>6 live, 1 coming</span></button>
+      <button class="tile" data-go="bin"><span class="pl"><svg><use href="#i-undo"/></svg></span><b>Deleted</b><span>Bring anything back</span></button>
+    </div>
+  </section>
+
+
+  <!-- ═══ LIVE CHAT ═══ -->
+  <section class="scr" id="chat">
+    <p class="ttl">Conversations &middot; 2 waiting</p>
+    <div class="lst">
+      <button class="q late" data-go="thread"><span class="sv"></span><span class="bd">
+        <span class="row"><b class="gr trunc">Amina H.</b><span class="num f12 mu">2m</span></span>
+        <span class="f12 mu trunc">Is my order M-537817 done?</span>
+        <span class="pill late">Asked for a person</span></span></button>
+      <button class="q wait" data-go="thread"><span class="sv"></span><span class="bd">
+        <span class="row"><b class="gr trunc">Sagal M.</b><span class="num f12 mu">14m</span></span>
+        <span class="f12 mu trunc">Can I pay with points?</span>
+        <span class="pill wait">Waiting for you</span></span></button>
+      <button class="q done"><span class="sv"></span><span class="bd">
+        <span class="row"><b class="gr trunc">Yusuf A.</b><span class="num f12 mu">1h</span></span>
+        <span class="f12 mu trunc">Thanks, it arrived</span>
+        <span class="pill done">Ali is answering</span></span></button>
+    </div>
+  </section>
+
+  <!-- ═══ ONE CONVERSATION ═══ -->
+  <section class="scr" id="thread">
+    <button class="back" data-go="chat"><svg><use href="#i-back"/></svg> Conversations</button>
+    <div class="card" style="display:flex;flex-direction:column;gap:10px;flex:1">
+      <span class="bub them">Is my order M-537817 done?</span>
+      <span class="bub me">Topping it up now &mdash; two minutes.</span>
+      <span class="bub them">Thank you!</span>
+    </div>
+    <div class="row"><input class="fld gr" placeholder="Write a reply"><button class="ico-btn" style="background:var(--acc);border-color:var(--acc);color:var(--on)" aria-label="Send"><svg><use href="#i-chev"/></svg></button></div>
+    <p class="f12 mu" style="margin:0">Only you are in this conversation. Ali cannot open it while you are here.</p>
+  </section>
+
+  <!-- ═══ SECTIONS ═══ -->
+  <section class="scr" id="sections">
+    <p class="ttl">Sections &middot; what customers see</p>
+    <div class="lst">
+      <div class="card row"><span class="gr"><b>PUBG UC</b><span class="f12 mu" style="display:block">Games &middot; instant</span></span><span class="st on">Open</span></div>
+      <div class="card row"><span class="gr"><b>eFootball</b><span class="f12 mu" style="display:block">Games &middot; manual</span></span><span class="st on">Open</span></div>
+      <div class="card row"><span class="gr"><b>TikTok accounts</b><span class="f12 mu" style="display:block">Accounts &middot; manual</span></span><span class="st on">Open</span></div>
+      <div class="card row"><span class="gr"><b>Electronics</b><span class="f12 mu" style="display:block">Home &middot; shipped</span></span><span class="st on">Open</span></div>
+      <div class="card row"><span class="gr"><b>Free Fire</b><span class="f12 mu" style="display:block">Games</span></span><span class="st soon">Coming</span></div>
+      <div class="card row"><span class="gr"><b>Gift cards</b><span class="f12 mu" style="display:block">Not shown to anyone</span></span><span class="st off">Hidden</span></div>
+    </div>
+    <button class="btn o"><svg><use href="#i-plus"/></svg> Add a section</button>
+  </section>
+
+  <!-- ═══ PAYMENTS ═══ -->
+  <section class="scr" id="pay">
+    <div class="card" style="border-color:var(--gold);display:flex;gap:10px">
+      <svg style="width:19px;height:19px;color:var(--gold);flex:none;margin-top:2px"><use href="#i-info"/></svg>
+      <span class="f13">All ten are off, so customers never reach a payment step. Turn on the one you actually use.</span>
+    </div>
+    <p class="ttl">Local transfer</p>
+    <div class="lst">
+      <div class="card row"><span class="mark" style="background:#1a9c4a">E</span>
+        <span class="gr"><b>EVC Plus</b><span class="num f12 mu" style="display:block">612345678</span></span>
+        <span class="sw on" role="switch" aria-checked="true"><i></i></span></div>
+      <div class="card row"><span class="mark" style="background:#7d8fd6">J</span>
+        <span class="gr"><b>JEEB</b><span class="f12 mu" style="display:block">No number yet</span></span>
+        <span class="sw" role="switch" aria-checked="false"><i></i></span></div>
+      <div class="card row"><span class="mark" style="background:#d98368">D</span>
+        <span class="gr"><b>E-Dahab</b><span class="f12 mu" style="display:block">No number yet</span></span>
+        <span class="sw" role="switch" aria-checked="false"><i></i></span></div>
+      <div class="card row"><span class="mark" style="background:#6fb2df">Z</span>
+        <span class="gr"><b>ZAAD</b><span class="f12 mu" style="display:block">No number yet</span></span>
+        <span class="sw" role="switch" aria-checked="false"><i></i></span></div>
+    </div>
+    <p class="ttl">From any country</p>
+    <div class="lst">
+      <div class="card row"><span class="mark" style="background:#2b6cb0">P</span>
+        <span class="gr"><b>PayPal</b><span class="f12 mu" style="display:block">No account yet</span></span>
+        <span class="sw" role="switch" aria-checked="false"><i></i></span></div>
+      <div class="card row"><span class="mark" style="background:#2a9d8f">U</span>
+        <span class="gr"><b>USDT (TRC20)</b><span class="f12 mu" style="display:block">No wallet yet</span></span>
+        <span class="sw" role="switch" aria-checked="false"><i></i></span></div>
+    </div>
+  </section>
+
+  <!-- ═══ BARWAAQO ═══ -->
+  <section class="scr" id="points">
+    <div class="card row"><span class="gr"><b>Barwaaqo is running</b><span class="f12 mu" style="display:block">Customers earn points on every paid order</span></span>
+      <span class="sw on" role="switch" aria-checked="true"><i></i></span></div>
+    <div class="card" style="display:flex;flex-direction:column;gap:11px">
+      <div class="row f13"><span class="gr mu">1 point is worth</span><b class="num">$0.01</b></div>
+      <hr class="sep">
+      <div><span class="lab">Points per dollar spent</span><input class="fld num" value="10"></div>
+      <div><span class="lab">Least they can redeem</span><input class="fld num" value="500"></div>
+    </div>
+    <p class="ttl">Bring a friend</p>
+    <div class="card" style="display:flex;flex-direction:column;gap:11px">
+      <div class="two">
+        <div><span class="lab">Inviter gets</span><input class="fld num" value="50"></div>
+        <div><span class="lab">Friend gets</span><input class="fld num" value="20"></div>
+      </div>
+      <p class="f12 mu" style="margin:0">The friend gets theirs on sign-up. You pay the inviter only after the friend actually buys.</p>
+    </div>
+    <button class="btn"><svg><use href="#i-check"/></svg> Save</button>
+  </section>
+
+  <!-- ═══ QUESTIONS ═══ -->
+  <section class="scr" id="qa">
+    <p class="ttl">Questions &middot; shown in chat and on Help</p>
+    <div class="lst">
+      <div class="card"><b class="f13">How long does a top-up take?</b>
+        <p class="f12 mu" style="margin:5px 0 0">Usually minutes. Manual ones can take longer.</p></div>
+      <div class="card"><b class="f13">Do I need an account?</b>
+        <p class="f12 mu" style="margin:5px 0 0">Only to keep your orders and points.</p></div>
+      <div class="card"><b class="f13">What if I typed the wrong ID?</b>
+        <p class="f12 mu" style="margin:5px 0 0">Message us before we top up and we will fix it.</p></div>
+    </div>
+    <button class="btn o"><svg><use href="#i-plus"/></svg> Add a question</button>
+    <p class="f12 mu" style="margin:0">Each answer is written once in English &mdash; Arabic and Somali translate themselves.</p>
+  </section>
+
+  <!-- ═══ HELPERS ═══ -->
+  <section class="scr" id="helpers">
+    <p class="ttl">Helpers &middot; 2</p>
+    <div class="card" style="display:flex;flex-direction:column;gap:11px">
+      <div class="row"><span class="mark" style="background:var(--acc)">A</span>
+        <span class="gr"><b>Ali</b><span class="num f12 mu" style="display:block">+252 61 700 4412</span></span>
+        <span class="st on">Active</span></div>
+      <hr class="sep">
+      <span class="f12 mu">Doors he can open</span>
+      <div class="row"><span class="gr f13">Orders</span><span class="sw on" role="switch" aria-checked="true"><i></i></span></div>
+      <div class="row"><span class="gr f13">Live chat</span><span class="sw on" role="switch" aria-checked="true"><i></i></span></div>
+      <div class="row"><span class="gr f13">Products and prices</span><span class="sw" role="switch" aria-checked="false"><i></i></span></div>
+      <div class="row"><span class="gr f13">Customers and points</span><span class="sw" role="switch" aria-checked="false"><i></i></span></div>
+      <p class="f12 mu" style="margin:0">Closed doors do not appear for him at all. He never sees your costs or profit.</p>
+    </div>
+    <div class="card row"><span class="mark" style="background:var(--gold)">S</span>
+      <span class="gr"><b>Sara</b><span class="f12 mu" style="display:block">Chat only</span></span><span class="st on">Active</span></div>
+    <button class="btn o"><svg><use href="#i-plus"/></svg> Add a helper</button>
+  </section>
+
+  <!-- ═══ INVITES ═══ -->
+  <section class="scr" id="invites">
+    <div class="stats">
+      <div class="stat"><span class="k">Invited</span><span class="num v">34</span></div>
+      <div class="stat"><span class="k">Bought</span><span class="num v">11</span></div>
+      <div class="stat"><span class="k">Cost you</span><span class="num v">$7.70</span></div>
+    </div>
+    <p class="ttl">Top inviters</p>
+    <div class="lst">
+      <div class="card row"><span class="gr"><b>Amina H.</b><span class="num f12 mu" style="display:block">RAM-4Q2X</span></span>
+        <span class="num f13 mu">6 invited</span><b class="num" style="color:var(--gold)">300 pts</b></div>
+      <div class="card row"><span class="gr"><b>Yusuf A.</b><span class="num f12 mu" style="display:block">RAM-8K1P</span></span>
+        <span class="num f13 mu">3 invited</span><b class="num" style="color:var(--gold)">150 pts</b></div>
+    </div>
+  </section>
+
+  <!-- ═══ STORE INFO ═══ -->
+  <section class="scr" id="store">
+    <div class="card" style="border-color:var(--gold);display:flex;gap:10px">
+      <svg style="width:19px;height:19px;color:var(--gold);flex:none;margin-top:2px"><use href="#i-info"/></svg>
+      <span class="f13">Your WhatsApp number is empty, so the Help page hides that card. Fill it and it appears.</span>
+    </div>
+    <div><span class="lab">WhatsApp number</span><input class="fld num" placeholder="+252 …"></div>
+    <div><span class="lab">Email</span><input class="fld" placeholder="you@eramaan.com"></div>
+    <div class="two">
+      <div><span class="lab">Opens</span><input class="fld num" value="09:00"></div>
+      <div><span class="lab">Closes</span><input class="fld num" value="23:00"></div>
+    </div>
+    <div><span class="lab">Days off</span>
+      <div class="row" style="flex-wrap:wrap;gap:7px">
+        <span class="st off">Sat</span><span class="st off">Sun</span><span class="st off">Mon</span>
+        <span class="st off">Tue</span><span class="st off">Wed</span><span class="st off">Thu</span>
+        <span class="st on">Fri</span>
+      </div>
+      <p class="f12 mu" style="margin:7px 0 0">Pick as many as you need &mdash; a dropdown cannot hold more than one.</p>
+    </div>
+    <button class="btn"><svg><use href="#i-check"/></svg> Save</button>
+  </section>
+
+  <!-- ═══ WORDING ═══ -->
+  <section class="scr" id="wording">
+    <p class="ttl">Text customers read</p>
+    <div class="tr">
+      <div class="hdr"><svg><use href="#i-lang"/></svg><b class="gr f13">Store tagline</b>
+        <span class="auto"><svg><use href="#i-wand"/></svg> Auto</span></div>
+      <div class="body">
+        <div><span class="lng"><span class="code">EN</span></span><input class="fld" value="Top-ups &amp; electronics"></div>
+        <div><span class="lng"><span class="code">AR</span><span class="auto"><svg><use href="#i-wand"/></svg> translated</span></span>
+          <input class="fld" dir="rtl" value="شدات وإلكترونيات"></div>
+        <div><span class="lng"><span class="code">SO</span><span class="auto"><svg><use href="#i-wand"/></svg> translated</span></span>
+          <input class="fld" value="Buuxin &amp; qalab elektaroonig ah"></div>
+      </div>
+    </div>
+    <div class="tr">
+      <div class="hdr"><svg><use href="#i-lang"/></svg><b class="gr f13">How the store works &mdash; step 1</b>
+        <span class="auto"><svg><use href="#i-wand"/></svg> Auto</span></div>
+      <div class="body">
+        <div><span class="lng"><span class="code">EN</span></span><input class="fld" value="Pick your pack and type your ID"></div>
+        <div><span class="lng"><span class="code">AR</span><span class="auto edited"><svg><use href="#i-check"/></svg> you edited</span></span>
+          <input class="fld" dir="rtl" value="اختر باقتك واكتب آيديك"></div>
+      </div>
+    </div>
+    <button class="btn"><svg><use href="#i-check"/></svg> Save</button>
+  </section>
+
+  <!-- ═══ BANNER ═══ -->
+  <section class="scr" id="banner">
+    <p class="ttl">Banner &middot; 3 slides</p>
+    <div class="lst">
+      <div class="card row"><span class="shot" style="width:56px;height:44px;aspect-ratio:auto"><svg><use href="#i-img"/></svg></span>
+        <span class="gr"><b class="f13">Weekend on UC</b><span class="f12 mu" style="display:block">Goes to PUBG</span></span>
+        <span class="sw on" role="switch" aria-checked="true"><i></i></span></div>
+      <div class="card row"><span class="shot" style="width:56px;height:44px;aspect-ratio:auto"><svg><use href="#i-img"/></svg></span>
+        <span class="gr"><b class="f13">New TikTok accounts</b><span class="f12 mu" style="display:block">Goes to Accounts</span></span>
+        <span class="sw on" role="switch" aria-checked="true"><i></i></span></div>
+      <div class="card row"><span class="shot" style="width:56px;height:44px;aspect-ratio:auto"><svg><use href="#i-img"/></svg></span>
+        <span class="gr"><b class="f13">Barwaaqo rewards</b><span class="f12 mu" style="display:block">Goes to Barwaaqo</span></span>
+        <span class="sw" role="switch" aria-checked="false"><i></i></span></div>
+    </div>
+    <button class="btn o"><svg><use href="#i-plus"/></svg> Add a slide</button>
+  </section>
+
+  <!-- ═══ DELETED ═══ -->
+  <section class="scr" id="bin">
+    <p class="ttl">Deleted &middot; nothing is really gone</p>
+    <div class="lst">
+      <div class="card row"><span class="gr"><b class="f13" style="text-decoration:line-through">1800 UC</b>
+        <span class="f12 mu" style="display:block">Removed 2 days ago</span></span>
+        <button class="st on">Bring back</button></div>
+      <div class="card row"><span class="gr"><b class="f13" style="text-decoration:line-through">Old banner slide</b>
+        <span class="f12 mu" style="display:block">Removed last week</span></span>
+        <button class="st on">Bring back</button></div>
+    </div>
+    <p class="f12 mu" style="margin:0">Anything you remove from the store waits here. Nothing you delete is lost.</p>
+  </section>
+
+  <nav class="nav" aria-label="Sections">
+    <button class="on" data-go="today"><svg><use href="#i-today"/></svg>Today</button>
+    <button data-go="products"><svg><use href="#i-box"/></svg>Items</button>
+    <button data-go="people"><svg><use href="#i-people"/></svg>People</button>
+    <button data-go="money"><svg><use href="#i-money"/></svg>Money</button>
+    <button data-go="more"><svg><use href="#i-more"/></svg>More</button>
+  </nav>
+</div>
+
+<script>
+const TITLES = {
+  today:["Today","Tuesday, 3 August"], order:["Order","M-537817"],
+  products:["Items","What you sell"], edit:["Edit item","TikTok account"],
+  people:["People","Your customers"], money:["Money","Income and profit"],
+  more:["More","Every other screen"],
+  chat:["Live chat","2 people waiting"], thread:["Amina H.","Live chat"],
+  sections:["Sections","What customers see"], pay:["Payments","How they pay you"],
+  points:["Barwaaqo","Points and rewards"], qa:["Questions","Answers customers see"],
+  helpers:["Helpers","Who can open what"], invites:["Invites","Who brought whom"],
+  store:["Store info","Number, hours, days off"], wording:["Wording","Text customers read"],
+  banner:["Banner","Slides on the home screen"], bin:["Deleted","Bring anything back"]
+};
+const NAV_OF = {today:"today", order:"today", products:"products", edit:"products",
+  people:"people", money:"money", more:"more",
+  chat:"more", thread:"more", sections:"more", pay:"more", points:"more", qa:"more",
+  helpers:"more", invites:"more", store:"more", wording:"more", banner:"more", bin:"more"};
+
+function show(id){
+  document.querySelectorAll(".scr").forEach(s => s.classList.toggle("on", s.id === id));
+  const [t,s] = TITLES[id] || TITLES.today;
+  document.getElementById("hdT").textContent = t;
+  document.getElementById("hdS").textContent = s;
+  document.querySelectorAll(".nav button").forEach(b =>
+    b.classList.toggle("on", b.dataset.go === NAV_OF[id]));
+  window.scrollTo({top:0});
+}
+document.addEventListener("click", e => {
+  const go = e.target.closest("[data-go]");
+  if (go) show(go.dataset.go);
+});
+document.getElementById("theme").addEventListener("click", () => {
+  const now = document.documentElement.getAttribute("data-theme")
+    || (matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+  document.documentElement.setAttribute("data-theme", now === "dark" ? "light" : "dark");
+});
+</script>
