@@ -6,6 +6,7 @@ import { Link } from "@/i18n/navigation";
 import { fmt } from "@/lib/format";
 import { pathOf, readLast, type LastOrder } from "@/lib/lastOrder";
 import { isBuyable, pubg } from "@/lib/data";
+import { mergedItems } from "@/lib/items";
 import { IconBolt, IconChevron } from "@/components/icons";
 
 /**
@@ -20,19 +21,46 @@ import { IconBolt, IconChevron } from "@/components/icons";
  * ⚠️ ويبدأ **بالنسخة العامّة** ثم يُبدَّل بعد التركيب: الصفحة مبنيّةٌ
  *    مسبقاً ومخزَّنة دقيقة، والخادم لا يعرف من يطلبها — فلو حَزَر لاختلف
  *    ما رسمه عمّا يراه المتصفّح ووقع خطأ ترطيب في كل زيارة.
+ *
+ * ⚠️ **والباقة تُقرأ من اللوحة لا من الملفّ** (٠٣-٠٨): فُرّغت باقات
+ *    `lib/data.ts` بطلبها لتضيف بضاعتها بنفسها، فلو بقي البطل يقرأ
+ *    الملفّ وحده لَما ظهرت فيه باقةٌ تضيفها أبداً.
+ *
+ * ⚠️ **ومتجرٌ بلا بضاعةٍ بعد ⇒ لا بطل**: تذكرةٌ بلا سعرٍ ولا اسم أسوأ
+ *    من غيابها. تختفي وحدها، وتعود أوّلَ ما تُضاف باقة.
  */
 export default function ResumeHero() {
   const t = useTranslations("resume");
   const [last, setLast] = useState<LastOrder | null>(null);
 
+  /** الأشهر من الباقات الحيّة — بديلُ من لم يشترِ بعد */
+  const fromFile = pubg.filter(isBuyable).find((p) => p.popular) ?? pubg[0];
+  const [pack, setPack] = useState<{ title: string; price: number } | null>(
+    fromFile ? { title: t("uc", { n: fromFile.amount }), price: fromFile.price } : null,
+  );
+
   useEffect(() => setLast(readLast()), []);
 
-  /** الأشهر من الباقات الحيّة — بديلُ من لم يشترِ بعد */
-  const star = pubg.filter(isBuyable).find((p) => p.popular) ?? pubg[0];
+  useEffect(() => {
+    let alive = true;
+    void mergedItems("pubg")
+      .then((list) => {
+        const live = list.filter(isBuyable);
+        const star = live.find((p) => p.popular) ?? live[0];
+        if (alive && star) setPack({ title: star.title, price: star.price });
+      })
+      .catch(() => {});
+    return () => {
+      alive = false;
+    };
+  }, []);
 
-  const title = last?.title ?? t("uc", { n: star.amount });
-  const price = last?.price ?? star.price;
+  const title = last?.title ?? pack?.title;
+  const price = last?.price ?? pack?.price;
   const href = last ? pathOf(last.kind) : "/pubg";
+
+  // لا طلبَ سابق ولا باقةَ تُعرض ⇒ لا شيء يُقال
+  if (!title || price === undefined) return null;
 
   return (
     /**

@@ -92,53 +92,36 @@ export const isBuyable = (i: Controllable) => (i.status ?? "on") === "on";
 /** عدد العناصر المعروضة — للعدّادات في بطاقات الأقسام */
 export const liveCount = (items: Controllable[]) => live(items).length;
 
+/* ═══════════════════════════════════════════════════════════
+   🗑️ **فُرّغت كلّها بطلبها (٠٣-٠٨): «أنا أضيفهم من الإدارة».**
+
+   كانت هذه القوائم بضاعةً تجريبية كتبتُها أنا لتُرى الشاشات قبل أن
+   يكون في المتجر شيء. وقد صار له لوحةٌ تضيف وتحذف، فبقاؤها يعني
+   أسعاراً ليست أسعارها تُعرض على زبونٍ حقيقيّ.
+
+   ⚠️ **والقوائم تبقى موجودةً فارغة — لا تُحذف الأسطر نفسها**: كل
+      الصفحات تقرأ منها (`live()` · `liveCount()` · البحث · الخريطة)،
+      وحذفُ الاسم يكسر البناء كلّه. الفارغُ يُعرض «لا شيء بعد»، والمعدومُ
+      لا يُعرض شيئاً أصلاً.
+
+   ➕ **الإضافة من اللوحة**: Items ← اختاري القسم ← «Add new item».
+      وما يُضاف هناك يعيش في Firestore، فلا يمرّ بهذا الملفّ أبداً.
+   ═══════════════════════════════════════════════════════════ */
+
 /** الإلكترونيات — تظهر بالصفحة الرئيسية */
-export const elec: Product[] = [
-  { id: "e1", name: "سماعة بلوتوث لاسلكية", price: 32, disc: 25, img: "/images/elec/test.jpg", desc: "عزل ضوضاء · بطارية ٣٠ ساعة" },
-  { id: "e2", name: "شاحن سريع 65W", price: 18, desc: "ثلاثة منافذ · شحن سريع للجوال واللابتوب" },
-  { id: "e3", name: "باور بانك 20000mAh", price: 35, disc: 20, desc: "شحن سريع · يكفي لثلاث شحنات" },
-  { id: "e4", name: "ساعة ذكية رياضية", price: 42, desc: "قياس النبض · مقاومة للماء" },
-  { id: "e5", name: "ماوس ألعاب RGB", price: 20, disc: 25, desc: "٧ أزرار · دقة 12000 DPI" },
-  { id: "e6", name: "لوحة مفاتيح ميكانيكية", price: 38, desc: "إضاءة خلفية · مفاتيح زرقاء" },
-  { id: "e7", name: "سماعة رأس للألعاب", price: 30, disc: 10, desc: "صوت محيطي · مايك قابل للفصل" },
-  { id: "e8", name: "حامل جوال للسيارة", price: 9, desc: "تثبيت مغناطيسي قوي" },
-];
+export const elec: Product[] = [];
 
 /** شدات ببجي — UC */
-export const pubg: UcPack[] = [
-  { id: "u1", amount: 60, price: 1.2, instant: true },
-  { id: "u2", amount: 325, price: 6, disc: 10, instant: true },
-  { id: "u3", amount: 660, price: 10.5, instant: true, popular: true },
-  { id: "u4", amount: 1800, price: 30, disc: 10, instant: true },
-  { id: "u5", amount: 3850, price: 54, instant: true },
-  { id: "u6", amount: 8100, price: 120, disc: 10, instant: true },
-];
+export const pubg: UcPack[] = [];
 
 /** كوينز eFootball */
-export const icons: CoinPack[] = [
-  { id: "c1", name: "باقة صغيرة", amount: 100, price: 1.5 },
-  { id: "c2", name: "باقة فضية", amount: 550, price: 7.5, old: 8 },
-  { id: "c3", name: "باقة ذهبية", amount: 1300, price: 16, popular: true },
-  { id: "c4", name: "باقة بلاتينية", amount: 2800, price: 33, old: 36 },
-  { id: "c5", name: "باقة ماسية", amount: 5900, price: 68 },
-  { id: "c6", name: "الباقة الكبرى", amount: 12000, price: 130, old: 145 },
-];
+export const icons: CoinPack[] = [];
 
 /** حسابات تيك توك الجاهزة — كل حساب فريد ويُباع مرة واحدة */
-export const tiktok: GameAccount[] = [
-  { id: "t1", title: "حساب تيك توك — ١٠ آلاف متابع", price: 35, note: "متابعون حقيقيون · تفاعل نشط" },
-  { id: "t2", title: "حساب تيك توك — ٢٥ ألف متابع", price: 75, note: "محتوى ترفيهي · جمهور عربي" },
-  { id: "t3", title: "حساب تيك توك — ٥٠ ألف متابع", price: 140, note: "مؤهّل للربح · إحصائيات ممتازة" },
-  { id: "t4", title: "حساب تيك توك — ١٠٠ ألف متابع", price: 260, note: "حساب مميّز · نمو مستقر" },
-  { id: "t5", title: "حساب موثّق ✓", price: 420, note: "علامة التوثيق الزرقاء" },
-];
+export const tiktok: GameAccount[] = [];
 
 /** حسابات eFootball الجاهزة — كل حساب فريد ويُباع مرة واحدة */
-export const accounts: GameAccount[] = [
-  { id: "a1", title: "حساب eFootball — ٥ نجوم", price: 45, note: "فريق كامل · لاعبون مميزون" },
-  { id: "a2", title: "حساب eFootball — ٤ نجوم", price: 28, note: "رصيد كوينز إضافي" },
-  { id: "a3", title: "حساب مبتدئ + ٢٠٠٠ كوينز", price: 15, note: "مناسب للبداية" },
-];
+export const accounts: GameAccount[] = [];
 
 /** طرق الدفع — نفس شكل DB.pay في الموقع القديم، مع تجميع عالمي/محلي */
 export type PayMethod = {
