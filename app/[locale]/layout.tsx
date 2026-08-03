@@ -13,6 +13,7 @@ import LiveChat from "@/components/LiveChat";
 import StoreGate from "@/components/StoreGate";
 import InstallApp from "@/components/InstallApp";
 import PwaRegister from "@/components/PwaRegister";
+import StartAtHome from "@/components/StartAtHome";
 import { ClosedScreen } from "@/components/ClosedNotice";
 import { blocksSite, openNow } from "@/lib/openCore";
 import { readOpenSettingsServer } from "@/lib/storeOpenServer";
@@ -209,6 +210,10 @@ export default async function LocaleLayout({
                   <LiveChat />
                   {/* بلا واجهة: يسجّل عامل الخدمة فيصير الموقع قابلاً للتثبيت */}
                   <PwaRegister />
+                  {/* وبلا واجهة أيضاً: التطبيق يفتح على الرئيسية لا على
+                      آخر صفحةٍ حفظها الجهاز — قرارها. والموقع يفتح حيث
+                      أشار الرابط، وإلّا بدت الروابط المشتركة مكسورة. */}
+                  <StartAtHome />
                 </CartProvider>
               </AuthProvider>
             </StoreGate>
