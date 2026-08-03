@@ -11,6 +11,8 @@ import Header from "@/components/Header";
 import BottomNav from "@/components/BottomNav";
 import LiveChat from "@/components/LiveChat";
 import StoreGate from "@/components/StoreGate";
+import InstallApp from "@/components/InstallApp";
+import PwaRegister from "@/components/PwaRegister";
 import { ClosedScreen } from "@/components/ClosedNotice";
 import { blocksSite, openNow } from "@/lib/openCore";
 import { readOpenSettingsServer } from "@/lib/storeOpenServer";
@@ -67,6 +69,16 @@ export async function generateMetadata({
       ? { google: process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION }
       : undefined,
     icons: { icon: "/icon.svg", apple: "/apple-icon.png" },
+    /**
+     * التطبيق على الآيفون والآيباد — **اسم واحد: eRamaan**.
+     *
+     * أندرويد يقرأ الاسم من `app/manifest.ts`، وسفاري لا يقرؤه: يأخذ
+     * الاسم من هنا وحده. وبدون هذين السطرين تظهر الأيقونة باسم عنوان
+     * الصفحة كاملاً — مقطوعاً بثلاث نقاط — ويفتح التطبيق داخل المتصفّح
+     * بشريط عنوانٍ فوقه، فلا يبدو تطبيقاً أصلاً.
+     */
+    applicationName: "eRamaan",
+    appleWebApp: { capable: true, title: "eRamaan", statusBarStyle: "default" },
     // بطاقة المشاركة: ما يظهر عند إرسال الرابط بواتساب أو نشره
     openGraph: {
       title,
@@ -172,10 +184,23 @@ export default async function LocaleLayout({
                     {/* الفوتر ليس هنا: مكانه صفحة الدعم وحدها — قرارها.
                         راجعي `components/Footer.tsx` للسبب. */}
                     <div className="flex-1">{children}</div>
+                    {/* دعوة تنزيل التطبيق — **في مسار الصفحة لا عائمة**:
+                        الشريط العائم يزاحم شريط الشراء وزرّ الدردشة وقائمة
+                        الأسفل. وتُخفي نفسها لمن ثبّته أو رفضها.
+                        ⚠️ **وتحت المحتوى لا فوقه**: الرئيسية قِيست لتُرى
+                        أقسامُها بلا تمرير (٥٣١ من ٧٧١)، وبطاقةٌ فوقها
+                        تدفع البلاطات تحت الطيّة — وهذا ما أرادت تفاديه.
+                        وهنا تُرى على الرئيسية بلا تمرير، وتنتظر في أسفل
+                        الصفحات الطويلة.
+                        ⚠️ **وفي التخطيط لا في الرئيسية وحدها**: نصف
+                        الزبائن يدخلون من رابطٍ لصفحة صنف أُرسل بواتساب. */}
+                    <InstallApp />
                   </div>
                   <BottomNav />
                   {/* الدردشة المباشرة — على كل صفحة، فوق القائمة السفلية */}
                   <LiveChat />
+                  {/* بلا واجهة: يسجّل عامل الخدمة فيصير الموقع قابلاً للتثبيت */}
+                  <PwaRegister />
                 </CartProvider>
               </AuthProvider>
             </StoreGate>

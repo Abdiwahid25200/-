@@ -74,7 +74,9 @@ export default async function ElectronicsPage({
             desc={p.sub}
             img={p.img}
             Icon={IconDevice}
-            discLabel={tc("discount")}
+            /* ⚠️ `raw` لا `tc(...)`: النصّ قالبٌ فيه `{n}` تملؤه البطاقة
+               بنسبة كل صنف. ونداؤه بلا `n` يرمي خطأً ويُظهر نصّاً مكسوراً */
+            discLabel={tc.raw("discount") as string}
             soon={p.status !== "on"}
             soonLabel={tc("soon")}
           />

@@ -418,7 +418,6 @@ export default function BuyFlow({
               selected={p.id === packId}
               onSelect={() => !p.soon && setPackId(p.id)}
               labels={{
-                disc: tc("discount"),
                 instant: tc("instant"),
                 popular: tc("popular"),
                 buy: tc("buy"),

@@ -753,5 +753,12 @@
     "about": "Ku saabsan",
     "buy": "Iibso",
     "details": "Faahfaahin"
+  },
+  "install": {
+    "title": "Ku rakib eRamaan",
+    "note": "Hal taabasho oo shaashadaada — dhaqso, browser la'aan.",
+    "ios": "Riix Share, ka dibna “Add to Home Screen”.",
+    "button": "Rakib",
+    "later": "Hadda maya"
   }
 }

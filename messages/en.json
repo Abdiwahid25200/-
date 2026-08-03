@@ -753,5 +753,12 @@
     "about": "About this item",
     "buy": "Buy it",
     "details": "See details"
+  },
+  "install": {
+    "title": "Get the eRamaan app",
+    "note": "One tap from your home screen — faster, no browser.",
+    "ios": "Tap Share, then “Add to Home Screen”.",
+    "button": "Install",
+    "later": "Not now"
   }
 }
