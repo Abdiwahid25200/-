@@ -109,9 +109,12 @@ export default function PubgFlow({ items }: { items?: ShopItem[] }) {
       kind="pubg"
       Icon={IconBolt}
       accountForm={
-        <section className="rounded-card border border-line bg-surface p-4">
-          <h2 className="mb-1 text-lg font-bold">{t("title")}</h2>
-          <p className="mb-3 text-sm text-muted">{t("note")}</p>
+        /* ⚠️ **حقلٌ باسمه لا بطاقةٌ بعنوانٍ وشرح** — كما في النموذج:
+           سطرٌ صغير «آيدي اللاعب» ثم الحقل. البطاقةُ بعنوانٍ ووصفٍ فوق
+           حقلٍ واحد تجعل الخطوة الأولى تبدو استمارةً طويلة، وهي كتابةُ
+           رقمٍ وحسب. والشرح نزل تحت الحقل لمن يحتاجه. */
+        <section className="flex flex-col gap-2">
+          <h2 className="text-xs font-bold">{t("title")}</h2>
 
           {/* الآيدي وزر التحقق بنفس السطر — كالموقع القديم */}
           <div className="flex gap-2">
