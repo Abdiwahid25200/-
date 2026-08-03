@@ -17,8 +17,8 @@ import { IconClock } from "@/components/icons";
  *    الرئيسية وحدها، فمن دخل على `/pubg` من رابطٍ مباشر لم يره أصلاً —
  *    وهو أحوجُ الناس إليه. الترويسة تظهر في كل صفحة.
  *
- * ⚠️ **ولا يظهر فارغاً**: بلا متوسّطٍ محسوب وبلا دوامٍ مضبوط لا شيء
- *    يُقال، فلا يُحجز مكانٌ لسطرٍ لا خبر فيه.
+ * ⚠️ **الحالة تُقال دائماً، والسرعة إن كانت تبيع**: «مفتوح» وحدها خبرٌ
+ *    يكفي، والرقم يُضاف إليها متى كان صغيراً.
  *
  * ⚠️ **ويبدأ صامتاً ثم ينطق**: الصفحات مبنيّةٌ مسبقاً ومخزَّنة، والخادم
  *    لا يعرف الساعة عند العرض — فلو رسم حالةً لاختلفت عمّا يراه
@@ -44,10 +44,21 @@ export default function OpenBar() {
   if (!ready) return null;
 
   const { open, settings } = store;
-  /* الدوام مضبوط أو مُقفل بيدك ⇒ للحالة معنى. وإلا فالمتجر «مفتوح» دائماً
-     وقولُها لا يضيف شيئاً — يبقى المتوسّط وحده إن وُجد. */
-  const tellState = settings.hoursOn || settings.closed;
-  if (!tellState && avg <= 0) return null;
+
+  /**
+   * ⚠️ **«مفتوح» تُقال دائماً ما دام المتجر مفتوحاً** — كما في النموذج.
+   *    كانت لا تُقال إلا إذا ضُبط الدوام في اللوحة، والدوام غير مضبوط
+   *    اليوم — فبقي الشريط يقول رقماً مجرّداً بلا خبرٍ يسنده:
+   *    «١٥ ساعة متوسّط التسليم» وحدها. وهي أوّل جملةٍ يقرأها الغريب.
+   *
+   * ⚠️ **والمتوسّط البطيء يُخفي نفسه** — فوق ساعتين لا يُقال. الرقم هنا
+   *    **دعوةٌ للشراء** لا تقريرٌ محاسبيّ: «٤ دقائق» تبيع، و«١٥ ساعة»
+   *    تصرف الزبون إلى غيرك وهو واقفٌ على بابك. ولا نكذب: نصمت.
+   *    (وهي قاعدة `GiftProof` نفسها — الرقم الضعيف لا يُعرض أصلاً.)
+   *    والمتوسّط يتحسّن وحده كلّما شحنتِ بسرعة، فيعود الرقم بلا كود.
+   */
+  const MAX_SHOW = 120;
+  const tellSpeed = avg > 0 && avg <= MAX_SHOW;
 
   const state = open
     ? t("openNow")
@@ -55,14 +66,18 @@ export default function OpenBar() {
       ? t("opensAt", { t: opensAt(settings) })
       : t("closedNow");
 
-  const speed =
-    avg <= 0 ? "" : avg < 60 ? t("avgMin", { n: avg }) : t("avgHr", { n: Math.round(avg / 60) });
+  const speed = !tellSpeed
+    ? ""
+    : avg < 60
+      ? t("avgMin", { n: avg })
+      : t("avgHr", { n: Math.round(avg / 60) });
 
   return (
     <div className="page-w px-4 pb-1">
       <p
         role="status"
-        className={`flex items-center gap-2 rounded-card px-3 py-1.5 text-xs font-bold ${
+        /* شريطٌ بعرض الصفحة وزواياه ١٢px — مقاس النموذج نفسه */
+        className={`flex items-center gap-2 rounded-xl px-3 py-1.5 text-xs font-bold ${
           open ? "bg-success/12 text-success" : "bg-surface2 text-muted"
         }`}
       >
@@ -71,8 +86,8 @@ export default function OpenBar() {
         ) : (
           <IconClock className="size-3.5 shrink-0" />
         )}
-        {tellState && <span className="truncate">{state}</span>}
-        {tellState && speed && (
+        <span className="truncate">{state}</span>
+        {speed && (
           <span aria-hidden className="opacity-40">
             ·
           </span>
