@@ -32,7 +32,7 @@
     "policy": {
       "privacy": "Siyaasadda asturnaanta",
       "terms": "Shuruudaha",
-      "refund": "Siyaasadda celinta"
+      "refund": "Siyaasadda lacag-celinta"
     }
   },
   "theme": {
@@ -161,23 +161,23 @@
   },
   "pubgFlow": {
     "title": "Faahfaahinta ciyaartoyga",
-    "note": "Geli ID-ga PUBG si buuxintu kuu soo gaarto",
-    "placeholder": "ID-ga ciyaartoyga",
+    "note": "Geli PUBG ID-gaaga si buuxinta loogu diro akoonkaaga.",
+    "placeholder": "PUBG ID",
     "verify": "Xaqiiji",
-    "badId": "ID khaldan",
+    "badId": "ID-ga aad gelisay sax ma aha",
     "wait": "Waa la xaqiijinayaa…",
     "manual": "Gacan ayaan ku xaqiijin doonnaa markaan dalabkaaga eegno",
-    "notFound": "Ciyaartoyga lama helin — hubi ID-ga",
+    "notFound": "Ciyaaryahan lama helin — hubi PUBG ID-ga",
     "player": "Magaca ciyaaryahanka",
     "busy": "Isku dayo badan hadda — sug daqiiqad oo mar kale isku day.",
-    "goId": "ID-ga ciyaartoyga",
+    "goId": "PUBG ID",
     "goVerify": "Riix Xaqiiji"
   },
   "efootFlow": {
     "title": "Faahfaahinta akoonka eFootball",
     "note": "Waxaan u baahannahay xogta gelitaanka ciyaarta",
     "email": "Iimaylka akoonka ciyaarta",
-    "pass": "Furaha sirta akoonka",
+    "pass": "Furaha sirta ee akoonka ciyaarta",
     "hint": "Buuxi labada meelood si aad u sii wadato",
     "ready": "Xogtu diyaar bay tahay"
   },
@@ -303,7 +303,7 @@
       "body": "Waxaan uruurinaa oo kaliya waxa aan u baahannahay: magac, lambar xiriir iyo xogta akoonka ciyaarta.\nWeligeen xogtaada ma iibinno mana la wadaagno cid saddexaad.\nXogta akoonka ciyaarta waxaa loo isticmaalaa dalabka oo kaliya."
     },
     "refund": {
-      "title": "Siyaasadda celinta lacagta",
+      "title": "Siyaasadda lacag-celinta",
       "body": "Haddii aan dalabkaaga fulin waxaan lacagta oo dhan celinaynaa 24 saac gudahood.\nAlaabta dhijitaalka ah ee la gaarsiiyay lama celin karo.\nElektaroonigga waa la beddeli karaa 3 maalmood gudahood haddii ay burburay."
     },
     "delivery": {
@@ -447,19 +447,19 @@
       "shipped": "Waa la gaarsiiyay"
     },
     "earlier": "Dalabyadii hore",
-    "nextTitle": "Maxaa dhacaya markaad bixiso?",
+    "nextTitle": "Maxaa dhacaya markaad lacagta bixiso?",
     "policyRow": "Siyaasadaha",
     "langRow": "Luqadda"
   },
   "tiktokFlow": {
-    "title": "Faahfaahinta xiriirka",
+    "title": "Xogta xiriirka",
     "note": "Waxaan xogta akoonka ku soo dirnaa lambarkan marka dalabka la aqbalo",
     "username": "Magaca isticmaalaha (@)",
     "hint": "Geli lambar WhatsApp si aad u sii wadato",
     "contact": "Lambarka WhatsApp"
   },
   "accountsFlow": {
-    "title": "Faahfaahinta xiriirka",
+    "title": "Xogta xiriirka",
     "note": "Waxaan xogta akoonka ku soo dirnaa lambarkan marka dalabka la aqbalo",
     "contact": "Lambarka WhatsApp",
     "hint": "Geli lambar WhatsApp si aad u sii wadato"
@@ -485,7 +485,7 @@
     "trust": "Google ammaan ah · Lacag lama bixiyo · Degdeg ah",
     "safe": "Xogtaadu waa ammaan",
     "completeTitle": "Dhameystir is-diiwaangelinta",
-    "completeNote": "Ku dar lambarkaaga si aan dalabkaaga kuugu gaarsiinno",
+    "completeNote": "Ku dar lambarkaaga si aan kuugu gaarsiinno dalabkaaga.",
     "phoneLabel": "Lambarka taleefanka",
     "country": "Koodka dalka",
     "completeBtn": "Dhameystir is-diiwaangelinta",
@@ -615,16 +615,16 @@
     "needPersonDone": "Codsigaagu wuxuu gaaray kooxda — jawaab ayaad halkan ka heli doontaa."
   },
   "search": {
-    "open": "Raadi dukaanka",
+    "open": "Ka raadi dukaanka",
     "close": "Xir raadinta",
     "placeholder": "Raadi alaab ama xirmo…",
     "hint": "Qor magaca alaabta, xirmada, ama qiimaha.",
-    "none": "Waxba lama helin “{q}”.",
+    "none": "Wax la jaanqaadaya “{q}” lama helin",
     "section": "Qaybta",
     "loading": "Raadinaya…"
   },
   "closed": {
-    "title": "Dukaanku waa xiran yahay",
+    "title": "Dukaanku hadda wuu xiran yahay",
     "note": "Waxaan samaynaynaa cusboonaysiin degdeg ah — mar dambe soo eeg.",
     "hoursTitle": "Waqtiga shaqadu waa dhammaaday",
     "hoursNote": "Dalabyada waxaan qaadnaa {from} ilaa {to}.",
@@ -677,7 +677,7 @@
     },
     "stop": {
       "placed": "La dalbaday",
-      "paid": "La bixiyay",
+      "paid": "Lacagta waa la bixiyay",
       "sending": "Waa la dirayaa",
       "arrived": "Waa la gaarsiiyay"
     },
