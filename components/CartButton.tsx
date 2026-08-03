@@ -6,28 +6,19 @@ import { useCart } from "@/lib/cart";
 import { IconCart } from "./icons";
 
 /**
- * أيقونة السلة بالهيدر — العدّاد يتحدّث فوراً مع كل إضافة.
+ * أيقونة السلّة في الترويسة — العدّاد يتحدّث فوراً مع كل إضافة.
  *
- * ⚠️ **بلون النصّ لا رماديّاً باهتاً** (النموذج): أيقونتا الترويسة بابان
- *    يُضغطان، والرماديّ الباهت لغةُ ما هو معطَّل. والمربّع ٤٨px يبقى هدفَ
- *    لمسٍ وإن كانت الأيقونة ٢١px كما رسمها النموذج.
+ * مقاسها من `.hdr .hi` في `globals.css` (٣٨px مربّعاً و٢١px أيقونةً كما
+ * في النموذج، وهدفُ لمسها ٤٨px بطبقةٍ شفّافة)، والعدّاد صنف `.dot`.
  */
 export default function CartButton() {
   const t = useTranslations("header");
   const { count, ready } = useCart();
 
   return (
-    <Link
-      href="/cart"
-      aria-label={t("cart")}
-      className="relative flex size-12 items-center justify-center rounded-xl text-text transition-colors hover:text-orange"
-    >
-      <IconCart className="size-[21px]" />
-      {ready && count > 0 && (
-        <span className="num absolute end-1.5 top-1.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-orange px-1 text-[0.62rem] font-extrabold text-onaccent">
-          {count}
-        </span>
-      )}
+    <Link href="/cart" aria-label={t("cart")} className="transition-colors hover:text-orange">
+      <IconCart />
+      {ready && count > 0 && <i className="dot">{count}</i>}
     </Link>
   );
 }

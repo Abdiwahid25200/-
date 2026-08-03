@@ -7,11 +7,17 @@ import MenuDrawer from "./MenuDrawer";
 import OpenBar from "./OpenBar";
 
 /**
- * الهيدر — كما بالمعاينة التي اعتمدتها صاحبة المشروع بالضبط:
- * صفيحة الشعار، ثم الاسم والوسم، ثم زرّ القائمة وحده.
+ * الترويسة — **مبنيّةٌ على أصناف النموذج** (`.hdr` · `.mk` · `.bn` · `.hi`)
+ * لا على مقاساتٍ مشتقّة في Tailwind. الشعار، ثم الاسم والوسم، ثم السلّة
+ * وزرّ القائمة.
  *
- * الحساب والسلة انتقلا داخل القائمة الجانبية، فلا يزدحم الشريط
- * ويبقى اسم المتجر هو أول ما تقع عليه العين.
+ * ⚠️ **المقاسات كلّها في `globals.css` لا هنا**: ٣٤px للشعار، ١٧px للاسم،
+ *    ٣٨px لأزرار الطرف، ٢١px لأيقوناتها — كما رسمها النموذج. فتعديل
+ *    الترويسة في كل الصفحات تعديلُ قاعدةٍ واحدة.
+ *
+ * ⚠️ **بلا خلفية ولا خطّ فاصل ولا التصاقٍ بالأعلى**: تجلس على أرضية
+ *    الصفحة وتمرّ معها. (شفّاف + `sticky` = المحتوى يظهر من خلفها،
+ *    والتنقّل الدائم مكانه القائمة السفلية.)
  */
 export default async function Header() {
   const t = await getTranslations("header");
@@ -20,34 +26,24 @@ export default async function Header() {
   const hLocale = await getLocale();
 
   return (
-    // بلا خلفية بيضاء ولا خطّ فاصل — يجلس على أرضية الصفحة كما بالمعاينة.
-    // ولأنه شفّاف فهو لا يلتصق بالأعلى، وإلا ظهر المحتوى من خلفه عند التمرير؛
-    // التنقّل الدائم مكانه القائمة السفلية.
     <header className="relative z-30">
-      <div className="page-w flex items-center gap-3 px-4 py-3">
-        <Link href="/" className="flex min-w-0 items-center gap-3">
-          {/* شعارٌ بلا صفيحة كما في النموذج — ترويسةٌ خفيفة يسبق فيها
-              اسمُ المتجر كلَّ شيء، لا مربّعٌ أخضر مصمت */}
-          <Logo bare className="size-9 shrink-0" />
-          <span className="min-w-0 leading-tight">
-            <span className="block truncate text-[1.05rem] font-bold">
-              {store.brand || t("brand")}
-            </span>
-            <span className="block truncate text-xs text-muted">
-              {store.taglineOf(hLocale) || t("tagline")}
-            </span>
+      <div className="hdr page-w">
+        <Link href="/" className="row gr">
+          <span className="mk">
+            <Logo bare />
+          </span>
+          <span className="bn">
+            <b className="truncate">{store.brand || t("brand")}</b>
+            <i className="truncate">{store.taglineOf(hLocale) || t("tagline")}</i>
           </span>
         </Link>
 
-        {/* السلة بجانب زرّ القائمة — بطلب صاحبة المشروع.
-            وجودها هنا يجعل عدّاد المشتريات مرئياً في كل صفحة بلا فتح القائمة. */}
-        <div className="ms-auto flex items-center gap-1">
-          {/* ⚠️ **البحث نزل إلى القائمة الجانبية** — قرار صاحبة المتجر
-              بعد النموذج: الترويسة السلة وزرّ القائمة لا غير. البحث لم
-              يُحذف، بل صار أوّل ما في القائمة. */}
+        {/* السلّة بجانب زرّ القائمة — بطلب صاحبة المشروع: عدّاد المشتريات
+            مرئيّ في كل صفحة بلا فتح القائمة. والحساب يبقى داخل القائمة. */}
+        <span className="hi">
           <CartButton />
           <MenuDrawer phone={store.whatsapp} />
-        </div>
+        </span>
       </div>
 
       {/* حالة المتجر وسرعته — أوّل ما يسأل عنه الغريب، في كل صفحة */}

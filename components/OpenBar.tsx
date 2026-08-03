@@ -74,15 +74,14 @@ export default function OpenBar() {
 
   return (
     <div className="page-w px-4 pb-1">
+      {/* صنف `.openbar` من النموذج — والمغلق يرجع إلى الرمادي الهادئ
+          فلا يصرخ الأخضر بخبرٍ ليس ساراً */}
       <p
         role="status"
-        /* شريطٌ بعرض الصفحة وزواياه ١٢px — مقاس النموذج نفسه */
-        className={`flex items-center gap-2 rounded-xl px-3 py-1.5 text-xs font-bold ${
-          open ? "bg-success/12 text-success" : "bg-surface2 text-muted"
-        }`}
+        className={`openbar ${open ? "" : "!bg-surface2 !text-muted"}`}
       >
         {open ? (
-          <span aria-hidden className="live-beat size-1.5 shrink-0 rounded-full bg-current" />
+          <span aria-hidden className="beat" />
         ) : (
           <IconClock className="size-3.5 shrink-0" />
         )}

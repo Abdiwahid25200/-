@@ -950,6 +950,14 @@ input.field::placeholder, textarea.field::placeholder { color: var(--muted); }
   position: relative;
 }
 .hdr .hi svg { width: 21px; height: 21px; }
+/* 🔒 **هدف اللمس ٤٨px والمربّع المرئي ٣٨px** — النموذج رسم ٣٨، وقاعدة
+   المشروع لا تنزل عن ٤٨. فيتمدّد الهدف بطبقةٍ شفّافة حول الزرّ: العين
+   ترى مقاس النموذج، والإصبع تجد مقاسها. (وهي حيلة نقاط البانر نفسها.) */
+.hdr .hi a::after, .hdr .hi button::after {
+  content: "";
+  position: absolute;
+  inset: -5px;
+}
 /* عدّاد السلّة — يجلس في زاوية الأيقونة */
 .dot {
   position: absolute;
