@@ -139,9 +139,15 @@ export default function LoginFlow() {
   if (step === "google") {
     return (
       <Card>
-        {/* شعار المتجر لا أيقونة عامّة — أول ما تراه العين في شاشة الدخول
-            يجب أن يؤكّد للزبون أنه على موقعك أنتِ، لا على صفحة مجهولة */}
-        <Logo solid className="mx-auto size-16 rounded-2xl shadow-sm" />
+        {/* شعار المتجر في **صفيحةٍ سداسية** كوجه عملة — لغة النموذج نفسها
+            التي تحمل أيقونات الأقسام. وأوّل ما تراه العين في شاشة الدخول
+            يجب أن يؤكّد للزبون أنه على موقعك أنتِ، لا على صفحة مجهولة. */}
+        <span
+          aria-hidden
+          className="hex mx-auto grid size-16 place-items-center bg-orange/12 text-orange"
+        >
+          <Logo solid className="size-9" />
+        </span>
 
         <h1 className="mt-4 text-center text-2xl font-bold">{t("welcome")}</h1>
         <p className="mt-1 text-center text-xs font-semibold uppercase tracking-widest text-muted">
@@ -149,18 +155,15 @@ export default function LoginFlow() {
         </p>
 
         {welcome > 0 && (
-          <p className="mt-5 flex items-center gap-3 rounded-card border-2 border-yellow bg-yellow/8 p-3">
-            <span
-              aria-hidden
-              className="flex size-10 shrink-0 items-center justify-center rounded-card bg-yellow/15 text-yellow"
-            >
-              <IconGift className="size-5" />
+          <p className="card gold row mt-5">
+            <span aria-hidden className="plate g">
+              <IconGift />
             </span>
-            <span className="min-w-0 flex-1 leading-tight">
+            <span className="gr leading-tight">
               <span className="num block font-bold">
                 {tp("welcomeGift", { n: welcome, brand })}
               </span>
-              <span className="block text-xs text-muted">{tp("welcomeWhen")}</span>
+              <span className="f11 mu block">{tp("welcomeWhen")}</span>
             </span>
           </p>
         )}
@@ -268,11 +271,16 @@ export default function LoginFlow() {
             onChange={(e) => setDial(e.target.value)}
             aria-label={t("country")}
             dir="ltr"
-            className="min-h-12 shrink-0 rounded-card border border-line bg-bg px-2 outline-none focus:border-orange"
+            /* عرضٌ مقيَّد: الاسم أطول من العلم، ولولا التقييد لانضغط حقل الرقم */
+            className="min-h-12 w-[8.5rem] shrink-0 rounded-[14px] border border-line bg-bg px-2 outline-none focus:border-orange"
           >
+            {/* 🔒 **بلا علم إيموجي** — القرار المقفول (ب). وهنا العلّة
+                ملموسة: ويندوز لا يرسم أعلام الإيموجي أصلاً، فيرى الزبون
+                حرفَين أو مربّعاً فارغاً. والاسم مع المفتاح لا يلتبس،
+                و`<option>` لا يقبل أيقونةً مرسومة على كل حال. */}
             {dialCodes.map((c) => (
               <option key={c.code} value={c.code}>
-                {c.flag} +{c.code}
+                {c.name} +{c.code}
               </option>
             ))}
           </select>
@@ -284,7 +292,7 @@ export default function LoginFlow() {
             placeholder="61XXXXXXX"
             dir="ltr"
             // min-w-0 ضروري: بدونه يرفض الحقل الانكماش داخل flex فتتمدّد الصفحة
-            className="min-h-12 min-w-0 flex-1 rounded-card border border-line bg-bg px-3 text-start outline-none focus:border-orange"
+            className="min-h-12 min-w-0 flex-1 rounded-[14px] border border-line bg-bg px-3 text-start outline-none focus:border-orange"
           />
         </div>
 
@@ -301,14 +309,16 @@ export default function LoginFlow() {
           placeholder="RSXXXXX"
           dir="ltr"
           autoCapitalize="characters"
-          className="num mt-2 min-h-12 w-full rounded-card border border-line bg-bg px-3 text-start tracking-widest outline-none focus:border-orange"
+          className="num mt-2 min-h-12 w-full rounded-[14px] border border-line bg-bg px-3 text-start tracking-widest outline-none focus:border-orange"
         />
 
         <button
           type="button"
           onClick={finish}
           disabled={!ready2 || busy}
-          className="mt-4 min-h-12 w-full rounded-card bg-navy font-bold text-white transition-opacity enabled:hover:opacity-90 disabled:opacity-40"
+          /* ⚠️ بلا `bg-navy`: `.btn` تكتب `background` وهي خارج الطبقات
+             فتغلب أداة Tailwind. وزرُّ الإتمام لون الفعل الأساسي كالنموذج. */
+          className="btn mt-4 w-full transition-opacity enabled:hover:opacity-90 disabled:opacity-40"
         >
           {busy ? "…" : t("completeBtn")}
         </button>
@@ -325,8 +335,6 @@ export default function LoginFlow() {
 
 function Card({ children }: { children: React.ReactNode }) {
   return (
-    <section className="rounded-card border border-line bg-surface p-6 shadow-sm">
-      {children}
-    </section>
+    <section className="card shadow-sm">{children}</section>
   );
 }

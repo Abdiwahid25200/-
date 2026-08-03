@@ -12,10 +12,11 @@ export default async function ComingSoon({ pageKey }: { pageKey?: string }) {
       {/* ⚠️ **كان الإيموجي 🚧** — ممنوعٌ بقرارها: يختلف شكله بين آيفون
           وأندرويد وويندوز، وقد يظهر مربّعاً فارغاً. صفيحةٌ سداسية
           بساعةٍ مرسومة، بلغة الموقع نفسها (وجه عملة). */}
+      {/* الشكل من صنف `.hex` لا من `style` هنا: السداسية شكلٌ واحد في
+          الموقع، ونسخته المكتوبة في مكوّنٍ تنجو من أي تعديلٍ عليه. */}
       <span
         aria-hidden
-        className="flex aspect-square w-16 items-center justify-center bg-yellow/15 text-yellow"
-        style={{ clipPath: "polygon(50% 0, 93% 25%, 93% 75%, 50% 100%, 7% 75%, 7% 25%)" }}
+        className="hex grid size-16 place-items-center bg-yellow/15 text-yellow"
       >
         <IconClock className="size-8" />
       </span>
@@ -26,7 +27,7 @@ export default async function ComingSoon({ pageKey }: { pageKey?: string }) {
       <p className="text-muted">{t("note")}</p>
       <Link
         href="/"
-        className="lift flex min-h-12 items-center rounded-card border border-line px-6 font-bold transition-colors hover:border-orange hover:text-orange"
+        className="lift btn o w-fit transition-colors hover:border-orange hover:text-orange"
       >
         {t("back")}
       </Link>

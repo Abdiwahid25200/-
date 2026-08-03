@@ -18,7 +18,7 @@ export default async function CartPage({
   const te = await getTranslations("eyebrow");
 
   return (
-    <main className="page-w px-4 py-6">
+    <main className="page-w scr-body pt-3.5">
       <BackLink href="/" />
       <SectionHead
         eyebrow={te("cart")} title={t("title")} note={t("note")} />

@@ -32,10 +32,9 @@ export default function PolicyTabs({
             role="tab"
             aria-selected={i === at}
             onClick={() => setAt(i)}
-            className={`min-h-11 rounded-full px-4 text-sm font-bold transition-colors ${
-              i === at
-                ? "bg-orange text-onaccent"
-                : "border border-line text-muted hover:border-orange/50"
+            /* حبّات النموذج — `.chip` و`.chip.on`، لا مقاسٌ مشتقّ */
+            className={`chip min-h-11 font-bold transition-colors ${
+              i === at ? "on" : "text-muted hover:border-orange/50"
             }`}
           >
             {it.title}
@@ -46,10 +45,10 @@ export default function PolicyTabs({
       <section
         id={open.key}
         role="tabpanel"
-        className="rounded-card border border-line bg-surface p-5"
+        className="card"
       >
-        <h2 className="mb-2 text-lg font-bold">{open.title}</h2>
-        <p className="whitespace-pre-line text-sm leading-relaxed text-muted">{open.body}</p>
+        <h2 className="f17 mb-2 font-extrabold">{open.title}</h2>
+        <p className="f13 mu whitespace-pre-line leading-relaxed">{open.body}</p>
       </section>
     </div>
   );

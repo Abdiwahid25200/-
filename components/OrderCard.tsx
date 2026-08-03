@@ -131,40 +131,35 @@ export default function OrderCard({
   const waHref = waLink(waNum, `${t("askAbout")} ${order.code}`);
 
   return (
-    <li className="rounded-card border border-line bg-surface p-4">
+    <li className="card">
       {/* الترويسة: القسم ثم الرمز ثم المبلغ */}
-      <div className="flex items-center gap-3">
-        <span
-          aria-hidden
-          className={`flex size-11 shrink-0 items-center justify-center overflow-hidden rounded-card ${
-            done ? "bg-yellow/15 text-yellow" : "bg-orange/10 text-orange"
-          }`}
-        >
+      <div className="row">
+        <span aria-hidden className={`plate overflow-hidden${done ? " g" : ""}`}>
           {isPoints ? (
             <PointsBrand size={26} showName={false} />
           ) : img ? (
             // eslint-disable-next-line @next/next/no-img-element
-            <img src={img} alt="" className="size-full rounded-card object-cover" />
+            <img src={img} alt="" className="size-full object-cover" />
           ) : (
-            <Icon className="size-6" />
+            <Icon />
           )}
         </span>
 
-        <span className="min-w-0 flex-1 leading-tight">
+        <span className="gr leading-tight">
           <span className="block truncate font-bold">{tp(page)}</span>
-          <span className="num block truncate text-xs text-muted" dir="ltr">
+          <span className="num f11 mu block truncate" dir="ltr">
             {order.code}
           </span>
         </span>
 
-        <span className="num shrink-0 font-bold text-yellow" dir="ltr">
+        <span className="num shrink-0 font-extrabold text-yellow" dir="ltr">
           {fmt(order.total)}
         </span>
       </div>
 
       {/* مسار الطلب — الزبون يرى موضعه لا كلمة مجرّدة */}
       {cancelled ? (
-        <p className="mt-3 rounded-card bg-bg px-3 py-2 text-sm font-medium text-muted">
+        <p className="f13 mu mt-3 rounded-[12px] bg-bg px-3 py-2 font-medium">
           {t("status.cancelled")}
           {order.cancelReason && (
             <span className="mt-1 block font-normal">
@@ -173,42 +168,27 @@ export default function OrderCard({
           )}
         </p>
       ) : (
-        <ol className="mt-3.5 flex items-center gap-1.5">
+        <ol className="path mt-3.5">
           {STEPS.map((s, i) => {
             const reached = i <= at;
             return (
-              <li key={s} className="flex min-w-0 flex-1 items-center gap-1.5">
-                <span className="flex min-w-0 flex-1 flex-col items-center gap-1">
-                  <span
-                    aria-hidden
-                    className={`flex size-5 items-center justify-center rounded-full ${
-                      reached ? "bg-orange text-onaccent" : "bg-bg text-muted"
-                    }`}
-                  >
-                    {i < at || done ? (
-                      <IconCheckCircle className="size-3.5" />
-                    ) : reached ? (
-                      <IconSpinner className="size-3.5" />
-                    ) : (
-                      <span className="size-1.5 rounded-full bg-current" />
-                    )}
-                  </span>
-                  <span
-                    className={`w-full truncate text-center text-xs ${
-                      reached ? "font-bold text-text" : "text-muted"
-                    }`}
-                  >
-                    {s === "done" ? t(`done.${doneKey}`) : t(`status.${s}`)}
-                  </span>
-                </span>
+              <li key={s} className="st">
+                {/* الخطّ أوّلاً في الترميز والدائرةُ بعده — فتعلوه بلا z-index */}
                 {i < STEPS.length - 1 && (
-                  <span
-                    aria-hidden
-                    className={`mb-5 h-0.5 w-4 shrink-0 rounded-full ${
-                      i < at ? "bg-orange" : "bg-line"
-                    }`}
-                  />
+                  <span aria-hidden className={`ln${i < at ? " on" : ""}`} />
                 )}
+                <span aria-hidden className={`bl${reached ? " on" : ""}`}>
+                  {i < at || done ? (
+                    <IconCheckCircle />
+                  ) : reached ? (
+                    <IconSpinner />
+                  ) : (
+                    <span className="size-1.5 rounded-full bg-current" />
+                  )}
+                </span>
+                <span className={`lb w-full truncate ${reached ? "font-bold" : "mu"}`}>
+                  {s === "done" ? t(`done.${doneKey}`) : t(`status.${s}`)}
+                </span>
               </li>
             );
           })}
@@ -217,7 +197,7 @@ export default function OrderCard({
 
       {/* ماذا اشترى — كل صنف داخل <bdi> فلا ينقلب "660 UC" إلى "UC 660"
           بالعربية، وتبقى الأصناف العربية بعكسها سليمة */}
-      <p className="mt-3.5 flex flex-wrap gap-x-2 gap-y-1 border-t border-line pt-3 text-sm">
+      <p className="f13 mt-3.5 flex flex-wrap gap-x-2 gap-y-1 border-t border-line pt-3">
         {order.items.map((i, n) => (
           <span key={i.id ?? n} className="inline-flex items-center gap-2">
             {n > 0 && <span className="text-muted">·</span>}
@@ -231,7 +211,7 @@ export default function OrderCard({
 
       {/* بيانات التسليم كما أدخلها الزبون — بها يتأكّد أنه كتبها صحيحة */}
       {order.account && (
-        <p className="mt-1.5 flex items-start gap-2 text-sm text-muted">
+        <p className="f13 mu mt-1.5 flex items-start gap-2">
           <IconUser className="mt-0.5 size-4 shrink-0" />
           <span className="min-w-0 break-words">{order.account}</span>
         </p>
@@ -243,8 +223,8 @@ export default function OrderCard({
       {done &&
         (sharing ? (
           <div className="mt-3.5 flex flex-col gap-3 border-t border-line pt-3.5">
-            <span className="text-sm font-bold">{ts("title")}</span>
-            <span className="-mt-2 text-xs text-muted">{ts("note")}</span>
+            <span className="f13 font-bold">{ts("title")}</span>
+            <span className="f11 mu -mt-2">{ts("note")}</span>
             <ShareReceipt
               kind={order.kind}
               title={order.items?.[0]?.title ?? ""}
@@ -253,7 +233,7 @@ export default function OrderCard({
             <button
               type="button"
               onClick={() => setSharing(false)}
-              className="min-h-11 text-sm font-bold text-muted"
+              className="f13 min-h-11 font-bold text-muted"
             >
               {t("cancelBack")}
             </button>
@@ -262,7 +242,7 @@ export default function OrderCard({
           <button
             type="button"
             onClick={() => setSharing(true)}
-            className="lift mt-3 flex min-h-11 w-full items-center justify-center gap-2 rounded-card border border-yellow text-sm font-bold text-yellow"
+            className="f13 lift mt-3 flex min-h-11 w-full items-center justify-center gap-2 rounded-[14px] border border-yellow font-bold text-yellow"
           >
             <IconShare className="size-4.5" />
             {ts("open")}
@@ -271,7 +251,7 @@ export default function OrderCard({
 
       {/* "ماذا يحدث الآن؟" — جواب يخصّ هذا القسم لا جملة عامّة */}
       {!cancelled && !done && (
-        <p className="mt-2.5 rounded-card bg-bg px-3 py-2 text-sm text-muted">
+        <p className="f13 mu mt-2.5 rounded-[12px] bg-bg px-3 py-2">
           {t(`next.${kind}`)}
         </p>
       )}
@@ -279,8 +259,8 @@ export default function OrderCard({
       {/* الإلغاء — ما دام الطلب لم يصل صاحبه بعد، وبسببٍ مكتوب */}
       {canCancel(order) &&
         (asking ? (
-          <div className="mt-3 flex flex-col gap-2 rounded-card border border-line p-3">
-            <label className="text-sm font-bold" htmlFor={`why-${order.id}`}>
+          <div className="mt-3 flex flex-col gap-2 rounded-[14px] border border-line p-3">
+            <label className="f13 font-bold" htmlFor={`why-${order.id}`}>
               {t("cancelWhy")}
             </label>
             <textarea
@@ -290,18 +270,18 @@ export default function OrderCard({
               rows={2}
               maxLength={300}
               placeholder={t("cancelPlaceholder")}
-              className="w-full rounded-card border border-line bg-bg p-3 text-sm outline-none focus:border-orange"
+              className="f13 w-full rounded-[12px] border border-line bg-bg p-3 outline-none focus:border-orange"
             />
-            {failed && <p className="text-sm text-danger">{t("cancelError")}</p>}
+            {failed && <p className="f13 text-danger">{t("cancelError")}</p>}
             {reason.trim().length < 3 && (
-              <p className="text-sm text-muted">{t("cancelHint")}</p>
+              <p className="f13 mu">{t("cancelHint")}</p>
             )}
             <div className="flex flex-wrap gap-2">
               <button
                 type="button"
                 disabled={busy || reason.trim().length < 3}
                 onClick={() => void cancel()}
-                className="min-h-11 flex-1 rounded-card bg-danger px-3 font-bold text-white disabled:opacity-50"
+                className="f13 min-h-11 flex-1 rounded-[12px] bg-danger px-3 font-bold text-white disabled:opacity-50"
               >
                 {t("cancelConfirm")}
               </button>
@@ -309,7 +289,7 @@ export default function OrderCard({
                 type="button"
                 disabled={busy}
                 onClick={() => setAsking(false)}
-                className="min-h-11 flex-1 rounded-card border border-line px-3 font-bold"
+                className="f13 min-h-11 flex-1 rounded-[12px] border border-line px-3 font-bold"
               >
                 {t("cancelBack")}
               </button>
@@ -319,7 +299,7 @@ export default function OrderCard({
           <button
             type="button"
             onClick={() => setAsking(true)}
-            className="mt-3 min-h-11 w-full rounded-card border border-line text-sm font-bold text-danger transition-colors hover:border-danger"
+            className="f13 mt-3 min-h-11 w-full rounded-[14px] border border-line font-bold text-danger transition-colors hover:border-danger"
           >
             {t("cancel")}
           </button>
@@ -327,7 +307,7 @@ export default function OrderCard({
 
       <div className="mt-3 flex flex-wrap items-center gap-2">
         {order.createdAt && (
-          <time className="num text-xs text-muted">
+          <time className="num f11 mu">
             {order.createdAt.toLocaleString(locale === "ar" ? "ar" : "en", {
               dateStyle: "medium",
               timeStyle: "short",
@@ -340,7 +320,7 @@ export default function OrderCard({
             href={waHref}
             target="_blank"
             rel="noopener noreferrer"
-            className="ms-auto flex min-h-11 items-center gap-2 rounded-card border border-line px-3.5 text-sm font-medium transition-colors hover:border-orange hover:text-orange"
+            className="f13 ms-auto flex min-h-11 items-center gap-2 rounded-[14px] border border-line px-3.5 font-medium transition-colors hover:border-orange hover:text-orange"
           >
             <IconWhatsApp className="size-5 rounded-md" />
             {t("askAbout")}

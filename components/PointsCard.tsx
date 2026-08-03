@@ -121,10 +121,9 @@ export default function PointsCard() {
 
   const amount = Math.max(0, Math.round(Number(want) || 0));
 
-  const field =
-    "min-h-12 w-full rounded-card border border-line bg-bg px-3 text-start outline-none focus:border-orange";
-  const cta =
-    "min-h-12 rounded-card bg-orange px-3 font-bold text-onaccent disabled:opacity-50";
+  /* أصناف النموذج نفسها — لا مقاسات مشتقّة تُقارَن بلقطة */
+  const field = "field text-start";
+  const cta = "btn disabled:opacity-50";
 
   /** الإرسال والبيع — كلاهما يخصم فوراً ويصل صاحبة المتجر طلباً */
   async function move(what: "send" | "sell") {
@@ -204,7 +203,7 @@ export default function PointsCard() {
             aria-hidden
             className="h-6 w-8 shrink-0 rounded-[5px] bg-gradient-to-br from-yellow to-yellow/60"
           />
-          <span className="min-w-0 flex-1 truncate text-sm font-bold">
+          <span className="gr f13 truncate font-bold">
             {settings.brand}
           </span>
           <span className="shrink-0 text-xs uppercase tracking-wide opacity-60 rtl:tracking-normal">
@@ -232,14 +231,15 @@ export default function PointsCard() {
           «باقٍ ٨٠ نقطة» رقمٌ يُقرأ ويُنسى، والشريطُ يُرى بطرف العين:
           يعرف الزبون كم قطع وكم بقي بلا أن يحسب. وهو ما يعيده. */}
       <div className="flex flex-col gap-1.5">
-        <p className="text-sm text-muted">
+        <p className="f13 mu">
           {short > 0
             ? t("toRedeem", { n: short, min: settings.minRedeem })
             : t("canRedeem")}
         </p>
-        <span aria-hidden className="block h-2 overflow-hidden rounded-full bg-surface2">
-          <span
-            className="block h-full rounded-full bg-gradient-to-r from-orange to-yellow transition-[width] duration-700"
+        {/* شريط النموذج نفسه — `.bar` وداخله `<i>`، لا تدرّجٌ مشتقّ هنا */}
+        <span aria-hidden className="bar block">
+          <i
+            className="transition-[width] duration-700"
             style={{
               width: `${
                 settings.minRedeem > 0
@@ -260,7 +260,7 @@ export default function PointsCard() {
             onClick={() => setTab(tab === k ? null : k)}
             /* ⚠️ «شراء» مصمتٌ والباقي هادئ: من فتح المحفظة أكثرُ ما
                يريده أن يزيدها، والأربعةُ بوزنٍ واحد لا تدلّه على شيء. */
-            className={`flex min-h-16 flex-col items-center justify-center gap-1 rounded-card border text-xs font-bold transition-colors ${
+            className={`flex min-h-16 flex-col items-center justify-center gap-1 rounded-[16px] border text-xs font-bold transition-colors ${
               tab === k
                 ? "border-orange bg-orange/10 text-orange"
                 : k === "buy"
@@ -288,7 +288,7 @@ export default function PointsCard() {
 
       {tab === "buy" && settings.sell && (
         <div className="mt-3 flex flex-col gap-2">
-          <p className="text-sm text-muted">
+          <p className="f13 mu">
             {t("buyNote", { usd: `$${(settings.minBuy * USD_PER_POINT).toFixed(2)}` })}
           </p>
           <div className="flex flex-wrap gap-2">
@@ -297,7 +297,7 @@ export default function PointsCard() {
                 key={n}
                 type="button"
                 onClick={() => setWant(String(n))}
-                className={`num min-h-10 rounded-full border px-3 text-sm font-bold ${
+                className={`num f13 min-h-10 rounded-full border px-3 font-bold ${
                   Number(want) === n ? "border-orange text-orange" : "border-line text-muted"
                 }`}
               >
@@ -371,7 +371,7 @@ export default function PointsCard() {
       {tab === "receive" && (
         <div className="mt-3 flex flex-col gap-2">
           <p className="font-bold">{t("receiveTitle")}</p>
-          <p className="text-sm text-muted">
+          <p className="f13 mu">
             {phone ? t("receiveNote") : t("receiveNone")}
           </p>
 
@@ -380,7 +380,7 @@ export default function PointsCard() {
               <button
                 type="button"
                 onClick={() => void copyPhone()}
-                className="num rounded-card border border-dashed border-orange bg-orange/5 p-3 text-center text-lg font-bold text-orange"
+                className="num f20 rounded-[16px] border border-dashed border-orange bg-orange/5 p-3 text-center font-extrabold text-orange"
                 dir="ltr"
               >
                 {phone}
@@ -399,7 +399,7 @@ export default function PointsCard() {
                 )}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="lift flex min-h-12 items-center justify-center gap-2 rounded-card bg-orange px-4 font-bold text-onaccent"
+                className="lift btn"
               >
                 <IconWhatsApp className="size-5" />
                 {t("receiveAsk")}
@@ -412,7 +412,7 @@ export default function PointsCard() {
       {tab === "sell" && (
         <div className="mt-3 flex flex-col gap-2">
           <p className="font-bold">{t("sellTitle")}</p>
-          <p className="text-sm text-muted">{t("sellNote")}</p>
+          <p className="f13 mu">{t("sellNote")}</p>
           <input
             type="number"
             inputMode="numeric"
@@ -435,7 +435,7 @@ export default function PointsCard() {
         </div>
       )}
 
-      {msg && <p className="mt-2 text-sm font-medium">{msg}</p>}
+      {msg && <p className="f13 mt-2 font-medium">{msg}</p>}
 
       {/**
        * آخر الحركات — **كصفحة حساب لا كقائمة أرقام**.
@@ -446,7 +446,7 @@ export default function PointsCard() {
        */}
       {rows.length > 0 && (
         <section className="flex flex-col gap-1">
-          <h3 className="mt-1 text-sm font-bold">{t("history")}</h3>
+          <h3 className="eyeS mt-1">{t("history")}</h3>
           <ul className="flex flex-col">
             {rows.map((r, i) => {
               const up = r.delta > 0;
@@ -454,9 +454,7 @@ export default function PointsCard() {
               return (
                 <li
                   key={r.id}
-                  className={`flex items-center gap-2.5 py-2.5 ${
-                    i > 0 ? "border-t border-line" : ""
-                  }`}
+                  className={`row py-2.5 ${i > 0 ? "border-t border-line" : ""}`}
                 >
                   <span
                     aria-hidden
@@ -477,11 +475,11 @@ export default function PointsCard() {
                     )}
                   </span>
 
-                  <span className="min-w-0 flex-1 leading-tight">
-                    <span className="block truncate text-sm font-bold">
+                  <span className="gr leading-tight">
+                    <span className="f13 block truncate font-bold">
                       {t(`why.${reasonKey(r.reason)}`)}
                     </span>
-                    <span className="num block truncate text-xs text-muted">
+                    <span className="num f11 mu block truncate">
                       {[r.code, r.at?.toLocaleDateString("en-GB")]
                         .filter(Boolean)
                         .join(" · ")}

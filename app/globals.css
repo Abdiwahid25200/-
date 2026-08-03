@@ -702,6 +702,13 @@ body.has-buybar {
   padding: 14px;
 }
 .card.acc { border-color: var(--accent); }
+/* بطاقةٌ ذهبية — الهديّة والوعد. ⚠️ **الصنف لا أدوات Tailwind**:
+   `.card` تكتب `border` و`background` مختصرَين وهي خارج الطبقات،
+   فـ`border-yellow` و`bg-yellow/8` تسقطان صامتتَين فوقها. */
+.card.gold {
+  border-color: var(--accent-2);
+  background: color-mix(in srgb, var(--accent-2) 8%, var(--surface));
+}
 
 /* ── الصفيحة — أيقونةٌ في مربّعٍ ملوّن ─────────────────────────── */
 .plate {
@@ -766,6 +773,13 @@ input.field, textarea.field, select.field {
   font-family: inherit;
 }
 input.field::placeholder, textarea.field::placeholder { color: var(--muted); }
+/* 🔎 **حالة التركيز في الصنف نفسه** — معيار المشروع: حالة تركيز واضحة.
+   و`focus:border-orange` من Tailwind تسقط فوق `.field` لأنها تكتب
+   `border` مختصراً وهي خارج الطبقات. فالحدّ يُلوَّن هنا مرّةً للكلّ. */
+.field:focus, .field:focus-within, .field:focus-visible {
+  border-color: var(--accent);
+  outline: none;
+}
 
 /* ── بلاطات الأقسام ─────────────────────────────────────────── */
 .tiles { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
@@ -886,7 +900,12 @@ input.field::placeholder, textarea.field::placeholder { color: var(--muted); }
   gap: 5px;
   position: relative;
 }
+/* ⚠️ **الدائرة `position: relative` والخطّ بلا `z-index` سالب**: السالب
+   يرسم العنصر خلف أقرب سياقٍ للتراكم، فخطّ المسار داخل `.card` كان
+   يختفي تحت أرضيّتها. والدائرةُ مموضَعةٌ بعد الخطّ في الترميز فتعلوه
+   طبيعياً — الترتيب وحده يكفي، بلا حيلةٍ تنكسر بحسب ما حولها. */
 .path .bl {
+  position: relative;
   width: 22px;
   height: 22px;
   border-radius: 50%;
@@ -905,7 +924,6 @@ input.field::placeholder, textarea.field::placeholder { color: var(--muted); }
   width: 100%;
   inset-inline-start: 50%;
   background: var(--line);
-  z-index: -1;
 }
 .path .ln.on { background: var(--accent); }
 .bar { height: 7px; border-radius: 999px; background: var(--surface-2); overflow: hidden; }

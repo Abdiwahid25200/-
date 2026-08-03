@@ -44,33 +44,30 @@ export default function MyOrders() {
     };
   }, [user, tick]);
 
-  if (!ready) return <p className="text-sm text-muted">…</p>;
+  if (!ready) return <p className="f13 mu">…</p>;
 
   if (!user)
     return (
-      <Link
-        href="/login"
-        className="flex min-h-12 items-center justify-center rounded-card bg-orange px-4 font-bold text-onaccent"
-      >
+      <Link href="/login" className="btn">
         {t("login")}
       </Link>
     );
 
   if (failed)
     return (
-      <div className="rounded-card border border-dashed border-danger/60 p-6 text-center text-sm">
+      <div className="f13 rounded-[16px] border border-dashed border-danger/60 p-6 text-center">
         <p className="text-danger">{t("ordersError")}</p>
         <button
           type="button"
           onClick={() => setTick((n) => n + 1)}
-          className="mt-3 min-h-12 rounded-card border border-line px-4 font-medium"
+          className="mt-3 min-h-12 rounded-[14px] border border-line px-4 font-medium"
         >
           {t("retry")}
         </button>
       </div>
     );
 
-  if (orders === null) return <p className="text-sm text-muted">…</p>;
+  if (orders === null) return <p className="f13 mu">…</p>;
 
   /**
    * ⚠️ **الفراغ أخطر شاشة في المتجر** — من وصلها ولم يجد ما يضغطه خرج.
@@ -86,12 +83,12 @@ export default function MyOrders() {
   const rest = orders.filter((o) => o.id !== live?.id);
 
   return (
-    <div className="flex flex-col gap-5">
+    <div className="flex flex-col gap-[22px]">
       {live && <LiveOrder order={live} />}
 
       {rest.length > 0 && (
         <section className="flex flex-col gap-2.5">
-          <h2 className="text-sm font-bold text-muted">{t("earlier")}</h2>
+          <h2 className="eyeS">{t("earlier")}</h2>
           <ul className="flex flex-col gap-3">
             {rest.map((o) => (
               <OrderCard key={o.id} order={o} onChanged={() => setTick((n) => n + 1)} />
@@ -113,11 +110,11 @@ function NoOrders() {
   const live = pubg.filter(isBuyable).slice(0, 3);
 
   return (
-    <div className="flex flex-col items-center gap-4 rounded-card border border-dashed border-line p-6 text-center">
+    <div className="flex flex-col items-center gap-4 rounded-[16px] border border-dashed border-line p-6 text-center">
       <IconBarwaaqo className="size-16 text-orange/40" />
       <div className="flex flex-col gap-1">
-        <strong className="text-lg">{t("noOrders")}</strong>
-        <p className="text-sm text-muted">{te("note")}</p>
+        <strong className="f17 font-extrabold">{t("noOrders")}</strong>
+        <p className="f13 mu">{te("note")}</p>
       </div>
 
       {live.length > 0 && (
@@ -126,13 +123,13 @@ function NoOrders() {
             <li key={p.id}>
               <Link
                 href="/pubg"
-                className="lift flex flex-col items-center gap-1 rounded-card border border-line bg-surface p-3"
+                className="lift card flex flex-col items-center gap-1"
               >
-                <span className="num text-lg font-bold leading-none text-orange">
+                <span className="num f17 font-extrabold leading-none text-orange">
                   {p.amount}
                 </span>
-                <span className="text-xs text-muted">{te("uc")}</span>
-                <span className="num text-sm font-bold text-yellow">
+                <span className="f11 mu">{te("uc")}</span>
+                <span className="num f13 font-extrabold text-yellow">
                   {fmt(p.price)}
                 </span>
               </Link>

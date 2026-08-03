@@ -154,65 +154,59 @@ export default function CartView() {
     const waHref = waLink(waNum, msg);
 
     return (
-      <div className="flex flex-col gap-5">
-        <section className="rounded-card border-2 border-yellow bg-surface p-6 text-center">
-          <span
-            aria-hidden
-            className="mx-auto flex size-14 items-center justify-center rounded-full bg-yellow/15 text-yellow"
-          >
-            <IconSuccess className="size-9" />
+      /* 🧩 شظيّةٌ لا حاوية: الصفحة `.scr-body`، فأقسامُها تأخذ تباعدها
+         منها. حاويةٌ بتباعدٍ خاصّ بها تعني إيقاعَين في صفحةٍ واحدة. */
+      <>
+        {/* ⚠️ لا مقاسات Tailwind فوق أصناف النموذج: أصناف `globals.css`
+            خارج الطبقات وأدوات Tailwind داخلها، فغير المُطبَّق يغلب دائماً.
+            المقاس يُؤخذ من الصنف نفسه (`.plate` ٤٤px وأيقونته ٢٣). */}
+        <section className="card acc text-center">
+          <span aria-hidden className="plate g mx-auto">
+            <IconSuccess />
           </span>
-          <h2 className="mt-3 text-xl font-bold">{tb("doneTitle")}</h2>
-          <p className="mt-1 text-muted">{tb("doneNote")}</p>
+          <h2 className="mt-3 f20 font-extrabold">{tb("doneTitle")}</h2>
+          <p className="mt-1 mu">{tb("doneNote")}</p>
           <div
-            className="mt-4 inline-block rounded-card bg-yellow/10 px-5 py-2.5 text-lg font-bold text-yellow"
+            className="num mt-4 inline-block rounded-[14px] bg-yellow/10 px-5 py-2.5 text-lg font-extrabold text-yellow"
             dir="ltr"
           >
             {done.code}
           </div>
 
-          <div className="mt-3 text-sm">
+          <div className="f13 mt-3">
             {saved === "saving" && (
-              <span className="flex items-center justify-center gap-2 text-muted">
+              <span className="mu flex items-center justify-center gap-2">
                 <IconSpinner className="size-4" /> {tb("saving")}
               </span>
             )}
             {saved === "ok" && (
-              <span className="flex items-center justify-center gap-2 font-medium text-yellow">
+              <span className="flex items-center justify-center gap-2 font-bold text-yellow">
                 <IconCheckCircle className="size-4" /> {tb("savedOk")}
               </span>
             )}
             {(saved === "auth" || saved === "local" || saved === "error") && (
-              <span className="text-muted">{tb("saveManual")}</span>
+              <span className="mu">{tb("saveManual")}</span>
             )}
           </div>
         </section>
 
         {waHref && (
-          <a
-            href={waHref}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex min-h-12 items-center justify-center rounded-card bg-yellow font-bold text-onaccent"
-          >
+          <a href={waHref} target="_blank" rel="noopener noreferrer" className="btn wa">
             {tb("sendWa")}
           </a>
         )}
 
         {/* لا تُعرض إلا حين يتعذّر الحفظ فعلاً — كانت تظهر فوق "حُفظ في حسابك" فتناقضه */}
         {saved !== "ok" && saved !== "saving" && (
-          <p className="rounded-card border border-dashed border-line p-4 text-center text-sm text-muted">
+          <p className="f13 mu rounded-[16px] border border-dashed border-line p-4 text-center">
             {tb("notSavedYet")}
           </p>
         )}
 
-        <Link
-          href="/"
-          className="flex min-h-12 items-center justify-center rounded-card border border-line font-medium text-muted"
-        >
+        <Link href="/" className="btn o">
           {t("keepShopping")}
         </Link>
-      </div>
+      </>
     );
   }
 
@@ -221,31 +215,22 @@ export default function CartView() {
     return (
       <div className="flex flex-col items-center gap-4 py-16 text-center">
         <IconCartEmpty className="size-16 text-muted" />
-        <h2 className="text-xl font-bold">{t("empty")}</h2>
-        <p className="text-muted">{t("emptyNote")}</p>
-        <Link
-          href="/"
-          className="flex min-h-12 items-center rounded-card bg-orange px-6 font-bold text-onaccent"
-        >
+        <h2 className="f20 font-extrabold">{t("empty")}</h2>
+        <p className="mu">{t("emptyNote")}</p>
+        <Link href="/" className="btn w-fit">
           {t("keepShopping")}
         </Link>
       </div>
     );
   }
 
-  const field =
-    "min-h-12 w-full rounded-card border border-line bg-bg px-3 outline-none focus:border-orange";
-
   return (
-    <div className="flex flex-col gap-5 pb-4">
+    <>
       {/* المنتجات */}
       <section className="flex flex-col gap-3">
         {lines.map((l) => (
-          <article
-            key={l.id}
-            className="flex items-center gap-3 rounded-card border border-line bg-surface p-3"
-          >
-            <span className="relative flex size-16 shrink-0 items-center justify-center overflow-hidden rounded-card bg-gradient-to-br from-navy to-[#1e2a45]">
+          <article key={l.id} className="card row">
+            <span className="relative flex size-16 shrink-0 items-center justify-center overflow-hidden rounded-[14px] bg-gradient-to-br from-navy to-[#1e2a45]">
               {l.img ? (
                 optimizable(l.img) ? (
                   <Image src={l.img} alt={l.name} fill sizes="64px" className="object-cover" />
@@ -259,65 +244,76 @@ export default function CartView() {
               )}
             </span>
 
-            <div className="min-w-0 flex-1">
-              <h3 className="truncate font-semibold">{l.name}</h3>
-              {/* مجموع السطر لا سعر الحبّة: الزبون يرفع الكمّية فيتوقّع أن
-                  يرى المبلغ يرتفع. عرض سعر الحبّة وحده يوهمه أن الزيادة لم تُحسب. */}
-              <p className="num text-sm font-bold text-yellow" dir="ltr">
-                {fmt(l.price * l.qty)}
-              </p>
-              {l.qty > 1 && (
-                <p className="num text-xs text-muted" dir="ltr">
-                  {fmt(l.price)} × {l.qty}
-                </p>
-              )}
-            </div>
+            {/* ⚠️ **الاسم سطرٌ وحده فوق، والأزرار تحته** — كان الأربعة في
+                صفٍّ واحد: صورةٌ ٦٤ وعدّادٌ ١٢٠ وسلّةٌ ٤٠، فلا يبقى للاسم
+                إلا نحو ٧٠px — و«Wireless earbuds» تصير «Wirel…». والزبون
+                لا يعرف ما في سلّته من أوّل حرفين. */}
+            <div className="gr flex flex-col gap-1.5">
+              <h3 className="truncate font-bold">{l.name}</h3>
 
-            <div className="flex shrink-0 items-center gap-1">
-              <button
-                type="button"
-                onClick={() => setQty(l.id, l.qty - 1)}
-                aria-label={t("less")}
-                className="flex size-10 items-center justify-center rounded-card border border-line text-muted hover:border-orange hover:text-orange"
-              >
-                {/* ⚠️ كانا المحرفين − و + — ممنوعان بقرارها: يتبدّل
-                    شكلُهما بين جهازٍ وجهاز ولا يقبلان سماكةً ولا حجماً */}
-                <IconMinus className="size-4" />
-              </button>
-              <span className="w-8 text-center font-bold">{l.qty}</span>
-              <button
-                type="button"
-                onClick={() => setQty(l.id, l.qty + 1)}
-                aria-label={t("more")}
-                className="flex size-10 items-center justify-center rounded-card border border-line text-muted hover:border-orange hover:text-orange"
-              >
-                <IconPlus className="size-4" />
-              </button>
-            </div>
+              <div className="row gap-2">
+                <span className="gr leading-tight">
+                  {/* مجموع السطر لا سعر الحبّة: الزبون يرفع الكمّية فيتوقّع أن
+                      يرى المبلغ يرتفع. عرض سعر الحبّة وحده يوهمه أن الزيادة لم تُحسب. */}
+                  <span className="num f13 block font-extrabold text-yellow" dir="ltr">
+                    {fmt(l.price * l.qty)}
+                  </span>
+                  {l.qty > 1 && (
+                    <span className="num f11 mu block" dir="ltr">
+                      {fmt(l.price)} × {l.qty}
+                    </span>
+                  )}
+                </span>
 
-            <button
-              type="button"
-              onClick={() => remove(l.id)}
-              aria-label={t("remove")}
-              className="flex size-10 shrink-0 items-center justify-center rounded-card text-muted hover:text-danger"
-            >
-              <IconTrash className="size-5" />
-            </button>
+                <div className="flex shrink-0 items-center gap-1">
+                  <button
+                    type="button"
+                    onClick={() => setQty(l.id, l.qty - 1)}
+                    aria-label={t("less")}
+                    className="flex size-10 items-center justify-center rounded-[12px] border border-line text-muted hover:border-orange hover:text-orange"
+                  >
+                    {/* ⚠️ كانا المحرفين − و + — ممنوعان بقرارها: يتبدّل
+                        شكلُهما بين جهازٍ وجهاز ولا يقبلان سماكةً ولا حجماً */}
+                    <IconMinus className="size-4" />
+                  </button>
+                  <span className="num w-7 text-center font-extrabold">{l.qty}</span>
+                  <button
+                    type="button"
+                    onClick={() => setQty(l.id, l.qty + 1)}
+                    aria-label={t("more")}
+                    className="flex size-10 items-center justify-center rounded-[12px] border border-line text-muted hover:border-orange hover:text-orange"
+                  >
+                    <IconPlus className="size-4" />
+                  </button>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => remove(l.id)}
+                  aria-label={t("remove")}
+                  className="flex size-10 shrink-0 items-center justify-center rounded-[12px] text-muted hover:text-danger"
+                >
+                  <IconTrash className="size-5" />
+                </button>
+              </div>
+            </div>
           </article>
         ))}
 
         <button
           type="button"
           onClick={clear}
-          className="self-start text-sm text-muted underline hover:text-danger"
+          className="f13 self-start text-muted underline hover:text-danger"
         >
           {t("clear")}
         </button>
       </section>
 
       {/* بيانات التوصيل */}
-      <section className="rounded-card border border-line bg-surface p-4">
-        <h2 className="mb-3 text-lg font-bold">{t("delivery")}</h2>
+      {/* ⚠️ الحقول على أرضية الصفحة لا داخل بطاقة: `.field` أرضيّتها
+          `--surface` نفسها أرضيةَ البطاقة، فحقلٌ في بطاقةٍ يذوب فيها. */}
+      <section className="flex flex-col gap-3">
+        <h2 className="f17 font-extrabold">{t("delivery")}</h2>
         <div className="flex flex-col gap-2">
           <input
             ref={nameRef}
@@ -325,7 +321,7 @@ export default function CartView() {
             onChange={(e) => setName(e.target.value)}
             placeholder={t("name")}
             aria-label={t("name")}
-            className={field}
+            className="field"
           />
           <input
             ref={contactRef}
@@ -334,7 +330,7 @@ export default function CartView() {
             placeholder={t("contact")}
             aria-label={t("contact")}
             dir="ltr"
-            className={`${field} text-start`}
+            className="field text-start"
           />
           <input
             ref={addrRef}
@@ -342,7 +338,7 @@ export default function CartView() {
             onChange={(e) => setAddr(e.target.value)}
             placeholder={t("address")}
             aria-label={t("address")}
-            className={field}
+            className="field"
           />
         </div>
       </section>
@@ -363,11 +359,11 @@ export default function CartView() {
       <ClosedNotice state={store} />
 
       {/* الإجمالي — للمراجعة وحدها، والتأكيد في الشريط العائم أسفل الشاشة */}
-      <section className="flex items-center justify-between rounded-card border border-line bg-surface p-4 text-lg">
-        <span className="font-bold">{tb("total")}</span>
-        <span className="num text-2xl font-bold text-yellow" dir="ltr">
+      <section className="card row">
+        <span className="gr f17 font-extrabold">{tb("total")}</span>
+        <span className="num f20 font-extrabold text-yellow" dir="ltr">
           {redeem.discount > 0 && (
-            <span className="me-2 text-base font-medium text-muted line-through">
+            <span className="num f13 me-2 font-medium text-muted line-through">
               {fmt(total)}
             </span>
           )}
@@ -417,6 +413,6 @@ export default function CartView() {
           </button>
         </div>
       </FixedBar>
-    </div>
+    </>
   );
 }

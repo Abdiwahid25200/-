@@ -5,7 +5,7 @@ import { useLocale, useTranslations } from "next-intl";
 import { avgMinutes, readStats } from "@/lib/stats";
 import { useWhatsApp, waLink } from "@/lib/useWhatsApp";
 import type { SavedOrder } from "@/lib/orders";
-import { IconBolt, IconCheckCircle, IconWhatsApp } from "@/components/icons";
+import { IconArrow, IconBolt, IconCheckCircle, IconWhatsApp } from "@/components/icons";
 
 /**
  * الطلب الذي يمشي الآن — **بطاقةٌ واحدة تجيب سؤالاً واحداً**.
@@ -101,8 +101,13 @@ export default function LiveOrder({ order }: { order: SavedOrder }) {
             {more > 0 && <span className="num"> +{more}</span>}
           </span>
           {order.account && (
-            <span className="num block truncate text-xs opacity-70" dir="ltr">
-              → {order.account}
+            /* ⚠️ كان المحرف `→` — ممنوعٌ بالقرار المقفول (ب): يتبدّل
+               شكله بين جهازٍ وجهاز وقد يظهر مربّعاً فارغاً. أيقونةٌ مرسومة. */
+            <span className="flex items-center gap-1.5 text-xs opacity-70">
+              <IconArrow aria-hidden className="size-3.5 shrink-0 rtl:rotate-180" />
+              <span className="num truncate" dir="ltr">
+                {order.account}
+              </span>
             </span>
           )}
         </span>
@@ -140,9 +145,13 @@ export default function LiveOrder({ order }: { order: SavedOrder }) {
             </li>
           ))}
         </ol>
-        <div className="mt-1.5 flex justify-between text-[0.68rem] opacity-65">
+        {/* ⚠️ كان `text-[0.68rem]` — أي ١٠٫٩px، تحت أرضية المشروع (١٢٫٥).
+            و`.f11` تُعيده إلى الأرضية وحدها لو غُيّرت يوماً. */}
+        <div className="f11 mt-1.5 flex justify-between gap-1 opacity-65">
           {STOPS.map((s) => (
-            <span key={s}>{t(`stop.${s}`)}</span>
+            <span key={s} className="truncate">
+              {t(`stop.${s}`)}
+            </span>
           ))}
         </div>
       </div>
