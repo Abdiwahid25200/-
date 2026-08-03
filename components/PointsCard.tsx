@@ -99,8 +99,12 @@ export default function PointsCard() {
             if (!alive) return;
             const ph = pr?.phone ?? "";
             setPhone(ph);
-            // من سجّل قبل وجود الدليل لا يجده أحد — نُدرجه عند أوّل فتح
-            void ensurePhoneEntry(user, ph);
+            /* من سجّل قبل وجود الدليل لا يجده أحد — نُدرجه عند أوّل فتح.
+               ⚠️ **و`await` لا `void`**: صار الاستلام نفسه مشروطاً بأن
+               يكون الرقم مسجّلاً في الدليل باسمه (انظري `myPhone` في
+               `firestore.rules`)، فلو سبق الاستلامُ التسجيلَ لَفشل
+               ورجع صفراً وانتظر الزبون فتحةً ثانية بلا سبب ظاهر. */
+            await ensurePhoneEntry(user, ph);
             const got = await claimIncoming(user, ph);
             if (!alive || got <= 0) return;
             setPoints((v) => (v === null ? v : v + got));

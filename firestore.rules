@@ -56,10 +56,43 @@ service cloud.firestore {
       return isAdmin() || staffCan(p);
     }
 
-    /** رقم هاتف صاحب الجلسة — مفتاح الحوالات بين الزبائن */
+    /* ── وثيقتي ورصيدي ──
+       🔒 **الرصيد لا يزيد ولا ينقص بوعد، بل في العملية نفسها.**
+       `getAfter` تُري القاعدة حال الوثيقة **بعد** تمام العملية كلّها.
+       فمن كتب حوالةً أو سطرَ إنفاقٍ في معاملةٍ لا تُنقص رصيده، رُفضت
+       كتابتُه — ولا يكفي أن «ينوي» الخصم في نداءٍ تالٍ قد لا يأتي. */
+    function myDoc() {
+      return /databases/$(database)/documents/users/$(request.auth.uid);
+    }
+
+    function balBefore() {
+      return exists(myDoc()) ? get(myDoc()).data.get('points', 0) : 0;
+    }
+
+    /** نقص رصيدي في هذه العملية بالضبط `n` — لا أقلّ ولا وعداً */
+    function paidFromBalance(n) {
+      return getAfter(myDoc()).data.get('points', 0) == balBefore() - n;
+    }
+
+    /** هل هذا الرقم **لي** في دليل الأرقام؟ */
+    function ownsPhone(p) {
+      return p != ''
+        && exists(/databases/$(database)/documents/phones/$(p))
+        && get(/databases/$(database)/documents/phones/$(p)).data.get('uid', '')
+           == request.auth.uid;
+    }
+
+    /**
+     * رقم هاتف صاحب الجلسة — مفتاح الحوالات بين الزبائن.
+     *
+     * 🔒 **ولا يكفي أن يكتبه في وثيقته**: كل زبونٍ يكتب حقل `phone` في
+     *    وثيقته بيده، فلو بُني الاستلام عليه وحده لَكتب أحدُهم رقم غيره
+     *    واستلم حوالاته. فالرقم لا يُعتدّ به إلا إن كان **مسجَّلاً باسمه
+     *    في `phones`** — وتلك وثيقةٌ لا يبدّلها غير صاحبها.
+     */
     function myPhone() {
-      let u = /databases/$(database)/documents/users/$(request.auth.uid);
-      return exists(u) ? get(u).data.get('phone', '') : '';
+      let p = exists(myDoc()) ? get(myDoc()).data.get('phone', '') : '';
+      return ownsPhone(p) ? p : '';
     }
 
     /* ── حوالات النقاط بين الزبائن ──
@@ -107,7 +140,12 @@ service cloud.firestore {
         || (isSignedIn() && (resource.data.from == request.auth.uid
                              || resource.data.toPhone == myPhone()));
 
-      // المرسِل يكتبها باسمه ولا يكتبها مستلَمة
+      /* المرسِل يكتبها باسمه ولا يكتبها مستلَمة.
+         🚨 **ولا تُكتب حوالةٌ إلا برصيدٍ ينقص معها في العملية نفسها.**
+            وبدون هذا الشرط كان أيّ زبونٍ يفتح أدوات المتصفّح فيكتب
+            حوالةً بمليون نقطة لا يملكها، ثم يستلمها بحسابٍ ثانٍ —
+            **نقاطٌ تُخلق من العدم**. والعميل يخصم في معاملةٍ واحدة
+            أصلاً (`sendPointsTo`)، فلا يتغيّر شيء في الاستعمال. */
       allow create: if isSignedIn()
         && request.resource.data.from == request.auth.uid
         && request.resource.data.points is int
@@ -115,7 +153,8 @@ service cloud.firestore {
         && request.resource.data.toPhone is string
         && request.resource.data.toPhone.size() >= 7
         && request.resource.data.claimed == false
-        && request.resource.data.at == request.time;
+        && request.resource.data.at == request.time
+        && paidFromBalance(request.resource.data.points);
 
       // ولا يعلّمها مستلَمة إلا صاحب الرقم، ومرّة واحدة
       allow update: if isSignedIn()
@@ -171,12 +210,22 @@ service cloud.firestore {
       /* الزيادة الوحيدة المسموحة للزبون: استلام حوالة. القاعدة تفتح
          الحوالة المذكورة في `lastClaim` وتتحقّق: غير مستلَمة، وبرقمه،
          وبالفارق نفسه. فلا نقطة تدخل رصيداً بلا حوالة تفسّرها. */
+      /**
+       * 🚨 **وتُختم الحوالة مستلَمةً في العملية نفسها** (`getAfter`).
+       *
+       * وبدون هذا الشرط كان الشرطُ الوحيد أن تكون الحوالة **غير
+       * مستلَمة** — وهي تبقى كذلك ما لم تُختم. فيعيد الزبون الكتابة
+       * عشر مرّات بالحوالة نفسها فيزيد رصيده عشراً. والعميل يختمها
+       * ويزيد الرصيد في معاملةٍ واحدة أصلاً (`claimIncoming`).
+       */
       function claimsTransfer() {
         let d = request.resource.data;
         let t = /databases/$(database)/documents/transfers/$(d.get('lastClaim', 'x'));
         return 'lastClaim' in d
           && exists(t)
           && get(t).data.claimed == false
+          && getAfter(t).data.claimed == true
+          && getAfter(t).data.toUid == request.auth.uid
           && get(t).data.toPhone == myPhone()
           && d.points is int
           && d.points == resource.data.get('points', 0) + get(t).data.points;
@@ -234,7 +283,14 @@ service cloud.firestore {
         allow write: if canDo('customers') || canDo('orders');
 
         /* الزبون يسجّل **إنفاقه** وحده: سطرٌ سالب باسم رمز طلبه.
-           لا يعدّله ولا يمحوه بعدها، فيبقى دليلاً على الخصم. */
+           لا يعدّله ولا يمحوه بعدها، فيبقى دليلاً على الخصم.
+
+           🚨 **والسطر السالب لا يُكتب إلا ورصيدُه ينقص معه.**
+              وبدون هذا الشرط كان الزبون يكتب سطر «أنفقتُ ٥٠٠» بلا أن
+              ينقص رصيده، ثم يقلب طلبه إلى «مدفوع» بموجبه
+              (`pointsSelfConfirm`) — فيشتري بالنقاط نفسها أبداً.
+              والعميل يكتب السطر والخصم في معاملةٍ واحدة أصلاً
+              (`payWithPoints` · `spendAndRequest` · `sendPointsTo`). */
         allow create: if isSignedIn() && request.auth.uid == uid
           && request.resource.data.code == entryId
           && request.resource.data.at == request.time
@@ -242,7 +298,8 @@ service cloud.firestore {
           && (
             /* إنفاق: سالبٌ دائماً */
             (request.resource.data.delta < 0
-             && request.resource.data.reason in ['redeem', 'send', 'sell'])
+             && request.resource.data.reason in ['redeem', 'send', 'sell']
+             && paidFromBalance(-request.resource.data.delta))
             /* أو استلام حوالة: موجبٌ بقيمة الحوالة نفسها وباسم رمزها */
             || (request.resource.data.delta > 0
                 && request.resource.data.reason == 'received'
