@@ -121,7 +121,6 @@
   "buy": {
     "selectPackage": "Choose a package",
     "payTitle": "Payment method",
-    "ussdNote": "Tap the button and the code dials itself:",
     "copy": "Copy",
     "copied": "Copied ✓",
     "receipt": "Upload payment receipt",

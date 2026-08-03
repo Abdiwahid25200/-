@@ -217,7 +217,10 @@ export default function PaySection({
                         <div className="mt-2 rounded-card bg-bg p-3.5">
                           {m.scope === "local" && m.ussd ? (
                             <>
-                              <p className="mb-2 text-sm text-muted">{t("ussdNote")}</p>
+                              {/* 🗑️ **سطر «اضغط الزرّ والكود يتّصل بنفسه» حُذف بطلبها
+                                  (٠٣-٠٨)**: تحته الكودُ ظاهراً وزرُّ الاتصال بلونه
+                                  الكامل — فالشرح يقول ما تقوله الشاشة نفسها.
+                                  ومفتاح `buy.ussdNote` أُزيل من اللغات الثلاث. */}
                               <code
                                 dir="ltr"
                                 className="mb-2 block overflow-x-auto rounded-card border border-line bg-surface px-3 py-2.5 text-center font-mono text-sm"
