@@ -529,7 +529,8 @@
     "help": "SUPPORT",
     "policy": "POLICY",
     "account": "ACCOUNT",
-    "soon": "SOON"
+    "soon": "SOON",
+    "sections": "SECTIONS"
   },
   "hero2": {
     "kicker": "Instant delivery · 24/7",

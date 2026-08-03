@@ -2,6 +2,8 @@ import { getLocale, getTranslations } from "next-intl/server";
 import GameTile from "@/components/GameTile";
 import { mergedSections, pick } from "@/lib/overrides";
 
+type Group = "games" | "accounts" | "home";
+
 /**
  * بلاطات الأقسام — **اختصارٌ في الرئيسية، لا قسمٌ جديد فيها**.
  *
@@ -16,8 +18,9 @@ import { mergedSections, pick } from "@/lib/overrides";
 export default async function SectionTiles({
   group = "games",
 }: {
-  /** أي مجموعة تُعرض — `games` افتراضاً */
-  group?: "games" | "accounts" | "home";
+  /** أي مجموعة تُعرض — `games` افتراضاً. ومصفوفةٌ تدمج المجموعات في
+      صفٍّ واحد تحت وسم `SECTIONS`، كما تفعل الرئيسية في النموذج. */
+  group?: Group | Group[];
 }) {
   const locale = await getLocale();
   const te = await getTranslations("eyebrow");
@@ -30,19 +33,30 @@ export default async function SectionTiles({
   const list = await mergedSections(group);
   if (!list.length) return null;
 
-  /* لكل مجموعةٍ عنوانُها — وإلا قرأ الزبون «الألعاب» فوق سمّاعةٍ وشاحن */
-  const head = {
-    games: { eyebrow: te("games"), title: tGames("title") },
-    home: { eyebrow: te("home"), title: tHome("elecTitle") },
-    accounts: { eyebrow: te("accounts"), title: tAcc("title") },
-  }[group];
+  /**
+   * ⚠️ **المدموجة وسمٌ وحده بلا عنوان** — كما في النموذج: الأقسام كلّها
+   *    في صفٍّ واحد تحت `SECTIONS`. وعنوانٌ كبير فوق ثلاث بلاطاتٍ
+   *    أسماؤها مكتوبةٌ تحتها يقول ما هو مقروءٌ أصلاً، ويأكل سطراً من
+   *    شاشةٍ أرادتها صاحبة المتجر بلا تمرير.
+   *
+   *    وللمجموعة الواحدة يبقى عنوانُها — وإلا قرأ الزبون «الألعاب»
+   *    فوق سمّاعةٍ وشاحن.
+   */
+  const merged = Array.isArray(group);
+  const head = merged
+    ? { eyebrow: te("sections"), title: "" }
+    : {
+        games: { eyebrow: te("games"), title: tGames("title") },
+        home: { eyebrow: te("home"), title: tHome("elecTitle") },
+        accounts: { eyebrow: te("accounts"), title: tAcc("title") },
+      }[group];
 
   return (
     <section>
       {/* ترويسة الكتلة بأصناف النموذج: وسمٌ لاتينيّ صغير ثم العنوان */}
       <div className="mb-2.5 flex flex-col gap-0.5">
         <p className="eyeS">{head.eyebrow}</p>
-        <h2 className="h2S">{head.title}</h2>
+        {head.title && <h2 className="h2S">{head.title}</h2>}
       </div>
 
       {/* ⚠️ قسمان ⇒ عمودان، وثلاثة فأكثر ⇒ ثلاثة (النموذج). ثلاثة

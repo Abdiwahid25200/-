@@ -349,15 +349,18 @@ export async function customSections(): Promise<MergedSection[]> {
  * **ثم تُضاف الأقسام التي أنشأتها صاحبة المتجر من اللوحة**.
  */
 export async function mergedSections(
-  group: Section["group"],
+  /** مجموعةٌ واحدة أو عدّة مجموعات معاً — الرئيسية تعرض `games` و`home`
+      في صفٍّ واحد كما في النموذج، فتقبل الدالّة مصفوفةً أيضاً */
+  group: Section["group"] | Section["group"][],
 ): Promise<MergedSection[]> {
   const over = await readSections();
+  const groups = Array.isArray(group) ? group : [group];
 
   const base: MergedSection[] = staticSections
     .map((s) => ({ ...s, over: over[s.key] }))
     .filter((s) => {
       const status = s.over?.status ?? s.status;
-      return s.group === group && status !== "off" && !s.over?.hidden;
+      return groups.includes(s.group) && status !== "off" && !s.over?.hidden;
     })
     .map((s) => ({
       ...s,
@@ -371,7 +374,7 @@ export async function mergedSections(
       ([key, o]) =>
         o.custom === true &&
         !staticSections.some((s) => s.key === key) &&
-        (o.group ?? "games") === group &&
+        groups.includes((o.group ?? "games") as Section["group"]) &&
         (o.status ?? "on") !== "off" &&
         !o.hidden,
     )
