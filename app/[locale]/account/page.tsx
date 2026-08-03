@@ -25,7 +25,7 @@ export default async function AccountPage({
   const te = await getTranslations("eyebrow");
 
   return (
-    <main className="page-w flex flex-col gap-5 px-4 py-6">
+    <main className="page-w scr-body pt-3.5">
       <BackLink href="/" />
       <SectionHead eyebrow={te("account")} title={t("title")} note={t("note")} />
 

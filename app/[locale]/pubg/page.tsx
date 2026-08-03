@@ -35,7 +35,7 @@ export default async function PubgPage({
   const over = await sectionOverride("pubg");
 
   return (
-    <main className="seq page-w flex flex-col gap-5 px-4 py-6">
+    <main className="seq page-w scr-body pt-3.5">
       <BackLink href="/games" />
       <SectionHead
         eyebrow={pick(over.eyebrow, locale, te("pubg"))}

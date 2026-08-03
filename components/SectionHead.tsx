@@ -19,10 +19,13 @@ export default function SectionHead({
   eyebrow?: string;
 }) {
   return (
-    <header className="mb-5 flex flex-col gap-1">
-      {eyebrow && <p className="eyebrow">{eyebrow}</p>}
-      <h2 className="text-[1.32rem] font-bold leading-tight">{title}</h2>
-      {note && <p className="mt-0.5 text-sm text-muted">{note}</p>}
+    /* أصناف النموذج: `.eyeS` وسماً بخطّ الأرقام و`.h2S` عنواناً ٢١px.
+       ⚠️ **بلا `mb`**: الحاوية `.scr-body` تفصل الكتل بـ٢٢px، وهامشٌ
+          هنا فوقها يجعل فاصل الترويسة أوسع من كل فاصلٍ في الصفحة. */
+    <header className="flex flex-col gap-1">
+      {eyebrow && <p className="eyeS">{eyebrow}</p>}
+      <h2 className="h2S">{title}</h2>
+      {note && <p className="f13 mu mt-0.5">{note}</p>}
     </header>
   );
 }

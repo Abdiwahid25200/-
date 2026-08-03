@@ -35,7 +35,7 @@ export default async function TiktokPage({
   const over = await sectionOverride("tiktok");
 
   return (
-    <main className="page-w flex flex-col gap-5 px-4 py-6">
+    <main className="page-w scr-body pt-3.5">
       <BackLink href="/accounts" />
       <SectionHead
         eyebrow={pick(over.eyebrow, locale, te("tiktok"))}

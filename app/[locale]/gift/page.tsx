@@ -65,7 +65,7 @@ export default async function GiftPage({
   const open = item.status === "on";
 
   return (
-    <main className="seq page-w flex flex-col gap-5 px-4 py-6">
+    <main className="seq page-w scr-body pt-3.5">
       <GiftTicket
         title={item.title}
         sub={item.sub}

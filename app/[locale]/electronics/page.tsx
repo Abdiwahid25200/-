@@ -46,7 +46,7 @@ export default async function ElectronicsPage({
   const over = await sectionOverride("electronics");
 
   return (
-    <main className="seq page-w flex flex-col gap-5 px-4 py-6">
+    <main className="seq page-w scr-body pt-3.5">
       <BackLink href="/" />
 
       <SectionHead

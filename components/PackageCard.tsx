@@ -75,82 +75,63 @@ export default function PackageCard({
       onClick={onSelect}
       disabled={soon}
       aria-pressed={selected}
-      className={`lift relative flex w-full items-stretch overflow-hidden rounded-card border bg-surface text-start shadow-sm ${
-        soon
-          ? "cursor-not-allowed opacity-60"
-          : selected
-            ? "border-orange shadow-md ring-1 ring-orange"
-            : "border-line hover:border-orange/60 hover:shadow-md"
+      /* صنف `.vch` من النموذج: القسيمة وحزّتها والخطّ المنقّط بينهما.
+         ⚠️ **الاختيار `sel` لا إطارٌ وظلّ**: النموذج يحدّها بالأخضر
+            وحلقةٍ بسمك شعرة، فلا يقفز الصفّ حين يُختار ولا يعلو جيرانه. */
+      className={`vch lift ${
+        soon ? "cursor-not-allowed opacity-60" : selected ? "sel" : "hover:border-orange/60"
       }`}
     >
       {/* ── حزّة الوصف ── */}
       {/* ⚠️ **بلا صورة عمداً.** جُرّبت فصار كل صفٍّ صورةً صغيرة تتكرّر
           ستّ مرّات بلا معنى — الباقات تختلف في **الرقم** لا في الشكل،
           وصورةٌ واحدة مكرّرة تزحم القسيمة ولا تدلّ على شيء. */}
-      <span className="flex min-w-0 flex-1 items-center p-3.5">
-        <span className="flex min-w-0 flex-1 flex-col gap-0.5">
-          {/* 🔥 الدليل فوق الاسم — يُقرأ قبله فيُلوّن ما بعده */}
-          {hot > 0 && !soon && (
-            <span className="num mb-0.5 flex w-fit items-center gap-1 rounded-full bg-danger/10 px-2 py-0.5 text-[0.7rem] font-bold text-danger">
-              <IconFlame className="size-3" />
-              {labels.hot.replace("{n}", String(hot))}
-            </span>
-          )}
-
-          <span
-            className={
-              isNumeric
-                ? "num block text-xl font-bold leading-tight text-text"
-                : "block text-balance break-words text-[0.95rem] font-bold leading-snug text-text"
-            }
-          >
-            {amount}
-            {isNumeric && unit && (
-              <span className="ms-1.5 text-xs font-bold text-muted">{unit}</span>
-            )}
+      <span className="l">
+        {/* 🔥 الدليل فوق الاسم — يُقرأ قبله فيُلوّن ما بعده. صنف `.hot` */}
+        {hot > 0 && !soon && (
+          <span className="hot num">
+            <IconFlame />
+            {labels.hot.replace("{n}", String(hot))}
           </span>
+        )}
 
-          {/* السطر الصغير تحت الاسم — **لا يُترك فارغاً**: القسيمة بسطرٍ
-              واحد تبدو نصفَ خالية، والوعد بالسرعة هو أنفعُ ما يُملأ به.
-              فإن لم تكتبي وصفاً ظهر «فوري» لِما يُشحن فوراً. */}
-          {(isNumeric ? sub : unit) || instant ? (
-            <span className="block truncate text-xs text-muted">
-              {(isNumeric ? sub : unit) || labels.instant}
-            </span>
-          ) : null}
+        <b className={isNumeric ? "f17" : "f13 text-balance break-words leading-snug"}>
+          <span className={isNumeric ? "num" : ""}>{amount}</span>
+          {isNumeric && unit && <span className="f12 ms-1.5 font-bold text-muted">{unit}</span>}
+        </b>
 
-          {popular && !hot && !soon && (
-            <span className="mt-0.5 block text-xs font-bold text-success">
-              {labels.popular}
-            </span>
-          )}
-        </span>
+        {/* السطر الصغير تحت الاسم — **لا يُترك فارغاً**: القسيمة بسطرٍ
+            واحد تبدو نصفَ خالية، والوعد بالسرعة هو أنفعُ ما يُملأ به.
+            فإن لم تكتبي وصفاً ظهر «فوري» لِما يُشحن فوراً. */}
+        {(isNumeric ? sub : unit) || instant ? (
+          <span className="f11 mu block truncate">
+            {(isNumeric ? sub : unit) || labels.instant}
+          </span>
+        ) : null}
+
+        {popular && !hot && !soon && (
+          <span className="f11 block font-bold text-success">{labels.popular}</span>
+        )}
       </span>
 
-      {/* ── خطّ التقطيع بحزّتيه — هنا تُقصّ القسيمة ── */}
-      <span
-        aria-hidden
-        className="voucher-cut relative block w-px shrink-0 border-s border-dashed border-line"
-      />
-
-      {/* ── حزّة السعر: عمودٌ تصطفّ أرقامه كإيصال ── */}
-      <span className="flex w-[5.75rem] shrink-0 flex-col items-center justify-center gap-0.5 bg-yellow/7 px-2 py-3.5">
+      {/* ── حزّة السعر: عمودٌ تصطفّ أرقامه كإيصال، ويفصله خطٌّ منقّط ── */}
+      <span className="r">
         {disc ? (
-          <span className="num rounded-full bg-yellow px-1.5 py-px text-[0.65rem] font-bold text-onaccent">
+          <span className="num f11 rounded-full bg-yellow px-1.5 py-px font-bold text-onaccent">
             −{disc}%
           </span>
         ) : null}
 
         {before && before > final && (
-          <span className="num text-[0.7rem] text-muted line-through">{fmt(before)}</span>
+          <span className="num f11 mu line-through">{fmt(before)}</span>
         )}
 
-        <span className="num text-lg font-bold text-yellow">{fmt(final)}</span>
+        <b className="num f17 text-yellow">{fmt(final)}</b>
 
         {soon ? (
-          <span className="text-[0.7rem] font-bold text-muted">{labels.soon}</span>
+          <span className="f11 mu font-bold">{labels.soon}</span>
         ) : selected ? (
-          <span className="flex items-center gap-1 text-[0.7rem] font-bold text-orange">
+          <span className="f11 flex items-center gap-1 font-bold text-orange">
             <IconCheckCircle className="size-3.5" />
             {labels.selected}
           </span>

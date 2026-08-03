@@ -38,7 +38,7 @@ export default async function AccountsPage({
   const list = await mergedSections("accounts");
 
   return (
-    <main className="seq page-w flex flex-col gap-4 px-4 py-6">
+    <main className="seq page-w scr-body pt-3.5">
       {/* 🚫 قسمُ الحسابات للموقع وحده — يُقال ذلك لمن فتحه في التطبيق */}
       <WebOnly path="/accounts" />
       <BackLink />

@@ -43,7 +43,7 @@ export default async function CustomSectionPage({
   const back = over.group === "accounts" ? "/accounts" : over.group === "home" ? "/" : "/games";
 
   return (
-    <main className="page-w flex flex-col gap-5 px-4 py-6">
+    <main className="page-w scr-body pt-3.5">
       <BackLink href={back} />
       <SectionHead
         eyebrow={pick(over.eyebrow, locale, "")}

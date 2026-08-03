@@ -64,7 +64,7 @@ export default async function HelpPage({
   }
 
   return (
-    <main className="seq page-w flex flex-col gap-8 px-4 py-6">
+    <main className="seq page-w scr-body pt-3.5">
       <BackLink href="/" />
       {/* ⚠️ **بلا وصفٍ تحت العنوان** (النموذج): «فريقنا جاهز لخدمتك» جملةٌ
           لا تُجيب سؤالاً، ومن فتح الدعم فتحه بسؤال. والترويسة الواحدة
