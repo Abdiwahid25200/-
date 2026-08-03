@@ -598,3 +598,381 @@ body.has-buybar {
 .ticket-tear {
   border-top: 2px dashed rgba(255, 255, 255, 0.28);
 }
+
+/* ════════════════════════════════════════════════════════════════
+   لوحة النموذج — منقولةٌ من `docs/نموذج/الموقع-الجديد.html` حرفاً بحرف
+   ════════════════════════════════════════════════════════════════
+
+   قرارها (٠٣-٠٨): **يُبنى الشكل من الصفر على النموذج** بدل مقارنة
+   شاشةٍ بشاشة. فهذه أصناف النموذج نفسها بأسمائها نفسها — تُكتب الشاشة
+   الجديدة بنسخ بنيتها من الملفّ ولصقها، فلا يُعاد اشتقاق كل قاعدة
+   في Tailwind ثم تُقارَن باللقطة. هذا هو ما كان يستهلك الجلسات.
+
+   ⚠️ **الألوان ليست هنا**: لوحة الألوان أعلاه مطابقةٌ للنموذج أصلاً
+      حرفاً بحرف (فُحصت)، وهذه الأصناف تشرب منها بأسماء المشروع
+      (`--surface` `--line` `--accent`…) لا بأسماء النموذج (`--s-sur`…)،
+      فيبقى مصدرٌ واحد للّون ويتبدّل الوضع الليلي معها بلا عمل إضافي.
+
+   ⚠️ **اسمان خُولفا عمداً** (والباقي كما في النموذج):
+      `.bub` ← صار `.cbub` لأن `.bub` محجوزٌ لفقاعات دردشة اللوحة أعلاه
+      `.body` ← صار `.scr-body` لئلا يُقرأ عنصر `body` نفسه.
+
+   ⚠️ **ولا `.app` ولا `.scr` هنا**: النموذج مسرحٌ بارتفاع ٨٤٤ ثابت
+      وشاشاتُه `position:absolute` تتبادل الظهور. والموقع صفحاتٌ حقيقية
+      تمرّ بطول محتواها — فلو نُقل الإطار لصار الموقع نافذةً داخل نافذة.
+   ──────────────────────────────────────────────────────────────── */
+
+:root {
+  /* 🔒 **أرضية مقاس الخطّ** — قاعدة المشروع: لا خطّ دون ١٢٫٥px.
+     والنموذج ينزل إلى ١٠٫٥ و١١، فتُرفع الصغيرة إلى الأرضية عبر `max()`.
+     **لتصير مطابقةً للنموذج ١٠٠٪: اجعلي القيمة `0px` — سطرٌ واحد**،
+     وتصغر كل الأسطر الصغيرة في الموقع كلّه معاً. */
+  --pf-floor: 12.5px;
+}
+
+/* ── مقاسات النموذج ─────────────────────────────────────────── */
+.f11 { font-size: max(11px, var(--pf-floor)); }
+.f12 { font-size: max(12px, var(--pf-floor)); }
+.f13 { font-size: max(13px, var(--pf-floor)); }
+.f17 { font-size: 17px; }
+.f20 { font-size: 20px; }
+.f28 { font-size: 28px; }
+
+/* ── أدوات الصفّ ─────────────────────────────────────────────── */
+.row { display: flex; align-items: center; gap: 11px; }
+.gr { flex: 1; min-width: 0; }
+.mu { color: var(--muted); }
+
+/* ── جسم الشاشة ─────────────────────────────────────────────── */
+.scr-body {
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+  padding: 0 16px 22px;
+}
+.scr-body.tight { gap: 14px; }
+
+/* ── ترويسة القسم ───────────────────────────────────────────── */
+.eyeS {
+  font-family: var(--font-data);
+  font-size: max(10.5px, var(--pf-floor));
+  letter-spacing: 0.2em;
+  color: var(--accent);
+  text-transform: uppercase;
+  margin: 0;
+}
+.h2S { font-size: 21px; font-weight: 800; line-height: 1.25; }
+
+/* ── البطاقة ────────────────────────────────────────────────── */
+.card {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  padding: 14px;
+}
+.card.acc { border-color: var(--accent); }
+
+/* ── الصفيحة — أيقونةٌ في مربّعٍ ملوّن ─────────────────────────── */
+.plate {
+  width: 44px;
+  height: 44px;
+  flex: none;
+  display: grid;
+  place-items: center;
+  border-radius: 13px;
+  background: color-mix(in srgb, var(--accent) 11%, transparent);
+  color: var(--accent);
+}
+.plate svg { width: 23px; height: 23px; }
+.plate.g {
+  background: color-mix(in srgb, var(--accent-2) 14%, transparent);
+  color: var(--accent-2);
+}
+
+/* ── الأزرار ────────────────────────────────────────────────── */
+.btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 50px;
+  border-radius: 14px;
+  background: var(--accent);
+  color: var(--on-accent);
+  font-weight: 800;
+  font-size: 15px;
+  padding: 0 14px;
+}
+.btn.o { background: transparent; color: var(--text); border: 1px solid var(--line); }
+.btn.gold { background: var(--accent-2); color: #fff; }
+.btn.wa { background: #25d366; color: #fff; }
+/* الأبيض المدوّر — فوق الأرضيات الداكنة وحدها (التذكرة والبطاقات) */
+.btn.w {
+  background: #fff;
+  color: #05655c;
+  border-radius: 999px;
+  min-height: 46px;
+  padding: 0 20px;
+  width: fit-content;
+}
+
+/* ── الحقول ─────────────────────────────────────────────────── */
+.field {
+  min-height: 48px;
+  width: 100%;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: var(--surface);
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 0 13px;
+  color: var(--muted);
+  font-size: 14px;
+}
+input.field, textarea.field, select.field {
+  color: var(--text);
+  font-family: inherit;
+}
+input.field::placeholder, textarea.field::placeholder { color: var(--muted); }
+
+/* ── بلاطات الأقسام ─────────────────────────────────────────── */
+.tiles { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+.tiles.two { grid-template-columns: 1fr 1fr; }
+.tile { display: flex; flex-direction: column; gap: 7px; align-items: center; }
+.tile .sq {
+  width: 100%;
+  aspect-ratio: 1;
+  border-radius: 16px;
+  display: grid;
+  place-items: center;
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(
+    160deg,
+    color-mix(in srgb, var(--accent) 20%, var(--surface)),
+    var(--surface-2)
+  );
+  border: 1px solid var(--line);
+  color: var(--accent);
+}
+.tile .sq svg { width: 30px; height: 30px; }
+.tile .nm { font-size: max(12px, var(--pf-floor)); font-weight: 700; text-align: center; line-height: 1.3; }
+.bdg {
+  position: absolute;
+  top: 6px;
+  inset-inline-start: 6px;
+  font-size: max(9px, var(--pf-floor));
+  font-weight: 800;
+  padding: 2px 6px;
+  border-radius: 999px;
+  background: var(--accent-2);
+  color: #fff;
+  z-index: 1;
+}
+
+/* ── شبكة المنتجات ──────────────────────────────────────────── */
+.prods { display: grid; grid-template-columns: 1fr 1fr; gap: 11px; }
+.prod {
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  background: var(--surface);
+  overflow: hidden;
+  text-align: start;
+}
+.prod .ph {
+  aspect-ratio: 1.25;
+  background: var(--surface-2);
+  display: grid;
+  place-items: center;
+  color: var(--muted);
+  position: relative;
+}
+.prod .ph svg { width: 34px; height: 34px; }
+.prod .tx { padding: 9px 10px; display: flex; flex-direction: column; gap: 3px; }
+
+/* ── قسيمة الباقة ───────────────────────────────────────────── */
+.vch {
+  display: flex;
+  align-items: stretch;
+  width: 100%;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  background: var(--surface);
+  overflow: hidden;
+  position: relative;
+  text-align: start;
+}
+.vch.sel { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent); }
+.vch .l { flex: 1; padding: 12px 14px; display: flex; flex-direction: column; gap: 2px; }
+.vch .r {
+  width: 96px;
+  flex: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  border-inline-start: 1px dashed var(--line);
+  background: color-mix(in srgb, var(--accent-2) 7%, transparent);
+}
+.hot {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  width: fit-content;
+  font-size: max(10.5px, var(--pf-floor));
+  font-weight: 800;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--danger) 12%, transparent);
+  color: var(--danger);
+}
+.hot svg { width: 11px; height: 11px; }
+
+/* ── المسار وشريط التقدّم ───────────────────────────────────── */
+.path { display: flex; align-items: flex-start; gap: 0; }
+.path .st {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+  position: relative;
+}
+.path .bl {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: var(--surface-2);
+  color: var(--muted);
+}
+.path .bl.on { background: var(--accent); color: var(--on-accent); }
+.path .bl svg { width: 13px; height: 13px; }
+.path .lb { font-size: max(10.5px, var(--pf-floor)); text-align: center; line-height: 1.3; }
+.path .ln {
+  position: absolute;
+  top: 11px;
+  height: 2px;
+  width: 100%;
+  inset-inline-start: 50%;
+  background: var(--line);
+  z-index: -1;
+}
+.path .ln.on { background: var(--accent); }
+.bar { height: 7px; border-radius: 999px; background: var(--surface-2); overflow: hidden; }
+.bar i {
+  display: block;
+  height: 100%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, var(--accent), var(--accent-2));
+}
+
+/* ── شريط حالة المتجر · والشريط الحيّ ───────────────────────── */
+.openbar {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 7px 11px;
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--accent-3) 12%, transparent);
+  color: var(--accent-3);
+  font-size: max(12px, var(--pf-floor));
+  font-weight: 700;
+}
+.beat {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: currentColor;
+  flex: none;
+  box-shadow: 0 0 0 0 currentColor;
+  animation: beat 2.4s infinite;
+}
+@keyframes beat {
+  0% { box-shadow: 0 0 0 0 color-mix(in srgb, currentColor 55%, transparent); }
+  70% { box-shadow: 0 0 0 7px transparent; }
+  100% { box-shadow: 0 0 0 0 transparent; }
+}
+.live {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 10px 13px;
+  border-radius: 14px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  font-size: max(12.5px, var(--pf-floor));
+}
+.live .lg {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  flex: none;
+  background: var(--accent-3);
+  color: var(--accent-3);
+  animation: beat 2.4s infinite;
+}
+
+/* ── صفّ الرجوع ─────────────────────────────────────────────── */
+.back {
+  padding: 14px 16px 6px;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  color: var(--muted);
+  font-size: max(13px, var(--pf-floor));
+  width: fit-content;
+}
+.back svg { width: 15px; height: 15px; }
+
+/* ── الترويسة العلوية ───────────────────────────────────────── */
+.hdr { display: flex; align-items: center; gap: 10px; padding: 16px 16px 12px; }
+.hdr .mk { width: 34px; height: 34px; color: var(--accent); flex: none; }
+.hdr .mk svg { width: 34px; height: 34px; }
+.hdr .bn { flex: 1; min-width: 0; line-height: 1.2; }
+.hdr .bn b { display: block; font-size: 17px; font-weight: 800; }
+.hdr .bn i {
+  display: block;
+  font-size: max(11px, var(--pf-floor));
+  color: var(--muted);
+  font-style: normal;
+}
+.hdr .hi { display: flex; gap: 6px; color: var(--text); }
+.hdr .hi a, .hdr .hi button {
+  width: 38px;
+  height: 38px;
+  border-radius: 12px;
+  display: grid;
+  place-items: center;
+  position: relative;
+}
+.hdr .hi svg { width: 21px; height: 21px; }
+/* عدّاد السلّة — يجلس في زاوية الأيقونة */
+.dot {
+  position: absolute;
+  top: 6px;
+  inset-inline-start: 6px;
+  min-width: 15px;
+  height: 15px;
+  padding: 0 3px;
+  border-radius: 999px;
+  background: var(--accent);
+  color: var(--on-accent);
+  font-family: var(--font-data);
+  font-size: max(9.5px, var(--pf-floor));
+  font-weight: 800;
+  display: grid;
+  place-items: center;
+}
+
+/* ── الأقراص ────────────────────────────────────────────────── */
+.chip { font-size: max(12px, var(--pf-floor)); padding: 7px 13px; border-radius: 999px; border: 1px solid var(--line); }
+.chip.on { background: var(--accent); color: var(--on-accent); border-color: var(--accent); font-weight: 700; }
+
+/* ── فقاعات محادثة الزبون ───────────────────────────────────── */
+.cbub { max-width: 78%; padding: 9px 13px; border-radius: 16px; font-size: 13.5px; line-height: 1.55; }
+.cbub.me { background: var(--accent); color: var(--on-accent); align-self: flex-start; border-end-start-radius: 5px; }
+.cbub.you { background: var(--surface); border: 1px solid var(--line); align-self: flex-end; border-end-end-radius: 5px; }
