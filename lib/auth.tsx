@@ -8,10 +8,12 @@
  */
 
 import {
+  browserLocalPersistence,
   getRedirectResult,
   GoogleAuthProvider,
   onAuthStateChanged,
   signInWithPopup,
+  setPersistence,
   signInWithRedirect,
   signOut as fbSignOut,
   type Auth,
@@ -89,6 +91,20 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     const auth = fbAuth();
     if (!auth) return;
+
+    /**
+     * 🐞 **«ليش يطلب تسجيل الدخول في كل مرة؟»** — بلاغها (٠٣-٠٨).
+     *
+     * بوّابة اللوحة تُقصّر عمر الجلسة عمداً (`browserSessionPersistence`:
+     * تموت بإغلاق التبويب) — وهذا صوابٌ للوحة. لكنّ الإعداد يخصّ
+     * **الأصل كلّه** لا الصفحة: فمن فتحت `eramaan.com/admin` مرّةً في
+     * متصفّحها، صار دخولُ الزبون في `eramaan.com` نفسه يُحفظ في ذاكرةٍ
+     * تموت بإغلاق التبويب — فيُطلب الدخول في كل فتحة.
+     *
+     * فنُثبّت هنا صراحةً ما يليق بمتجر الزبون: **حفظٌ دائم** في الجهاز.
+     * والصريح خيرٌ من الافتراضيّ متى كان لغيرك أن يبدّله.
+     */
+    void setPersistence(auth, browserLocalPersistence).catch(() => {});
 
     // بعد العودة من شاشة جوجل نلتقط نتيجة التحويل، وإلا بقي الزبون زائراً
     getRedirectResult(auth).catch(() => {});
