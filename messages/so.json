@@ -209,9 +209,9 @@
     "delivered": "{n} dalab oo la gaarsiiyay",
     "avgHr": "Celcelis ahaan {n} saac",
     "avgMin": "Celcelis ahaan {n} daqiiqo",
-    "openNow": "Hadda waa furan",
+    "openNow": "Hadda wuu furan yahay",
     "opensAt": "Waxaan furaynaa {t}",
-    "closedNow": "Hadda waa xiran"
+    "closedNow": "Hadda wuu xiran yahay"
   },
   "hero": {
     "topup": "BUUXI",
