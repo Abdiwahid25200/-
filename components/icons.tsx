@@ -676,6 +676,43 @@ export function IconClockLine({ className = "" }: IconProps) {
   );
 }
 
+/**
+ * 🎨 **واتساب وتيليجرام بخطٍّ لا بصفيحة** — قرارها (٠٤-٠٨): «قبيحان».
+ *
+ * الصفيحة الملوّنة (`IconWhatsApp` · `IconTelegram`) تصلح **داخل زرٍّ
+ * ملوّن**: مربّعٌ أبيض على أخضر يُعرف من بعيد. أمّا فوق بطاقةٍ بيضاء
+ * بجانب أيقونتين خطّيّتين، فمربّعٌ مصمتٌ يثقل الصفّ ويكسر عائلة الشكل.
+ *
+ * فهاتان بسماكة الخطّ نفسها (١٫٨) وبمقاس ٢٤ نفسه، تأخذان لونهما من
+ * النصّ فتتبدّلان مع لون العلامة ولا تُثبّتان لوناً.
+ */
+export function IconWhatsAppLine({ className = "" }: IconProps) {
+  return (
+    <svg viewBox="0 0 24 24" strokeWidth="1.8" className={`${base} ${className}`} aria-hidden>
+      {/* فقاعةٌ بذيلٍ أسفل اليسار — علامة واتساب المعروفة بلا تعبئة */}
+      <path
+        strokeLinejoin="round"
+        d="M12 3.75a8.25 8.25 0 0 0-7.05 12.55L3.75 20.25l3.95-1.15A8.25 8.25 0 1 0 12 3.75Z"
+      />
+      {/* السمّاعة داخلها — قوسٌ واحد يكفي في هذا المقاس */}
+      <path
+        strokeLinecap="round"
+        d="M9.3 9.5c-.5 1.7.4 3.4 1.7 4.6 1.3 1.2 3 1.8 4.4 1.3"
+      />
+    </svg>
+  );
+}
+
+export function IconTelegramLine({ className = "" }: IconProps) {
+  return (
+    <svg viewBox="0 0 24 24" strokeWidth="1.8" className={`${base} ${className}`} aria-hidden>
+      {/* طائرةٌ ورقية — والخطّ الداخليّ هو ما يجعلها طائرةً لا مثلّثاً */}
+      <path strokeLinejoin="round" d="M20.5 4.2 3.5 11.4l6.1 2.2 2.2 6.2Z" />
+      <path strokeLinecap="round" strokeLinejoin="round" d="M20.5 4.2 9.6 13.6" />
+    </svg>
+  );
+}
+
 /* ── إظهار كلمة السرّ وإخفاؤها ── */
 
 export function IconEye({ className = "" }: IconProps) {

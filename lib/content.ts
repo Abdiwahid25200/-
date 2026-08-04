@@ -177,7 +177,11 @@ export const supportChannels = [
   { key: "whatsapp", icon: "whatsapp" },
   { key: "email", icon: "email" },
   { key: "hours", icon: "clock" },
-  { key: "inquiries", icon: "chat" },
+  /* 🐞 **كانت «استفسارات عامة» تعرض البريد نفسه مرّتين** — بلاغها (٠٤-٠٨):
+     بطاقتان في صفحةٍ واحدة بالعنوان ذاته، وثانيتهما لا تضيف خبراً.
+     فصارت **تيليجرام**: حقلٌ في لوحتها كان يُكتب ولا يظهر في الدعم
+     أصلاً (الفوتر وحده). وتبقى مخفيّةً حتى تكتب قناتها. */
+  { key: "telegram", icon: "telegram" },
 ] as const;
 
 

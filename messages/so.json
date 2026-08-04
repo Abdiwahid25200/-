@@ -285,9 +285,9 @@
         "a": "Haa — haddii aan awoodi weyno inaan dalabkaaga fulino waxaan celinaynaa lacagta oo dhan. Alaabta dhijitaalka ah ee la gaarsiiyay lama celin karo."
       }
     },
-    "inquiries": {
-      "title": "Su'aalo guud",
-      "action": "Dir iimayl"
+    "telegram": {
+      "title": "Telegram",
+      "action": "Fur Telegram"
     },
     "reach": "Nala soo xiriir"
   },

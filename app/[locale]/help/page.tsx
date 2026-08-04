@@ -4,17 +4,32 @@ import SectionHead from "@/components/SectionHead";
 import BackLink from "@/components/BackLink";
 import Faq from "@/components/Faq";
 import HowItWorks from "@/components/HowItWorks";
-import { IconChat, IconClock, IconEmail, IconWhatsApp } from "@/components/icons";
+import {
+  IconClockLine,
+  IconEmailLine,
+  IconTelegramLine,
+  IconWhatsAppLine,
+} from "@/components/icons";
 import { site, supportChannels } from "@/lib/content";
 import { faqSlots, pick as pickFaq, readFaq } from "@/lib/faq";
 import { mergedSite } from "@/lib/overrides";
 import type { Locale } from "@/i18n/routing";
 
+/**
+ * 🎨 **أربع أيقوناتٍ من عائلةٍ واحدة** — قرارها (٠٤-٠٨): «قبيحان».
+ *
+ * كانت صفيحة واتساب الخضراء وحرف Gmail بألوانه الأربعة تجلسان بجانب
+ * ساعةٍ خطّية — ثلاثة أساليب في صفٍّ واحد. والصفيحة الملوّنة تصلح
+ * **داخل زرٍّ ملوّن**، لا فوق بطاقةٍ بيضاء.
+ *
+ * فصارت الأربع خطّيةً بالسماكة نفسها وبلون العلامة، تتبدّل مع الوضع
+ * ولا تُثبّت لوناً — والبطاقة تُقرأ صفّاً واحداً لا أربع لوحات.
+ */
 const ICONS = {
-  whatsapp: IconWhatsApp,
-  email: IconEmail,
-  clock: IconClock,
-  chat: IconChat,
+  whatsapp: IconWhatsAppLine,
+  email: IconEmailLine,
+  clock: IconClockLine,
+  telegram: IconTelegramLine,
 } as const;
 
 /** الأسئلة تُقرأ من Firestore — دقيقة تكفي ليظهر تعديل اللوحة للزبون */
@@ -58,8 +73,11 @@ export default async function HelpPage({
   function hrefOf(key: string) {
     if (key === "whatsapp" && store.whatsapp)
       return `https://wa.me/${store.whatsapp.replace(/\D/g, "")}`;
-    if ((key === "email" || key === "inquiries") && store.email)
-      return `mailto:${store.email}`;
+    if (key === "email" && store.email) return `mailto:${store.email}`;
+    /* ⚠️ **و`@` تُقطع من الرابط لا من المعروض**: صاحبة المتجر تكتب
+       `@ramaan` كما تكتبه في تيليجرام، والرابط لا يقبلها. */
+    if (key === "telegram" && store.telegram)
+      return `https://t.me/${store.telegram.replace(/^@/, "")}`;
     return null;
   }
 
@@ -83,23 +101,16 @@ export default async function HelpPage({
           {/* ⚠️ **لا تُعرض قناةٌ فارغة.** كانت أربع بطاقاتٍ اثنتان منها
               «يُضاف قريباً» — ووعدٌ لا موعد له يُضعف الثقة ولا يبنيها.
               فتظهر القنوات التي فيها خبر، ويملأ باقيها بمجرّد كتابتها. */}
-          {supportChannels.filter(({ key }) => {
-            const f = key === "hours" ? "hours" : key === "inquiries" ? "email" : key;
-            return !!valueOf(f);
-          }).map(({ key, icon }) => {
+          {supportChannels.filter(({ key }) => !!valueOf(key)).map(({ key, icon }) => {
             const Icon = ICONS[icon];
-            const field = key === "hours" ? "hours" : key === "inquiries" ? "email" : key;
-            const value = valueOf(field);
+            const value = valueOf(key);
             const href = hrefOf(key);
             const Row = (
               <>
                 {/* ⚠️ **أيقونةٌ وحدها بلا صفيحة** (النموذج): البطاقة نفسها
-                    هي الصفيحة. وواتساب بأخضره المعروف — يُعرف قبل أن
-                    يُقرأ اسمه. */}
-                <span
-                  aria-hidden
-                  className={key === "whatsapp" ? "text-[#25d366]" : "text-orange"}
-                >
+                    هي الصفيحة. وكلّها بلون العلامة — لا لونَ ماركةٍ واحد
+                    يقفز من بين إخوته. */}
+                <span aria-hidden className="text-orange">
                   <Icon className="size-6" />
                 </span>
                 <span className="min-w-0">
