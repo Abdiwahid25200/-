@@ -20,7 +20,6 @@ import { ClosedScreen } from "@/components/ClosedNotice";
 import { blocksSite, openNow } from "@/lib/openCore";
 import { readOpenSettingsServer } from "@/lib/storeOpenServer";
 import { mergedPay } from "@/lib/payments";
-import { themeInitScript } from "@/components/ThemeToggle";
 import { site, tawk } from "@/lib/content";
 import { SITE, languages, pathFor } from "@/lib/seo";
 import "../globals.css";
@@ -149,9 +148,16 @@ export default async function LocaleLayout({
       suppressHydrationWarning
     >
       <head>
-        {/* يُنفَّذ قبل الرسم لمنع وميض الأبيض عند فتح الصفحة بالوضع الليلي */}
-        <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
-
+        {/**
+         * 🐞 **وهنا كان سطر المظهر** — حُذف ببلاغها (٠٤-٠٨).
+         *
+         * كان يكتب علامة «فاتح» على الصفحة قبل الرسم، والتنسيق يقرؤها:
+         * إن غابت اتّبع جهاز الزائر. **فصار مظهرُ المتجر رهينةَ سطرٍ قد
+         * يتأخّر** — ومتى تأخّر انقلب المتجر ليلاً في جوّالٍ وضعُه ليليّ.
+         *
+         * والفاتح اليوم أصلٌ في `globals.css` لا نتيجةَ سطر، فلا شيء
+         * يُنتظر ولا شيء يسقط.
+         */}
         {/**
          * بطاقة المتجر لمحرّكات البحث (JSON-LD).
          *

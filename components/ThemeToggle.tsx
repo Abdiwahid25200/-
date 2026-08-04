@@ -1,5 +1,18 @@
 "use client";
 
+/**
+ * 🚫 **معطّلٌ اليوم — ولم يُحذف** (٠٤-٠٨).
+ *
+ * قرارها (أ): **المتجر فاتحٌ دائماً**. فلا `ThemeChoice` معروضٌ في أي
+ * شاشة، ولا `themeInitScript` مُحمَّلٌ في التخطيط — والفاتح صار أصلاً
+ * في `globals.css` بلا شرط.
+ *
+ * ويبقى الملفّ لأن العودة إن أرادتها سطران: عرضُ `ThemeChoice` في
+ * القائمة، وإعادةُ كتلة `@media (prefers-color-scheme: dark)` مربوطةً
+ * بـ`data-theme="auto"` **صريحةً** لا بغياب السمة — فغيابُ السمة هو
+ * ما جعل المتجر ينقلب ليلاً بلا أن يطلب أحد.
+ */
+
 import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
 import { IconAuto, IconMoon, IconSun } from "./icons";

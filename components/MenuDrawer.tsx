@@ -116,7 +116,6 @@ export default function MenuDrawer({ phone }: { phone?: string }) {
   const t = useTranslations("menu");
   const tp = useTranslations("pages");
   const tl = useTranslations("lang");
-  const tth = useTranslations("theme");
   const pathname = usePathname();
 
   // إغلاق بمفتاح Escape ومنع تمرير الصفحة خلف القائمة
