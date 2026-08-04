@@ -10,6 +10,7 @@ import TopBar from "@/components/TopBar";
 import Header from "@/components/Header";
 import BottomNav from "@/components/BottomNav";
 import LiveChat from "@/components/LiveChat";
+import TawkChat from "@/components/TawkChat";
 import StoreGate from "@/components/StoreGate";
 import { PayProvider } from "@/components/PayProvider";
 import InstallApp from "@/components/InstallApp";
@@ -20,7 +21,7 @@ import { blocksSite, openNow } from "@/lib/openCore";
 import { readOpenSettingsServer } from "@/lib/storeOpenServer";
 import { mergedPay } from "@/lib/payments";
 import { themeInitScript } from "@/components/ThemeToggle";
-import { site } from "@/lib/content";
+import { site, tawk } from "@/lib/content";
 import { SITE, languages, pathFor } from "@/lib/seo";
 import "../globals.css";
 
@@ -222,7 +223,9 @@ export default async function LocaleLayout({
                   </div>
                   <BottomNav />
                   {/* الدردشة المباشرة — على كل صفحة، فوق القائمة السفلية */}
-                  <LiveChat />
+                  {/* 💬 دردشةٌ واحدة لا اثنتان: tawk.to متى ضُبط
+                      معرّفه، وإلّا فالمدمجة كما كانت (قرارها ٠٣-٠٨) */}
+                  {tawk ? <TawkChat /> : <LiveChat />}
                   {/* بلا واجهة: يسجّل عامل الخدمة فيصير الموقع قابلاً للتثبيت */}
                   <PwaRegister />
                   {/* وبلا واجهة أيضاً: التطبيق يفتح على الرئيسية لا على

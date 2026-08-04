@@ -11,6 +11,15 @@ import { isBuyable, live, pay } from "./data";
 export type Multilang = { en: string; ar: string; so: string };
 
 /** بيانات المتجر — تُعدَّل من: الإدارة ← عام ← الإعدادات */
+/**
+ * 💬 **معرّف دردشة tawk.to** — الجزء الذي يلي `embed.tawk.to/` في الكود
+ * الذي تعطيه لوحتهم. بفراغه تعود الدردشة المدمجة (`LiveChat`).
+ *
+ * ⚠️ **ليس سرّاً**: يظهر في مصدر كل صفحة على أي حال — تماماً كمفاتيح
+ *    Firebase العامّة. وحمايةُ الحساب عندهم بكلمة سرّه لا بإخفاء رقمه.
+ */
+export const tawk = "6a7189744bf7201d4aa60f24/1jv5o1s38";
+
 export const site = {
   brand: "Ramaan Store",
   tagline: {
