@@ -1,7 +1,9 @@
 "use client";
 
+import { useEffect } from "react";
 import Script from "next/script";
 import { tawk } from "@/lib/content";
+import { useAuth } from "@/lib/auth";
 
 /**
  * 💬 **دردشة tawk.to** — قرارها (٠٣-٠٨): تحلّ محلّ دردشتنا المدمجة.
@@ -26,6 +28,38 @@ import { tawk } from "@/lib/content";
  *    الدردشة المدمجة (`LiveChat`) كما كانت — لم تُحذف.
  */
 export default function TawkChat() {
+  const { user } = useAuth();
+
+  /**
+   * 👤 **من يكلّمك؟** — قرارها (٠٣-٠٨): «أرسل بياناتهم».
+   *
+   * بلا هذا تصلها المحادثات باسم «Visitor 4821»، فلا تعرف صاحبَ الطلب
+   * ولا تربط كلامه بطلبٍ في لوحتها. ومع الاسم والبريد تفتح المحادثة
+   * فتعرف من تخاطب من أوّل سطر.
+   *
+   * ⚠️ **ويعمل قبل تحميل الودجت وبعده**: `Tawk_API` كائنٌ يُنشئه
+   *    السكربت بـ`Tawk_API || {}`، فما نكتبه فيه قبل وصوله يبقى ويُقرأ
+   *    عند التحميل. ومن دخل بعد التحميل تصله البيانات بـ`setAttributes`.
+   *
+   * ⚠️ **والزائر غير المسجّل لا يُرسَل عنه شيء** — لا اسم فارغ ولا بريد.
+   */
+  useEffect(() => {
+    if (!tawk || typeof window === "undefined") return;
+    const name = user?.displayName ?? "";
+    const email = user?.email ?? "";
+    if (!name && !email) return;
+
+    const w = window as unknown as {
+      Tawk_API?: {
+        visitor?: Record<string, string>;
+        setAttributes?: (a: Record<string, string>, cb: () => void) => void;
+      };
+    };
+    w.Tawk_API = w.Tawk_API ?? {};
+    w.Tawk_API.visitor = { name, email };
+    w.Tawk_API.setAttributes?.({ name, email }, () => {});
+  }, [user]);
+
   if (!tawk) return null;
 
   return (
