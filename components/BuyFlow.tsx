@@ -16,7 +16,7 @@ import { usePayMethods } from "@/components/usePayMethods";
 import { usePointsRedeem } from "./PointsRedeem";
 import ClosedNotice from "./ClosedNotice";
 import GiftAsk from "./GiftAsk";
-import { canOrderNow, isReservation, useStoreOpen } from "@/lib/storeOpen";
+import { canOrderNow, isReservation, taxOn, useStoreOpen } from "@/lib/storeOpen";
 import { useQuery } from "@/lib/useQuery";
 import { MIN_HOT, readHot, type HotMap } from "@/lib/hot";
 
@@ -115,6 +115,19 @@ export default function BuyFlow({
   const redeem = usePointsRedeem(total);
   // المتجر مغلق أو خارج الدوام ⇒ يتصفّح ولا يطلب
   const store = useStoreOpen();
+
+  /**
+   * 💰 **الضريبة** — طلبها (٠٤-٠٨): رقمٌ واحد في **Store info** يسري
+   *    على المتجر كلّه، ويظهر **سطراً مستقلاً** لا مخبوءاً في السعر.
+   *
+   * ⚠️ **وتُحسب على سعر الباقة قبل خصم النقاط**: هي ضريبةٌ على قيمة ما
+   *    اشتراه لا على ما تبقّى في جيبه — وهكذا لا تسقط الضريبة كلّها
+   *    عمّن غطّى طلبه بالنقاط.
+   * ⚠️ **وصفرٌ يعني لا سطر أصلاً**: من لم تكتب ضريبةً لا يرى زبونها
+   *    سطراً فارغاً ولا تتبدّل عنده فاتورةٌ بحرف.
+   */
+  const tax = taxOn(total, store.settings);
+  const grand = Math.round((redeem.payable + tax) * 100) / 100;
 
   /* 🔥 «اشتروها اليوم» — يُقرأ مرّة، وبلاه لا شارة ولا تأخير */
   const [hot, setHot] = useState<HotMap>({});
@@ -225,7 +238,8 @@ export default function BuyFlow({
     return [
       `${t("orderCode")}: ${code}`,
       `${t("item")}: ${pack?.title ?? ""}`,
-      `${t("total")}: ${fmt(redeem.payable)}`,
+      ...(tax > 0 ? [`${t("tax")}: ${fmt(tax)}`] : []),
+      `${t("total")}: ${fmt(grand)}`,
       isWa ? "" : `${t("payTitle")}: ${methodName}`,
       accountSummary,
     ].filter(Boolean);
@@ -255,7 +269,10 @@ export default function BuyFlow({
     setSaved("saving");
     /* غطّت النقاط المبلغ كلّه ⇒ الدفع تمّ فعلاً، فيُولد الطلب مؤكَّداً
        ولا ينتظر تأكيداً يدوياً لا معنى له. */
-    const byPoints = redeem.on && redeem.payable <= 0 && redeem.spend > 0;
+    /* ⚠️ **والمقياس المبلغ النهائي لا سعر الباقة**: نقاطٌ تغطّي الباقة
+       ولا تغطّي الضريبة تُبقي عليه مبلغاً يدفعه — فلا يُختم الطلب
+       «مدفوعٌ بالنقاط» وعليه بقيّة. */
+    const byPoints = redeem.on && grand <= 0 && redeem.spend > 0;
     const send = byPoints
       ? (u: typeof user, o: Parameters<typeof saveOrder>[1]) =>
           payWithPoints(u, o, redeem.spend)
@@ -265,7 +282,9 @@ export default function BuyFlow({
       code,
       kind,
       items: [{ id: pack.id, title: pack.title, qty: 1, price: total }],
-      total: redeem.payable,
+      total: grand,
+      /* 🧾 يُحفظ مفصولاً كي تُقرأ الفاتورة في اللوحة: كم بضاعةً وكم ضريبة */
+      ...(tax > 0 ? { tax } : {}),
       usePoints: redeem.spend,
       discount: redeem.discount,
       payMethod: methodName,
@@ -338,7 +357,8 @@ export default function BuyFlow({
           <dl className="flex flex-col gap-2 text-sm">
             {[
               [t("item"), pack.title],
-              [t("total"), fmt(redeem.payable)],
+              ...(tax > 0 ? [[t("tax"), fmt(tax)] as [string, string]] : []),
+              [t("total"), fmt(grand)],
               [t("payTitle"), methodName],
               [t("account"), accountSummary],
               [t("time"), done.at],
@@ -515,19 +535,30 @@ export default function BuyFlow({
                 </div>
               )}
 
+              {tax > 0 && (
+                <div className="flex items-center gap-3 text-sm">
+                  <span className="min-w-0 flex-1 truncate text-muted">
+                    {store.settings.taxPct > 0
+                      ? `${t("tax")} ${store.settings.taxPct}%`
+                      : t("tax")}
+                  </span>
+                  <span className="num shrink-0 font-bold">+{fmt(tax)}</span>
+                </div>
+              )}
+
               <span aria-hidden className="h-px bg-line" />
 
               <div className="flex items-center gap-3">
                 <span className="min-w-0 flex-1 font-bold">{t("total")}</span>
                 <span className="num shrink-0 text-xl font-bold text-yellow">
-                  {fmt(redeem.payable)}
+                  {fmt(grand)}
                 </span>
               </div>
             </div>
 
             {payNeeded && (
               <PaySection
-                amount={redeem.payable}
+                amount={grand}
                 selected={payId}
                 onSelect={setPayId}
                 redeem={redeem}
@@ -577,7 +608,7 @@ export default function BuyFlow({
                 <span className="leading-tight">
                   <span className="block text-xs text-muted">{t("total")}</span>
                   <span className="num block text-xl font-bold text-orange" dir="ltr">
-                    {fmt(redeem.payable)}
+                    {fmt(grand)}
                   </span>
                 </span>
               )}

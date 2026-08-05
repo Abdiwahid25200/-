@@ -14,7 +14,7 @@ import { payWithPoints, saveOrder } from "@/lib/orders";
 import { usePayMethods } from "@/components/usePayMethods";
 import { usePointsRedeem } from "@/components/PointsRedeem";
 import ClosedNotice from "@/components/ClosedNotice";
-import { canOrderNow, isReservation, useStoreOpen } from "@/lib/storeOpen";
+import { canOrderNow, isReservation, taxOn, useStoreOpen } from "@/lib/storeOpen";
 import {
   IconArrow,
   IconCartEmpty,
@@ -50,6 +50,9 @@ export default function CartView() {
   const redeem = usePointsRedeem(total);
   // المتجر مغلق أو خارج الدوام ⇒ يتصفّح ولا يطلب
   const store = useStoreOpen();
+  /* 💰 الضريبة — على قيمة البضاعة قبل خصم النقاط (`lib/openCore.ts`) */
+  const tax = taxOn(total, store.settings);
+  const grand = Math.round((redeem.payable + tax) * 100) / 100;
 
   const methods = live(usePayMethods()).filter(isBuyable);
   const method = methods.find((m) => m.id === payId) ?? methods[0];
@@ -92,14 +95,14 @@ export default function CartView() {
     const items = lines.map((l) => ({
       id: l.id, title: l.name, qty: l.qty, price: l.price,
     }));
-    const sum = redeem.payable;
+    const sum = grand;
     setDone({ code, total: sum });
     clear();
     window.scrollTo({ top: 0, behavior: "smooth" });
 
     setSaved("saving");
     // غطّت النقاط المبلغ كلّه ⇒ يُولد الطلب مؤكَّداً
-    const byPoints = redeem.on && redeem.payable <= 0 && redeem.spend > 0;
+    const byPoints = redeem.on && grand <= 0 && redeem.spend > 0;
     const send = byPoints
       ? (u: typeof user, o: Parameters<typeof saveOrder>[1]) =>
           payWithPoints(u, o, redeem.spend)
@@ -107,6 +110,7 @@ export default function CartView() {
 
     const r = await send(user, {
       code, kind: "elec", items, total: sum,
+      ...(tax > 0 ? { tax } : {}),
       usePoints: redeem.spend,
       discount: redeem.discount,
       payMethod: methodName,
@@ -348,7 +352,7 @@ export default function CartView() {
       {payNeeded && (
         <div ref={payRef}>
           <PaySection
-              amount={redeem.payable}
+              amount={grand}
               selected={payId}
               onSelect={setPayId}
               redeem={redeem}
@@ -359,6 +363,19 @@ export default function CartView() {
       <ClosedNotice state={store} />
 
       {/* الإجمالي — للمراجعة وحدها، والتأكيد في الشريط العائم أسفل الشاشة */}
+      {/* ⚠️ **سطر الضريبة فوق الإجمالي لا داخله**: المبلغ الذي يتغيّر
+          بلا سببٍ ظاهر يُقرأ خطأً في السعر، فيُسأل عنه أو يُترك الطلب. */}
+      {tax > 0 && (
+        <section className="card row">
+          <span className="f13 mu">
+            {store.settings.taxPct > 0
+              ? `${tb("tax")} ${store.settings.taxPct}%`
+              : tb("tax")}
+          </span>
+          <span className="num f13 font-bold" dir="ltr">+{fmt(tax)}</span>
+        </section>
+      )}
+
       <section className="card row">
         <span className="gr f17 font-extrabold">{tb("total")}</span>
         <span className="num f20 font-extrabold text-yellow" dir="ltr">
@@ -367,7 +384,7 @@ export default function CartView() {
               {fmt(total)}
             </span>
           )}
-          {fmt(redeem.payable)}
+          {fmt(grand)}
         </span>
       </section>
 
@@ -385,7 +402,7 @@ export default function CartView() {
               </span>
             </span>
             <span className="num block text-xl font-bold text-orange" dir="ltr">
-              {fmt(redeem.payable)}
+              {fmt(grand)}
             </span>
           </span>
 

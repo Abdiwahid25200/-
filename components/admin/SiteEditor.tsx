@@ -5,7 +5,7 @@ import { doc, getDoc } from "firebase/firestore";
 import { fbDb } from "@/lib/firebase";
 import { saveOverride, type SiteOverride } from "@/lib/overrides";
 import { diff, hasChanges } from "@/lib/dirty";
-import { DEFAULT_OPEN, readOpenSettings, type OpenSettings } from "@/lib/storeOpen";
+import { DEFAULT_OPEN, readOpenSettings, taxOn, type OpenSettings } from "@/lib/storeOpen";
 import { site } from "@/lib/content";
 import ImagePicker from "./ImagePicker";
 import type { ClosedStyle } from "@/lib/storeOpen";
@@ -168,6 +168,10 @@ export default function SiteEditor() {
       hoursTitle: open.hoursTitle,
       hoursNote: open.hoursNote,
       closedImage: open.closedImage,
+      /* ⚠️ **وتُسرد هنا صراحةً**: هذه الدالة تبني ما يُحفظ حقلاً حقلاً،
+         فحقلٌ لا يُذكر فيها يُكتب على الشاشة ولا يصل قاعدة البيانات. */
+      taxPct: Number(open.taxPct) || 0,
+      taxFlat: Number(open.taxFlat) || 0,
     };
 
     const changed = diff(base, now);
@@ -331,6 +335,68 @@ export default function SiteEditor() {
           className={`${field} num text-start`}
         />
       </label>
+
+      {/**
+       * 💰 **الضريبة أو الرسوم** — طلبها (٠٤-٠٨).
+       *
+       * رقمان يعملان معاً، وكلاهما اختياريّ. فراغهما ⇒ لا سطر ضريبة
+       * ولا يتغيّر شيء عند الزبون.
+       *
+       * ⚠️ **ومكانهما هنا لا في كل صنف**: رقمٌ يُكتب مرّةً خيرٌ من رقمٍ
+       *    يُكتب في مئة صنفٍ فيُنسى في واحد — والنسيان خسارةٌ متكرّرة.
+       */}
+      <div className="flex flex-col gap-1.5">
+        <span className="text-sm font-bold">Tax or fee</span>
+        <span className="text-sm text-muted">
+          Added on top of the order and shown to the customer as its own line.
+          Leave both empty for no tax.
+        </span>
+
+        <div className="mt-1 grid grid-cols-2 gap-3">
+          <label className="flex flex-col gap-1.5 text-sm">
+            <span className="font-medium">Percent of the order</span>
+            <input
+              type="number"
+              inputMode="decimal"
+              step="0.5"
+              min={0}
+              max={100}
+              value={open.taxPct || ""}
+              placeholder="e.g. 5"
+              onChange={(e) =>
+                setOpen({ ...open, taxPct: Number(e.target.value) || 0 })
+              }
+              dir="ltr"
+              className={`${field} num text-start`}
+            />
+          </label>
+
+          <label className="flex flex-col gap-1.5 text-sm">
+            <span className="font-medium">Fixed fee (USD)</span>
+            <input
+              type="number"
+              inputMode="decimal"
+              step="0.05"
+              min={0}
+              value={open.taxFlat || ""}
+              placeholder="e.g. 0.25"
+              onChange={(e) =>
+                setOpen({ ...open, taxFlat: Number(e.target.value) || 0 })
+              }
+              dir="ltr"
+              className={`${field} num text-start`}
+            />
+          </label>
+        </div>
+
+        {/* مثالٌ حيّ بالأرقام — ترى أثر ما كتبته قبل أن تحفظ */}
+        {(open.taxPct > 0 || open.taxFlat > 0) && (
+          <p className="num mt-1 rounded-card bg-bg p-3 text-sm text-muted" dir="ltr">
+            $10.00 → +${taxOn(10, open).toFixed(2)} = $
+            {(10 + taxOn(10, open)).toFixed(2)}
+          </p>
+        )}
+      </div>
 
       {/* ── شكل صفحة الإغلاق ── */}
       <div className="flex flex-col gap-2">

@@ -59,6 +59,21 @@ export type OpenSettings = {
   offDays: number[];
   /** فارق توقيت بلدك عن غرينتش */
   tzOffset: number;
+  /**
+   * 💰 **الضريبة أو الرسوم** — طلبها (٠٤-٠٨).
+   *
+   * رقمان يعملان معاً: نسبةٌ من المبلغ (`taxPct`) ومبلغٌ ثابت لكل طلب
+   * (`taxFlat`). فراغهما معاً ⇒ **لا سطر ضريبةٍ أصلاً** ولا يتغيّر شيء.
+   *
+   * ⚠️ **ولماذا هما في وثيقة المتجر لا في كل صنف**: رقمٌ تكتبينه مرّةً
+   *    خيرٌ من رقمٍ تكتبينه في مئة صنفٍ فتنسينه في واحد — والنسيان هنا
+   *    خسارةٌ في كل طلبٍ من ذلك الصنف.
+   * ⚠️ **وهما هنا لا في `SiteOverride`**: هذه الوثيقة تُقرأ على الخادم
+   *    مرّةً وتُمرَّر لكل الشاشات (`StoreGate`)، فلا قراءةَ جديدة في
+   *    تدفّق الشراء ولا رقمٌ يظهر متأخّراً بعد أن يقرأ الزبون المبلغ.
+   */
+  taxPct: number;
+  taxFlat: number;
 };
 
 export const DEFAULT_OPEN: OpenSettings = {
@@ -75,6 +90,8 @@ export const DEFAULT_OPEN: OpenSettings = {
   openTo: "23:00",
   offDays: [5],
   tzOffset: 3,
+  taxPct: 0,
+  taxFlat: 0,
 };
 
 export type OpenState = {
@@ -136,8 +153,33 @@ export function normalizeOpen(v: Partial<OpenSettings>): OpenSettings {
     tzOffset: Number.isFinite(Number(v.tzOffset))
       ? Number(v.tzOffset)
       : DEFAULT_OPEN.tzOffset,
+    /* ⚠️ **ولا سالب ولا فوق المئة**: حقلٌ مكتوبٌ بيدٍ واحدة على جوّال،
+       و«-٥» أو «٥٠٠» يقلبان الفاتورة. يُقصّان هنا مرّةً فلا يمرّان. */
+    taxPct: clampNum(v.taxPct, 0, 100),
+    taxFlat: clampNum(v.taxFlat, 0, 10000),
   };
 }
+
+const clampNum = (v: unknown, lo: number, hi: number) => {
+  const n = Number(v);
+  return Number.isFinite(n) ? Math.min(hi, Math.max(lo, n)) : lo;
+};
+
+/**
+ * 💰 **مبلغ الضريبة على مبلغٍ ما** — مصدرٌ واحد يقرؤه تدفّق الشراء
+ *    والسلّة وشاشة الملخّص، فلا يختلف رقمان في شاشتين.
+ *
+ * ⚠️ **وتُحسب على المبلغ قبل خصم النقاط** — لأنها ضريبةٌ على قيمة ما
+ *    اشتراه لا على ما تبقّى في جيبه. (وهذا ما تفعله المتاجر كلّها.)
+ * ⚠️ **وتُقرَّب إلى سنتين** فلا يظهر `$0.30000000000000004` في فاتورة.
+ */
+export const taxOn = (amount: number, s: Pick<OpenSettings, "taxPct" | "taxFlat">) => {
+  const base = Number(amount) || 0;
+  if (base <= 0) return 0;
+  const pct = (base * (Number(s.taxPct) || 0)) / 100;
+  const flat = Number(s.taxFlat) || 0;
+  return Math.round((pct + flat) * 100) / 100;
+};
 
 /**
  * هل يستطيع الزبون إرسال طلبٍ الآن؟

@@ -119,6 +119,7 @@
     "handNote": "After you pay we message you on WhatsApp with the details, and we confirm you are signed in before closing the order."
   },
   "buy": {
+    "tax": "Tax",
     "selectPackage": "Choose a package",
     "payTitle": "Payment method",
     "copy": "Copy",

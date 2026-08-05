@@ -34,6 +34,31 @@ export async function readOpenSettings(): Promise<OpenSettings> {
 }
 
 /**
+ * 🐞 **قراءةٌ لا تُتلف ما بين يديك** — عطلٌ انكشف وأنا أختبر الضريبة
+ *    (٠٤-٠٨).
+ *
+ * `readOpenSettings` تُرجع **الإعدادات الافتراضية** حين تتعثّر الشبكة
+ * (وهذا صوابٌ لمن لا يملك شيئاً: خطأٌ في الشبكة لا يقفل متجراً). لكنّ
+ * المراجعة الدورية في المتصفّح كانت تستعملها، فإذا تعثّرت قراءةٌ واحدة
+ * **مُسحت إعدادات المتجر الحقيقية** التي جاءت من الخادم وحلّ محلّها
+ * الافتراضيّ: فتختفي الضريبة من الفاتورة، ويتبدّل شكل صفحة الإغلاق،
+ * وتعود ساعات الدوام إلى ٩–٢٣ — كلّه لأن الجوّال دخل نفقاً.
+ *
+ * فهذه تُرجع `null` عند التعثّر، والمراجعة تتجاهلها وتُبقي ما عندها.
+ * **ولا يُستبدل معلومٌ بمجهول.**
+ */
+async function pullOpen(): Promise<OpenSettings | null> {
+  const db = fbDb();
+  if (!db) return null;
+  try {
+    const snap = await getDoc(doc(db, "settings", "store"));
+    return normalizeOpen((snap.exists() ? snap.data() : {}) as Partial<OpenSettings>);
+  } catch {
+    return null;
+  }
+}
+
+/**
  * الحالة الحيّة يقرؤها كل مَن يحتاجها — من **مصدرٍ واحد**.
  *
  * ⚠️ كانت كل قطعةٍ تقرأ الوثيقة بنفسها (الشريط · بطاقة السرعة · تدفّق
@@ -58,7 +83,7 @@ export function useLiveOpen(initial: OpenSettings, enabled = true): OpenState {
     let alive = true;
     /* ⚠️ تُقرأ الوثيقة كل دقيقة لا مرّةً واحدة: من أغلقتِ المتجر وهو
        يتصفّح يجب أن تنزل عليه الستارة، لا أن يبقى يشتري حتى يحدّث. */
-    const pull = () => void readOpenSettings().then((v) => alive && setS(v));
+    const pull = () => void pullOpen().then((v) => v && alive && setS(v));
     pull();
     const id = setInterval(() => {
       pull();
