@@ -119,6 +119,9 @@
     "handNote": "Markaad bixiso waxaan kugu soo dirnaa WhatsApp xogta, waana hubinaynaa inaad gashay ka hor inta aan dalabka la xidhin."
   },
   "promo": {
+    "signIn": "Gal si aad koodhkan u isticmaasho.",
+    "usedByYou": "Horey ayaad u isticmaashay koodhkan.",
+    "saleOnly": "Koodhkani kuma shaqeeyo alaab horey qiimo-dhimis loogu sameeyay.",
     "have": "Ma haysaa koodh dhimis?",
     "placeholder": "Koodhka dhimista",
     "apply": "Codso",

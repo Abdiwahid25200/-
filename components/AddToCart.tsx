@@ -11,11 +11,14 @@ export default function AddToCart({
   name,
   price,
   img,
+  sale,
 }: {
   id: string;
   name: string;
   price: number;
   img?: string;
+  /** عليه خصمٌ معروض — يمنع اجتماعه مع كود خصم */
+  sale?: boolean;
 }) {
   const t = useTranslations("cart");
   const { add } = useCart();
@@ -25,7 +28,7 @@ export default function AddToCart({
     <button
       type="button"
       onClick={() => {
-        add({ id, name, price, img });
+        add({ id, name, price, img, sale });
         setDone(true);
         setTimeout(() => setDone(false), 1400);
       }}

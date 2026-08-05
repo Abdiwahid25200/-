@@ -35,6 +35,27 @@ export type Promo = {
   until: string;
   /** مطفأٌ بيدك ⇐ لا يعمل ولو بقيت مرّاته */
   on: boolean;
+  /**
+   * 🛡️ **مرّة واحدة لكل حساب** — الحارس الذي يمنع الخسارة الجماعية.
+   *
+   * «عدد المرّات» رقمٌ للكلّ: مئةُ مرّةٍ ينتهيها **زبونٌ واحد** يشتري
+   * مئة مرّة. وهذا الشرط يجعل الكود المنشور في مجموعة واتساب غير ضارّ:
+   * كل حساب يأخذه مرّةً واحدة.
+   *
+   * 🔒 **وتنفيذه بوثيقةٍ لا بعدّاد**: `promos/{code}/claims/{uid}` —
+   *    والقاعدة تسمح بإنشائها ولا تسمح بالكتابة فوقها، فالمحاولة
+   *    الثانية تُرفض من الخادم لا من الشاشة.
+   * ⚠️ **ويلزمه تسجيل دخول** — ولا يُعرف الزائر ليُحدّ.
+   */
+  perUser: boolean;
+  /**
+   * 🛡️ **لا يجتمع مع خصمٍ قائم** — إلا أن تأذني.
+   *
+   * صنفٌ عليه خصمٌ أصلاً ثم كودٌ فوقه: خصمان على بضاعةٍ واحدة، وهذا
+   * أوّل طريقٍ إلى البيع بأقلّ من التكلفة. فالافتراض **لا**، ومن أرادت
+   * عرضاً فوق عرضٍ تفتحه بيدها.
+   */
+  withSale: boolean;
 };
 
 export const EMPTY_PROMO: Promo = {
@@ -47,6 +68,8 @@ export const EMPTY_PROMO: Promo = {
   used: 0,
   until: "",
   on: true,
+  perUser: true,
+  withSale: false,
 };
 
 /** الرمز يُكتب كما يشاء الزبون ويُقرأ كما كتبتِه أنتِ */
@@ -66,6 +89,8 @@ export function toPromo(id: string, v: Partial<Promo>): Promo {
     used: Number(v.used) || 0,
     until: String(v.until ?? ""),
     on: v.on !== false,
+    perUser: v.perUser !== false,
+    withSale: v.withSale === true,
   };
 }
 
@@ -76,6 +101,9 @@ export type PromoFail =
   | "expired"
   | "spent"
   | "min"
+  | "signIn"
+  | "usedByYou"
+  | "saleOnly"
   | "offline";
 
 export type PromoCheck =
@@ -109,6 +137,12 @@ const today = () => new Date().toISOString().slice(0, 10);
 export async function checkPromo(
   raw: string,
   amount: number,
+  opts: {
+    /** من يطلب؟ — يلزم للرموز المحدودة بحسابٍ واحد */
+    uid?: string | null;
+    /** هل في الطلب صنفٌ عليه خصمٌ أصلاً؟ */
+    hasSale?: boolean;
+  } = {},
 ): Promise<PromoCheck> {
   const code = normCode(raw);
   if (!code) return { ok: false, why: "notFound" };
@@ -126,6 +160,15 @@ export async function checkPromo(
     if (p.until && p.until < today()) return { ok: false, why: "expired" };
     if (p.uses > 0 && p.used >= p.uses) return { ok: false, why: "spent" };
     if (p.min > 0 && amount < p.min) return { ok: false, why: "min" };
+    /* 🛡️ خصمٌ فوق خصم — ممنوعٌ إلا أن تأذني في الكود نفسه */
+    if (opts.hasSale && !p.withSale) return { ok: false, why: "saleOnly" };
+
+    /* 🛡️ مرّة واحدة لكل حساب */
+    if (p.perUser) {
+      if (!opts.uid) return { ok: false, why: "signIn" };
+      const used = await getDoc(doc(db, "promos", code, "claims", opts.uid));
+      if (used.exists()) return { ok: false, why: "usedByYou" };
+    }
 
     const off = promoOff(p, amount);
     if (off <= 0) return { ok: false, why: "min" };
@@ -144,12 +187,16 @@ export async function checkPromo(
  * 🔒 **والقواعد تسمح بزيادة `used` وحدها**: لا يستطيع أحدٌ أن يبدّل
  *    قيمة الخصم أو يفتح رمزاً مطفأً (انظري `firestore.rules`).
  */
-export async function usePromo(code: string) {
+export async function usePromo(code: string, uid?: string | null) {
   const db = fbDb();
   if (!db || !code) return;
+  const id = normCode(code);
   try {
-    const { doc, increment, updateDoc } = await import("firebase/firestore");
-    await updateDoc(doc(db, "promos", normCode(code)), { used: increment(1) });
+    const { doc, increment, setDoc, updateDoc } = await import("firebase/firestore");
+    await updateDoc(doc(db, "promos", id), { used: increment(1) });
+    /* 🛡️ **ختمُ الحساب** — به يُرفض استعمالُه ثانيةً من الخادم نفسه.
+       والكتابة فوق وثيقةٍ قائمة ممنوعةٌ بالقاعدة، فالثانية تفشل. */
+    if (uid) await setDoc(doc(db, "promos", id, "claims", uid), { at: Date.now() });
   } catch {
     /* لا شيء — انظري أعلاه */
   }

@@ -127,7 +127,7 @@ export default function CartView() {
       ...(isReservation(store) ? { reserved: true } : {}),
     });
     setSaved(r.ok ? "ok" : r.reason);
-    if (r.ok && promoOffAmt > 0) void usePromo(promo!.code);
+    if (r.ok && promoOffAmt > 0) void usePromo(promo!.code, user?.uid);
   }
 
   /**
@@ -372,7 +372,13 @@ export default function CartView() {
       <ClosedNotice state={store} />
 
       {/* الإجمالي — للمراجعة وحدها، والتأكيد في الشريط العائم أسفل الشاشة */}
-      <PromoBox amount={total} value={promo} onChange={setPromo} />
+      {/* ⚠️ سطرٌ عليه خصمٌ في السلّة يمنع الكود إلا بإذنها (`sale` في السطر) */}
+      <PromoBox
+        amount={total}
+        value={promo}
+        onChange={setPromo}
+        hasSale={lines.some((l) => l.sale)}
+      />
 
       {promoOffAmt > 0 && (
         <section className="card row">

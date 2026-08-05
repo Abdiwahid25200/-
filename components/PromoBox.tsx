@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useTranslations } from "next-intl";
 import { fmt } from "@/lib/format";
+import { useAuth } from "@/lib/auth";
 import { checkPromo, type Promo } from "@/lib/promos";
 import { IconCheckCircle, IconSpinner, IconTicket } from "./icons";
 
@@ -25,13 +26,17 @@ export default function PromoBox({
   amount,
   value,
   onChange,
+  hasSale = false,
 }: {
   /** المبلغ الذي يُخصم منه — قبل النقاط والضريبة */
   amount: number;
   value: PromoState;
   onChange: (v: PromoState) => void;
+  /** في الطلب صنفٌ عليه خصمٌ أصلاً ⇒ الكود لا يجتمع معه إلا بإذنها */
+  hasSale?: boolean;
 }) {
   const t = useTranslations("promo");
+  const { user } = useAuth();
   const [open, setOpen] = useState(false);
   const [text, setText] = useState("");
   const [busy, setBusy] = useState(false);
@@ -41,7 +46,7 @@ export default function PromoBox({
     if (!text.trim() || busy) return;
     setBusy(true);
     setErr(null);
-    const r = await checkPromo(text, amount);
+    const r = await checkPromo(text, amount, { uid: user?.uid, hasSale });
     setBusy(false);
     if (!r.ok) return setErr(t(r.why));
     onChange({ code: r.promo.code, off: r.off, promo: r.promo });

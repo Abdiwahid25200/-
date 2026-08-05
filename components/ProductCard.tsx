@@ -75,7 +75,7 @@ export default function ProductCard({
             {soonLabel}
           </span>
         ) : (
-          <AddToCart id={id} name={name} price={final} img={img} />
+          <AddToCart id={id} name={name} price={final} img={img} sale={!!off} />
         )}
 
         {/* ⚠️ **«شاهد التفاصيل» سطرٌ تحت زرّ الشراء لا زرٌّ ثانٍ بجانبه**:

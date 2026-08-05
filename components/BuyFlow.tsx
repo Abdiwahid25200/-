@@ -315,7 +315,7 @@ export default function BuyFlow({
     });
     setSaved(r.ok ? "ok" : r.reason);
     /* ⚠️ **بعد الطلب لا قبله**، وفشلُه لا يُفشل شيئاً (`lib/promos.ts`) */
-    if (r.ok && promoOffAmt > 0) void usePromo(promo!.code);
+    if (r.ok && promoOffAmt > 0) void usePromo(promo!.code, user?.uid);
   }
 
   function reset() {
@@ -594,7 +594,12 @@ export default function BuyFlow({
             </div>
 
             {/* 🎟️ مطويٌّ حتى يُضغط — انظري `PromoBox` */}
-            <PromoBox amount={total} value={promo} onChange={setPromo} />
+            <PromoBox
+              amount={total}
+              value={promo}
+              onChange={setPromo}
+              hasSale={!!pack.old && pack.old > total}
+            />
 
             {payNeeded && (
               <PaySection

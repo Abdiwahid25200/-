@@ -13,6 +13,8 @@ export type CartLine = {
   id: string;
   name: string;
   price: number; // السعر النهائي بعد الخصم
+  /** عليه خصمٌ أصلاً — فلا يجتمع معه كود خصم إلا بإذنها */
+  sale?: boolean;
   img?: string;
   qty: number;
 };

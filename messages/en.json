@@ -119,6 +119,9 @@
     "handNote": "After you pay we message you on WhatsApp with the details, and we confirm you are signed in before closing the order."
   },
   "promo": {
+    "signIn": "Sign in to use this code.",
+    "usedByYou": "You already used this code.",
+    "saleOnly": "This code does not work on an item that is already discounted.",
     "have": "Have a promo code?",
     "placeholder": "Promo code",
     "apply": "Apply",

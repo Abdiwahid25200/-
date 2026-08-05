@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useAuth } from "@/lib/auth";
+import { readCosts, type Costs } from "@/lib/costs";
 import { useAccess } from "@/lib/adminAccess";
 import { doneLabel } from "@/lib/deliver";
 import { planOf, type Plan } from "@/lib/orderPlan";
@@ -115,6 +116,11 @@ export default function OrderQueue({ onAll }: { onAll: () => void }) {
 
   const [settings, setSettings] = useState<PointsSettings>(DEFAULT_POINTS);
   const [map, setMap] = useState<PointsMap>({});
+  /* 🛡️ التكاليف — تُقرأ مرّةً، ومنها ربحُ كل طلبٍ قبل تأكيده */
+  const [costs, setCosts] = useState<Costs>({});
+  useEffect(() => {
+    void readCosts().then(setCosts);
+  }, []);
 
   const load = useCallback(async () => {
     setErr(false);
@@ -226,6 +232,16 @@ export default function OrderQueue({ onAll }: { onAll: () => void }) {
 
   const total = Number(o.total) || 0;
   const spent = Number(o.usePoints) || Number(o.pointsSpent) || 0;
+
+  /* 🛡️ تكلفة أصناف الطلب — بلا تكلفةٍ مكتوبة لا رقم ولا تخمين */
+  const lines = o.items ?? [];
+  const known = lines.filter((l) => costs[l.id] !== undefined && costs[l.id]! > 0);
+  const cost = known.reduce((n, l) => n + (costs[l.id] ?? 0) * (Number(l.qty) || 1), 0);
+  /* الضريبة ليست ربحاً — تُطرح من الإيراد قبل المقارنة بالتكلفة */
+  const margin =
+    known.length === lines.length && lines.length > 0
+      ? Math.round((total - (Number(o.tax) || 0) - cost) * 100) / 100
+      : null;
   const phone = (who?.phone ?? "").replace(/\D/g, "");
 
   async function move(to: OrderStatus) {
@@ -321,6 +337,30 @@ export default function OrderQueue({ onAll }: { onAll: () => void }) {
             ${total.toFixed(2)}
           </b>
         </div>
+
+        {/**
+         * 🛡️ **ربحك في هذا الطلب — قبل «مدفوع» لا بعد الشهر.**
+         *
+         * طلبها (٠٤-٠٨): «اجعل الثلاثة لا تخسرني». والخصمُ والكودُ
+         * والضريبة تتقاطع في هذا السطر: بضاعةٌ بكذا، ناقص كذا، وتكلفتك
+         * كذا. فإن كان الربح سالباً رأيتِه **بالأحمر وأنت واقفةٌ عند
+         * الزرّ**، لا في حساب آخر الشهر.
+         *
+         * ⚠️ **ولا يظهر بلا تكلفة**: من لم تُكتب تكلفتُه لا يُخمَّن له
+         *    ربح — ورقمٌ مخمَّن أسوأ من لا رقم.
+         */}
+        {margin !== null && (
+          <p
+            className={`num rounded-card p-3 text-sm ${
+              margin < 0 ? "adm-warn" : "bg-bg text-muted"
+            }`}
+            dir="ltr"
+          >
+            cost ${cost.toFixed(2)} · you make ${margin.toFixed(2)}
+            {o.promo ? ` · code ${o.promo} −$${(Number(o.promoOff) || 0).toFixed(2)}` : ""}
+            {o.tax ? ` · tax $${(Number(o.tax) || 0).toFixed(2)}` : ""}
+          </p>
+        )}
 
         {o.reserved && (
           <p className="adm-warn soft text-sm">

@@ -186,6 +186,20 @@ service cloud.firestore {
         || (isSignedIn()
             && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['used'])
             && request.resource.data.used == resource.data.get('used', 0) + 1);
+
+      /* 🛡️ **ختمُ «استعملتُه»** — وثيقةٌ باسم الزبون تحت الرمز.
+         ⚠️ **إنشاءٌ بلا كتابةٍ فوقه**: `create` تفشل إن كانت الوثيقة
+            موجودةً أصلاً، و`update` ممنوعة — فلا يُستعمل الرمز مرّتين
+            من الحساب نفسه **ولو عُدّل الكود في المتصفّح**. والمنعُ من
+            الخادم لا من الشاشة.
+         ⚠️ **ويقرأ كلٌّ ختمَه وحده**: لا يعرف زبونٌ من استعمل الرمز. */
+      match /claims/{uid} {
+        allow get: if isSignedIn() && request.auth.uid == uid;
+        allow list: if canDo('products');
+        allow create: if isSignedIn() && request.auth.uid == uid;
+        allow update: if false;
+        allow delete: if canDo('products');
+      }
     }
 
     match /staff/{email} {

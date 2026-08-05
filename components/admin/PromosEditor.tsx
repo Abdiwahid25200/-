@@ -11,6 +11,8 @@ import {
   type Promo,
 } from "@/lib/promos";
 import { IconCheckCircle, IconPlus, IconSpinner, IconTrash } from "@/components/icons";
+import { allItems, type ItemKind } from "@/lib/items";
+import { readCosts, type Costs } from "@/lib/costs";
 
 /**
  * 🎟️ **رموز الخصم** — طلبها (٠٤-٠٨).
@@ -29,6 +31,45 @@ export default function PromosEditor() {
   /** الرموز التي أُنشئت في هذه الجلسة — حقل الاسم فيها مفتوح */
   const [fresh, setFresh] = useState<Set<string>>(new Set());
 
+  /**
+   * 🛡️ **حارس التكلفة** — تقولها هي: «اجعل الثلاثة لا تخسرني».
+   *
+   * تُقرأ الأسعار والتكاليف مرّةً، فيُحسب لكل رمزٍ **أسوأ صنف**: الذي
+   * يهبط سعره بعد الرمز تحت تكلفته. ويُقال بالاسم والرقم قبل الحفظ.
+   *
+   * ⚠️ **وفي اللوحة لا عند الزبون**: التكلفة سرّيةٌ لا يقرأها متصفّحه
+   *    أصلاً (القواعد تمنعه)، فالحارس تحذيرٌ ومنعٌ عندك لا حسابٌ عنده.
+   */
+  const [priced, setPriced] = useState<{ id: string; title: string; price: number }[]>([]);
+  const [costs, setCosts] = useState<Costs>({});
+
+  useEffect(() => {
+    void readCosts().then(setCosts);
+    const kinds: ItemKind[] = ["pubg", "efootball", "tiktok", "accounts", "elec"];
+    void Promise.all(kinds.map((k) => allItems(k))).then((all) =>
+      setPriced(
+        all
+          .flat()
+          .filter((i) => !i.hidden && i.status !== "off" && Number(i.price) > 0)
+          .map((i) => ({ id: i.id, title: i.title || i.id, price: Number(i.price) })),
+      ),
+    );
+  }, []);
+
+  /** أسوأ صنفٍ يبيعه هذا الرمز بخسارة — أو `null` إن كان كلّه رابحاً */
+  function worstLoss(p: Promo) {
+    let worst: { title: string; left: number; cost: number } | null = null;
+    for (const it of priced) {
+      const cost = costs[it.id];
+      if (cost === undefined || cost <= 0) continue;
+      const left = Math.round((it.price - promoOff(p, it.price)) * 100) / 100;
+      if (left >= cost) continue;
+      if (!worst || left - cost < worst.left - worst.cost)
+        worst = { title: it.title, left, cost };
+    }
+    return worst;
+  }
+
   const load = () => {
     setList(null);
     void allPromos().then(setList);
@@ -43,6 +84,23 @@ export default function PromosEditor() {
   async function save(p: Promo) {
     const code = normCode(p.code);
     if (!code) return alert("Write the code first.");
+
+    /* 🛡️ **سقفٌ إجباريّ للنسبة**: «50» تُكتب مكان «5» في لحظة، وبلا
+       سقفٍ تصير نصفَ كل طلبٍ في المتجر حتى تنتبهي. */
+    if (p.kind === "pct" && p.max <= 0)
+      return alert(
+        "Percent codes need a Max discount.\nWithout a cap, one typo can halve every order.",
+      );
+
+    /* 🛡️ **وحارس التكلفة**: يُقال ما يقع بالاسم والرقم، ثم القرار لك */
+    const bad = worstLoss({ ...p, code });
+    if (
+      bad &&
+      !confirm(
+        `“${bad.title}” would sell at $${bad.left.toFixed(2)} — your cost is $${bad.cost.toFixed(2)}.\nYou lose $${(bad.cost - bad.left).toFixed(2)} on every one.\n\nSave anyway?`,
+      )
+    )
+      return;
     setBusy(p.code);
     const ok = await savePromo({ ...p, code });
     setBusy(null);
@@ -223,6 +281,58 @@ export default function PromosEditor() {
                 Code is working
               </span>
             </label>
+
+            {/* 🛡️ الحارسان اللذان يمنعان الخسارة الجماعية */}
+            <label className="flex items-center gap-3 rounded-card border border-line p-3">
+              <input
+                type="checkbox"
+                checked={p.perUser}
+                onChange={(e) => patch(p.code, { perUser: e.target.checked })}
+                className="size-5 shrink-0 accent-orange"
+              />
+              <span className="min-w-0 flex-1">
+                <span className="block text-sm font-medium">
+                  Once per customer
+                </span>
+                <span className="block text-sm text-muted">
+                  Keeps a shared code harmless. Needs the customer to sign in.
+                </span>
+              </span>
+            </label>
+
+            <label className="flex items-center gap-3 rounded-card border border-line p-3">
+              <input
+                type="checkbox"
+                checked={p.withSale}
+                onChange={(e) => patch(p.code, { withSale: e.target.checked })}
+                className="size-5 shrink-0 accent-orange"
+              />
+              <span className="min-w-0 flex-1">
+                <span className="block text-sm font-medium">
+                  Works on already-discounted items
+                </span>
+                <span className="block text-sm text-muted">
+                  Off means one discount at a time.
+                </span>
+              </span>
+            </label>
+
+            {(() => {
+              const bad = worstLoss(p);
+              return bad ? (
+                <p className="adm-warn text-sm">
+                  <span>
+                    <b className="block">
+                      “{bad.title}” would sell below your cost
+                    </b>
+                    <span className="num" dir="ltr">
+                      ${bad.left.toFixed(2)} vs cost ${bad.cost.toFixed(2)} — you
+                      lose ${(bad.cost - bad.left).toFixed(2)} each
+                    </span>
+                  </span>
+                </p>
+              ) : null;
+            })()}
 
             {/* ما ستفعله الأرقام — بالمثال لا بالوصف */}
             <p className="num rounded-card bg-bg p-3 text-sm text-muted" dir="ltr">
