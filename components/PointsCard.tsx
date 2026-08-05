@@ -13,6 +13,7 @@ import {
   IconWhatsApp,
 } from "./icons";
 import PaySection from "./PaySection";
+import { onIdle } from "@/lib/share";
 import { getProfile } from "@/lib/profile";
 import { claimIncoming, ensurePhoneEntry, sendPointsTo } from "@/lib/transfers";
 import {
@@ -83,6 +84,7 @@ export default function PointsCard({ settings: given }: { settings?: PointsSetti
       return;
     }
     let alive = true;
+    let stopIdle: (() => void) | null = null;
 
     void (async () => {
       try {
@@ -97,9 +99,13 @@ export default function PointsCard({ settings: given }: { settings?: PointsSetti
         setSettings(s);
         setPoints(p);
         setRows(l);
+        /* ⏳ **وما بعده يُؤجَّل**: الملفّ والحوالاتُ الواردة رحلتان
+           أخريان لا يراهما الزبون في أوّل نظرة — ورصيدُه أمامه أصلاً.
+           فتُؤجَّلان إلى أوّل فراغٍ للجهاز (بلاغ التقطيع ٠٤-٠٨). */
+        stopIdle = onIdle(() => {
         /* ⚠️ ما إن يفتح الصفحة حتى يستلم ما أُرسل إليه — بلا زرّ ولا
            انتظار موافقة. الحوالة موجودة، والقواعد تأذن، فيدخل الرصيد. */
-        void getProfile(user)
+          void getProfile(user)
           .then(async (pr) => {
             if (!alive) return;
             const ph = pr?.phone ?? "";
@@ -116,7 +122,8 @@ export default function PointsCard({ settings: given }: { settings?: PointsSetti
             setMsg(t("received", { n: got }));
             void myLedger(user, 8).then((l) => alive && setRows(l));
           })
-          .catch(() => {});
+            .catch(() => {});
+        });
       } catch {
         // بلا Firebase أو مع انقطاع: تختفي البطاقة ولا يظهر خطأ للزبون
         if (alive) setPoints(null);
@@ -125,6 +132,7 @@ export default function PointsCard({ settings: given }: { settings?: PointsSetti
 
     return () => {
       alive = false;
+      stopIdle?.();
     };
   }, [user, given]);
 

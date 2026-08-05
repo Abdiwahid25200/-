@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { onIdle } from "@/lib/share";
 import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import { useAuth } from "@/lib/auth";
@@ -32,8 +33,11 @@ export default function HomeBarwaaqo() {
 
   useEffect(() => {
     if (!user) return setPts(0);
-    void myPoints(user).then(setPts).catch(() => {});
-    void readPointsSettings().then(setS).catch(() => {});
+    /* ⏳ بطاقةٌ تحت البطل — تُقرأ بعد أن يُرسم ما فوقها */
+    return onIdle(() => {
+      void myPoints(user).then(setPts).catch(() => {});
+      void readPointsSettings().then(setS).catch(() => {});
+    });
   }, [user]);
 
   if (!user || !s.on || pts <= 0) return null;

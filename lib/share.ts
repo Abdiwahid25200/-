@@ -48,3 +48,34 @@ export function share<T>(key: string, ttlMs: number, run: () => Promise<T>): Pro
 
 /** يُنادى بعد كل كتابةٍ تُبطل المحفوظ — كالحفظ من اللوحة */
 export const forget = (key?: string) => (key ? live.delete(key) : live.clear());
+
+/**
+ * ⏳ **ما لا يُقرأ في أوّل نظرةٍ لا يُحمَّل في أوّل لحظة.**
+ *
+ * عدّادُ الثقة وشريط الأرقام ورصيدُ برواقو أخبارٌ **تحت الطيّة أو في
+ * طرف السطر** — وقراءتُها وقتَ فتح الصفحة تزاحم رسمَها. فتُؤجَّل إلى
+ * أوّل فراغٍ للجهاز، وبحدٍّ أقصى ثانيةٌ ونصف فلا تتأخّر عن الحاجة.
+ *
+ * ⚠️ **ويُعاد ما يُلغي**: كل نداءٍ يعيد دالّةَ إلغائه، فلا يُنفَّذ شيءٌ
+ *    بعد أن تُغلق الصفحة أو يخرج المكوّن.
+ */
+export function onIdle(run: () => void): () => void {
+  if (typeof window === "undefined") return () => {};
+  const w = window as unknown as {
+    requestIdleCallback?: (cb: () => void, o?: { timeout: number }) => number;
+    cancelIdleCallback?: (id: number) => void;
+  };
+  let done = false;
+  const go = () => {
+    if (done) return;
+    done = true;
+    run();
+  };
+  const t = setTimeout(go, 1500);
+  const id = w.requestIdleCallback?.(go, { timeout: 1500 });
+  return () => {
+    done = true;
+    clearTimeout(t);
+    if (id !== undefined) w.cancelIdleCallback?.(id);
+  };
+}

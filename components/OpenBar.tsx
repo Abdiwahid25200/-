@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { onIdle } from "@/lib/share";
 import { useTranslations } from "next-intl";
 import { EMPTY_STATS, avgMinutes, readStats, tellSpeed } from "@/lib/stats";
 import { opensAt, useStoreOpen } from "@/lib/storeOpen";
@@ -33,11 +34,15 @@ export default function OpenBar() {
   useEffect(() => {
     setReady(true);
     let alive = true;
-    void readStats()
-      .then((s) => alive && setAvg(avgMinutes(s)))
-      .catch(() => alive && setAvg(avgMinutes(EMPTY_STATS)));
+    /* ⏳ متوسّط التسليم خبرٌ في طرف الشريط — يُقرأ بعد أن تُرسم الصفحة */
+    const stop = onIdle(() => {
+      void readStats()
+        .then((s) => alive && setAvg(avgMinutes(s)))
+        .catch(() => alive && setAvg(avgMinutes(EMPTY_STATS)));
+    });
     return () => {
       alive = false;
+      stop();
     };
   }, []);
 

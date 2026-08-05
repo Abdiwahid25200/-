@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { onIdle } from "@/lib/share";
 import { useTranslations } from "next-intl";
 import { EMPTY_STATS, MIN_ORDERS, readStats, type PublicStats } from "@/lib/stats";
 
@@ -33,17 +34,21 @@ export default function LiveTicker() {
 
   useEffect(() => {
     let alive = true;
-    void readStats()
-      .then((v) => {
-        if (!alive) return;
-        setS(v);
-        if (!v.lastItem || !v.lastAt) return;
-        const m = Math.floor((Date.now() - v.lastAt.getTime()) / 60_000);
-        if (m >= 0 && m <= FRESH_HOURS * 60) setMins(m);
-      })
-      .catch(() => {});
+    /* ⏳ دليلُ الحياة تحت البطل — يُقرأ بعد أن يُرسم ما فوقه */
+    const stop = onIdle(() => {
+      void readStats()
+        .then((v) => {
+          if (!alive) return;
+          setS(v);
+          if (!v.lastItem || !v.lastAt) return;
+          const m = Math.floor((Date.now() - v.lastAt.getTime()) / 60_000);
+          if (m >= 0 && m <= FRESH_HOURS * 60) setMins(m);
+        })
+        .catch(() => {});
+    });
     return () => {
       alive = false;
+      stop();
     };
   }, []);
 

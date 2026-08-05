@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { onIdle } from "@/lib/share";
 import { useTranslations } from "next-intl";
 import { IconBolt, IconCheckCircle, IconClock } from "./icons";
 import { EMPTY_STATS, MIN_ORDERS, avgMinutes, readStats, type PublicStats } from "@/lib/stats";
@@ -26,9 +27,12 @@ export default function TrustBar() {
 
   useEffect(() => {
     let alive = true;
-    void readStats().then((v) => alive && setS(v));
+    const stop = onIdle(() => {
+      void readStats().then((v) => alive && setS(v));
+    });
     return () => {
       alive = false;
+      stop();
     };
   }, []);
 
