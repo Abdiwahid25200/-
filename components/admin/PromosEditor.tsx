@@ -24,12 +24,30 @@ import { readCosts, type Costs } from "@/lib/costs";
  *    بعد الحفظ يصنع رمزاً ثانياً ولا يعيد تسمية الأوّل. لذلك يُقفل
  *    الحقل بعد أوّل حفظ — ومن أرادت تبديله تحذف وتُنشئ.
  */
+/**
+ * 🐞 **بلاغها (٠٤-٠٨): «لا أستطيع الضغط على الاسم»** — وكانت محقّة،
+ *    وكان العطل عطلين:
+ *
+ * ① **الحقل يُقفل بعد الحفظ** — بحجّة أن اسم الوثيقة لا يُعاد تسميته.
+ *    وهي تريد كوداً **باسم كل مؤثّر**، فقفلُ الاسم يمنعها من عملها.
+ *    والحلّ في الكود لا في القفل: التسمية = وثيقةٌ جديدة بالاسم الجديد
+ *    ثم حذفُ القديمة. **ويُقال لها صراحةً أن القديم يتوقّف.**
+ *
+ * ② **ومفتاح الصفّ كان الاسمَ نفسه** (`key={p.code}`) — فمع كل حرفٍ
+ *    يتبدّل المفتاح، فيهدم React الحقل ويبنيه، **فيفلت التركيز بعد
+ *    حرفٍ واحد**. صار لكل صفٍّ مفتاحٌ ثابت لا يتغيّر مهما بُدّل الاسم.
+ */
+type Row = Promo & {
+  /** مفتاحٌ داخليّ ثابت — لا يظهر ولا يُحفظ */
+  rid: string;
+  /** اسم الوثيقة في قاعدة البيانات — غائبٌ لما لم يُحفظ بعد */
+  docId?: string;
+};
+
 export default function PromosEditor() {
-  const [list, setList] = useState<Promo[] | null>(null);
+  const [list, setList] = useState<Row[] | null>(null);
   const [busy, setBusy] = useState<string | null>(null);
   const [saved, setSaved] = useState<string | null>(null);
-  /** الرموز التي أُنشئت في هذه الجلسة — حقل الاسم فيها مفتوح */
-  const [fresh, setFresh] = useState<Set<string>>(new Set());
 
   /**
    * 🛡️ **حارس التكلفة** — تقولها هي: «اجعل الثلاثة لا تخسرني».
@@ -115,16 +133,19 @@ export default function PromosEditor() {
 
   const load = () => {
     setList(null);
-    void allPromos().then(setList);
+    void allPromos().then((rows) =>
+      setList(rows.map((p) => ({ ...p, rid: p.code, docId: p.code }))),
+    );
   };
   useEffect(load, []);
 
-  const patch = (code: string, p: Partial<Promo>) => {
-    setList((l) => (l ?? []).map((x) => (x.code === code ? { ...x, ...p } : x)));
+  const patch = (rid: string, p: Partial<Promo>) => {
+    setList((l) => (l ?? []).map((x) => (x.rid === rid ? { ...x, ...p } : x)));
     setSaved(null);
   };
 
-  async function save(p: Promo) {
+  async function save(row: Row) {
+    const { rid, docId, ...p } = row;
     const code = normCode(p.code);
     if (!code) return alert("Write the code first.");
 
@@ -144,7 +165,7 @@ export default function PromosEditor() {
      * فصار: يُحسب أكبر خصمٍ آمن، ثم إمّا **يُخفَّض السقف إليه** بعلمك،
      * وإمّا **يُمنع الحفظ** إن كان الربح لا يحتمل خصماً أصلاً.
      */
-    let safe = { ...p, code };
+    let safe: Promo = { ...p, code };
     let lowered = false;
     const cap = safeCap();
 
@@ -175,7 +196,7 @@ export default function PromosEditor() {
         )
           return;
         safe = isPct ? { ...safe, max: cap } : { ...safe, value: cap };
-        patch(p.code, isPct ? { max: cap } : { value: cap });
+        patch(rid, isPct ? { max: cap } : { value: cap });
         lowered = true;
       }
     }
@@ -183,34 +204,63 @@ export default function PromosEditor() {
     /* ⚠️ **ولا يُسأل مرّتين**: من خُفّض سقفُه قرأ التنبيه في سؤاله. */
     if (!lowered && blindNote && !confirm(`Save ${code}?${blindNote}`)) return;
 
-    setBusy(p.code);
+    /* ⚠️ **ولا يُدهس رمزٌ قائم**: اسمٌ يخصّ كوداً آخر يمحو إعداداته
+       وعدّاده. فيُسأل عنه صراحةً قبل الكتابة فوقه. */
+    if (
+      docId !== code &&
+      (list ?? []).some((x) => x.rid !== rid && x.docId === code) &&
+      !confirm(`${code} already exists. Overwrite it?`)
+    )
+      return;
+
+    setBusy(rid);
     const ok = await savePromo(safe);
+    if (!ok) {
+      setBusy(null);
+      return alert("Could not save — check your connection.");
+    }
+
+    /**
+     * 🔤 **التسمية = وثيقةٌ جديدة ثم حذفُ القديمة** — اسم الوثيقة هو
+     *    الرمز نفسه، ولا تُعاد تسميةُ وثيقةٍ في فايرستور.
+     *
+     * ⚠️ **ويُقال ما يترتّب عليه**: من كتب القديم في جوّاله لم يعد
+     *    يعمل — وهذا ما يجب أن تعرفه قبل أن يسألها المؤثّر.
+     */
+    if (docId && docId !== code) {
+      await deletePromo(docId);
+      alert(`Renamed ${docId} → ${code}.\nThe old code no longer works.`);
+    }
+
     setBusy(null);
-    if (!ok) return alert("Could not save — check your connection.");
-    setSaved(p.code);
-    /* الاسم تبدّل ⇒ نعيد التحميل كي يُقرأ بمفتاحه الجديد */
-    if (code !== p.code) load();
-    setFresh((f) => {
-      const n = new Set(f);
-      n.delete(p.code);
-      return n;
-    });
+    setSaved(rid);
+    setList((l) =>
+      (l ?? []).map((x) => (x.rid === rid ? { ...x, code, docId: code } : x)),
+    );
   }
 
-  async function del(p: Promo) {
-    if (!confirm(`Delete ${p.code}? Customers who saved it stop getting the discount.`))
+  async function del(row: Row) {
+    /* ما لم يُحفظ بعد يُزال من الشاشة بلا سؤالٍ ولا نداءِ شبكة */
+    if (!row.docId) {
+      setList((l) => (l ?? []).filter((x) => x.rid !== row.rid));
       return;
-    setBusy(p.code);
-    const ok = await deletePromo(p.code);
+    }
+    if (!confirm(`Delete ${row.docId}? Customers who saved it stop getting the discount.`))
+      return;
+    setBusy(row.rid);
+    const ok = await deletePromo(row.docId);
     setBusy(null);
     if (ok) load();
     else alert("Could not delete.");
   }
 
   function add() {
-    const code = `NEW${Math.floor(Math.random() * 900 + 100)}`;
-    setList((l) => [...(l ?? []), { ...EMPTY_PROMO, code }]);
-    setFresh((f) => new Set(f).add(code));
+    /* ⚠️ **ويُترك الاسم فارغاً**: اسمٌ مولَّد كـ`NEW56` يُحفظ بالخطأ
+       فيصير كوداً حقيقياً بلا معنى. والفارغُ يُطالبها بكتابته. */
+    setList((l) => [
+      ...(l ?? []),
+      { ...EMPTY_PROMO, code: "", rid: `new-${Date.now()}` },
+    ]);
   }
 
   const field =
@@ -246,11 +296,11 @@ export default function PromosEditor() {
       )}
 
       {list.map((p) => {
-        const isFresh = fresh.has(p.code);
+
         const left = p.uses > 0 ? Math.max(0, p.uses - p.used) : null;
         return (
           <section
-            key={p.code}
+            key={p.rid}
             className={`flex flex-col gap-3 rounded-card border bg-surface p-3 ${
               p.on ? "border-line" : "border-dashed border-line/70"
             }`}
@@ -258,19 +308,17 @@ export default function PromosEditor() {
             <div className="flex items-center gap-2">
               <input
                 value={p.code}
-                readOnly={!isFresh}
-                onChange={(e) => patch(p.code, { code: e.target.value.toUpperCase() })}
-                placeholder="EID20"
+                onChange={(e) => patch(p.rid, { code: e.target.value.toUpperCase() })}
+                placeholder="AXMED"
                 dir="ltr"
-                className={`${field} num flex-1 font-bold uppercase ${
-                  isFresh ? "" : "opacity-70"
-                }`}
+                aria-label="Code name"
+                className={`${field} num flex-1 font-bold uppercase`}
               />
               <button
                 type="button"
                 onClick={() => void del(p)}
-                disabled={busy === p.code}
-                aria-label={`Delete ${p.code}`}
+                disabled={busy === p.rid}
+                aria-label={`Delete ${p.code || "code"}`}
                 className="flex min-h-12 shrink-0 items-center rounded-card border border-danger/40 px-3 text-danger disabled:opacity-50"
               >
                 <IconTrash className="size-4" />
@@ -283,7 +331,7 @@ export default function PromosEditor() {
                 <select
                   value={p.kind}
                   onChange={(e) =>
-                    patch(p.code, { kind: e.target.value as Promo["kind"] })
+                    patch(p.rid, { kind: e.target.value as Promo["kind"] })
                   }
                   className={field}
                 >
@@ -302,7 +350,7 @@ export default function PromosEditor() {
                   step={p.kind === "pct" ? 1 : 0.5}
                   min={0}
                   value={p.value || ""}
-                  onChange={(e) => patch(p.code, { value: Number(e.target.value) || 0 })}
+                  onChange={(e) => patch(p.rid, { value: Number(e.target.value) || 0 })}
                   dir="ltr"
                   className={`${field} num text-start`}
                 />
@@ -317,7 +365,7 @@ export default function PromosEditor() {
                   min={0}
                   value={p.min || ""}
                   placeholder="Any"
-                  onChange={(e) => patch(p.code, { min: Number(e.target.value) || 0 })}
+                  onChange={(e) => patch(p.rid, { min: Number(e.target.value) || 0 })}
                   dir="ltr"
                   className={`${field} num text-start`}
                 />
@@ -334,7 +382,7 @@ export default function PromosEditor() {
                     min={0}
                     value={p.max || ""}
                     placeholder="No cap"
-                    onChange={(e) => patch(p.code, { max: Number(e.target.value) || 0 })}
+                    onChange={(e) => patch(p.rid, { max: Number(e.target.value) || 0 })}
                     dir="ltr"
                     className={`${field} num text-start`}
                   />
@@ -349,7 +397,7 @@ export default function PromosEditor() {
                   min={0}
                   value={p.uses || ""}
                   placeholder="Unlimited"
-                  onChange={(e) => patch(p.code, { uses: Number(e.target.value) || 0 })}
+                  onChange={(e) => patch(p.rid, { uses: Number(e.target.value) || 0 })}
                   dir="ltr"
                   className={`${field} num text-start`}
                 />
@@ -360,7 +408,7 @@ export default function PromosEditor() {
                 <input
                   type="date"
                   value={p.until}
-                  onChange={(e) => patch(p.code, { until: e.target.value })}
+                  onChange={(e) => patch(p.rid, { until: e.target.value })}
                   dir="ltr"
                   className={`${field} num text-start`}
                 />
@@ -371,7 +419,7 @@ export default function PromosEditor() {
               <input
                 type="checkbox"
                 checked={p.on}
-                onChange={(e) => patch(p.code, { on: e.target.checked })}
+                onChange={(e) => patch(p.rid, { on: e.target.checked })}
                 className="size-5 shrink-0 accent-orange"
               />
               <span className="min-w-0 flex-1 text-sm font-medium">
@@ -384,7 +432,7 @@ export default function PromosEditor() {
               <input
                 type="checkbox"
                 checked={p.perUser}
-                onChange={(e) => patch(p.code, { perUser: e.target.checked })}
+                onChange={(e) => patch(p.rid, { perUser: e.target.checked })}
                 className="size-5 shrink-0 accent-orange"
               />
               <span className="min-w-0 flex-1">
@@ -401,7 +449,7 @@ export default function PromosEditor() {
               <input
                 type="checkbox"
                 checked={p.withSale}
-                onChange={(e) => patch(p.code, { withSale: e.target.checked })}
+                onChange={(e) => patch(p.rid, { withSale: e.target.checked })}
                 className="size-5 shrink-0 accent-orange"
               />
               <span className="min-w-0 flex-1">
@@ -443,15 +491,15 @@ export default function PromosEditor() {
             <button
               type="button"
               onClick={() => void save(p)}
-              disabled={busy === p.code}
+              disabled={busy === p.rid}
               className="flex min-h-12 items-center justify-center gap-2 rounded-card bg-orange font-bold text-onaccent disabled:opacity-50"
             >
-              {busy === p.code ? (
+              {busy === p.rid ? (
                 <IconSpinner className="size-4" />
-              ) : saved === p.code ? (
+              ) : saved === p.rid ? (
                 <IconCheckCircle className="size-4" />
               ) : null}
-              {saved === p.code ? "Saved" : "Save"}
+              {saved === p.rid ? "Saved" : "Save"}
             </button>
           </section>
         );
