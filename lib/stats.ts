@@ -26,6 +26,7 @@ import {
   setDoc,
 } from "firebase/firestore";
 import { fbDb } from "./firebase";
+import { share } from "./share";
 import { withTimeout } from "./timeout";
 
 /** دون هذا العدد لا يظهر الشريط */
@@ -60,7 +61,11 @@ export function avgMinutes(s: PublicStats): number {
   return s.done > 0 && s.minutes > 0 ? Math.round(s.minutes / s.done) : 0;
 }
 
-export async function readStats(): Promise<PublicStats> {
+/** ⚠️ مشتركة: شريطُ الحالة وشريطُ الأرقام يسألان عنها في الصفحة نفسها */
+export const readStats = (): Promise<PublicStats> =>
+  share("stats", 60_000, readStatsRaw);
+
+async function readStatsRaw(): Promise<PublicStats> {
   const db = fbDb();
   if (!db) return EMPTY_STATS;
   try {

@@ -25,6 +25,7 @@ import {
 } from "firebase/firestore";
 import type { User } from "firebase/auth";
 import { fbDb } from "./firebase";
+import { share } from "./share";
 import { withTimeout } from "./timeout";
 import { readPackages, readProducts } from "./overrides";
 
@@ -144,7 +145,15 @@ export const DEFAULT_POINTS: PointsSettings = {
  * ⚠️ لا يرمي خطأً أبداً: تعذّر القراءة ⇒ الإعدادات الافتراضية.
  * صفحة الزبون يجب ألّا تنكسر لأن وثيقة إعدادات غائبة.
  */
-export async function readPointsSettings(): Promise<PointsSettings> {
+/**
+ * ⚠️ **قراءةٌ مشتركة** (٠٤-٠٨): القائمة الجانبية وبطاقة برواقو وخصمُ
+ *    النقاط كلّها تسأل عن هذه الوثيقة في الصفحة الواحدة. `share` تجعلها
+ *    رحلةً واحدة تُحفظ دقيقة — انظري `lib/share.ts`.
+ */
+export const readPointsSettings = () =>
+  share("points-settings", 60_000, readPointsSettingsRaw);
+
+async function readPointsSettingsRaw(): Promise<PointsSettings> {
   const db = fbDb();
   if (!db) return DEFAULT_POINTS;
   try {
@@ -231,11 +240,16 @@ export type LedgerRow = {
   at: Date | null;
 };
 
-export async function myPoints(user: User | null): Promise<number> {
-  const db = fbDb();
-  if (!db || !user) return 0;
-  const snap = await withTimeout(getDoc(doc(db, "users", user.uid)));
-  return Number(snap.data()?.points) || 0;
+export function myPoints(user: User | null): Promise<number> {
+  if (!user) return Promise.resolve(0);
+  /* ⚠️ **مهلةُ صفر**: تُشارَك الرحلة الجارية (القائمة والبطاقة تسألان
+     معاً) **ولا يُحفظ الجواب** — فلا يُعرض رصيدٌ قديم بعد شراءٍ أنقصه. */
+  return share(`points-${user.uid}`, 0, async () => {
+    const db = fbDb();
+    if (!db) return 0;
+    const snap = await withTimeout(getDoc(doc(db, "users", user.uid)));
+    return Number(snap.data()?.points) || 0;
+  });
 }
 
 /**
