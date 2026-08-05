@@ -168,6 +168,26 @@ service cloud.firestore {
       allow delete: if isAdmin();
     }
 
+    /* ── 🎟️ رموز الخصم ──
+       وثيقةٌ اسمها الرمز — كدليل الأرقام ورموز الدعوة: **`get` وحده لا
+       سرد**. فمن يعرف رمزاً يستعمله، ولا يقرأ أحدٌ قائمة الرموز كلّها
+       فيجرّبها واحداً واحداً.
+
+       ⚠️ **والزبون لا يملك إلا زيادة العدّاد**: `used + 1` ولا حرفَ
+          غيرها (`affectedKeys().hasOnly`). ولولا هذا الشرط لَفتح رمزاً
+          مطفأً، أو رفع قيمته إلى تسعين بالمئة، أو مسح تاريخ انتهائه —
+          وكلّها حقولٌ في الوثيقة نفسها التي يكتب فيها. */
+    match /promos/{code} {
+      allow get: if true;
+      allow list: if canDo('products');
+      allow create, delete: if canDo('products');
+
+      allow update: if canDo('products')
+        || (isSignedIn()
+            && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['used'])
+            && request.resource.data.used == resource.data.get('used', 0) + 1);
+    }
+
     match /staff/{email} {
       // المساعد يقرأ وثيقته ليعرف أبوابه · وصاحبة المتجر تقرأ الكل
       allow read: if isAdmin()

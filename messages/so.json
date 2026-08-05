@@ -118,6 +118,19 @@
     "handTitle": "Gacan-ku-gaarsiin",
     "handNote": "Markaad bixiso waxaan kugu soo dirnaa WhatsApp xogta, waana hubinaynaa inaad gashay ka hor inta aan dalabka la xidhin."
   },
+  "promo": {
+    "have": "Ma haysaa koodh dhimis?",
+    "placeholder": "Koodhka dhimista",
+    "apply": "Codso",
+    "remove": "Ka saar",
+    "code": "Koodhka dhimista",
+    "notFound": "Koodhkan ma naqaano — hubi qorista.",
+    "off": "Koodhkani ma shaqeynayo.",
+    "expired": "Koodhkan wakhtigiisu wuu dhamaaday.",
+    "spent": "Koodhkan si buuxda ayaa loo isticmaalay.",
+    "min": "Koodhkan wuxuu u baahan yahay dalab ka weyn.",
+    "offline": "Lama hubin karin koodhka — mar kale isku day."
+  },
   "buy": {
     "tax": "Canshuur",
     "selectPackage": "Dooro xirmada",

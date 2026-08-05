@@ -118,6 +118,19 @@
     "handTitle": "Handed over in person",
     "handNote": "After you pay we message you on WhatsApp with the details, and we confirm you are signed in before closing the order."
   },
+  "promo": {
+    "have": "Have a promo code?",
+    "placeholder": "Promo code",
+    "apply": "Apply",
+    "remove": "Remove",
+    "code": "Promo code",
+    "notFound": "We do not know this code — check the spelling.",
+    "off": "This code is not active.",
+    "expired": "This code has expired.",
+    "spent": "This code has been fully used.",
+    "min": "This code needs a larger order.",
+    "offline": "Could not check the code — try again."
+  },
   "buy": {
     "tax": "Tax",
     "selectPackage": "Choose a package",

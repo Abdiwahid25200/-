@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import PackageCard from "./PackageCard";
 import PaySection from "./PaySection";
+import PromoBox, { type PromoState } from "./PromoBox";
 import FixedBar from "./FixedBar";
 import { fin, fmt } from "@/lib/format";
 import { isBuyable, live, pay } from "@/lib/data";
@@ -17,6 +18,7 @@ import { usePointsRedeem } from "./PointsRedeem";
 import ClosedNotice from "./ClosedNotice";
 import GiftAsk from "./GiftAsk";
 import { canOrderNow, isReservation, taxOn, useStoreOpen } from "@/lib/storeOpen";
+import { usePromo } from "@/lib/promos";
 import { useQuery } from "@/lib/useQuery";
 import { MIN_HOT, readHot, type HotMap } from "@/lib/hot";
 
@@ -80,6 +82,7 @@ export default function BuyFlow({
   const tClosed = useTranslations("closed");
   const tg = useTranslations("gift");
   const tn = useTranslations("accountPage");
+  const tp = useTranslations("promo");
   const locale = useLocale();
   const waNum = useWhatsApp();
 
@@ -111,8 +114,23 @@ export default function BuyFlow({
   // حارس: لو أُغلقت باقة مختارة سابقاً تُهمل بدل أن تُشترى
   const pack = found && !found.soon ? found : null;
   const total = pack ? fin(pack) : 0;
+
+  /**
+   * 🎟️ **رمز الخصم** — طلبها (٠٤-٠٨)، وترتيبُه في الحساب مقصود:
+   *
+   *   سعر الباقة ← **ناقص الرمز** ← ناقص النقاط ← زائد الضريبة
+   *
+   * ⚠️ **الرمز قبل النقاط**: لو خُصمت النقاط أوّلاً لَحُسب الرمز على
+   *    المتبقّي، فيأخذ صاحب الرصيد خصماً أقلّ من صاحب الجيب — والرمز
+   *    عرضٌ على البضاعة لا على ما بقي في المحفظة.
+   * ⚠️ **والضريبة بعدهما**: تُحسب على ما دفعه فعلاً بعد العرض.
+   */
+  const [promo, setPromo] = useState<PromoState>(null);
+  const promoOffAmt = promo ? Math.min(promo.off, total) : 0;
+  const afterPromo = Math.round((total - promoOffAmt) * 100) / 100;
+
   // خصم النقاط — نفس المكوّن المستعمل في السلة، فلا يتعلّم الزبون شكلين
-  const redeem = usePointsRedeem(total);
+  const redeem = usePointsRedeem(afterPromo);
   // المتجر مغلق أو خارج الدوام ⇒ يتصفّح ولا يطلب
   const store = useStoreOpen();
 
@@ -126,7 +144,7 @@ export default function BuyFlow({
    * ⚠️ **وصفرٌ يعني لا سطر أصلاً**: من لم تكتب ضريبةً لا يرى زبونها
    *    سطراً فارغاً ولا تتبدّل عنده فاتورةٌ بحرف.
    */
-  const tax = taxOn(total, store.settings);
+  const tax = taxOn(afterPromo, store.settings);
   const grand = Math.round((redeem.payable + tax) * 100) / 100;
 
   /* 🔥 «اشتروها اليوم» — يُقرأ مرّة، وبلاه لا شارة ولا تأخير */
@@ -238,6 +256,7 @@ export default function BuyFlow({
     return [
       `${t("orderCode")}: ${code}`,
       `${t("item")}: ${pack?.title ?? ""}`,
+      ...(promoOffAmt > 0 ? [`${tp("code")}: ${promo!.code} (−${fmt(promoOffAmt)})`] : []),
       ...(tax > 0 ? [`${t("tax")}: ${fmt(tax)}`] : []),
       `${t("total")}: ${fmt(grand)}`,
       isWa ? "" : `${t("payTitle")}: ${methodName}`,
@@ -285,6 +304,8 @@ export default function BuyFlow({
       total: grand,
       /* 🧾 يُحفظ مفصولاً كي تُقرأ الفاتورة في اللوحة: كم بضاعةً وكم ضريبة */
       ...(tax > 0 ? { tax } : {}),
+      /* 🧾 الرمز والخصم صريحان في الطلب — تقارنينهما قبل «مدفوع» */
+      ...(promoOffAmt > 0 ? { promo: promo!.code, promoOff: promoOffAmt } : {}),
       usePoints: redeem.spend,
       discount: redeem.discount,
       payMethod: methodName,
@@ -293,6 +314,8 @@ export default function BuyFlow({
       ...(isReservation(store) ? { reserved: true } : {}),
     });
     setSaved(r.ok ? "ok" : r.reason);
+    /* ⚠️ **بعد الطلب لا قبله**، وفشلُه لا يُفشل شيئاً (`lib/promos.ts`) */
+    if (r.ok && promoOffAmt > 0) void usePromo(promo!.code);
   }
 
   function reset() {
@@ -357,6 +380,9 @@ export default function BuyFlow({
           <dl className="flex flex-col gap-2 text-sm">
             {[
               [t("item"), pack.title],
+              ...(promoOffAmt > 0
+                ? [[tp("code"), `${promo!.code} −${fmt(promoOffAmt)}`] as [string, string]]
+                : []),
               ...(tax > 0 ? [[t("tax"), fmt(tax)] as [string, string]] : []),
               [t("total"), fmt(grand)],
               [t("payTitle"), methodName],
@@ -524,6 +550,17 @@ export default function BuyFlow({
                 </div>
               )}
 
+              {promoOffAmt > 0 && (
+                <div className="flex items-center gap-3 text-sm">
+                  <span className="num min-w-0 flex-1 truncate text-muted" dir="ltr">
+                    {promo?.code}
+                  </span>
+                  <span className="num shrink-0 font-bold text-success">
+                    −{fmt(promoOffAmt)}
+                  </span>
+                </div>
+              )}
+
               {redeem.discount > 0 && (
                 <div className="flex items-center gap-3 text-sm">
                   <span className="min-w-0 flex-1 truncate text-muted">
@@ -555,6 +592,9 @@ export default function BuyFlow({
                 </span>
               </div>
             </div>
+
+            {/* 🎟️ مطويٌّ حتى يُضغط — انظري `PromoBox` */}
+            <PromoBox amount={total} value={promo} onChange={setPromo} />
 
             {payNeeded && (
               <PaySection

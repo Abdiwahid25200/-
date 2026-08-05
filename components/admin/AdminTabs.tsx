@@ -13,6 +13,7 @@ import StaffEditor from "./StaffEditor";
 import SlidesEditor from "./SlidesEditor";
 import SiteEditor from "./SiteEditor";
 import PaymentsEditor from "./PaymentsEditor";
+import PromosEditor from "./PromosEditor";
 import TextsEditor from "./TextsEditor";
 import Analytics from "./Analytics";
 import RecycleBin from "./RecycleBin";
@@ -113,6 +114,7 @@ const MORE: Screen[] = [
     perm: "payments",
     hint: (h) => (h.livePay === 0 ? "All off, nobody can pay" : null),
   },
+  { v: "promos", label: "Promo codes", note: "Discount codes", perm: "products" },
   { v: "points", label: "Barwaaqo", note: "Points and rewards", perm: "points" },
   { v: "faq", label: "Questions", note: "What customers ask", perm: "faq" },
   { v: "staff", label: "Helpers", note: "Who can open what", owner: true },
@@ -398,6 +400,8 @@ function Body({ tab, go }: { tab: AdminTab; go: (t: AdminTab) => void }) {
       return <SlidesEditor />;
     case "payments":
       return <PaymentsEditor />;
+    case "promos":
+      return <PromosEditor />;
     case "analytics":
       return <Analytics />;
     case "report":

@@ -713,6 +713,25 @@ export function IconTelegramLine({ className = "" }: IconProps) {
   );
 }
 
+/**
+ * 🎟️ **قسيمة خصم** — أيقونة رموز الخصم في اللوحة وفي شاشة الدفع.
+ *
+ * ⚠️ **ولا تُستعار أيقونة الأصناف (`IconTag`)**: القرار المقفول (ج) —
+ *    أيقونةٌ تتكرّر في بابين تصير زينةً لا علامة. وهذه قسيمةٌ بحزّتين
+ *    وخطٍّ منقّط، من عائلة `.vch` نفسها في المتجر.
+ */
+export function IconTicket({ className = "" }: IconProps) {
+  return (
+    <svg viewBox="0 0 24 24" strokeWidth="1.8" className={`${base} ${className}`} aria-hidden>
+      <path
+        strokeLinejoin="round"
+        d="M3.5 7.5A1.5 1.5 0 0 1 5 6h14a1.5 1.5 0 0 1 1.5 1.5v2a2.5 2.5 0 0 0 0 5v2A1.5 1.5 0 0 1 19 18H5a1.5 1.5 0 0 1-1.5-1.5v-2a2.5 2.5 0 0 0 0-5v-2Z"
+      />
+      <path strokeLinecap="round" strokeDasharray="1.6 2.4" d="M14 7.2v9.6" />
+    </svg>
+  );
+}
+
 /* ── إظهار كلمة السرّ وإخفاؤها ── */
 
 export function IconEye({ className = "" }: IconProps) {

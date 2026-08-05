@@ -14,6 +14,7 @@ import {
   IconReceipt,
   IconStore,
   IconTag,
+  IconTicket,
   IconText,
   IconTrash,
   IconUsers,
@@ -39,6 +40,7 @@ export type AdminTab =
   | "slides"
   | "store"
   | "payments"
+  | "promos"
   | "texts"
   | "analytics"
   | "bin"
@@ -66,6 +68,8 @@ export const ICONS: Record<
   slides: IconImage,
   store: IconStore,
   payments: IconCard,
+  /* ⚠️ القرار المقفول (ج): لكل بابٍ أيقونتُه — والوسم للخصم وحده */
+  promos: IconTicket,
   /* ⚠️ نصوص الصفحات لها أيقونتها — كانت تشارك `faq` أيقونةَ السؤال */
   texts: IconText,
   analytics: IconChart,

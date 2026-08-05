@@ -15,6 +15,7 @@ import { usePayMethods } from "@/components/usePayMethods";
 import { usePointsRedeem } from "@/components/PointsRedeem";
 import ClosedNotice from "@/components/ClosedNotice";
 import { canOrderNow, isReservation, taxOn, useStoreOpen } from "@/lib/storeOpen";
+import { usePromo } from "@/lib/promos";
 import {
   IconArrow,
   IconCartEmpty,
@@ -27,6 +28,7 @@ import {
   IconTrash,
 } from "@/components/icons";
 import PaySection from "@/components/PaySection";
+import PromoBox, { type PromoState } from "@/components/PromoBox";
 import FixedBar from "@/components/FixedBar";
 
 const newCode = () => "M-" + Math.floor(100000 + Math.random() * 900000);
@@ -47,11 +49,16 @@ export default function CartView() {
   const [saved, setSaved] = useState<"idle" | "saving" | "ok" | "auth" | "local" | "error">("idle");
   const { user } = useAuth();
   // خصم النقاط — يقرأ الرصيد ويحسب المبلغ بعد الخصم
-  const redeem = usePointsRedeem(total);
+  /* 🎟️ الترتيب: السلّة ← ناقص الرمز ← ناقص النقاط ← زائد الضريبة
+     (الشرح الكامل في `BuyFlow.tsx`) */
+  const [promo, setPromo] = useState<PromoState>(null);
+  const promoOffAmt = promo ? Math.min(promo.off, total) : 0;
+  const afterPromo = Math.round((total - promoOffAmt) * 100) / 100;
+  const redeem = usePointsRedeem(afterPromo);
   // المتجر مغلق أو خارج الدوام ⇒ يتصفّح ولا يطلب
   const store = useStoreOpen();
   /* 💰 الضريبة — على قيمة البضاعة قبل خصم النقاط (`lib/openCore.ts`) */
-  const tax = taxOn(total, store.settings);
+  const tax = taxOn(afterPromo, store.settings);
   const grand = Math.round((redeem.payable + tax) * 100) / 100;
 
   const methods = live(usePayMethods()).filter(isBuyable);
@@ -111,6 +118,7 @@ export default function CartView() {
     const r = await send(user, {
       code, kind: "elec", items, total: sum,
       ...(tax > 0 ? { tax } : {}),
+      ...(promoOffAmt > 0 ? { promo: promo!.code, promoOff: promoOffAmt } : {}),
       usePoints: redeem.spend,
       discount: redeem.discount,
       payMethod: methodName,
@@ -119,6 +127,7 @@ export default function CartView() {
       ...(isReservation(store) ? { reserved: true } : {}),
     });
     setSaved(r.ok ? "ok" : r.reason);
+    if (r.ok && promoOffAmt > 0) void usePromo(promo!.code);
   }
 
   /**
@@ -363,6 +372,17 @@ export default function CartView() {
       <ClosedNotice state={store} />
 
       {/* الإجمالي — للمراجعة وحدها، والتأكيد في الشريط العائم أسفل الشاشة */}
+      <PromoBox amount={total} value={promo} onChange={setPromo} />
+
+      {promoOffAmt > 0 && (
+        <section className="card row">
+          <span className="num f13 mu" dir="ltr">{promo?.code}</span>
+          <span className="num f13 font-bold text-success" dir="ltr">
+            −{fmt(promoOffAmt)}
+          </span>
+        </section>
+      )}
+
       {/* ⚠️ **سطر الضريبة فوق الإجمالي لا داخله**: المبلغ الذي يتغيّر
           بلا سببٍ ظاهر يُقرأ خطأً في السعر، فيُسأل عنه أو يُترك الطلب. */}
       {tax > 0 && (
