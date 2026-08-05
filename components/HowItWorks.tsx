@@ -1,7 +1,9 @@
 import { getTranslations } from "next-intl/server";
 import { getLocale } from "next-intl/server";
 import { howItWorks } from "@/lib/content";
+import { isBuyable } from "@/lib/data";
 import { readTexts, tx } from "@/lib/overrides";
+import { mergedPay } from "@/lib/payments";
 /**
  * "كيف يعمل المتجر" — **بطاقةٌ بعنوانٍ صغير** وفيها الخطوات الثلاث، كما في النموذج.
  * الفيديو يظهر فقط عند وضع `youtubeId` في lib/content.ts، فلا تبقى فجوة فارغة.
@@ -18,6 +20,55 @@ export default async function HowItWorks() {
   const d = await readTexts("how");
   const { steps } = howItWorks;
   const youtubeId = tx(d, "youtubeId", locale, howItWorks.youtubeId ?? "");
+
+  /**
+   * 💳 **«ادفع بأمان» يقول طرقَ دفعها هي** — قرارها (٠٤-٠٨).
+   *
+   * كان السطر نصّاً ثابتاً في الترجمات: «بطاقة أو PayPal أو USDT أو
+   * تحويل محلي» — **وعدٌ لا يقابله شيء**. فمن قرأه ومشى إلى الدفع لم
+   * يجد PayPal ولا USDT، ووعدٌ يُخلف في الخطوة التالية أسوأ من ألّا
+   * يُقال. فصار يُبنى من الطرق **المفعَّلة فعلاً** في لوحتها: تفعّل
+   * طريقةً فتظهر هنا، وتُطفئها فتختفي — بلا لمس هذا الملف.
+   *
+   * ⚠️ **والمفعَّلة وحدها** (`isBuyable`): ما وُسم «قريباً» لا يُعدّ
+   *    وسيلةَ دفعٍ اليوم.
+   * ⚠️ **وأربعةٌ بحدٍّ أقصى ثمّ «+٣»**: السطر تحت العنوان صغير، وعشرة
+   *    أسماءٍ فيه تلتفّ ثلاثة أسطر فتُغرق الخطوة التي تشرحها.
+   * ⚠️ **وبلا طريقةٍ واحدة يُحذف السطر** ولا يُستبدل بوعدٍ عام: المتجر
+   *    لا يستقبل دفعاً أصلاً حتى تُفعَّل واحدة، فالصمت أصدق.
+   */
+  const methods = (await mergedPay()).filter(isBuyable);
+  const names = methods.map((m) =>
+    (locale === "ar" ? m.nameAr : m.nameEn) || m.nameEn || m.id,
+  );
+  const shown = names.slice(0, 4);
+  const extra = names.length - shown.length;
+
+  /**
+   * ⚠️ **كل اسمٍ داخل `bdi`** — ولولاها لَظهر «EVC+» في العربية
+   *    **«+EVC»**: السطر عربيّ الاتجاه، و«+» محرفٌ محايد فينجرف إلى
+   *    يسار الكلمة. و`bdi` تعزل كل اسمٍ باتجاهه هو، فيُقرأ اسمُ الطريقة
+   *    كما كتبته صاحبته — عربياً كان أو لاتينياً — في اللغات الثلاث.
+   */
+  const payNode = names.length ? (
+    <>
+      {shown.map((n, i) => (
+        <span key={`${n}-${i}`}>
+          {i > 0 ? " · " : ""}
+          <bdi>{n}</bdi>
+        </span>
+      ))}
+      {extra > 0 ? <bdi>{` +${extra}`}</bdi> : null}
+    </>
+  ) : null;
+
+  /** نصّها المكتوب في اللوحة يعلو كلَّ شيء · ثمّ الطرق · ثمّ الترجمة */
+  function noteOf(k: string): React.ReactNode {
+    const manual = tx(d, `steps.${k}.note`, locale, "");
+    if (manual) return manual;
+    if (k === "pay") return payNode;
+    return t(`steps.${k}.note`);
+  }
 
   return (
     <section className="flex flex-col gap-4">
@@ -44,7 +95,9 @@ export default async function HowItWorks() {
       <div className="flex flex-col gap-3 rounded-card border border-line bg-surface p-4">
         <h2 className="text-sm font-bold">{tx(d, "title", locale, t("title"))}</h2>
         <ol className="flex flex-col gap-3">
-          {steps.map((k, i) => (
+          {steps.map((k, i) => {
+            const note = noteOf(k);
+            return (
             <li key={k} className="flex items-start gap-3">
               <span
                 aria-hidden
@@ -56,12 +109,13 @@ export default async function HowItWorks() {
                 <span className="block text-sm font-bold">
                   {tx(d, `steps.${k}.title`, locale, t(`steps.${k}.title`))}
                 </span>
-                <span className="mt-0.5 block text-xs text-muted">
-                  {tx(d, `steps.${k}.note`, locale, t(`steps.${k}.note`))}
-                </span>
+                {note && (
+                  <span className="mt-0.5 block text-xs text-muted">{note}</span>
+                )}
               </span>
             </li>
-          ))}
+            );
+          })}
         </ol>
       </div>
     </section>
