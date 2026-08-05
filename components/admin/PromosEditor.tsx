@@ -56,6 +56,29 @@ export default function PromosEditor() {
     );
   }, []);
 
+  /**
+   * 🛡️ **أكبر خصمٍ لا يبيع صنفاً بأقلّ من تكلفته** — قرارها (٠٤-٠٨):
+   *    «اجعله يمنعني أو يخفض النسبة تلقائياً كي لا أخسر».
+   *
+   * وهو **أضيقُ فرقٍ بين سعرٍ وتكلفته** في المتجر كلّه: ما دام سقفُ
+   * الخصم دونه، فلا صنفَ يهبط تحت تكلفته مهما كانت النسبة.
+   *
+   * ⚠️ **ويُقرَّب إلى الأسفل**: `Math.floor` لا `round` — سنتٌ في صالحك
+   *    خيرٌ من سنتٍ عليك.
+   * ⚠️ **وما لا تكلفة له لا يُحسب**: لا يُخمَّن ما لم يُكتب.
+   * ⚠️ **و`null` تعني: لا تكلفة مكتوبة أصلاً** — فلا حارسَ يمكن أن
+   *    يعمل، ولا يُمنع الحفظ بحجّةٍ لا نملك دليلها.
+   */
+  function safeCap(): number | null {
+    let cap = Infinity;
+    for (const it of priced) {
+      const cost = costs[it.id];
+      if (cost === undefined || cost <= 0) continue;
+      cap = Math.min(cap, it.price - cost);
+    }
+    return Number.isFinite(cap) ? Math.floor(cap * 100) / 100 : null;
+  }
+
   /** أسوأ صنفٍ يبيعه هذا الرمز بخسارة — أو `null` إن كان كلّه رابحاً */
   function worstLoss(p: Promo) {
     let worst: { title: string; left: number; cost: number } | null = null;
@@ -92,17 +115,51 @@ export default function PromosEditor() {
         "Percent codes need a Max discount.\nWithout a cap, one typo can halve every order.",
       );
 
-    /* 🛡️ **وحارس التكلفة**: يُقال ما يقع بالاسم والرقم، ثم القرار لك */
-    const bad = worstLoss({ ...p, code });
-    if (
-      bad &&
-      !confirm(
-        `“${bad.title}” would sell at $${bad.left.toFixed(2)} — your cost is $${bad.cost.toFixed(2)}.\nYou lose $${(bad.cost - bad.left).toFixed(2)} on every one.\n\nSave anyway?`,
-      )
-    )
-      return;
+    /**
+     * 🛡️ **حارس التكلفة — يمنع أو يُخفّض، ولا يكتفي بالتحذير.**
+     *
+     * قرارها (٠٤-٠٨): «اجعله يمنعني أو يخفض النسبة تلقائياً كي لا
+     * أخسر». وكان يسأل ويمضي — والسؤالُ في لحظة انشغالٍ يُضغط «نعم».
+     *
+     * فصار: يُحسب أكبر خصمٍ آمن، ثم إمّا **يُخفَّض السقف إليه** بعلمك،
+     * وإمّا **يُمنع الحفظ** إن كان الربح لا يحتمل خصماً أصلاً.
+     */
+    let safe = { ...p, code };
+    const cap = safeCap();
+
+    if (cap !== null) {
+      const bad = worstLoss(safe);
+
+      if (cap <= 0) {
+        /* ⚠️ أرخص فرقٍ في المتجر صفرٌ أو سالب: لا خصمَ يمرّ بلا خسارة.
+           والعلاج في السعر أو التكلفة لا في الكود — فيُقال ويُمنع. */
+        alert(
+          bad
+            ? `Cannot save: “${bad.title}” already leaves no margin (price $${bad.left.toFixed(2)}, cost $${bad.cost.toFixed(2)}).\nRaise its price or hide it, then add the code.`
+            : "Cannot save: one of your items has no margin left. Fix its price or cost first.",
+        );
+        return;
+      }
+
+      /* النسبة يحكمها سقفُها، والمبلغُ الثابت يحكم نفسه */
+      const isPct = safe.kind === "pct";
+      const now = isPct ? safe.max : safe.value;
+
+      if (now > cap) {
+        const word = isPct ? "Max discount" : "Amount";
+        if (
+          !confirm(
+            `${word} $${now.toFixed(2)} would sell an item below cost.\n\nIt will be saved as $${cap.toFixed(2)} — the largest discount that still keeps every item profitable.\n\nSave it that way?`,
+          )
+        )
+          return;
+        safe = isPct ? { ...safe, max: cap } : { ...safe, value: cap };
+        patch(p.code, isPct ? { max: cap } : { value: cap });
+      }
+    }
+
     setBusy(p.code);
-    const ok = await savePromo({ ...p, code });
+    const ok = await savePromo(safe);
     setBusy(null);
     if (!ok) return alert("Could not save — check your connection.");
     setSaved(p.code);
