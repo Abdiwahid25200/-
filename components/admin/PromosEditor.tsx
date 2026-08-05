@@ -13,6 +13,7 @@ import {
 import { IconCheckCircle, IconPlus, IconSpinner, IconTrash } from "@/components/icons";
 import { allItems, type ItemKind } from "@/lib/items";
 import { readCosts, type Costs } from "@/lib/costs";
+import NumField from "./NumField";
 
 /**
  * 🎟️ **رموز الخصم** — طلبها (٠٤-٠٨).
@@ -344,29 +345,19 @@ export default function PromosEditor() {
                 <span className="font-medium">
                   {p.kind === "pct" ? "Percent" : "Amount (USD)"}
                 </span>
-                <input
-                  type="number"
-                  inputMode="decimal"
-                  step={p.kind === "pct" ? 1 : 0.5}
-                  min={0}
-                  value={p.value || ""}
-                  onChange={(e) => patch(p.rid, { value: Number(e.target.value) || 0 })}
-                  dir="ltr"
+                <NumField
+                  value={p.value}
+                  onChange={(n) => patch(p.rid, { value: n })}
                   className={`${field} num text-start`}
                 />
               </label>
 
               <label className="flex flex-col gap-1.5 text-sm">
                 <span className="font-medium">Minimum order</span>
-                <input
-                  type="number"
-                  inputMode="decimal"
-                  step={0.5}
-                  min={0}
-                  value={p.min || ""}
+                <NumField
+                  value={p.min}
                   placeholder="Any"
-                  onChange={(e) => patch(p.rid, { min: Number(e.target.value) || 0 })}
-                  dir="ltr"
+                  onChange={(n) => patch(p.rid, { min: n })}
                   className={`${field} num text-start`}
                 />
               </label>
@@ -375,30 +366,21 @@ export default function PromosEditor() {
               {p.kind === "pct" && (
                 <label className="flex flex-col gap-1.5 text-sm">
                   <span className="font-medium">Max discount</span>
-                  <input
-                    type="number"
-                    inputMode="decimal"
-                    step={0.5}
-                    min={0}
-                    value={p.max || ""}
-                    placeholder="No cap"
-                    onChange={(e) => patch(p.rid, { max: Number(e.target.value) || 0 })}
-                    dir="ltr"
-                    className={`${field} num text-start`}
-                  />
+                  <NumField
+                  value={p.max}
+                  placeholder="No cap"
+                  onChange={(n) => patch(p.rid, { max: n })}
+                  className={`${field} num text-start`}
+                />
                 </label>
               )}
 
               <label className="flex flex-col gap-1.5 text-sm">
                 <span className="font-medium">Times it can be used</span>
-                <input
-                  type="number"
-                  inputMode="numeric"
-                  min={0}
-                  value={p.uses || ""}
+                <NumField
+                  value={p.uses}
                   placeholder="Unlimited"
-                  onChange={(e) => patch(p.rid, { uses: Number(e.target.value) || 0 })}
-                  dir="ltr"
+                  onChange={(n) => patch(p.rid, { uses: n })}
                   className={`${field} num text-start`}
                 />
               </label>

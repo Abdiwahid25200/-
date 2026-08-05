@@ -8,6 +8,7 @@ import { diff, hasChanges } from "@/lib/dirty";
 import { DEFAULT_OPEN, readOpenSettings, taxOn, type OpenSettings } from "@/lib/storeOpen";
 import { site } from "@/lib/content";
 import ImagePicker from "./ImagePicker";
+import NumField from "./NumField";
 import type { ClosedStyle } from "@/lib/storeOpen";
 import type { Multilang } from "@/lib/content";
 
@@ -355,35 +356,20 @@ export default function SiteEditor() {
         <div className="mt-1 grid grid-cols-2 gap-3">
           <label className="flex flex-col gap-1.5 text-sm">
             <span className="font-medium">Percent of the order</span>
-            <input
-              type="number"
-              inputMode="decimal"
-              step="0.5"
-              min={0}
-              max={100}
-              value={open.taxPct || ""}
+            <NumField
+              value={open.taxPct}
               placeholder="e.g. 5"
-              onChange={(e) =>
-                setOpen({ ...open, taxPct: Number(e.target.value) || 0 })
-              }
-              dir="ltr"
+              onChange={(n) => setOpen({ ...open, taxPct: n })}
               className={`${field} num text-start`}
             />
           </label>
 
           <label className="flex flex-col gap-1.5 text-sm">
             <span className="font-medium">Fixed fee (USD)</span>
-            <input
-              type="number"
-              inputMode="decimal"
-              step="0.05"
-              min={0}
-              value={open.taxFlat || ""}
+            <NumField
+              value={open.taxFlat}
               placeholder="e.g. 0.25"
-              onChange={(e) =>
-                setOpen({ ...open, taxFlat: Number(e.target.value) || 0 })
-              }
-              dir="ltr"
+              onChange={(n) => setOpen({ ...open, taxFlat: n })}
               className={`${field} num text-start`}
             />
           </label>

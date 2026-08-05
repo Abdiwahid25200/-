@@ -18,6 +18,7 @@ import { diff, hasChanges } from "@/lib/dirty";
 import { profitOf, readCosts, saveCost, type Costs } from "@/lib/costs";
 import { offPercent } from "@/lib/format";
 import ImagePicker from "./ImagePicker";
+import NumField from "./NumField";
 import GalleryPicker from "./GalleryPicker";
 import {
   IconCheckCircle,
@@ -359,15 +360,9 @@ export default function ItemsEditor() {
                     <div className="grid grid-cols-2 gap-3">
                       <label className="flex flex-col gap-1.5 text-sm">
                         <span className="font-medium">Price (USD)</span>
-                        <input
-                          type="number"
-                          inputMode="decimal"
-                          step="0.01"
-                          value={it.price}
-                          onChange={(e) =>
-                            patch(it.id, { price: Number(e.target.value) })
-                          }
-                          dir="ltr"
+                        <NumField
+                          value={Number(it.price) || 0}
+                          onChange={(n) => patch(it.id, { price: n })}
                           className={`${field} num text-start`}
                         />
                       </label>
@@ -389,22 +384,10 @@ export default function ItemsEditor() {
                        */}
                       <label className="flex flex-col gap-1.5 text-sm">
                         <span className="font-medium">Price before discount</span>
-                        <input
-                          type="number"
-                          inputMode="decimal"
-                          step="0.01"
-                          min={0}
-                          value={it.old || ""}
+                        <NumField
+                          value={Number(it.old) || 0}
                           placeholder="Empty = no discount"
-                          onChange={(e) =>
-                            patch(it.id, {
-                              old:
-                                e.target.value === ""
-                                  ? 0
-                                  : Number(e.target.value),
-                            })
-                          }
-                          dir="ltr"
+                          onChange={(n) => patch(it.id, { old: n })}
                           className={`${field} num text-start`}
                         />
                       </label>
@@ -425,21 +408,10 @@ export default function ItemsEditor() {
                       {/* 🔒 التكلفة والربح — لكِ وحدك، لا يراهما الزبون */}
                       <label className="flex flex-col gap-1.5 text-sm">
                         <span className="font-medium">Cost (private)</span>
-                        <input
-                          type="number"
-                          inputMode="decimal"
-                          step="0.01"
-                          min={0}
-                          value={costs[it.id] ?? ""}
+                        <NumField
+                          value={costs[it.id] ?? 0}
                           placeholder="What you pay"
-                          onChange={(e) =>
-                            setCosts((c) => ({
-                              ...c,
-                              [it.id]:
-                                e.target.value === "" ? 0 : Number(e.target.value),
-                            }))
-                          }
-                          dir="ltr"
+                          onChange={(n) => setCosts((c) => ({ ...c, [it.id]: n }))}
                           className={`${field} num text-start`}
                         />
                       </label>
