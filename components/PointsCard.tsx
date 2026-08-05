@@ -44,11 +44,11 @@ import {
 const KNOWN = ["order", "redeem", "cancel", "refund", "invite", "referral", "send", "received", "sell"];
 const reasonKey = (r: string) => (KNOWN.includes(r) ? r : "manual");
 
-export default function PointsCard() {
+export default function PointsCard({ settings: given }: { settings?: PointsSettings } = {}) {
   const t = useTranslations("points");
   const { user, ready } = useAuth();
 
-  const [settings, setSettings] = useState<PointsSettings>(DEFAULT_POINTS);
+  const [settings, setSettings] = useState<PointsSettings>(given ?? DEFAULT_POINTS);
   const [points, setPoints] = useState<number | null>(null);
   const [rows, setRows] = useState<LedgerRow[]>([]);
   const [want, setWant] = useState("");
@@ -86,8 +86,10 @@ export default function PointsCard() {
 
     void (async () => {
       try {
+        /* ⚠️ **والإعدادات لا تُقرأ حين تصل من الخادم** — قراءةٌ أقلّ
+           في كل فتحةِ صفحة (بلاغ التقطيع ٠٤-٠٨). */
         const [s, p, l] = await Promise.all([
-          readPointsSettings(),
+          given ? Promise.resolve(given) : readPointsSettings(),
           myPoints(user),
           myLedger(user, 8),
         ]);
@@ -124,7 +126,7 @@ export default function PointsCard() {
     return () => {
       alive = false;
     };
-  }, [user]);
+  }, [user, given]);
 
   const amount = Math.max(0, Math.round(Number(want) || 0));
 

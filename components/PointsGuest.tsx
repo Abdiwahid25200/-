@@ -25,7 +25,7 @@ import { DEFAULT_POINTS, readPointsSettings, type PointsSettings } from "@/lib/p
  * ⚠️ **ولا شيء قبل انتهاء فحص الدخول** (`ready`) — وإلّا ومض «سجّل
  *    دخولك» في وجه من هو داخلٌ أصلاً.
  */
-export default function PointsGuest() {
+export default function PointsGuest({ settings: given }: { settings?: PointsSettings }) {
   const t = useTranslations("points");
   const { user, ready } = useAuth();
   /**
@@ -34,17 +34,21 @@ export default function PointsGuest() {
    *    العلّة التي نصلحها. فتظهر الدعوة فوراً باسم البرنامج وشعاره،
    *    ثم يصحّحهما ما يصل من اللوحة.
    */
-  const [settings, setSettings] = useState<PointsSettings>(DEFAULT_POINTS);
+  const [loaded, setLoaded] = useState<PointsSettings>(DEFAULT_POINTS);
+  const settings = given ?? loaded;
 
+  /* ⚠️ **ولا تُقرأ حين تصل من الخادم**: الصفحة تقرؤها مرّةً وتمرّرها،
+     فلا ثلاث قراءاتٍ لوثيقةٍ واحدة في متصفّح الزبون (بلاغ التقطيع). */
   useEffect(() => {
+    if (given) return;
     let alive = true;
     void readPointsSettings()
-      .then((s) => alive && setSettings(s))
+      .then((s) => alive && setLoaded(s))
       .catch(() => {});
     return () => {
       alive = false;
     };
-  }, []);
+  }, [given]);
 
   if (!ready || user || !settings.on) return null;
 
