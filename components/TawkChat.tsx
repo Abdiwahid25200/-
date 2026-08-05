@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import Script from "next/script";
 import { tawk } from "@/lib/content";
 import { useAuth } from "@/lib/auth";
@@ -60,7 +60,47 @@ export default function TawkChat() {
     w.Tawk_API.setAttributes?.({ name, email }, () => {});
   }, [user]);
 
-  if (!tawk) return null;
+  /**
+   * 🐌 **بلاغها (٠٤-٠٨): «تقطيع وتأخير في التطبيق»** — والفرق أن
+   *    التطبيق المثبَّت على آيفون يعمل في عمليةٍ مستقلّة بذاكرةٍ أضيق
+   *    ومخزنٍ لا يشاركه المتصفّح: فما يحتمله سفاري يثقل عليه.
+   *
+   * وسكربت tawk أثقل ما في الصفحة وأحدثُه: يجلب ملفّاته وصورَه ويفتح
+   * وصلةً دائمة. و`lazyOnload` يؤجّله إلى ما بعد الرسم — **لكنه يقع
+   * في الثواني الأولى نفسها التي يتصفّح فيها الزبون**، فيتقطّع التمرير.
+   *
+   * فصار يُحمَّل عند **أوّل فراغٍ حقيقيّ**: بعد أن يهدأ الجهاز
+   * (`requestIdleCallback`)، أو عند أوّل لمسةٍ منه، وبحدٍّ أقصى ست ثوانٍ.
+   * فيبقى المتجر وحده في الثواني الأولى، وتأتي الدردشة بعده.
+   *
+   * ⚠️ **ولا تُنتظر لمسةٌ إلى الأبد**: من فتح الصفحة ينتظر ردّاً قد
+   *    يكتب فوراً — فالمهلة سقفٌ لا شرط.
+   */
+  const [go, setGo] = useState(false);
+  useEffect(() => {
+    if (!tawk || go) return;
+    let done = false;
+    const fire = () => {
+      if (done) return;
+      done = true;
+      setGo(true);
+    };
+    const w = window as unknown as {
+      requestIdleCallback?: (cb: () => void, o?: { timeout: number }) => number;
+    };
+    const t = setTimeout(fire, 6000);
+    w.requestIdleCallback?.(fire, { timeout: 6000 });
+    const opts = { once: true, passive: true } as const;
+    window.addEventListener("touchstart", fire, opts);
+    window.addEventListener("scroll", fire, opts);
+    return () => {
+      clearTimeout(t);
+      window.removeEventListener("touchstart", fire);
+      window.removeEventListener("scroll", fire);
+    };
+  }, [go]);
+
+  if (!tawk || !go) return null;
 
   return (
     <Script id="tawk-to" strategy="lazyOnload">{`
