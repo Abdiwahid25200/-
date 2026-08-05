@@ -1,4 +1,4 @@
-import { fin, fmt } from "@/lib/format";
+import { fin, fmt, offPercent } from "@/lib/format";
 import { Link } from "@/i18n/navigation";
 import Thumb from "./Thumb";
 import AddToCart from "./AddToCart";
@@ -37,6 +37,7 @@ export default function ProductCard({
 }: Props) {
   const final = fin({ price, disc });
   const before = old ?? (disc ? price : undefined);
+  const off = offPercent(final, old, disc);
 
   return (
     <article className="group flex flex-col overflow-hidden rounded-card border border-line bg-surface shadow-sm transition-shadow hover:shadow-md">
@@ -47,9 +48,9 @@ export default function ProductCard({
             {soonLabel}
           </span>
         )}
-        {disc ? (
+        {off ? (
           <span className="absolute start-2 top-2 rounded-full bg-yellow px-2.5 py-1 text-xs font-bold text-onaccent">
-            {discLabel.replace("{n}", String(disc))}
+            {discLabel.replace("{n}", String(off))}
           </span>
         ) : null}
       </div>

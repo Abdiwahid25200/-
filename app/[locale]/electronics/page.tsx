@@ -50,13 +50,21 @@ export default async function ElectronicsPage({
     <main className="seq page-w scr-body pt-3.5">
       <BackLink href="/" />
 
+      {/* 🐞 **العنوان كان مكرّراً** — فحص ٠٤-٠٨: «إلكترونيات» عنواناً
+          و«إلكترونيات» وصفاً تحته في اللغات الثلاث (`pages.electronics`
+          و`home.elecTitle` نصّهما واحد). فبقي العنوان، وحلّ محلّ الوصف
+          **العدد** — وهو الخبر الوحيد الذي يضيفه سطرٌ تحت العنوان.
+          ⚠️ وما كتبته في اللوحة (`over.note`) يعلو هذا كلّه. */}
       <SectionHead
         eyebrow={pick(over.eyebrow, locale, te("home"))}
         title={pick(over.title, locale, tp("electronics"))}
-        note={pick(over.note, locale, t("elecTitle"))}
+        note={
+          pick(over.note, locale, "") ||
+          /* 🕳️ **ولا يُقال «0 منتج»**: رقمٌ صفريّ فوق صندوق «قريباً»
+             يُقرأ عطلاً، والصندوق وحده يقول ما يكفي. */
+          (items.length ? tc("count", { n: items.length }) : "")
+        }
       />
-
-      <p className="num -mt-2 text-sm text-muted">{tc("count", { n: items.length })}</p>
 
       {/* 🕳️ **لا شبكةٌ فارغة**: «0 products» وحدها تُقرأ عطلاً. والسطر
           يقول إن المكان صحيح وإن البضاعة قادمة (ظهر حين فُرّغ المتجر

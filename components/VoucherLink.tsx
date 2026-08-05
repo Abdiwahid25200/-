@@ -1,6 +1,6 @@
 import { Link } from "@/i18n/navigation";
 import Badge from "./Badge";
-import { fin, fmt } from "@/lib/format";
+import { fin, fmt, offPercent } from "@/lib/format";
 
 /**
  * قسيمة للعرض فقط — نفس شكل بطاقة الباقة، لكنها **رابط** يفتح صفحة القسم.
@@ -27,6 +27,7 @@ export default function VoucherLink({
 }) {
   const final = fin({ price, disc });
   const before = old ?? (disc ? price : undefined);
+  const off = offPercent(final, old, disc);
 
   return (
     <Link
@@ -42,8 +43,8 @@ export default function VoucherLink({
             {unit}
           </span>
         </span>
-        {disc ? (
-          <Badge tone="gold">−{disc}%</Badge>
+        {off ? (
+          <Badge tone="gold">−{off}%</Badge>
         ) : popular ? (
           <Badge tone="green">{popularLabel}</Badge>
         ) : null}

@@ -320,6 +320,11 @@
     "hint": "Buuxi si aad u sii wadato"
   },
   "points": {
+    "guestNote": "Hel dhibcaha dalab kasta, kuna beddel qiimo-dhimis.",
+    "guestEarn": "Dalab kasta oo la bixiyay wuxuu kordhinayaa dhibcahaaga.",
+    "guestSpend": "U isticmaal qiimo-dhimis dalabkaaga xiga.",
+    "guestSend": "Dhibcaha u dir saaxiib, ama saaxiibbo casuun oo dheeraad hel.",
+    "guestCta": "Gal si aad u bilowdo",
     "eyebrow": "Dhibcaha macmiilka",
     "unit": "Dhibco",
     "worth": "Waxay le'eg tahay {usd}",

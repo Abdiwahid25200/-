@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import { IconCheckCircle, IconFlame } from "./icons";
-import { fin, fmt } from "@/lib/format";
+import { fin, fmt, offPercent } from "@/lib/format";
 import { optimizable } from "@/lib/img";
 
 type Props = {
@@ -68,6 +68,8 @@ export default function PackageCard({
 }: Props) {
   const final = fin({ price, disc });
   const before = old ?? (disc ? price : undefined);
+  /* 🏷️ الشارة تظهر للطريقين: نسبةٌ مكتوبة، أو سعرٌ قديم أعلى (٠٤-٠٨) */
+  const off = offPercent(final, old, disc);
 
   /* "660 UC" ⇒ الرقم بطلاً والوحدة تحته. أما الحسابات فعناوينها نصّية
      طويلة، فتُعرض بحجمٍ أهدأ وتلتفّ على سطرين. */
@@ -138,9 +140,9 @@ export default function PackageCard({
 
       {/* ── حزّة السعر: عمودٌ تصطفّ أرقامه كإيصال، ويفصله خطٌّ منقّط ── */}
       <span className="r">
-        {disc ? (
+        {off ? (
           <span className="num f11 rounded-full bg-yellow px-1.5 py-px font-bold text-onaccent">
-            −{disc}%
+            −{off}%
           </span>
         ) : null}
 

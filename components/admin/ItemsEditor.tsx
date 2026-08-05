@@ -16,6 +16,7 @@ import {
 import { customSections } from "@/lib/overrides";
 import { diff, hasChanges } from "@/lib/dirty";
 import { profitOf, readCosts, saveCost, type Costs } from "@/lib/costs";
+import { offPercent } from "@/lib/format";
 import ImagePicker from "./ImagePicker";
 import GalleryPicker from "./GalleryPicker";
 import {
@@ -35,6 +36,10 @@ function payloadOf(i: ShopItem): ItemDoc {
     title: i.title,
     sub: i.sub ?? "",
     price: Number(i.price) || 0,
+    /* ⚠️ **صفرٌ لا `undefined` للخصم الملغى**: `diff` يتخطّى
+       `undefined` (فايرستور يرفضه)، فلو تُرك كذلك لَما وصل «امسحي
+       الخصم» إلى قاعدة البيانات أبداً — تمسحه هي فيعود بعد التحديث. */
+    old: Number(i.old) || 0,
     points: i.points === undefined ? undefined : Number(i.points) || 0,
     img: i.img ?? "",
     status: i.status,
@@ -365,6 +370,56 @@ export default function ItemsEditor() {
                           dir="ltr"
                           className={`${field} num text-start`}
                         />
+                      </label>
+
+                      {/**
+                       * 🏷️ **الخصم — طلبها (٠٤-٠٨): «أقدر أضيف خصماً من
+                       *    الإدارة».**
+                       *
+                       * والبطاقات كانت **تعرف الخصم أصلاً**: تشطب السعر
+                       * القديم وترسم شارة `−٢٠٪` وتحسب النسبة بنفسها.
+                       * الناقص كان حقلاً واحداً هنا يكتبه.
+                       *
+                       * ⚠️ **والمكتوب هو السعر القديم لا النسبة**: هي
+                       *    تعرف «كان بخمسة وصار بأربعة»، والنسبة تُحسب.
+                       *    ولو طُلبت النسبة لَحسبت هي في رأسها ثم
+                       *    أخطأت — والحساب عملُ الآلة.
+                       * ⚠️ **وفراغُه يعني «لا خصم»** فتختفي الشارة —
+                       *    لا رقمَ صفرياً يُشطب فوق السعر.
+                       */}
+                      <label className="flex flex-col gap-1.5 text-sm">
+                        <span className="font-medium">Price before discount</span>
+                        <input
+                          type="number"
+                          inputMode="decimal"
+                          step="0.01"
+                          min={0}
+                          value={it.old || ""}
+                          placeholder="Empty = no discount"
+                          onChange={(e) =>
+                            patch(it.id, {
+                              old:
+                                e.target.value === ""
+                                  ? 0
+                                  : Number(e.target.value),
+                            })
+                          }
+                          dir="ltr"
+                          className={`${field} num text-start`}
+                        />
+                      </label>
+
+                      {/* نسبة الخصم — محسوبةٌ أمامها، فترى ما سيراه الزبون */}
+                      <label className="flex flex-col gap-1.5 text-sm">
+                        <span className="font-medium">Discount</span>
+                        <span
+                          className="num flex min-h-12 items-center rounded-card border border-line px-3 font-bold text-orange"
+                          dir="ltr"
+                        >
+                          {offPercent(Number(it.price), it.old) === null
+                            ? "—"
+                            : `−${offPercent(Number(it.price), it.old)}%`}
+                        </span>
                       </label>
 
                       {/* 🔒 التكلفة والربح — لكِ وحدك، لا يراهما الزبون */}

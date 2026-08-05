@@ -1,4 +1,4 @@
-import { setRequestLocale } from "next-intl/server";
+import { getTranslations, setRequestLocale } from "next-intl/server";
 import ResumeHero from "@/components/ResumeHero";
 import { mergedItems } from "@/lib/items";
 import { isBuyable } from "@/lib/data";
@@ -23,6 +23,7 @@ export default async function Home({
 }) {
   const { locale } = await params;
   setRequestLocale(locale);
+  const tm = await getTranslations("meta");
 
   /**
    * ⏱️ **الباقة الأشهر تُقرأ هنا لا في المتصفّح** — بلاغها (٠٣-٠٨):
@@ -39,6 +40,19 @@ export default async function Home({
         بكسلات في كل فاصلٍ تصير عشرات في صفحةٍ ذات خمس كتل — وهي الفرق
         بين أن يرى بلاطات الأقسام وأن تختفي تحت القائمة السفلية. */
     <main className="seq page-w scr-body pt-3.5">
+      {/**
+       * 🔎 **عنوانٌ رئيسيّ للرئيسية — مسموعٌ لا مرئيّ** (فحص ٠٤-٠٨).
+       *
+       * كانت الصفحة **بلا عنوانٍ إطلاقاً**: البطل ثمّ البلاطات. وجوجل
+       * يقرأ `h1` ليعرف موضوع الصفحة، وقارئُ الشاشة يقرؤه أوّلاً ليقول
+       * للأعمى أين هو — فصفحةٌ بلا عنوان صفحةٌ بلا اسم.
+       *
+       * ⚠️ **ولا يُرى**: تصميم الرئيسية بلا ترويسةٍ نصّية بقرارها،
+       *    وإضافتُها تدفع البلاطات تحت الطيّة. فالعنوان هنا للآلة
+       *    ولقارئ الشاشة، والشكل كما هو حرفاً بحرف.
+       */}
+      <h1 className="sr-only">{`${tm("brand")} — ${tm("description")}`}</h1>
+
       {/* ⚠️ **البطل هو الشراء لا صورة**: من فتح المتجر يريد شحنةً، فيجد
           طلبه الأخير جاهزاً قبل أن يفكّر. والبانر ينزل تحته — يبقى
           للعروض ولا يسبق ما جاء الزبون من أجله. */}

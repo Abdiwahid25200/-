@@ -320,6 +320,11 @@
     "hint": "Fill this in to continue"
   },
   "points": {
+    "guestNote": "Earn points on every order and turn them into discounts.",
+    "guestEarn": "Every paid order adds points to your balance.",
+    "guestSpend": "Use them as a discount on your next order.",
+    "guestSend": "Send points to a friend, or invite friends and earn more.",
+    "guestCta": "Sign in to start",
     "eyebrow": "Loyalty points",
     "unit": "points",
     "worth": "Worth {usd}",
