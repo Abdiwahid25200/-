@@ -79,6 +79,26 @@ export default function PromosEditor() {
     return Number.isFinite(cap) ? Math.floor(cap * 100) / 100 : null;
   }
 
+  /**
+   * 🕳️ **ما لا يعرفه الحارس لا يحرسه** — قرارها (٠٤-٠٨).
+   *
+   * حارس التكلفة يقيس على التكاليف المكتوبة وحدها. وصنفٌ بلا تكلفة
+   * **يمرّ عليه أيّ كودٍ بلا اعتراض** — فتظنّ كلَّ شيءٍ محروساً وفيه
+   * ثغرة. فيُقال العدد والأسماء صراحةً: في الشاشة دائماً، وفي لحظة
+   * الحفظ مرّةً أخرى.
+   */
+  const blind = priced.filter((it) => !(Number(costs[it.id]) > 0));
+
+  const blindNote =
+    blind.length === 0
+      ? ""
+      : `\n\n${blind.length} item${blind.length > 1 ? "s" : ""} still have no cost (${blind
+          .slice(0, 3)
+          .map((b) => b.title)
+          .join(", ")}${blind.length > 3 ? "…" : ""}) — the guard cannot protect ${
+          blind.length > 1 ? "them" : "it"
+        }.`;
+
   /** أسوأ صنفٍ يبيعه هذا الرمز بخسارة — أو `null` إن كان كلّه رابحاً */
   function worstLoss(p: Promo) {
     let worst: { title: string; left: number; cost: number } | null = null;
@@ -125,6 +145,7 @@ export default function PromosEditor() {
      * وإمّا **يُمنع الحفظ** إن كان الربح لا يحتمل خصماً أصلاً.
      */
     let safe = { ...p, code };
+    let lowered = false;
     const cap = safeCap();
 
     if (cap !== null) {
@@ -149,14 +170,18 @@ export default function PromosEditor() {
         const word = isPct ? "Max discount" : "Amount";
         if (
           !confirm(
-            `${word} $${now.toFixed(2)} would sell an item below cost.\n\nIt will be saved as $${cap.toFixed(2)} — the largest discount that still keeps every item profitable.\n\nSave it that way?`,
+            `${word} $${now.toFixed(2)} would sell an item below cost.\n\nIt will be saved as $${cap.toFixed(2)} — the largest discount that still keeps every item profitable.\n\nSave it that way?${blindNote}`,
           )
         )
           return;
         safe = isPct ? { ...safe, max: cap } : { ...safe, value: cap };
         patch(p.code, isPct ? { max: cap } : { value: cap });
+        lowered = true;
       }
     }
+
+    /* ⚠️ **ولا يُسأل مرّتين**: من خُفّض سقفُه قرأ التنبيه في سؤاله. */
+    if (!lowered && blindNote && !confirm(`Save ${code}?${blindNote}`)) return;
 
     setBusy(p.code);
     const ok = await savePromo(safe);
@@ -204,6 +229,21 @@ export default function PromosEditor() {
         A customer types the code at checkout and the discount comes off the
         order. Codes are case-insensitive.
       </p>
+
+      {/* 🕳️ الثغرة تُقال قبل أن تُكتشف بطلبٍ خاسر */}
+      {blind.length > 0 && (
+        <p className="adm-warn soft text-sm">
+          <span>
+            <b className="block">
+              {blind.length} item{blind.length > 1 ? "s" : ""} have no cost yet
+            </b>
+            Codes cannot protect {blind.length > 1 ? "them" : "it"} from selling
+            at a loss: {blind.slice(0, 5).map((b) => b.title).join(" · ")}
+            {blind.length > 5 ? " …" : ""}. Write it under Items → the item →
+            Cost (private).
+          </span>
+        </p>
+      )}
 
       {list.map((p) => {
         const isFresh = fresh.has(p.code);
