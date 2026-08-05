@@ -283,6 +283,16 @@ export async function myLedger(
 export async function buyPointsOrder(
   user: User | null,
   points: number,
+  /**
+   * 🐞 **طريقة الدفع — بلاغها (٠٤-٠٨): «لماذا لا تظهر طرق الدفع عندما
+   *    أشتري نقاطاً؟»**
+   *
+   * كان الطلب يُكتب بـ`payMethod: ""` بلا خطوة دفعٍ أصلاً: يضغط الزبون
+   * «اشترِ» فيصلها طلبٌ **لا يعرف صاحبُه أين يحوّل، ولا تعرف هي بأيّ
+   * طريقةٍ وعد**. وكلُّ شراءٍ آخر في المتجر يمرّ باختيار طريقة — فكان
+   * هذا البابُ وحده مفتوحاً على فراغ.
+   */
+  method: string,
 ): Promise<{ ok: true; code: string } | { ok: false }> {
   const n = Math.round(points);
   const db = fbDb();
@@ -299,7 +309,7 @@ export async function buyPointsOrder(
       items: [{ id: "points", title: `${n} points`, qty: 1, price: total }],
       total,
       buyPoints: n,
-      payMethod: "",
+      payMethod: method,
       account: "",
       uid: user.uid,
       email: user.email ?? "",

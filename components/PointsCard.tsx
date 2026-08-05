@@ -12,6 +12,7 @@ import {
   IconBarwaaqo,
   IconWhatsApp,
 } from "./icons";
+import PaySection from "./PaySection";
 import { getProfile } from "@/lib/profile";
 import { claimIncoming, ensurePhoneEntry, sendPointsTo } from "@/lib/transfers";
 import {
@@ -51,6 +52,8 @@ export default function PointsCard() {
   const [points, setPoints] = useState<number | null>(null);
   const [rows, setRows] = useState<LedgerRow[]>([]);
   const [want, setWant] = useState("");
+  /** طريقة الدفع المختارة لشراء النقاط — لا طلبَ قبل اختيارها */
+  const [payId, setPayId] = useState<string | null>(null);
   const [tab, setTab] = useState<"buy" | "send" | "receive" | "sell" | null>(null);
   const [toPhone, setToPhone] = useState("");
   const [phone, setPhone] = useState("");
@@ -161,13 +164,14 @@ export default function PointsCard() {
 
   async function buy() {
     const n = Math.round(Number(want) || 0);
-    if (n < settings.minBuy) return;
+    if (n < settings.minBuy || !payId) return;
     setBusy(true);
     setMsg(null);
-    const r = await buyPointsOrder(user, n);
+    const r = await buyPointsOrder(user, n, payId);
     setBusy(false);
     if (!r.ok) return setMsg(t("buyError"));
     setWant("");
+    setPayId(null);
     setMsg(t("buyDone", { code: r.code }));
   }
 
@@ -175,6 +179,8 @@ export default function PointsCard() {
 
   const usd = pointsToUsd(points);
   const short = Math.max(0, settings.minRedeem - points);
+  /** العدد المطلوب شراؤه — يُقرأ في ثلاثة مواضع، فيُحسب مرّة */
+  const wanted = Math.max(0, Math.round(Number(want) || 0));
 
   return (
     <section id="points" className="scroll-mt-20 flex flex-col gap-3">
@@ -320,15 +326,39 @@ export default function PointsCard() {
             dir="ltr"
             className={field}
           />
+
+          {/**
+           * 💳 **طرق الدفع — بلاغها (٠٤-٠٨)**: «لماذا لا تظهر طرق الدفع
+           *    عندما أشتري نقاطاً؟» وكانت محقّة: هذا الباب وحده كان يصنع
+           *    طلباً بلا اختيار طريقة، فلا يعرف الزبون أين يحوّل ولا تعرف
+           *    هي بأيّ طريقةٍ وعد.
+           *
+           * ⚠️ **ولا تظهر قبل أن يُكتب العدد**: كود التحويل يحمل المبلغ
+           *    بداخله (`*712*رقم*٥#`)، وعرضُه قبل العدد يعطي كوداً بصفر
+           *    دولار — يتّصل به الزبون فلا يحوّل شيئاً.
+           * ⚠️ **وبلا طريقةٍ مفعَّلة لا تظهر أصلاً** (`PaySection` تُخفي
+           *    نفسها)، ويبقى الزرّ معطّلاً — فلا وعدَ بما لا يقع.
+           * ⚠️ **وبترويستها لا `bare`**: شاشة الدفع في تدفّق الشراء تحمل
+           *    عنوانها في رأسها، أمّا هنا فصفوفٌ تظهر فجأةً تحت حقل عدد —
+           *    فعنوان «طريقة الدفع» فوقها هو ما يقول لِمَ ظهرت.
+           */}
+          {wanted >= settings.minBuy && (
+            <PaySection
+              amount={pointsToUsd(wanted)}
+              selected={payId}
+              onSelect={setPayId}
+            />
+          )}
+
           <button
             type="button"
-            disabled={busy || Math.round(Number(want) || 0) < settings.minBuy}
+            disabled={busy || wanted < settings.minBuy || !payId}
             onClick={() => void buy()}
             className={cta}
           >
             {t("buyCta", {
-              n: Math.max(0, Math.round(Number(want) || 0)),
-              usd: `$${(Math.max(0, Math.round(Number(want) || 0)) * USD_PER_POINT).toFixed(2)}`,
+              n: wanted,
+              usd: `$${(wanted * USD_PER_POINT).toFixed(2)}`,
             })}
           </button>
         </div>
