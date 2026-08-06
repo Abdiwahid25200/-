@@ -239,7 +239,7 @@ export default function AdminTabs() {
     );
 
   return (
-    <div className="flex flex-1 flex-col gap-3.5">
+    <div className="flex min-w-0 flex-1 flex-col gap-3.5">
       {/* ── الترويسة: عنوانٌ وسطرٌ تحته، ورجوعٌ حين نكون في شاشة ── */}
       <div className="flex items-center gap-2.5">
         {open && (
@@ -274,7 +274,11 @@ export default function AdminTabs() {
       </div>
 
       {/* ── الشريط السفلي ── */}
-      <nav className="adm-nav -mx-4 mt-1 flex gap-1 px-2" aria-label="Sections">
+      {/* 💻 عمودٌ جانبيّ على الشاشة الكبيرة · وشريطٌ سفليّ على الجوّال */}
+      <nav
+        className="adm-nav -mx-4 mt-1 flex gap-1 px-2 lg:mx-0 lg:mt-0 lg:w-52 lg:shrink-0 lg:flex-col lg:gap-1.5 lg:rounded-card lg:border lg:border-line lg:bg-surface lg:p-2"
+        aria-label="Sections"
+      >
         {bar.map((b) => {
           const on = tab === b.v;
           const Icon = b.icon;
@@ -288,7 +292,7 @@ export default function AdminTabs() {
                 window.scrollTo({ top: 0 });
               }}
               aria-current={on ? "page" : undefined}
-              className={`flex min-h-12 flex-1 flex-col items-center justify-center gap-0.5 rounded-[12px] py-1.5 text-xs ${
+              className={`flex min-h-12 flex-1 flex-col items-center justify-center gap-0.5 rounded-[12px] py-1.5 text-xs lg:w-full lg:flex-none lg:flex-row lg:justify-start lg:gap-2.5 lg:px-3 lg:text-sm ${
                 on ? "bg-orange/10 font-extrabold text-orange" : "font-semibold text-muted"
               }`}
             >
