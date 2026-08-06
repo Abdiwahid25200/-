@@ -293,21 +293,6 @@ body {
   padding-bottom: env(safe-area-inset-bottom);
 }
 
-/* 💻 **وعلى الشاشة الكبيرة يصير عموداً جانبياً** — طلبها (٠٤-٠٨):
-   شريطٌ ملتصقٌ بقاع شاشةٍ عريضة يُنزل اليد إليه في كل تبديل تبويب.
-   ⚠️ ولا يتغيّر شيء على الجوّال: القاعدة داخل `lg` وحدها. */
-@media (min-width: 1024px) {
-  .adm-nav {
-    position: sticky;
-    top: 1.5rem;
-    bottom: auto;
-    border-top: 0;
-    padding-bottom: 0;
-    background: var(--surface);
-    backdrop-filter: none;
-  }
-}
-
 /* مساحة إضافية أسفل الصفحة عندما يظهر شريط تأكيد الطلب */
 body.has-buybar {
   padding-bottom: calc(10.75rem + env(safe-area-inset-bottom));
