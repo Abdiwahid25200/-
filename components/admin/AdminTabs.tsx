@@ -31,6 +31,7 @@ import {
   IconClose,
   IconGrid,
   IconHome,
+  IconSearch,
   IconTag,
   IconUsers,
 } from "@/components/icons";
@@ -60,6 +61,20 @@ import {
 
 type Tab = "today" | "items" | "people" | "money" | "more";
 
+/**
+ * 🗂️ **مجموعات شبكة More** (قرارها ٠٧-٠٨) — كانت ثلاث عشرة بلاطةً
+ * متساوية في شبكةٍ واحدة، فالعينُ تقرؤها كلَّها لتجد واحدة. والآن
+ * أربعُ مجموعاتٍ بعناوين: تُقرأ العناوينُ أوّلاً ثم بلاطتان أو خمس.
+ */
+type Group = "work" | "store" | "money" | "setup";
+
+const GROUPS: { v: Group; label: string }[] = [
+  { v: "work", label: "Orders & customers" },
+  { v: "store", label: "Your store" },
+  { v: "money", label: "Money & rewards" },
+  { v: "setup", label: "Settings" },
+];
+
 type Screen = {
   v: AdminTab;
   /** العنوان في الترويسة، والاسم على البلاطة */
@@ -68,6 +83,13 @@ type Screen = {
   note: string;
   perm?: Perm;
   owner?: boolean;
+  /** أيّ مجموعةٍ تجلس فيها البلاطة داخل More */
+  group?: Group;
+  /**
+   * كلماتٌ تُبحث بها ولا تُعرض — الاسم على الباب ليس دائماً ما يخطر
+   * ببالها. تكتب `evc` فتصل إلى Payments، و`profit` فتصل إلى Money.
+   */
+  find?: string;
   /** سطرٌ حيّ يحلّ محلّ `note` حين يكون في الشاشة شيءٌ ينتظر */
   hint?: (h: Hints) => string | null;
 };
@@ -79,57 +101,145 @@ const ROOTS: Record<Exclude<Tab, "today" | "more">, Screen> = {
     label: "Items",
     note: "What you sell",
     perm: "products",
+    find: "products prices packages stock uc coins",
   },
   people: {
     v: "customers",
     label: "People",
     note: "Your customers",
     perm: "customers",
+    find: "buyers phone numbers names",
   },
-  money: { v: "analytics", label: "Money", note: "Income and profit", owner: true },
+  money: {
+    v: "analytics",
+    label: "Money",
+    note: "Income and profit",
+    owner: true,
+    find: "profit income earnings sales cost analytics",
+  },
 };
 
-/** بلاطات «More» — بترتيب النموذج */
+/**
+ * بلاطات «More» — **مرتّبةٌ بمجموعاتها** لا صفّاً واحداً طويلاً.
+ * الترتيب هنا هو الترتيب على الشاشة داخل كل مجموعة.
+ */
 const MORE: Screen[] = [
+  /* ── Orders & customers ── */
   {
     v: "chats",
     label: "Live chat",
     note: "Messages and replies",
     perm: "chat",
+    group: "work",
+    find: "messages replies support whatsapp talk",
     hint: (h) =>
       h.waitingChats > 0
         ? `${h.waitingChats} waiting for a reply`
         : null,
   },
   {
+    v: "referrals",
+    label: "Invites",
+    note: "Who brought whom",
+    owner: true,
+    group: "work",
+    find: "referral friends share link",
+  },
+
+  /* ── Your store ── */
+  {
     v: "sections",
     label: "Sections",
     note: "Open, soon or hidden",
     perm: "sections",
+    group: "store",
+    find: "categories pubg efootball tiktok electronics hide",
   },
   {
     v: "payments",
     label: "Payments",
     note: "How they pay you",
     perm: "payments",
+    group: "store",
+    find: "evc zaad edahab sahal transfer money method",
     hint: (h) => (h.livePay === 0 ? "All off, nobody can pay" : null),
   },
-  { v: "promos", label: "Promo codes", note: "Discount codes", perm: "products" },
-  { v: "points", label: "Barwaaqo", note: "Points and rewards", perm: "points" },
-  { v: "faq", label: "Questions", note: "What customers ask", perm: "faq" },
-  { v: "staff", label: "Helpers", note: "Who can open what", owner: true },
-  { v: "referrals", label: "Invites", note: "Who brought whom", owner: true },
+  {
+    v: "slides",
+    label: "Banner",
+    note: "Home screen slides",
+    perm: "sections",
+    group: "store",
+    find: "slider images home top pictures",
+  },
+  {
+    v: "texts",
+    label: "Wording",
+    note: "Text customers read",
+    perm: "sections",
+    group: "store",
+    find: "words translation arabic somali language",
+  },
+  {
+    v: "faq",
+    label: "Questions",
+    note: "What customers ask",
+    perm: "faq",
+    group: "store",
+    find: "faq answers help",
+  },
+
+  /* ── Money & rewards ── */
+  {
+    v: "promos",
+    label: "Promo codes",
+    note: "Discount codes",
+    perm: "products",
+    group: "money",
+    find: "discount coupon sale offer",
+  },
+  {
+    v: "points",
+    label: "Barwaaqo",
+    note: "Points and rewards",
+    perm: "points",
+    group: "money",
+    find: "loyalty gift reward stars",
+  },
+  {
+    v: "report",
+    label: "Helper report",
+    note: "Who handled what",
+    owner: true,
+    group: "money",
+    find: "staff work log pay salary",
+  },
+
+  /* ── Settings ── */
   {
     v: "store",
     label: "Store info",
     note: "Number, hours, days off",
     owner: true,
-    hint: (h) => (h.noWhatsapp ? "No WhatsApp number yet" : null),
+    group: "setup",
+    find: "whatsapp number hours holiday closed open contact",
   },
-  { v: "texts", label: "Wording", note: "Text customers read", perm: "sections" },
-  { v: "slides", label: "Banner", note: "Home screen slides", perm: "sections" },
-  { v: "report", label: "Helper report", note: "Who handled what", owner: true },
-  { v: "bin", label: "Deleted", note: "Bring anything back", owner: true },
+  {
+    v: "staff",
+    label: "Helpers",
+    note: "Who can open what",
+    owner: true,
+    group: "setup",
+    find: "staff permissions access team",
+  },
+  {
+    v: "bin",
+    label: "Deleted",
+    note: "Bring anything back",
+    owner: true,
+    group: "setup",
+    find: "trash restore undo recycle",
+  },
 ];
 
 /**
@@ -148,6 +258,7 @@ const QUEUE: Screen = {
   label: "Do orders",
   note: "One at a time, nothing else",
   perm: "orders",
+  find: "queue work deliver waiting new",
 };
 
 const ORDERS: Screen = {
@@ -155,6 +266,7 @@ const ORDERS: Screen = {
   label: "All orders",
   note: "Search, dates, export",
   perm: "orders",
+  find: "history excel export dates receipts",
 };
 
 const ALL: Screen[] = [QUEUE, ORDERS, ...Object.values(ROOTS), ...MORE];
@@ -240,14 +352,17 @@ export default function AdminTabs() {
 
   return (
     <div className="flex flex-1 flex-col gap-3.5">
-      {/* ── الترويسة: عنوانٌ وسطرٌ تحته، ورجوعٌ حين نكون في شاشة ── */}
-      <div className="flex items-center gap-2.5">
+      {/* ── الترويسة: **لاصقةٌ في الأعلى** — عنوانٌ وسطرٌ تحته ورجوع ──
+          ⚠️ تلصق عمداً: شاشاتُ اللوحة طويلة (سبعون منتجاً · مئة طلب)،
+             وترويسةٌ تمضي مع التمرير تترك من نزل لا يعرف أين هو ولا
+             كيف يرجع إلّا بالصعود إلى أوّل الصفحة. */}
+      <div className="adm-head">
         {open && (
           <button
             type="button"
             onClick={() => setScreen(null)}
             aria-label="Back"
-            className="flex size-10 shrink-0 items-center justify-center rounded-card border border-line text-muted"
+            className="bk"
           >
             <IconChevron className="size-5 rotate-180" />
           </button>
@@ -267,7 +382,14 @@ export default function AdminTabs() {
         ) : tab === "today" ? (
           <Dashboard onTab={go} hints={hints} canOrders={allowed(ORDERS)} />
         ) : tab === "more" ? (
-          <MoreGrid items={more} hints={hints} onOpen={go} onSignOut={signOut} email={user?.email} />
+          <MoreGrid
+            items={more}
+            all={ALL.filter(allowed)}
+            hints={hints}
+            onOpen={go}
+            onSignOut={signOut}
+            email={user?.email}
+          />
         ) : root ? (
           <Body tab={root.v} go={go} />
         ) : null}
@@ -288,9 +410,7 @@ export default function AdminTabs() {
                 window.scrollTo({ top: 0 });
               }}
               aria-current={on ? "page" : undefined}
-              className={`flex min-h-12 flex-1 flex-col items-center justify-center gap-0.5 rounded-[12px] py-1.5 text-xs ${
-                on ? "bg-orange/10 font-extrabold text-orange" : "font-semibold text-muted"
-              }`}
+              className={`adm-tab${on ? " on" : ""}`}
             >
               <Icon className="size-[22px]" />
               {b.label}
@@ -302,52 +422,133 @@ export default function AdminTabs() {
   );
 }
 
-/** شبكة «More» — بلاطةٌ لكل باب، وسطرُها يقول ما ينتظر فيه */
+/**
+ * شبكة «More» — **مربّعُ بحثٍ ثم أربعُ مجموعاتٍ بعناوين**.
+ *
+ * ⚠️ **والبحث يمشي على اللوحة كلّها** لا على More وحدها: من تكتب
+ *    `profit` تريد Money، ومن تكتب `evc` تريد Payments — ولا يعنيها
+ *    في أيّ تبويبٍ يجلس البابُ الذي تريد.
+ *
+ * ⚠️ **ولا يظهر إلا ما فُتح لها**: القائمة تصل مُصفّاةً بالصلاحيات،
+ *    فلا يجد المساعدُ بالبحث باباً لا يراه في الشبكة.
+ */
 function MoreGrid({
   items,
+  all,
   hints,
   onOpen,
   onSignOut,
   email,
 }: {
   items: Screen[];
+  /** كل شاشات اللوحة المسموحة — مادّةُ البحث */
+  all: Screen[];
   hints: Hints;
   onOpen: (t: AdminTab) => void;
   onSignOut: () => void;
   email?: string | null;
 }) {
-  return (
-    <div className="flex flex-col gap-3">
-      <p className="adm-ttl">Everything else</p>
+  const [q, setQ] = useState("");
+  const term = q.trim().toLowerCase();
 
-      <div className="grid grid-cols-2 gap-2.5">
-        {items.map((s) => {
-          const Icon = ICONS[s.v];
-          const live = s.hint?.(hints) ?? null;
-          return (
-            <button
-              key={s.v}
-              type="button"
-              onClick={() => onOpen(s.v)}
-              className="adm-tile"
-            >
-              <span className="pl">
-                <Icon className="size-5" />
-              </span>
-              <b className="block truncate font-extrabold">{s.label}</b>
-              {/* ⚠️ السطر الحيّ يعلو الوصف الثابت: «كلّها مطفأة» تُقال
-                  مرّة، ووصفُ الباب يبقى مكتوباً في كل مرّة. */}
-              <span
-                className={`line-clamp-2 block text-xs leading-snug ${
-                  live ? "font-bold text-danger" : "text-muted"
-                }`}
-              >
-                {live ?? s.note}
-              </span>
-            </button>
-          );
-        })}
+  const found = term
+    ? all.filter((s) =>
+        `${s.label} ${s.note} ${s.find ?? ""}`.toLowerCase().includes(term),
+      )
+    : [];
+
+  return (
+    <div className="flex flex-col gap-3.5">
+      {/* ── مربّع البحث ── */}
+      <div className="adm-find">
+        <IconSearch className="size-[18px] shrink-0" />
+        <input
+          value={q}
+          onChange={(e) => setQ(e.target.value)}
+          placeholder="Search a screen"
+          aria-label="Search a screen"
+          autoComplete="off"
+        />
+        {q && (
+          <button type="button" onClick={() => setQ("")} aria-label="Clear search" className="cl">
+            <IconClose className="size-4" />
+          </button>
+        )}
       </div>
+
+      {term ? (
+        /* ── نتائج البحث: صفوفٌ لا بلاطات — القراءة أسرع في العمود ── */
+        found.length === 0 ? (
+          <p className="rounded-card border border-dashed border-line p-6 text-center text-sm text-muted">
+            Nothing matches “{q}”.
+          </p>
+        ) : (
+          <div className="flex flex-col gap-2">
+            {found.map((s) => {
+              const Icon = ICONS[s.v];
+              return (
+                <button
+                  key={s.v}
+                  type="button"
+                  onClick={() => onOpen(s.v)}
+                  className="adm-row"
+                >
+                  <span className="pl">
+                    <Icon className="size-5" />
+                  </span>
+                  <span className="min-w-0 flex-1 leading-tight">
+                    <b className="block truncate font-extrabold">{s.label}</b>
+                    <i className="block truncate text-xs not-italic text-muted">
+                      {s.note}
+                    </i>
+                  </span>
+                  <IconChevron className="size-4 shrink-0 text-muted" />
+                </button>
+              );
+            })}
+          </div>
+        )
+      ) : (
+        /* ── المجموعات ── */
+        GROUPS.map((g) => {
+          const inG = items.filter((s) => s.group === g.v);
+          /* مجموعةٌ فرغت بالصلاحيات لا تترك عنواناً معلّقاً بلا بلاطات */
+          if (inG.length === 0) return null;
+          return (
+            <div key={g.v} className="flex flex-col gap-2.5">
+              <p className="adm-ttl">{g.label}</p>
+              <div className="grid grid-cols-2 gap-2.5">
+                {inG.map((s) => {
+                  const Icon = ICONS[s.v];
+                  const live = s.hint?.(hints) ?? null;
+                  return (
+                    <button
+                      key={s.v}
+                      type="button"
+                      onClick={() => onOpen(s.v)}
+                      className={`adm-tile${live ? " hot" : ""}`}
+                    >
+                      <span className="pl">
+                        <Icon className="size-5" />
+                      </span>
+                      <b className="block truncate font-extrabold">{s.label}</b>
+                      {/* ⚠️ السطر الحيّ يعلو الوصف الثابت: «كلّها مطفأة» تُقال
+                          مرّة، ووصفُ الباب يبقى مكتوباً في كل مرّة. */}
+                      <span
+                        className={`line-clamp-2 block text-xs leading-snug ${
+                          live ? "font-bold text-danger" : "text-muted"
+                        }`}
+                      >
+                        {live ?? s.note}
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          );
+        })
+      )}
 
       <div className="mt-1 flex flex-col gap-2">
         <a
