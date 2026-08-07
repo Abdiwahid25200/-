@@ -4,8 +4,7 @@ import { useCallback, useEffect, useState } from "react";
 import { useAuth } from "@/lib/auth";
 import { useAccess } from "@/lib/adminAccess";
 import DateRange from "./DateRange";
-import Choose from "./Choose";
-import { IconDownload } from "@/components/icons";
+import { IconChevron } from "@/components/icons";
 import { csvDate, csvName, downloadCsv } from "@/lib/csv";
 import { inSpan, spanLabel, today, type Span } from "@/lib/span";
 import { DONE_GROUP, DONE_GROUP_NOTE, doneLabel } from "@/lib/deliver";
@@ -136,16 +135,44 @@ function amountOf(o: AdminOrder): string {
 }
 
 /**
- * مدى التاريخ — تُسأل عنه **قبل** فتح القائمة.
+ * مدى التاريخ — **يفتح على اليوم**، ويُبدَّل من شريطٍ فوق القائمة.
  *
  * ⚠️ قائمةٌ تفتح على كل الطلبات منذ الأزل تُغرق صاحبتها: مئتا طلبٍ
- *    تبحث فيها عن طلبِ اليوم. فالشاشة تسأل أوّلاً: **متى** و**أيّها**،
- *    ثم تعرض ما طلبته وحده.
+ *    تبحث فيها عن طلبِ اليوم. فالمدى يبدأ عند **اليوم** وحده.
+ *
+ * ⚠️ **وكانت الشاشة تسأل أوّلاً في صفحةٍ كاملة** ثم تعرض. فصارت التصفية
+ *    في مكانين — سؤالٌ في البداية وقائمةٌ منسدلةٌ بعده — ولا يُعرف
+ *    أيّهما الحاكم. أُدمجت في شاشةٍ واحدة (قرارها ٠٧-٠٨).
  *
  * ⚠️ و«متى» صارت **من … إلى** لا أزراراً جاهزة (قرارها): «آخر ٧ أيام»
  *    مدىً يتحرّك تحت قدمها، ورقمُ اليوم فيه لا يساوي رقم أمس، فلا يُقارَن
  *    بشيء ولا يُطابق ما ينزل في إكسل. والتفصيل في `lib/span.ts`.
  */
+
+/**
+ * سطرُ تفصيل — **يختفي إن كان فارغاً**.
+ *
+ * ⚠️ كانت الشاشة تطبع `—` في «القسم» و«الحساب» و«الهاتف» و«البريد»
+ *    حتى حين لا شيء فيها: أربعةُ أسطرٍ تُقرأ ولا تقول شيئاً، تدفع
+ *    أزرار العمل إلى أسفل الشاشة. والفارغُ لا يُعرض أصلاً.
+ */
+function Fact({
+  k,
+  v,
+  tone,
+}: {
+  k: string;
+  v: React.ReactNode;
+  tone?: string;
+}) {
+  if (v === null || v === undefined || v === "" || v === "—") return null;
+  return (
+    <div className="flex gap-3 text-sm">
+      <span className="w-24 shrink-0 text-muted">{k}</span>
+      <span className={`min-w-0 flex-1 font-medium ${tone ?? ""}`}>{v}</span>
+    </div>
+  );
+}
 
 /** فاصل اليوم — «Today» و«Yesterday» ثم التاريخ */
 function dayOf(d: Date | null): string {
@@ -166,8 +193,15 @@ export default function OrdersEditor() {
 
   const [orders, setOrders] = useState<AdminOrder[] | null>(null);
   const [filter, setFilter] = useState<(typeof FILTERS)[number]["v"]>("pending");
-  /** الشاشة الأولى: تسأل عن المدى والحالة قبل أن تعرض شيئاً */
-  const [asking, setAsking] = useState(true);
+  /**
+   * لوحةُ التواريخ — **مطويّةٌ ما لم تُطلب** (قرارها ٠٧-٠٨).
+   *
+   * ⚠️ كانت الشاشة تسأل أوّلاً في صفحةٍ كاملة: «أيّ تواريخ؟ أيّ طلبات؟»
+   *    ثم تعرض. فصارت التصفيةُ في مكانين — سؤالٌ في البداية وقائمةٌ
+   *    منسدلةٌ بعده — ولا تُعرف أيّهما الحاكم. والآن **شاشةٌ واحدة**:
+   *    تفتح على طلبات اليوم، والتواريخ تُطوى تحت زرّها.
+   */
+  const [dates, setDates] = useState(false);
   /* تفتح على **اليوم**: الطرفان تاريخُ اليوم نفسه، كما كانت تماماً */
   const [span, setSpan] = useState<Span>(() => ({ from: today(), to: today() }));
   const [open, setOpen] = useState<string | null>(null);
@@ -350,107 +384,77 @@ export default function OrdersEditor() {
           : inWindow.filter((o) => o.status === f.v).length,
   }));
 
-  const chip =
-    "min-h-10 rounded-full border px-3 text-sm font-bold transition-colors";
   const btn =
-    "min-h-11 flex-1 rounded-card border border-line px-3 text-sm font-bold transition-colors hover:bg-bg disabled:opacity-50";
+    "min-h-12 flex-1 rounded-card border border-line px-3 text-sm font-bold transition-colors hover:bg-bg disabled:opacity-50";
 
-  /* ═══ الشاشة الأولى: متى؟ وأيّها؟ ═══ */
-  if (asking) {
-    return (
-      <div className="flex flex-col gap-5">
-        {err && (
-          <p className="rounded-card border border-danger/40 bg-danger/5 p-3 text-sm">
-            Could not read orders. Check your connection, then press Refresh.
-          </p>
-        )}
+  /**
+   * الشرحُ الطويل للمختار وحده — سطرٌ واحد بدل خمسةٍ على خمسة أزرار.
+   * ⚠️ وما بعد الشرطة وحده: اسمُ الحالة مكتوبٌ على الزرّ فوقه، وإعادتُه
+   *    هنا سطرٌ يقول ما قيل. و«All orders» بلا شرحٍ فلا سطر لها أصلاً.
+   */
+  const filterNote = (FILTERS.find((f) => f.v === filter)?.label ?? "").split(
+    " — ",
+  )[1];
 
-        {/* ① متى — من … إلى، وبإمكانها تنزيل المدى كلّه لإكسل من هنا */}
-        <section className="flex flex-col gap-2">
-          <h3 className="adm-ttl">Which dates?</h3>
+  return (
+    <div className="flex flex-col gap-3">
+      {/* ── ① المدى: سطرٌ يقول ما يُعرض، وضغطةٌ تفتح التواريخ ──
+          ⚠️ **مطويّ**: التواريخ تُبدَّل مرّةً في اليوم، والتصفية عشرين
+             مرّة. فما يُلمس كثيراً ظاهرٌ، وما يُلمس نادراً تحت زرّه. */}
+      <button
+        type="button"
+        onClick={() => setDates((d) => !d)}
+        aria-expanded={dates}
+        className="adm-bar"
+      >
+        <span className="min-w-0 flex-1">
+          <b className="block truncate">{rangeLabel}</b>
+          <i className="num block text-xs not-italic text-muted">
+            {orders === null ? "…" : `${inWindow.length} orders`}
+          </i>
+        </span>
+        <span className="go">
+          {dates ? "Done" : "Change"}
+          <IconChevron className={`size-4 ${dates ? "-rotate-90" : "rotate-90"}`} />
+        </span>
+      </button>
+
+      {/* ⚠️ و**Refresh وExcel داخل اللوحة نفسها**: كانا صفّاً دائماً فوق
+          القائمة يأكل سطراً في كل مرّة، وهما من أدوات المدى لا من أدوات
+          اليوم. و`DateRange` يحملهما أصلاً في الشاشات الأربع. */}
+      {dates && (
+        <div className="rounded-card border border-line bg-surface p-3">
           <DateRange
             span={span}
             onChange={setSpan}
             onRefresh={() => void load()}
-            onDownload={() => download(inWindow, "orders")}
-            canDownload={inWindow.length > 0}
+            /* ينزّل **المعروض** — بحالته ومداه معاً، لا كل الطلبات */
+            onDownload={() => download(shown, `orders-${filter}`)}
+            canDownload={shown.length > 0}
           />
-        </section>
+        </div>
+      )}
 
-        {/* ② أيّها — قائمةٌ منسدلة (طلبها)، والعدد يتبع المدى المختار فوق.
-            ⚠️ والاختيار **يفتح القائمة فوراً**: لو انتظر زرّ «اعرضي» لصار
-               الاختيارُ خطوتين حيث تكفي واحدة. */}
-        <section className="flex flex-col gap-2">
-          {/* ⚠️ تبدأ فارغةً بـ«Choose one…» عمداً: لو بدأت على «Waiting»
-              لَما فتح اختيارُ «Waiting» شيئاً — المتصفّح لا يُبلّغ عن
-              اختيارِ ما هو مختارٌ أصلاً، فتضغط ولا يحدث شيء. */}
-          <Choose
-            label="Which orders?"
-            value=""
-            onChange={(v) => {
-              if (!v) return;
-              setFilter(v as (typeof FILTERS)[number]["v"]);
-              setAsking(false);
-            }}
-            options={[{ v: "", label: "Choose one…" }, ...filterOpts]}
-            note={`${rangeLabel} · ${inWindow.length} in total`}
-          />
-        </section>
+      {/* ── ② التصفية: أزرارٌ مرئيةٌ بعددِ كلٍّ ──
+          ⚠️ كانت قائمةً منسدلة: ثلاثُ لمساتٍ لتبديل «بانتظار ⇐ مقبول»،
+             ولا يُرى العددُ حتى تُفتح. والآن لمسةٌ واحدة، والأعداد كلّها
+             ظاهرةٌ قبل اللمس — فتعرف أين العمل قبل أن تذهب إليه. */}
+      <div className="adm-segs" role="group" aria-label="Which orders?">
+        {filterOpts.map((f) => (
+          <button
+            key={f.v}
+            type="button"
+            onClick={() => setFilter(f.v)}
+            aria-pressed={filter === f.v}
+            className={`adm-seg${filter === f.v ? " on" : ""}`}
+          >
+            {SHORT[f.v]}
+            <span className="num n">{f.count ?? "…"}</span>
+          </button>
+        ))}
       </div>
-    );
-  }
-
-  return (
-    <div className="flex flex-col gap-3">
-      {/* سطرُ ما اخترتِه، وزرٌّ يعيدك للسؤال — فلا تُنسى التصفية القائمة */}
-      <button
-        type="button"
-        onClick={() => setAsking(true)}
-        className="flex items-center gap-2 rounded-card border border-line bg-surface p-3 text-start"
-      >
-        <span className="min-w-0 flex-1">
-          <span className="block truncate font-bold">
-            {SHORT[filter]} · {rangeLabel}
-          </span>
-          <span className="num block text-xs text-muted">
-            {shown.length} orders
-          </span>
-        </span>
-        <span className="shrink-0 text-sm font-bold text-orange">
-          Change dates
-        </span>
-      </button>
-
-      {/* ⚠️ وتبديل النوع **بلا رجوعٍ إلى شاشة السؤال**: قائمةٌ منسدلة هنا
-          أيضاً، فمن فتحت «بانتظار» تنتقل إلى «مقبول» بضغطتين لا بأربع. */}
-      <Choose
-        label="Which orders?"
-        value={filter}
-        onChange={(v) => setFilter(v as (typeof FILTERS)[number]["v"])}
-        options={filterOpts}
-      />
-
-      <div className="flex items-center gap-2">
-        <button
-          type="button"
-          onClick={() => void load()}
-          className={`${chip} flex-1 border-line text-muted`}
-        >
-          Refresh
-        </button>
-        {/* ⚠️ ينزّل **المعروض** — بحالته ومداه معاً، لا كل الطلبات */}
-        <button
-          type="button"
-          disabled={shown.length === 0}
-          onClick={() =>
-            download(shown, `orders-${filter === "all" ? "all" : filter}`)
-          }
-          className={`${chip} flex flex-1 items-center justify-center gap-1.5 border-orange/50 text-orange disabled:opacity-45`}
-        >
-          <IconDownload className="size-4" />
-          Excel
-        </button>
-      </div>
+      {/* الشرحُ الذي كان في القائمة المنسدلة — لم يُفقد، صار سطراً هنا */}
+      {filterNote && <p className="-mt-1 text-xs text-muted">{filterNote}</p>}
 
       {note && (
         <p className="rounded-card border border-line bg-surface p-2.5 text-sm font-medium">
@@ -459,9 +463,20 @@ export default function OrdersEditor() {
       )}
 
       {err && (
-        <p className="rounded-card border border-danger/40 bg-danger/5 p-3 text-sm">
-          Could not read orders. Check your connection, then press Refresh.
-        </p>
+        /* ⚠️ ومعه زرُّه: زرُّ Refresh صار داخل لوحة التواريخ المطويّة،
+           فرسالةٌ تقول «اضغطي Refresh» تُرسلها تبحث عن زرٍّ لا تراه. */
+        <div className="flex items-center gap-2 rounded-card border border-danger/40 bg-danger/5 p-3 text-sm">
+          <span className="min-w-0 flex-1">
+            Could not read orders. Check your connection, then try again.
+          </span>
+          <button
+            type="button"
+            onClick={() => void load()}
+            className="min-h-11 shrink-0 rounded-card border border-line bg-surface px-3 font-bold"
+          >
+            Try again
+          </button>
+        </div>
       )}
 
       {orders === null ? (
@@ -561,21 +576,43 @@ export default function OrdersEditor() {
               </button>
 
               {open === o.id && (
-                <div className="flex flex-col gap-3 border-t border-line p-3">
-                  <dl className="grid grid-cols-[auto_1fr] gap-x-3 gap-y-1.5 text-sm">
-                    <dt className="text-muted">Section</dt>
-                    <dd className="font-medium">{o.kind || "—"}</dd>
+                <div className="flex flex-col gap-4 border-t border-line p-3">
+                  {/* ═══ ① ما طُلب ═══ */}
+                  <section className="flex flex-col gap-2">
+                    <p className="adm-ttl">Order</p>
 
-                    <dt className="text-muted">Account / ID</dt>
-                    <dd className="num font-medium break-all" dir="ltr">
-                      {o.account || "—"}
-                    </dd>
+                    <ul className="flex flex-col gap-1 rounded-card border border-line p-2.5 text-sm">
+                      {(o.items ?? []).map((it, i) => (
+                        <li key={`${it.id}-${i}`} className="flex gap-2">
+                          <span className="min-w-0 flex-1 truncate">
+                            {it.title}
+                            {it.qty > 1 && <span className="num"> ×{it.qty}</span>}
+                          </span>
+                          <span className="num shrink-0 text-muted">
+                            ${Number(it.price ?? 0).toFixed(2)}
+                          </span>
+                        </li>
+                      ))}
+                    </ul>
+
+                    <Fact k="Section" v={o.kind} />
+                    <Fact
+                      k="Account / ID"
+                      v={
+                        o.account ? (
+                          <span className="num break-all" dir="ltr">
+                            {o.account}
+                          </span>
+                        ) : null
+                      }
+                    />
+                    <Fact k="Payment" v={o.payMethod} />
 
                     {o.paidBy === "points" && (
-                      <>
-                        <dt className="text-muted">Paid with</dt>
-                        <dd className="font-bold text-orange">
-                          {(() => {
+                      <Fact
+                        k="Paid with"
+                        tone="font-bold text-orange"
+                        v={(() => {
                             /**
                              * ⚠️ **الصفر هنا لا يعني «لم يدفع».**
                              *
@@ -616,98 +653,110 @@ export default function OrdersEditor() {
                                 )}
                               </>
                             );
-                          })()}
-                        </dd>
-                      </>
+                        })()}
+                      />
                     )}
 
-                    {Number(o.buyPoints) > 0 && (
-                      <>
-                        <dt className="text-muted">Buying points</dt>
-                        <dd className="num font-bold text-orange">
-                          {o.buyPoints} pts for ${Number(o.total ?? 0).toFixed(2)}
-                        </dd>
-                      </>
+                    <Fact
+                      k="Buying points"
+                      tone="num font-bold text-orange"
+                      v={
+                        Number(o.buyPoints) > 0
+                          ? `${o.buyPoints} pts for $${Number(o.total ?? 0).toFixed(2)}`
+                          : null
+                      }
+                    />
+
+                    <Fact
+                      k="Points discount"
+                      tone="num text-orange"
+                      v={
+                        Number(o.usePoints) > 0
+                          ? `−$${Number(o.discount ?? 0).toFixed(2)} (${o.usePoints} pts)`
+                          : null
+                      }
+                    />
+
+                    <Fact
+                      k="Cancelled"
+                      tone="text-danger"
+                      v={
+                        o.cancelReason
+                          ? `${o.cancelledBy === "customer" ? "by customer" : "by you"} — ${o.cancelReason}`
+                          : null
+                      }
+                    />
+
+                    {settings.on && (
+                      <p className="text-sm text-muted">
+                        {o.pointsAwarded
+                          ? `Awarded ${o.pointsAwarded} points`
+                          : `Will award ${Number(o.buyPoints) > 0 ? Number(o.buyPoints) : due} points on payment`}
+                      </p>
                     )}
+                  </section>
 
-                    {Number(o.usePoints) > 0 && (
-                      <>
-                        <dt className="text-muted">Points discount</dt>
-                        <dd className="num font-medium text-orange">
-                          −${Number(o.discount ?? 0).toFixed(2)} ({o.usePoints}{" "}
-                          pts)
-                        </dd>
-                      </>
+                  {/* ═══ ② من طلبه ═══
+                      ⚠️ كان الزبونُ مبعثراً وسط تفاصيل الطلب: الهاتف بين
+                         «طريقة الدفع» و«البريد»، وزرُّ واتساب بعدهما بأربعة
+                         أسطر. والآن كتلةٌ واحدة يُغلقها زرُّ التواصل. */}
+                  <section className="flex flex-col gap-2">
+                    <p className="adm-ttl">Customer</p>
+
+                    <Fact k="Name" v={o.name} />
+                    <Fact
+                      k="Phone"
+                      v={
+                        who === undefined ? (
+                          "…"
+                        ) : who === null ? (
+                          "not registered"
+                        ) : who.phone ? (
+                          <span className="num" dir="ltr">
+                            {who.phone}
+                          </span>
+                        ) : null
+                      }
+                    />
+                    <Fact
+                      k="Email"
+                      v={
+                        o.email ? (
+                          <span className="break-all" dir="ltr">
+                            {o.email}
+                          </span>
+                        ) : null
+                      }
+                    />
+                    <Fact
+                      k="Points"
+                      tone="num"
+                      v={
+                        who
+                          ? `${who.points} · $${pointsToUsd(who.points).toFixed(2)}`
+                          : null
+                      }
+                    />
+
+                    {who?.phone && (
+                      <a
+                        href={`https://wa.me/${who.phone.replace(/\D/g, "")}?text=${encodeURIComponent(`Ramaan Store — order ${o.code}`)}`}
+                        target="_blank"
+                        rel="noopener"
+                        className="flex min-h-12 items-center justify-center rounded-card bg-orange px-3 font-bold text-onaccent"
+                      >
+                        WhatsApp the customer
+                      </a>
                     )}
+                  </section>
 
-                    {o.cancelReason && (
-                      <>
-                        <dt className="text-muted">Cancelled</dt>
-                        <dd className="font-medium text-danger">
-                          {o.cancelledBy === "customer" ? "by customer" : "by you"} —{" "}
-                          {o.cancelReason}
-                        </dd>
-                      </>
-                    )}
+                  {/* ═══ ③ ماذا أفعل الآن ═══
+                      ⚠️ **كتلةٌ واحدة في آخر البطاقة**: التحذير والقبول ومن
+                         غيّر الحالة والأزرار الثلاثة كانت متفرّقةً بين
+                         التفاصيل، فلا يُعرف أين ينتهي الخبر ويبدأ العمل. */}
+                  <section className="flex flex-col gap-2">
+                    <p className="adm-ttl">What to do</p>
 
-                    <dt className="text-muted">Payment</dt>
-                    <dd className="font-medium">{o.payMethod || "—"}</dd>
-
-                    <dt className="text-muted">Phone</dt>
-                    <dd className="num font-medium" dir="ltr">
-                      {who === undefined
-                        ? "…"
-                        : who === null
-                          ? "not registered"
-                          : who.phone || "—"}
-                    </dd>
-
-                    <dt className="text-muted">Email</dt>
-                    <dd className="break-all font-medium" dir="ltr">
-                      {o.email || "—"}
-                    </dd>
-
-                    <dt className="text-muted">Points balance</dt>
-                    <dd className="num font-medium">
-                      {who ? `${who.points} · $${pointsToUsd(who.points).toFixed(2)}` : "—"}
-                    </dd>
-                  </dl>
-
-                  <ul className="flex flex-col gap-1 rounded-card border border-line p-2 text-sm">
-                    {(o.items ?? []).map((it, i) => (
-                      <li key={`${it.id}-${i}`} className="flex gap-2">
-                        <span className="min-w-0 flex-1 truncate">
-                          {it.title}
-                          {it.qty > 1 && <span className="num"> ×{it.qty}</span>}
-                        </span>
-                        <span className="num shrink-0 text-muted">
-                          ${Number(it.price ?? 0).toFixed(2)}
-                        </span>
-                      </li>
-                    ))}
-                  </ul>
-
-                  {settings.on && (
-                    <p className="text-sm text-muted">
-                      {o.pointsAwarded
-                        ? `Awarded ${o.pointsAwarded} points`
-                        : `Will award ${Number(o.buyPoints) > 0 ? Number(o.buyPoints) : due} points on payment`}
-                    </p>
-                  )}
-
-                  {who?.phone && (
-                    <a
-                      href={`https://wa.me/${who.phone.replace(/\D/g, "")}?text=${encodeURIComponent(`Ramaan Store — order ${o.code}`)}`}
-                      target="_blank"
-                      rel="noopener"
-                      className="min-h-11 rounded-card bg-orange px-3 py-2.5 text-center font-bold text-onaccent"
-                    >
-                      WhatsApp the customer
-                    </a>
-                  )}
-
-                  {/* ⚠️ الخياران **مفصولان سطرَين**: كانا جملةً واحدة تخلط
-                      «شحنتِ» بـ«Mark paid» — والشحن غيرُ الدفع. */}
                   {/* ⚠️ الخياران **مفصولان سطرَين**: كانا جملةً واحدة تخلط
                       «شحنتِ» بـ«Mark paid» — والشحن غيرُ الدفع. */}
                   {unsettled && (
@@ -854,6 +903,7 @@ export default function OrdersEditor() {
                       </button>
                     </div>
                   )}
+                  </section>
                 </div>
               )}
             </article>

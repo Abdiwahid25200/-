@@ -1401,6 +1401,76 @@ html[dir="rtl"] .nav a span {
   color: var(--danger);
 }
 
+/* ── شريطُ المدى — يقول ما يُعرض، وضغطتُه تفتح ما تحته ────────── */
+.adm-bar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  min-height: 56px;
+  padding: 9px 13px;
+  text-align: start;
+  border: 1px solid var(--line);
+  border-radius: 15px;
+  background: var(--surface);
+}
+.adm-bar > .go {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: var(--text-xs);
+  font-weight: 800;
+  color: var(--accent);
+}
+
+/* ── أزرار التصفية — لمسةٌ واحدة، والأعدادُ ظاهرةٌ قبل اللمس ────
+   ⚠️ صفٌّ يُمرَّر أفقياً لا يلتفّ: خمسةُ أزرارٍ ملتفّةٌ على سطرين
+      تُزحزح القائمةَ تحتها كلّما تبدّل عددٌ فيها. */
+.adm-segs {
+  display: flex;
+  gap: 7px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  /* تمتدّ إلى حافتَي الشاشة فلا يبدو آخرُ زرٍّ مقصوصاً بلا سبب */
+  margin: 0 -1rem;
+  padding: 2px 1rem;
+}
+.adm-segs::-webkit-scrollbar { display: none; }
+.adm-seg {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 44px;
+  padding: 0 13px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--surface);
+  font-size: var(--text-xs);
+  font-weight: 700;
+  color: var(--muted);
+  white-space: nowrap;
+}
+.adm-seg > .n {
+  min-width: 22px;
+  padding: 1px 6px;
+  border-radius: 999px;
+  background: var(--surface-2);
+  font-size: 0.79rem;
+  font-weight: 800;
+  text-align: center;
+}
+.adm-seg.on {
+  border-color: var(--accent);
+  background: var(--accent);
+  color: var(--on-accent);
+}
+.adm-seg.on > .n {
+  background: color-mix(in srgb, #000 18%, transparent);
+  color: var(--on-accent);
+}
+
 /* ── مربّع البحث — بابٌ إلى أيّ شاشةٍ باسمها ─────────────────── */
 .adm-find {
   display: flex;
