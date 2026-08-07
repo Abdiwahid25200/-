@@ -21,7 +21,7 @@ import {
   runTransaction,
   serverTimestamp,
 } from "firebase/firestore";
-import { fbDb } from "./firebase";
+import { fbAuth, fbDb } from "./firebase";
 import { withTimeout } from "./timeout";
 import type { SavedOrder } from "./orders";
 import { orderPoints, type PointsMap, type PointsSettings } from "./points";
@@ -132,6 +132,31 @@ export type StatusResult =
  * والرصيد لا ينزل تحت الصفر: لو أنفق الزبون نقاطه ثم أُلغي الطلب،
  * نخصم ما نستطيع ولا نخلق رصيداً سالباً يربكه.
  */
+/** الحالات التي تستحقّ إشعاراً — و`pending` ليست منها: هي البداية */
+const TELL: OrderStatus[] = ["paid", "done", "cancelled"];
+
+/**
+ * 🔔 **إخبارُ الزبون بحالة طلبه** — نداءٌ صامتٌ لا يُنتظر ولا يُبلَّغ عنه.
+ *
+ * 🔒 **ويُرسَل معه توكنُ من ضغط الزرّ**: الخادمُ يقرأ به الطلبَ من
+ *    Firestore، فمن لا يملك `canDo('orders')` لا يقرؤه ولا يُرسل شيئاً.
+ *    فالحارسُ هو `firestore.rules` نفسها لا شرطٌ في الخادم.
+ */
+async function tellCustomer(orderId: string, status: OrderStatus) {
+  if (!TELL.includes(status)) return;
+  try {
+    const idToken = await fbAuth()?.currentUser?.getIdToken();
+    if (!idToken) return;
+    await fetch("/api/notify-customer", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ orderId, status, idToken }),
+    });
+  } catch {
+    /* لا شيء: الطلبُ محفوظ، والإشعارُ زيادةٌ لا شرط */
+  }
+}
+
 export async function setOrderStatus(
   orderId: string,
   next: OrderStatus,
@@ -371,6 +396,15 @@ export async function setOrderStatus(
       await bumpDelivered(d.at, d.item);
       await bumpHot(d.ids);
     }
+
+    /* 🔔 **إشعارُ الزبون على جوّاله** — طلبها (٠٧-٠٨).
+       ⚠️ **بعد المعاملة وبلا انتظار**: الحالةُ محفوظةٌ في Firestore قبل
+          أن يُنادى الباب، فتعثّرُ الإشعار — شبكةٌ أو مزوّدُ دفعٍ صامت —
+          لا يُفشل تسليم طلبٍ أبداً. وهي القاعدة نفسها في `notify-order`.
+       ⚠️ **وهنا لا في الشاشتين**: `OrdersEditor` و`OrderQueue` كلتاهما
+          تنادي هذه الدالّة، فموضعٌ واحد يكفيهما. */
+    if (res.ok) void tellCustomer(orderId, next);
+
     return res;
   } catch {
     return { ok: false, reason: "error" };

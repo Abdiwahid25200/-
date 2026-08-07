@@ -49,3 +49,64 @@ self.addEventListener("fetch", (e) => {
     })(),
   );
 });
+
+/* ═══════════════════════════════════════════════════════════════
+   🔔 إشعارات الطلب — طلبها (٠٧-٠٨)
+   ═══════════════════════════════════════════════════════════════
+
+   ⚠️ **وهذا هو سببُ التثبيت على آيفون**: أبل لا تسلّم `push` إلا
+      لعامل خدمةٍ يعمل تحت تطبيقٍ مضافٍ إلى الشاشة الرئيسية. وأندرويد
+      يسلّمه للمتصفّح أيضاً.
+
+   ⚠️ **وكلُّ دفعةٍ تُعرض**: المتصفّحات تشترط `userVisibleOnly`، ومن
+      استقبل دفعةً ولم يُظهر إشعاراً تُظهر هي إشعاراً عامّاً مكانه
+      («هذا الموقع حُدّث في الخلفية») — فيبدو الموقع كأنه يتجسّس.
+      فالمعالج لا يخرج أبداً بلا `showNotification`. */
+
+self.addEventListener("push", (e) => {
+  let d = {};
+  try {
+    d = e.data ? e.data.json() : {};
+  } catch {
+    d = {};
+  }
+
+  e.waitUntil(
+    self.registration.showNotification(d.title || "Ramaan", {
+      body: d.body || "",
+      icon: "/icons/icon-192.png",
+      badge: "/icons/icon-192.png",
+      lang: d.lang || "en",
+      dir: d.lang === "ar" ? "rtl" : "ltr",
+      /* رمزُ الطلب وسماً: إشعارٌ ثانٍ لنفس الطلب يحلّ محلّ الأوّل
+         ولا يتكدّس فوقه — «قُبِل» ثم «سُلّم» سطرٌ واحد لا سطران */
+      tag: d.tag || "order",
+      renotify: true,
+      data: { url: d.url || "/orders" },
+    }),
+  );
+});
+
+/* الضغطُ عليه يفتح صفحة طلباته — ونافذةً مفتوحةً إن وُجدت، فلا تُفتح
+   نسخةٌ ثانية من التطبيق فوق الأولى */
+self.addEventListener("notificationclick", (e) => {
+  e.notification.close();
+  const url = (e.notification.data && e.notification.data.url) || "/orders";
+
+  e.waitUntil(
+    (async () => {
+      const all = await self.clients.matchAll({
+        type: "window",
+        includeUncontrolled: true,
+      });
+      for (const c of all) {
+        if (c.url.includes(url) && "focus" in c) return c.focus();
+      }
+      if (all.length > 0 && "navigate" in all[0]) {
+        const c = await all[0].navigate(url);
+        return c && c.focus();
+      }
+      return self.clients.openWindow(url);
+    })(),
+  );
+});

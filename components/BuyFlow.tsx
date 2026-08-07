@@ -17,6 +17,7 @@ import { usePayMethods } from "@/components/usePayMethods";
 import { usePointsRedeem } from "./PointsRedeem";
 import ClosedNotice from "./ClosedNotice";
 import GiftAsk from "./GiftAsk";
+import PushOptIn from "./PushOptIn";
 import { canOrderNow, isReservation, taxOn, useStoreOpen } from "@/lib/storeOpen";
 import { usePromo } from "@/lib/promos";
 import { useQuery } from "@/lib/useQuery";
@@ -374,6 +375,11 @@ export default function BuyFlow({
             <p className="mt-3 text-sm text-muted">{t("saveManual")}</p>
           )}
         </section>
+
+        {/* 🔔 **أعلى لحظةٍ يقبل فيها الزبون الإذن**: طلبُه صار في يدك
+            وهو ينتظر جوابك — فالسؤال هنا في محلّه، لا في صفحةٍ يزورها
+            بعد يومين. والبطاقة نفسها التي في «طلباتي»، بلا كودٍ ثانٍ. */}
+        <PushOptIn />
 
         <section className="rounded-card border border-line bg-surface p-4">
           <h3 className="mb-3 font-bold">{t("summary")}</h3>

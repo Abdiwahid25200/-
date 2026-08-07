@@ -782,5 +782,21 @@
     "ios": "Riix Share, ka dibna “Add to Home Screen”.",
     "button": "Rakib",
     "later": "Hadda maya"
+  },
+  "push": {
+    "title": "Ramaan Store",
+    "paid": "Dalabkaaga {code} waa la aqbalay — hadda waa la diyaarinayaa.",
+    "done": "Dalabkaaga {code} waa la gaarsiiyay. Mahadsanid!",
+    "cancelled": "Dalabkaaga {code} waa la joojiyay.",
+    "optTitle": "Ogeysiisyada dalabkaaga",
+    "optNote": "Waan ku ogeysiin doonnaa marka dalabkaaga la aqbalo iyo marka la gaarsiiyo — mar walba inaad hubiso uma baahnid.",
+    "on": "Shid ogeysiisyada",
+    "working": "Sug yar…",
+    "enabled": "Ogeysiisyadu way shaqaynayaan qalabkan.",
+    "stop": "Dami",
+    "denied": "Ogeysiisyada waa la xannibay. Fur settings-ka browser-kaaga ee eramaan.com, oo ogolow ogeysiisyada, ka dibna soo noqo.",
+    "install": "Marka hore ku dar eRamaan shaashadaada guriga, ka dibna halkaas ka fur — iPhone-ku wuxuu ogeysiis u diraa oo keliya app-yada la rakibay.",
+    "unsupported": "Browser-kani ma diri karo ogeysiisyada dalabka.",
+    "failed": "Ma shaqayn. Isku day mar kale."
   }
 }

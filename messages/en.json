@@ -782,5 +782,21 @@
     "ios": "Tap Share, then “Add to Home Screen”.",
     "button": "Install",
     "later": "Not now"
+  },
+  "push": {
+    "title": "Ramaan Store",
+    "paid": "Order {code} accepted — we are working on it now.",
+    "done": "Order {code} is delivered. Thank you!",
+    "cancelled": "Order {code} was cancelled.",
+    "optTitle": "Order alerts on your phone",
+    "optNote": "We will ping you the moment your order is accepted and delivered — no need to keep checking.",
+    "on": "Turn on alerts",
+    "working": "One moment…",
+    "enabled": "Alerts are on for this device.",
+    "stop": "Turn off",
+    "denied": "Notifications are blocked for this site. Open your browser settings for eramaan.com and allow notifications, then come back.",
+    "install": "Add eRamaan to your home screen first, then open it from there — iPhone only sends alerts to installed apps.",
+    "unsupported": "This browser cannot send order alerts.",
+    "failed": "Could not turn them on. Try again."
   }
 }

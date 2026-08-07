@@ -1153,3 +1153,31 @@ export function IconChecks({ className = "" }: IconProps) {
     </svg>
   );
 }
+
+/** جرس — إشعارات الطلب على جوّال الزبون */
+export function IconBell({ className = "" }: IconProps) {
+  return (
+    <svg viewBox="0 0 24 24" strokeWidth="1.8" className={`${base} ${className}`} aria-hidden>
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        d="M18 8.5a6 6 0 1 0-12 0c0 4.2-1.2 5.9-2 6.7-.4.4-.1 1.1.5 1.1h15c.6 0 .9-.7.5-1.1-.8-.8-2-2.5-2-6.7Z"
+      />
+      <path strokeLinecap="round" d="M9.8 20a2.4 2.4 0 0 0 4.4 0" />
+    </svg>
+  );
+}
+
+/** جرس مشطوب — الإشعارات مطفأة أو مرفوضة */
+export function IconBellOff({ className = "" }: IconProps) {
+  return (
+    <svg viewBox="0 0 24 24" strokeWidth="1.8" className={`${base} ${className}`} aria-hidden>
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        d="M18 8.5a6 6 0 0 0-8.7-5.4M6.1 6.8A6 6 0 0 0 6 8.5c0 4.2-1.2 5.9-2 6.7-.4.4-.1 1.1.5 1.1h12"
+      />
+      <path strokeLinecap="round" d="M9.8 20a2.4 2.4 0 0 0 4.4 0M3 3l18 18" />
+    </svg>
+  );
+}
