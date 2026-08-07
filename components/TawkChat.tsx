@@ -105,12 +105,39 @@ export default function TawkChat() {
   return (
     <Script id="tawk-to" strategy="lazyOnload">{`
       var Tawk_API = Tawk_API || {};
-      Tawk_API.customStyle = {
-        visibility: {
-          desktop: { position: 'br', xOffset: 16, yOffset: 84 },
-          mobile:  { position: 'br', xOffset: 12, yOffset: 84 }
-        }
-      };
+
+      /* 💬 **موضعُ الزرّ يُحسب لا يُكتب رقماً ثابتاً** — طلبها (٠٧-٠٨):
+         «tawk لكل الأجهزة».
+
+         وكان \`xOffset: 16\` و\`yOffset: 84\` ثابتَين، فأخطأ الموضعُ في
+         موضعين:
+
+         ① **أفقياً**: زرُّ tawk يقيس من حافة **الشاشة**، والموقع إطارٌ
+            في وسطها. فعلى اللابتوب كان الزرّ يجلس في زاوية الشاشة
+            بعيداً عن الموقع بمئتَي بكسل — كأنه لطرفٍ ثالث لا لنا.
+            (وهذه هي العلّة التي حُلّت في CSS بـ\`.fx-right\`، وtawk
+            إطارٌ خارجيّ لا يصله CSS الموقع.)
+
+         ② **رأسياً**: الـ٨٤ ارتفاعُ الشريط السفلي. وحيث لا شريط —
+            اللابتوب فوق ١٢٨٠ — يطفو الزرّ على فراغٍ بلا سبب.
+
+         فيُقاس عرضُ الشاشة عند التحميل، ويُحسب الإزاحتان من **حافة
+         إطار الموقع** لا من حافة الشاشة. */
+      (function () {
+        var w = window.innerWidth;
+        /* عرض الإطار — نفس نقاط توقّف \`globals.css\` حرفاً بحرف */
+        var frame = w >= 1024 ? 960 : w >= 768 ? 720 : 430;
+        /* الشريط السفلي قائمٌ دون ١٢٨٠ (والآيباد كلُّه دونه) */
+        var overNav = w < 1280;
+        var x = Math.max(14, Math.round((w - frame) / 2) + 16);
+
+        Tawk_API.customStyle = {
+          visibility: {
+            desktop: { position: 'br', xOffset: x, yOffset: overNav ? 84 : 24 },
+            mobile:  { position: 'br', xOffset: 12, yOffset: 84 }
+          }
+        };
+      })();
       var Tawk_LoadStart = new Date();
       (function () {
         var s1 = document.createElement("script"),
