@@ -48,7 +48,14 @@ export default async function AccountsPage({
       {/* ⚠️ قسمان ⇒ عمودان، وثلاثة فأكثر ⇒ ثلاثة (النموذج). ثلاثة
           أعمدةٍ لقسمَين تترك خانةً فارغة بعرض الثلث، فتبدو الصفحة
           ناقصةً وكأنّ قسماً سقط. */}
-      <div className={`grid gap-3 ${list.length === 2 ? "grid-cols-2" : "grid-cols-3"}`}>
+      {/* 🖥️ الشبكة تكبر مع الإطار على اللابتوب — كما في صفحة الألعاب */}
+      <div
+        className={`grid gap-3 md:gap-4 ${
+          list.length === 2
+            ? "grid-cols-2 lg:max-w-[620px]"
+            : "grid-cols-3 md:grid-cols-4 lg:grid-cols-5"
+        }`}
+      >
         {list.map((s) => (
           <GameTile
             key={s.key}

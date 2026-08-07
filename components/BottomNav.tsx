@@ -36,7 +36,12 @@ import {
 const WEB_FOURTH = { key: "accounts", href: "/accounts", Icon: IconNavAccounts } as const;
 const APP_FOURTH = { key: "barwaaqo", href: "/points", Icon: IconBarwaaqoLine } as const;
 
-const tabsFor = (isApp: boolean) =>
+/**
+ * ⚠️ **مُصدَّرة**: `TopNav` (شريط اللابتوب) يقرأ القائمة نفسها. ونسختان
+ *    من الخانات الخمس تفترقان بعد شهر، فيرى زبونُ اللابتوب قسماً لا
+ *    يراه زبونُ الجوّال — وهما متجرٌ واحد.
+ */
+export const tabsFor = (isApp: boolean) =>
   [
     { key: "elec", href: "/electronics", Icon: IconDevice },
     { key: "games", href: "/games", Icon: IconNavGames },
@@ -84,7 +89,10 @@ export default function BottomNav() {
      */
     /* ⚠️ `fx-w` لا `inset-x-0`: الموقع بعرض الجوّال على كل جهاز، وشريطٌ
        يمتدّ بعرض الآيباد كلّه تحت موقعٍ عرضُه ٤٣٠ يفضح أنهما شيئان. */
-    <div className="fx-w fixed bottom-0 z-40 bg-surface pb-[env(safe-area-inset-bottom)]">
+    /* 🖥️ **ويختفي على اللابتوب** (٠٧-٠٨): شريطٌ ملتصقٌ بقاع شاشةٍ
+       عريضة يبدو خطأً لا تصميماً، ويدُها على الفأرة لا على الإبهام.
+       والأقسام تصعد إلى الهيدر (`TopNav`) عند الحدّ نفسه. */
+    <div className="fx-w fixed bottom-0 z-40 bg-surface pb-[env(safe-area-inset-bottom)] lg:hidden">
       {/* صنف `.nav` من النموذج: الحشوة ٨/٦/١٤ · الأيقونة ٢٢ · الاسم تحتها
           · وقرصُ النشط يشمل الاثنين معاً. المقاسات في `globals.css`. */}
       <nav className="nav" aria-label={t("label")}>

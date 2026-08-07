@@ -476,6 +476,43 @@ body.has-buybar {
 
 /* ── حركة الضغط على تبويبات القائمة السفلية ────────────────
    :active صريح بدل متغيّر Tailwind، ليعمل على اللمس في كل المتصفّحات. */
+/* ── 🖥️ تنقّل الهيدر — لابتوب فقط (٠٧-٠٨) ────────────────────
+   ⚠️ **مخفيٌّ تماماً دون ١٠٢٤**: الشريط السفلي يعمل هناك، ورابطان
+      لنفس القسم في شاشةٍ واحدة يجعلان الزبون يتردّد قبل كل ضغطة. */
+.topnav { display: none; }
+
+@media (min-width: 1024px) {
+  .topnav {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    margin-inline: auto;
+  }
+  .topnav a {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    min-height: 40px;
+    padding: 0 13px;
+    border-radius: 999px;
+    font-size: 0.94rem;
+    font-weight: 600;
+    color: var(--muted);
+    white-space: nowrap;
+  }
+  .topnav a:hover { color: var(--text); }
+  .topnav a.on {
+    background: color-mix(in srgb, var(--accent) 12%, transparent);
+    color: var(--accent);
+    font-weight: 800;
+  }
+
+  /* ⚠️ **واسمُ المتجر يكفّ عن التمدّد هنا**: `.hdr .bn` تأخذ `flex: 1`
+     فتبتلع الفراغ كلَّه، ويلتصق شريطُ الأقسام بالسلّة في أقصى الطرف.
+     وبإيقاف تمدّدها يجلس الشريط في الوسط بين العلامة والأزرار. */
+  .hdr .bn { flex: none; }
+}
+
 .nav-tap {
   transition:
     color 0.15s ease,
@@ -559,6 +596,29 @@ body.has-buybar {
   --app-w: 430px;
   /* أكبر مقاسٍ لبلاطة القسم (مربّعة) — انظر `.tile .sq` */
   --tile-h: 118px;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   🖥️ **«بدي الموقع لكل الأجهزة»** — قرارها (٠٧-٠٨)
+   ═══════════════════════════════════════════════════════════
+
+   كان الموقع محبوساً في ٤٣٠px على كل شاشة: على اللابتوب شريطٌ
+   بعرض جوّالٍ وسط فراغٍ ممدود.
+
+   🚨 **والدرسُ المدفوع ثمنُه (٠٤-٠٨)**: جُرّب هذا على لوحة الإدارة
+      فأُلغي في يومه — «الآن حتى الآيباد ما استوت». السبب أنّ الإطار
+      وُسِّع **ولم تُوسَّع الشبكات**، فسبحت الأعمدة الضيّقة في فراغ.
+
+   فهنا **يكبر الثلاثة معاً**: الإطار (هنا) · والشبكات (`.tiles`
+   وشبكات الصفحات) · والتنقّل (الشريط السفلي يصعد إلى الهيدر).
+   ولو كبُر أحدها وحده عاد العطل نفسه.
+
+   ⚠️ **والجوّال لا يتغيّر حرفاً**: كل ما دون ٧٦٨px خارج هذه القواعد. */
+@media (min-width: 768px) {
+  :root { --app-w: 720px; --tile-h: 140px; }
+}
+@media (min-width: 1024px) {
+  :root { --app-w: 960px; --tile-h: 158px; }
 }
 
 .page-w {
@@ -851,6 +911,16 @@ input.field::placeholder, textarea.field::placeholder { color: var(--muted); }
 /* ── بلاطات الأقسام ─────────────────────────────────────────── */
 .tiles { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
 .tiles.two { grid-template-columns: 1fr 1fr; }
+
+/* 🖥️ الشبكة تكبر مع الإطار — وإلّا سبحت ثلاثُ بلاطاتٍ في ٩٦٠px.
+   ⚠️ و`.tiles.two` تبقى اثنتين: قسمان لا يصيران أربعةً بالتكبير. */
+@media (min-width: 768px) {
+  .tiles { grid-template-columns: repeat(4, 1fr); gap: 14px; }
+}
+@media (min-width: 1024px) {
+  .tiles { grid-template-columns: repeat(5, 1fr); gap: 16px; }
+  .tiles.two { grid-template-columns: 1fr 1fr; max-width: 620px; }
+}
 .tile { display: flex; flex-direction: column; gap: 7px; align-items: center; }
 .tile .sq {
   /* 📏 **مربّعٌ صغيرٌ مقطوعُ الحدّ الأعلى** — لا مربّعٌ يكبر مع العرض،

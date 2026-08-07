@@ -78,7 +78,7 @@ export default async function ElectronicsPage({
       {/* ⚠️ **لا تجعل الصنف الواحد بعرض الصفّ.** جُرّب فصارت البطاقة
           عملاقة على الجوّال — نصفُ صفٍّ فارغ أهونُ من بطاقةٍ بطول
           الشاشة. البطاقة تبقى بمقاسها في كل الأحوال. */}
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:gap-4 lg:grid-cols-4">
         {items.map((p) => (
           <ProductCard
             key={p.id}

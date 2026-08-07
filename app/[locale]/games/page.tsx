@@ -48,7 +48,16 @@ export default async function GamesPage({
       {/* ⚠️ قسمان ⇒ عمودان، وثلاثة فأكثر ⇒ ثلاثة (النموذج). ثلاثة
           أعمدةٍ لقسمَين تترك خانةً فارغة بعرض الثلث، فتبدو الصفحة
           ناقصةً وكأنّ قسماً سقط. */}
-      <div className={`grid gap-3 ${list.length === 2 ? "grid-cols-2" : "grid-cols-3"}`}>
+      {/* 🖥️ وعلى اللابتوب تكبر الشبكة مع الإطار (٠٧-٠٨): ثلاثُ بلاطاتٍ
+          في ٩٦٠px تسبح في فراغ. والقسمان يبقيان قسمَين ويُحبس عرضُهما،
+          فلا يتمدّد مربّعان حتى يصيرا لوحتين. */}
+      <div
+        className={`grid gap-3 md:gap-4 ${
+          list.length === 2
+            ? "grid-cols-2 lg:max-w-[620px]"
+            : "grid-cols-3 md:grid-cols-4 lg:grid-cols-5"
+        }`}
+      >
         {list.map((s) => (
           <GameTile
             key={s.key}

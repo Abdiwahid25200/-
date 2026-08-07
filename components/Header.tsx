@@ -5,6 +5,7 @@ import Logo from "./Logo";
 import CartButton from "./CartButton";
 import MenuDrawer from "./MenuDrawer";
 import OpenBar from "./OpenBar";
+import TopNav from "./TopNav";
 
 /**
  * الترويسة — **مبنيّةٌ على أصناف النموذج** (`.hdr` · `.mk` · `.bn` · `.hi`)
@@ -37,6 +38,11 @@ export default async function Header() {
             <i className="truncate">{store.taglineOf(hLocale) || t("tagline")}</i>
           </span>
         </Link>
+
+        {/* 🖥️ أقسام المتجر في الهيدر — على اللابتوب وحده (٠٧-٠٨).
+            يظهر حين يختفي الشريط السفلي عند الحدّ نفسه، فلا تبقى شاشةٌ
+            بلا تنقّلٍ ولا شاشةٌ بتنقّلَين. */}
+        <TopNav />
 
         {/* السلّة بجانب زرّ القائمة — بطلب صاحبة المشروع: عدّاد المشتريات
             مرئيّ في كل صفحة بلا فتح القائمة. والحساب يبقى داخل القائمة. */}
