@@ -93,12 +93,24 @@ export default function AdminGate({ children }: { children: React.ReactNode }) {
     setReset("");
     try {
       await sendPasswordResetEmail(auth, toAdminEmail(username));
+      /**
+       * 🚨 **ولا يُقال «أُرسل»** — فُحص الباب (٠٧-٠٨) فتبيّن أنّ
+       *    **حماية تعداد الحسابات** مفعّلة في المشروع: طلبٌ لحسابٍ لا
+       *    وجود له **يردّ بنجاح** كطلبٍ لحسابٍ قائم. فالنجاحُ هنا لا
+       *    يعني أنّ حساباً وُجد، ولا أنّ رسالةً خرجت، ولا أنّها وصلت.
+       *
+       *    وجملةُ «أُرسل إلى بريدك» في هذا الموضع وعدٌ لا يقابله شيء:
+       *    تنتظر رسالةً قد لا تأتي ولا تعرف لماذا. فتُقال الحقيقةُ
+       *    بشرطها.
+       */
       setReset(
-        "A reset link was sent to the email on this account. Open it and choose a new password.",
+        "If that username has an account, a reset link is on its way to the email saved on it — and it only arrives if that address is a real inbox. Nothing after a few minutes means it is not.",
       );
     } catch (e) {
       const code = (e as { code?: string })?.code ?? "";
       setReset(
+        /* ⚠️ يبقى مكتوباً وإن لم يُنادَ اليوم: من أطفأ الحمايةَ يوماً
+           عاد هذا الجواب يعمل، ولا يُترك البابُ بلا رسالةٍ له. */
         code === "auth/user-not-found" || code === "auth/invalid-email"
           ? "No account with that username."
           : code === "auth/too-many-requests"
