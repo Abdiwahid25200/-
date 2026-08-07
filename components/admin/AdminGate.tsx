@@ -5,6 +5,7 @@ import {
   browserLocalPersistence,
   browserSessionPersistence,
   inMemoryPersistence,
+  sendPasswordResetEmail,
   setPersistence,
   signInWithEmailAndPassword,
 } from "firebase/auth";
@@ -74,6 +75,40 @@ export default function AdminGate({ children }: { children: React.ReactNode }) {
   const [token, setToken] = useState("");
   const [sentTo, setSentTo] = useState("");
   const [code, setCode] = useState("");
+
+  /** جوابُ «نسيت كلمة السر» — يُقال كاملاً لا يُترك تخميناً */
+  const [reset, setReset] = useState("");
+
+  /**
+   * 🔑 يطلب من Firebase رابطَ إعادة تعيينٍ إلى **بريد الحساب**.
+   *
+   * ⚠️ **ونجاحُ الطلب ليس وصولَ الرسالة**: Firebase يقبل الطلب لأي
+   *    حسابٍ موجود ولو كان عنوانُه بلا صندوق. فيُقال ذلك صراحةً.
+   */
+  async function resetPassword() {
+    const auth = fbAuth();
+    if (!auth || !username.trim()) return;
+    setBusy(true);
+    setErr("");
+    setReset("");
+    try {
+      await sendPasswordResetEmail(auth, toAdminEmail(username));
+      setReset(
+        `A reset link was sent to the email on this account. Open it and choose a new password. If nothing arrives, that address has no real inbox — use the Console link below.`,
+      );
+    } catch (e) {
+      const code = (e as { code?: string })?.code ?? "";
+      setReset(
+        code === "auth/user-not-found" || code === "auth/invalid-email"
+          ? "No account with that username."
+          : code === "auth/too-many-requests"
+            ? "Too many tries. Wait a minute, then try again."
+            : "Could not send it. Use the Console link below.",
+      );
+    } finally {
+      setBusy(false);
+    }
+  }
 
   /** خروجٌ فوريّ: يُسقط الرمز عند Firebase ويمحو الختم */
   const lock = useCallback(() => {
@@ -411,6 +446,46 @@ export default function AdminGate({ children }: { children: React.ReactNode }) {
             {busy && <IconSpinner className="size-4" />}
             Sign in
           </button>
+
+          {/**
+           * 🔑 **«نسيت كلمة السر»** — طلبها (٠٧-٠٨).
+           *
+           * ⚠️ **ولا يمرّ برمجيّاً بلا بريدٍ حقيقيّ**: تغييرُ كلمة السرّ
+           *    يلزمه إمّا القديمةُ، أو رابطٌ يرسله Firebase إلى **بريد
+           *    الحساب**، أو مفتاح Service Account — وهو الذي رُفض حين
+           *    أُقفلت ثغرة المبرمج، فلا يُقترح.
+           *
+           *    فيُستعمل الطريق الأوسط: `sendPasswordResetEmail` من
+           *    Firebase نفسه. ولا يصل إلا إن كان عنوان الحساب صندوقاً
+           *    حقيقياً — وقرارُها (٠٧-٠٨) أن يصير بريدَها الحقيقيّ.
+           *
+           * ⚠️ **والرسالة تقول الحقيقة**: «أُرسل» لا تعني «وصل»، فيُقال
+           *    لها صراحةً ما تفعل إن لم يصل — لا صمتٌ أمام بابٍ مقفل.
+           */}
+          <button
+            type="button"
+            onClick={() => void resetPassword()}
+            disabled={busy || !username.trim()}
+            className="min-h-11 text-sm font-bold text-orange underline-offset-4 hover:underline disabled:opacity-40"
+          >
+            Forgot your password?
+          </button>
+
+          {reset && (
+            <p className="rounded-card border border-line bg-surface p-3 text-sm">
+              {reset}
+            </p>
+          )}
+
+          {/* 🆘 المخرج الذي يعمل دائماً — بلا بريدٍ ولا إعداد */}
+          <a
+            href="https://console.firebase.google.com/project/ramaa-store/authentication/users"
+            target="_blank"
+            rel="noopener"
+            className="text-center text-xs text-muted underline-offset-4 hover:underline"
+          >
+            Or reset it yourself in Firebase Console
+          </a>
         </form>
       </>,
     );
