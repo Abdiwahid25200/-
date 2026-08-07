@@ -1,8 +1,10 @@
 import { NextResponse } from "next/server";
 import { toAdminEmail } from "@/lib/adminLogin";
 import { emailReady, looksLikeEmail, sendEmail } from "@/lib/email";
-import { patchField, recentDocs, signIn } from "@/lib/fireRest";
+import { getDocRest, patchField, recentDocs, signIn } from "@/lib/fireRest";
 import { orderLines } from "@/lib/orderNote";
+import { isTell, markTold, payloadFor, toldOf } from "@/lib/orderPush";
+import { devicesOf, pushReady, sendToDevices } from "@/lib/webpush";
 
 /**
  * ⏰ **الطلب الذي انتظر ولم يُنفَّذ** — طلبها (٠٣-٠٨):
@@ -91,7 +93,9 @@ export async function GET(request: Request) {
     return NextResponse.json({ ok: false }, { status: 401 });
   }
 
-  if (!emailReady || !looksLikeEmail(TO) || !WATCH_USER || !WATCH_PASSWORD) {
+  /* ⚠️ البريد قد يكون غير مضبوط والإشعارُ مضبوطاً — فلا يمنع أحدُهما
+     الآخر. الحسابُ وحده شرطٌ للاثنين. */
+  if (!WATCH_USER || !WATCH_PASSWORD) {
     return NextResponse.json({ ok: false, reason: "setup" });
   }
 
@@ -100,6 +104,18 @@ export async function GET(request: Request) {
 
   /* أحدث أربعين طلباً — والدقيقتان تقعان فيها حتماً مهما ازدحم المتجر */
   const rows = await recentDocs("orders", "createdAt", 40, who.idToken);
+
+  /* ═══ ① إشعارُ الزبون بحالة طلبه — سيرفريّاً ═══
+     🚨 بلاغها (٠٧-٠٨): رفضت طلباً ولم يصلها شيء، والسجلّ أثبت أنّ باب
+        الإشعار **لم يُنادَ أصلاً**. والنداءُ من متصفّح اللوحة هشٌّ بطبعه.
+        وهذه المرورةُ كل دقيقة تلتقط كل ما سقط — ولا تعتمد على متصفّحٍ
+        مفتوحٍ ولا على تبويبٍ يحمل كوداً حديثاً. */
+  const told = pushReady ? await tellCustomers(rows, who.idToken) : 0;
+
+  /* ═══ ② تنبيهُ صاحبة المتجر بالطلب المتأخّر ═══ */
+  if (!emailReady || !looksLikeEmail(TO)) {
+    return NextResponse.json({ ok: true, told, mail: "off" });
+  }
 
   const late = rows.filter((r) => {
     const age = ageOf(r.data.createdAt);
@@ -111,7 +127,7 @@ export async function GET(request: Request) {
     );
   });
 
-  if (!late.length) return NextResponse.json({ ok: true, n: 0 });
+  if (!late.length) return NextResponse.json({ ok: true, n: 0, told });
 
   const shown = late.slice(0, MAX_IN_MAIL);
   const head =
@@ -165,7 +181,78 @@ export async function GET(request: Request) {
     );
   }
 
-  return NextResponse.json({ ok: sent, n: late.length });
+  return NextResponse.json({ ok: sent, n: late.length, told });
+}
+
+/**
+ * 🔔 **المرورة**: كل طلبٍ تغيّرت حالتُه ولم يُشعر بها زبونُه ⇒ يُشعر ويُختم.
+ *
+ * ⚠️ **و`told` هو الفارق بين طريقٍ ثانٍ وإزعاج**: من أُشعر فوراً من
+ *    اللوحة خُتم هناك، فلا تعيده هذه. ومن سقط نداؤه لا ختمَ له فتلتقطه.
+ *
+ * ⚠️ **ويُختم بعد الإرسال لا قبله** — ولو خُتم أوّلاً وتعثّر الإرسال
+ *    لَصمت الطريقان معاً عن هذا الطلب إلى الأبد.
+ *
+ * 🔒 **وبحساب المراقبة نفسه**: مساعدٌ له باب `orders`، فيقرأ الطلب
+ *    ووثيقة زبونه ويكتب الختم — بلا مفتاحٍ سيّدٍ يتجاوز القواعد.
+ */
+async function tellCustomers(
+  rows: { id: string; data: Record<string, unknown> }[],
+  token: string,
+): Promise<number> {
+  /* المرشّحون: حالتُه تستحقّ إشعاراً، وله صاحب، ولم يمضِ عليه أكثر من
+     النافذة — فطلبٌ من الشهر الماضي لا يُوقظ أحداً بخبرٍ قديم. */
+  const due = rows
+    .filter(
+      (r) =>
+        isTell(r.data.status) &&
+        String(r.data.uid ?? "") &&
+        ageOf(r.data.createdAt) <= WINDOW_MS,
+    )
+    /* ⚠️ **اثنا عشر في المرّة**: المرورة كل دقيقة، وما زاد يلحق في
+       الدورة التالية. ودفعةٌ كبيرة تُطيل الطلب حتى تقطعه الجدولة. */
+    .slice(0, 12);
+
+  if (!due.length) return 0;
+
+  /* وثيقةُ الزبون تُقرأ مرّةً لكل زبون لا مرّةً لكل طلب */
+  const seen = new Map<string, Record<string, unknown> | null>();
+  let n = 0;
+
+  for (const r of due) {
+    const uid = String(r.data.uid);
+    const status = r.data.status;
+    if (!isTell(status)) continue;
+
+    if (!seen.has(uid)) seen.set(uid, await getDocRest(`users/${uid}`, token));
+    const user = seen.get(uid) ?? null;
+
+    /* أُشعر بهذه الحالة — من اللوحة فوراً أو من دورةٍ سابقة */
+    if (toldOf(user, r.id) === status) continue;
+
+    const devices = devicesOf(user?.push);
+
+    /* لم يُفعّل الإشعارات — يُختم كي لا يُقرأ كل دقيقةٍ إلى الأبد */
+    if (devices.length === 0) {
+      const told = await markTold(uid, user, r.id, status, token);
+      seen.set(uid, { ...(user ?? {}), told });
+      continue;
+    }
+
+    const out = await sendToDevices(
+      devices,
+      payloadFor(status, String(r.data.code ?? ""), String(user?.lang ?? "en"), r.id),
+    );
+
+    if (out.sent > 0) {
+      const told = await markTold(uid, user, r.id, status, token);
+      /* ⚠️ الخريطةُ المحدَّثة تعود إلى الذاكرة: زبونٌ له طلبان في الدورة
+         نفسها كان ختمُ الثاني يمحو ختمَ الأوّل لولا ذلك. */
+      seen.set(uid, { ...(user ?? {}), told });
+      n += 1;
+    }
+  }
+  return n;
 }
 
 /** الجدولات تنادي بـGET، وبعض الخدمات المجّانية بـPOST — والباب واحد */

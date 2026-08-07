@@ -6,9 +6,7 @@ import {
   pushReady,
   sendToDevices,
 } from "@/lib/webpush";
-import en from "@/messages/en.json";
-import ar from "@/messages/ar.json";
-import so from "@/messages/so.json";
+import { isTell, markTold, payloadFor, toldOf, type Tell } from "@/lib/orderPush";
 
 /**
  * 🔔 **إشعارُ الزبون بحالة طلبه** — طلبها (٠٧-٠٨):
@@ -30,16 +28,7 @@ import so from "@/messages/so.json";
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-/** الحالات التي تستحقّ إشعاراً — و`pending` ليست منها: هي البداية */
-const SAY = ["paid", "done", "cancelled"] as const;
-type Say = (typeof SAY)[number];
-
-/** نصُّ الإشعار بلغة الزبون — من `messages/` لا من هذا الملفّ */
-const PACKS: Record<string, { title: string } & Record<Say, string>> = {
-  en: en.push,
-  ar: ar.push,
-  so: so.push,
-};
+/* النصّ والختم في `lib/orderPush.ts` — تشاركهما الجدولةُ أيضاً */
 
 export async function POST(request: Request) {
   if (!pushReady) return NextResponse.json({ ok: false, reason: "off" });
@@ -52,10 +41,10 @@ export async function POST(request: Request) {
   }
 
   const orderId = String(body.orderId ?? "").slice(0, 80);
-  const status = String(body.status ?? "") as Say;
+  const status = body.status as Tell;
   const idToken = String(body.idToken ?? "").slice(0, 4000);
 
-  if (!orderId || !idToken || !SAY.includes(status))
+  if (!orderId || !idToken || !isTell(status))
     return NextResponse.json({ ok: false }, { status: 400 });
 
   /* 🔒 الحارس: من لا يقرأ الطلب لا يُرسل عنه شيئاً */
@@ -66,24 +55,32 @@ export async function POST(request: Request) {
   if (!uid) return NextResponse.json({ ok: false, reason: "no-uid" });
 
   const user = await getDocRest(`users/${uid}`, idToken);
+
+  /* أُشعر بهذه الحالة من قبل — لا يُعاد (ولو ضُغط الزرّ مرّتين) */
+  if (toldOf(user, orderId) === status)
+    return NextResponse.json({ ok: true, sent: 0, reason: "already" });
+
   const devices = devicesOf(user?.push);
-  /* لم يُفعّل الإشعارات — وهذا هو الحال الغالب، ولا شيء يُقال عنه */
-  if (devices.length === 0) return NextResponse.json({ ok: true, sent: 0 });
+  /* لم يُفعّل الإشعارات — وهذا هو الحال الغالب، ولا شيء يُقال عنه.
+     ويُختم كي لا تقرأه الجدولةُ كل دقيقةٍ إلى الأبد. */
+  if (devices.length === 0) {
+    await markTold(uid, user, orderId, status, idToken);
+    return NextResponse.json({ ok: true, sent: 0, reason: "no-device" });
+  }
 
-  const lang = String(user?.lang ?? "en");
-  const pack = PACKS[lang] ?? PACKS.en;
-  const code = String(order.code ?? "");
+  const out = await sendToDevices(
+    devices,
+    payloadFor(
+      status,
+      String(order.code ?? ""),
+      String(user?.lang ?? "en"),
+      orderId,
+    ),
+  );
 
-  const payload = JSON.stringify({
-    title: pack.title,
-    body: pack[status].replace("{code}", code),
-    lang,
-    /* وسمُه رمزُ الطلب: «قُبِل» ثم «سُلّم» يحلّ أحدهما محلّ الآخر */
-    tag: `order-${code || orderId}`,
-    url: "/orders",
-  });
-
-  const out = await sendToDevices(devices, payload);
+  /* ⚠️ **ويُختم كي لا تعيده الجدولة**: `/api/late-orders` تمرّ كل دقيقة
+     وتلتقط كل طلبٍ لم يُشعر بحالته — فبلا ختمٍ هنا يصل الإشعار مرّتين. */
+  if (out.sent > 0) await markTold(uid, user, orderId, status, idToken);
 
   /* ⚠️ اشتراكٌ ميّت (مُسح التطبيق أو أُفرغت بياناته) يبقى في وثيقته إلى
      الأبد ما لم يُمحَ — فيُنظَّف بتوكن الإدارة نفسه، والقاعدة تسمح لها
