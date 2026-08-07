@@ -16,12 +16,46 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
+    /* ── حسابُ البوّاب ──
+       🔒 لا يملك شيئاً في هذا المتجر إلا حقّاً واحداً: أن يمدّ `otpUntil`.
+          كلمتُه في Vercel وحدها (`GATE_PASSWORD`)، ومستقلٌّ عن حساب
+          المراقبة عمداً (قرارها ٠٧-٠٨): بابٌ لكل مفتاح، فلو تسرّب أحدهما
+          لم يفتح الآخر. وحتى من سرقه لا يدخل — الخَتْم يرفع مانعاً ولا
+          يمنح صلاحية، ويبقى عليه أن يعرف كلمة سرّ الأدمن. */
+    function isGate() {
+      return request.auth != null
+        && request.auth.uid == 'y0UuWGngZcabvxjIo1lxSfEND9Z2';
+    }
+
+    function adminDoc() {
+      return /databases/$(database)/documents/admins/$(request.auth.uid);
+    }
+
     /* ── من هو الأدمن؟ ──
        وثيقة باسم الـuid داخل مجموعة admins. تُضاف يدوياً من Firebase Console،
        فلا يستطيع أحد ترقية نفسه لأن الكتابة في admins ممنوعة على الجميع. */
+    function isAdminRaw() {
+      return request.auth != null && exists(adminDoc());
+    }
+
+    /* ── 🔒 والخَتْم: «وهل مرّ بالرمز؟» ──
+       كانت القاعدة تسأل «هل هو أدمن» وحدها، فمن عرف كلمة السرّ **وكان
+       مبرمجاً** خاطب Firebase رأساً بلا المرور بشاشة الرمز — والشاشة في
+       المتصفّح، والمتصفّح ليس حارساً.
+
+       فصار الجوابُ أثراً في البيانات: تاريخٌ في المستقبل يكتبه **البوّاب**
+       بعد الرمز الصحيح، عمرُه **ساعة** (قرارها ٠٧-٠٨). ولا يكتبه الأدمن
+       لنفسه — ولو استطاع لعاد الباب مفتوحاً.
+
+       ⚠️ والافتراض `request.time`: وثيقةٌ بلا `otpUntil` تعطي
+          `request.time > request.time` = خطأ ⇒ **مُنِع**. فالغياب منعٌ لا
+          إذن — ولا خطأَ يُرمى ولا حالةَ تُنسى. */
+    function stamped() {
+      return get(adminDoc()).data.get('otpUntil', request.time) > request.time;
+    }
+
     function isAdmin() {
-      return request.auth != null
-        && exists(/databases/$(database)/documents/admins/$(request.auth.uid));
+      return isAdminRaw() && stamped();
     }
 
     function isSignedIn() {
@@ -211,8 +245,21 @@ service cloud.firestore {
     }
 
     match /admins/{uid} {
-      allow read: if isAdmin();
-      allow write: if false;   // من Firebase Console فقط
+      /* ⚠️ **القراءة بلا ختمٍ عمداً** (`isAdminRaw`): من انتهى ختمُه هو
+         بالضبط من يطلب الرمز، وبابُ الرمز يقرأ هذه الوثيقة ليعرف إلى أي
+         بريدٍ يرسل. ولو اشترطنا الختم لَما أُرسل رمزٌ لأحدٍ أبداً.
+         والوثيقة لا تحمل سرّاً — وجودُها هو كل ما فيها. */
+      allow read: if isAdminRaw();
+
+      /* 🔒 **ولا تُصنع ولا تُمحى من الشبكة** — من Firebase Console فقط.
+         و`create` ممنوعةٌ صراحةً لأن كتابة حقلٍ في وثيقةٍ غائبة **تُنشئها**:
+         فلولا هذا السطر لَصنع خطأٌ في ختمِ معرّفٍ غريب أدمناً جديداً. */
+      allow create, delete: if false;
+
+      /* 🔒 والبوّاب يمدّ `otpUntil` وحده — لا حقلاً غيره، ولا وثيقةً غيرها */
+      allow update: if isGate()
+        && request.resource.data.diff(resource.data)
+             .affectedKeys().hasOnly(['otpUntil']);
     }
 
     /* ── ملفّات الزبائن ──

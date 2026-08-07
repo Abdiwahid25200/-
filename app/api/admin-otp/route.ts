@@ -5,6 +5,7 @@ import {
   DEVICE_TTL_MS,
   toAdminEmail,
 } from "@/lib/adminLogin";
+import { stampAdmin } from "@/lib/adminStamp";
 import { emailReady, looksLikeEmail, sendEmail } from "@/lib/email";
 import { getDocRest, signIn } from "@/lib/fireRest";
 import { newCode, open, sign, signReady } from "@/lib/signed";
@@ -28,11 +29,15 @@ import { newCode, open, sign, signReady } from "@/lib/signed";
  * ⚠️ **ولأن اسم صاحبة المتجر ليس بريداً حقيقياً** (`…@eramaan.com` حيلةٌ
  *    لتدخل باسمٍ تحفظه) لزم متغيّرٌ يقول: أين تقرأ بريدها فعلاً.
  *
- * ⚠️ **وحدّ الصراحة**: هذه البوّابة تقف في وجه من عرف كلمة السرّ — وهو
- *    الخطر الحقيقيّ. أمّا من يعرف كلمة السرّ **وهو مبرمج** فيستطيع
- *    مخاطبة Firebase من أدوات المتصفّح مباشرةً بلا المرور بهذه الشاشة،
- *    لأن القواعد تعرف «هل هو أدمن» ولا تعرف «هل مرّ بالرمز». وإقفال ذلك
- *    يستلزم مفتاح Service Account — خطوةٌ مستقلّة إن أرادتها.
+ * 🔒 **وأُقفلت ثغرة المبرمج (٠٧-٠٨)**: كانت هذه البوّابة في الشاشة وحدها،
+ *    فمن عرف كلمة السرّ وخاطب Firebase رأساً تخطّاها. والآن **كلُّ بابٍ
+ *    يُفتح هنا يُوضع معه خَتْمٌ في البيانات** (`lib/adminStamp.ts`)،
+ *    والقواعد لا تقبل أدمناً بلا خَتْمٍ حيّ. فالشاشة والبيانات صارتا
+ *    بوّابةً واحدة. واختيرت هذه على مفتاح Service Account: لا مفتاحَ
+ *    سيّداً يتجاوز القواعد، ولا شاشةَ إدارةٍ تُعاد كتابتها.
+ *
+ * ⚠️ **ولذلك يُختم في كل مخرجٍ يفتح الباب** — لا عند الرمز الصحيح وحده.
+ *    ولو فتحنا الشاشة بلا ختم لَرأت لوحةً كاملةً ترفض كل حفظ.
  */
 
 export const runtime = "nodejs";
@@ -86,24 +91,24 @@ export async function POST(request: Request) {
 
   const ip = ipOf(request);
 
-  /* ⚠️ **بلا سرٍّ أو بلا بريدٍ مضبوط لا يُقفل الباب** — يُفتح كما كان.
-     صاحبة المتجر تضبط متغيّرات Vercel بنفسها، وخطأٌ في حرفٍ منها يجب
-     ألّا يحبسها خارج متجرها بلا طريق عودة. */
-  if (!signReady || !emailReady) return skip();
-
   /* ── ② كتابة الرمز ── */
   if (body.step === "verify") {
+    if (!signReady) return skip();
     if (tooMany(`v:${ip}`, 8)) {
       return NextResponse.json({ ok: false, reason: "busy" }, { status: 429 });
     }
     const token = clip(body.token, 600);
     const code = clip(body.code, 6).replace(/\D/g, "");
-    const data = open<{ x: number; u?: string }>(token, code);
+    const data = open<{ x: number; u?: string; o?: number }>(token, code);
     if (!data?.u) return NextResponse.json({ ok: false }, { status: 401 });
+
+    /* ⚠️ **`o` كُتب عند إرسال الرمز لا هنا**: من ثبتت أدمنيّتُه ساعتَها.
+       ولو سألنا الآن لَاحتجنا رمزَ دخولٍ لا نملكه في هذه الخطوة. */
+    if (data.o) await stampAdmin(data.u);
 
     return NextResponse.json({
       ok: true,
-      ticket: sign({ u: data.u }, DEVICE_TTL_MS),
+      ticket: sign({ u: data.u, o: data.o ?? 0 }, DEVICE_TTL_MS),
     });
   }
 
@@ -122,17 +127,38 @@ export async function POST(request: Request) {
   // كلمة سرّ خاطئة: لا رمز ولا بريد — وتقولها الشاشة كما كانت تقولها
   if (!who) return NextResponse.json({ ok: false, reason: "bad" }, { status: 401 });
 
+  /* وثيقة `admins` لا يقرأها إلا الأدمن نفسه، فنجاح القراءة **هو** الجواب.
+     ⚠️ وقراءتُها لا تشترط الخَتْم عمداً (`isAdminRaw` في القواعد) — ولو
+     اشترطته لَما عرفنا إلى أين نرسل الرمز لمن انتهى ختمُه، وهي حالُ كل
+     من يطلب الرمز أصلاً. */
+  const owner = await getDocRest(`admins/${who.uid}`, who.idToken);
+
+  /**
+   * 🔒 **بابٌ يُفتح ⇒ خَتْمٌ يُوضع.** كل مخرجٍ يقول «ادخلي بلا رمز» يمرّ
+   *    من هنا، وإلّا فُتحت الشاشة على لوحةٍ ترفض كل حفظ.
+   *
+   * ⚠️ **ولا يُختم إلا أدمن**: `patchField` تُنشئ الوثيقة إن غابت، فختمُ
+   *    غيرِ الأدمن يصنع أدمناً جديداً. والقواعد تمنع الإنشاء كذلك.
+   */
+  const pass = async () => {
+    if (owner) await stampAdmin(who.uid);
+    return skip();
+  };
+
+  /* ⚠️ **بلا سرٍّ أو بلا بريدٍ مضبوط لا يُقفل الباب** — يُفتح كما كان.
+     صاحبة المتجر تضبط متغيّرات Vercel بنفسها، وحرفٌ خاطئ يجب ألّا يحبسها
+     خارج متجرها بلا طريق عودة. */
+  if (!signReady || !emailReady) return pass();
+
   /**
    * ⚠️ **الجهاز المعروف يُعرف قبل أن نرسل شيئاً**: ورقةٌ حيّة باسم هذا
-   *    الحساب ⇒ لا رمز ولا رسالة. وهذا هو «مرّة كل سبعة أيام» عملياً.
+   *    الحساب ⇒ لا رمز ولا رسالة. وهذا هو «مرّة كل يوم» عملياً.
    */
   const dev = open<{ x: number; u?: string }>(clip(body.dev, 600));
-  if (dev?.u === who.uid) return skip();
+  if (dev?.u === who.uid) return pass();
 
   /* ── إلى أين يُرسل؟ ── */
   let to = "";
-  /* وثيقة `admins` لا يقرأها إلا الأدمن نفسه، فنجاح القراءة **هو** الجواب */
-  const owner = await getDocRest(`admins/${who.uid}`, who.idToken);
   if (owner) {
     to = (process.env.OWNER_OTP_EMAIL ?? process.env.ALERT_EMAIL ?? "").trim();
   } else {
@@ -154,10 +180,10 @@ export async function POST(request: Request) {
     }
   }
 
-  if (!looksLikeEmail(to)) return skip();
+  if (!looksLikeEmail(to)) return pass();
 
   const code = newCode();
-  const token = sign({ u: who.uid }, CODE_TTL_MS, code);
+  const token = sign({ u: who.uid, o: owner ? 1 : 0 }, CODE_TTL_MS, code);
 
   const sent = await sendEmail({
     to,
@@ -173,9 +199,9 @@ export async function POST(request: Request) {
     ].join("\n"),
   });
 
-  /* ⚠️ **وتعثّرُ البريد لا يقفل الباب**: عطلٌ عند Infobip أو نفادُ الرصيد
+  /* ⚠️ **وتعثّرُ البريد لا يقفل الباب**: عطلٌ عند المزوّد أو نفادُ الرصيد
      المجّاني يجب ألّا يمنعها من متجرها. الخسارة في الاتّجاه الآخر أكبر. */
-  if (!sent) return skip();
+  if (!sent) return pass();
 
   return NextResponse.json({ ok: true, token, sent: mask(to) });
 }

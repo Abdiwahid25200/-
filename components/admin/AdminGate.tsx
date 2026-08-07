@@ -16,6 +16,7 @@ import {
   DEVICE_DAYS,
   devTicket,
   saveDevTicket,
+  STAMP_BEAT_MS,
   toAdminEmail,
 } from "@/lib/adminLogin";
 import { fbAuth, fbDb } from "@/lib/firebase";
@@ -41,8 +42,13 @@ import { IconEye, IconEyeOff, IconSpinner } from "@/components/icons";
  *
  * 🔒 **وخطوةٌ ثانية: رمزٌ إلى البريد** (طلبها ٠٣-٠٨) — كلمة السرّ تُفحص
  *    عند الخادم أوّلاً، ثم يُرسل رمزٌ من ستّة أرقام إلى بريد صاحب
- *    الحساب. والجهاز الذي كُتب فيه الرمز صحيحاً يُعرف **سبعة أيام**
- *    فلا يُسأل ثانيةً (قرارها). التفصيل في `app/api/admin-otp/route.ts`.
+ *    الحساب. والجهاز الذي كُتب فيه الرمز صحيحاً يُعرف **يوماً واحداً**
+ *    فلا يُسأل ثانيةً (قرارها ٠٧-٠٨). التفصيل في `app/api/admin-otp/route.ts`.
+ *
+ * 🔒 **والبوّابة صارت في البيانات لا في الشاشة (٠٧-٠٨)**: كل دخولٍ يضع
+ *    **خَتْماً** عمرُه ساعة في `admins/{uid}.otpUntil`، والقواعد لا تقبل
+ *    أدمناً بلا ختمٍ حيّ. فمن تخطّى هذه الشاشة بأدوات المطوّر لا يجد
+ *    خلفها شيئاً. التفصيل في `lib/adminStamp.ts`.
  *
  * ⚠️ **والاسم لا يصير بريداً هنا بعد اليوم**: `toAdminEmail` في
  *    `lib/adminLogin.ts` — يقرؤها الخادم أيضاً ليفحص كلمة السرّ.
@@ -107,6 +113,35 @@ export default function AdminGate({ children }: { children: React.ReactNode }) {
       clearInterval(id);
     };
   }, [user, access, lock]);
+
+  /**
+   * 🔄 **تجديد الخَتْم وهي تعمل** — الخَتْم في `admins/{uid}.otpUntil`
+   *    ساعةٌ واحدة، والقواعد لا تقبل أدمناً بلا ختمٍ حيّ. فلولا هذه
+   *    النبضة لَتوقّف الحفظ تحت يدها بعد ساعة بلا سبب ظاهر.
+   *
+   * ⚠️ **ومفتاحُها ورقةُ الجهاز** لا الجلسة: من عرف كلمة السرّ ولا ورقة
+   *    له لا يجدّد لنفسه — يُطلب منه الرمز، والرمز إلى بريدها هي.
+   *
+   * 📌 **ولصاحبة المتجر وحدها**: المساعد لا وثيقة له في `admins`.
+   */
+  useEffect(() => {
+    if (!user || access?.role !== "owner") return;
+
+    const beat = () => {
+      const paper = devTicket(user.email ?? "");
+      /* بلا ورقة لا تجديد — ويكفيها قفلُ الثلاثين دقيقة فتدخل من جديد */
+      if (!paper) return;
+      void fetch("/api/admin-stamp", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ dev: paper }),
+      }).catch(() => {});
+    };
+
+    beat();
+    const id = setInterval(beat, STAMP_BEAT_MS);
+    return () => clearInterval(id);
+  }, [user, access]);
 
   /**
    * من يدخل؟ صاحبة المتجر (وثيقة في `admins`) أم مساعد (وثيقة بالبريد
@@ -266,7 +301,7 @@ export default function AdminGate({ children }: { children: React.ReactNode }) {
       );
       return setBusy(false);
     }
-    // هذا الجهاز معروفٌ من اليوم: لا رمز قبل سبعة أيام
+    // هذا الجهاز معروفٌ من اليوم: لا رمز قبل يومٍ كامل
     if (typeof d.ticket === "string") saveDevTicket(username, d.ticket);
     await finish();
   }
