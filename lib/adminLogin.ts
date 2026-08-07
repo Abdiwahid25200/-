@@ -30,8 +30,8 @@ export const toAdminEmail = (u: string) =>
 /** عمر الرمز المرسَل بالبريد */
 export const CODE_TTL_MS = 10 * 60_000;
 
-/** عمر ورقة الجهاز — قرارها: أسبوع */
-export const DEVICE_DAYS = 7;
+/** عمر ورقة الجهاز — قرارها (٠٦-٠٨): **يومٌ واحد** بدل الأسبوع */
+export const DEVICE_DAYS = 1;
 export const DEVICE_TTL_MS = DEVICE_DAYS * 24 * 60 * 60_000;
 
 /* ⚠️ **ورقةٌ لكل اسم مستخدم**: صاحبة المتجر ومساعدُها قد يدخلان من
