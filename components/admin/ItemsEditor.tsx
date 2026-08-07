@@ -20,6 +20,7 @@ import { offPercent } from "@/lib/format";
 import ImagePicker from "./ImagePicker";
 import NumField from "./NumField";
 import GalleryPicker from "./GalleryPicker";
+import StatusPick from "./StatusPick";
 import {
   IconCheckCircle,
   IconMinus,
@@ -320,24 +321,34 @@ export default function ItemsEditor() {
                   </button>
                 </div>
 
+                {/* ⚠️ **أربعُ مجموعاتٍ معنونة لا كومةُ حقول** (٠٧-٠٨):
+                    كانت أحدَ عشرَ حقلاً متلاصقاً — الصورةُ فوق الاسم فوق
+                    السعر فوق التكلفة فوق النقاط — فلا تُعرف نهايةُ ما
+                    يراه الزبون من بدايةِ ما يخصّها هي وحدها. */}
                 {isOpen && (
-                  <div className="flex flex-col gap-4 border-t border-line p-4">
-                    <ImagePicker
-                      value={it.img}
-                      folder={kind}
-                      onChange={(url) => patch(it.id, { img: url ?? "" })}
-                    />
-
-                    {/* معرض صفحة الصنف — للحسابات والإلكترونيات وحدها:
-                        باقةُ شدّاتٍ لا صفحة لها فلا معرض لها. */}
-                    {DETAIL_KINDS.includes(kind) && (
-                      <GalleryPicker
-                        value={it.imgs}
+                  <div className="flex flex-col gap-5 border-t border-line p-4">
+                    <section className="flex flex-col gap-3">
+                      <p className="adm-ttl">Photos</p>
+                      <ImagePicker
+                        value={it.img}
                         folder={kind}
-                        label="Photos on the item page"
-                        onChange={(imgs) => patch(it.id, { imgs })}
+                        onChange={(url) => patch(it.id, { img: url ?? "" })}
                       />
-                    )}
+
+                      {/* معرض صفحة الصنف — للحسابات والإلكترونيات وحدها:
+                          باقةُ شدّاتٍ لا صفحة لها فلا معرض لها. */}
+                      {DETAIL_KINDS.includes(kind) && (
+                        <GalleryPicker
+                          value={it.imgs}
+                          folder={kind}
+                          label="Photos on the item page"
+                          onChange={(imgs) => patch(it.id, { imgs })}
+                        />
+                      )}
+                    </section>
+
+                    <section className="flex flex-col gap-3">
+                      <p className="adm-ttl">Name and price</p>
 
                     <label className="flex flex-col gap-1.5 text-sm">
                       <span className="font-medium">{meta.titleLabel}</span>
@@ -404,10 +415,17 @@ export default function ItemsEditor() {
                             : `−${offPercent(Number(it.price), it.old)}%`}
                         </span>
                       </label>
+                    </div>
+                    </section>
 
-                      {/* 🔒 التكلفة والربح — لكِ وحدك، لا يراهما الزبون */}
+                    {/* 🔒 التكلفة والربح — لكِ وحدك، لا يراهما الزبون.
+                        وعنوانٌ يقول ذلك: كانا في الشبكة نفسها مع السعر،
+                        فيبدوان كأنّ الزبون يراهما. */}
+                    <section className="flex flex-col gap-3">
+                      <p className="adm-ttl">Your numbers — only you see these</p>
+                      <div className="grid grid-cols-2 gap-3">
                       <label className="flex flex-col gap-1.5 text-sm">
-                        <span className="font-medium">Cost (private)</span>
+                        <span className="font-medium">Cost</span>
                         <NumField
                           value={costs[it.id] ?? 0}
                           placeholder="What you pay"
@@ -431,7 +449,12 @@ export default function ItemsEditor() {
                             : `$${(profitOf(Number(it.price), costs[it.id]) ?? 0).toFixed(2)}`}
                         </span>
                       </label>
+                      </div>
+                    </section>
 
+                    <section className="flex flex-col gap-3">
+                      <p className="adm-ttl">In the store</p>
+                      <div className="grid grid-cols-2 gap-3">
                       {/* نقاط الولاء — الفراغ يعني «استعملي الافتراضي العام» */}
                       <label className="flex flex-col gap-1.5 text-sm">
                         <span className="font-medium">Points</span>
@@ -471,31 +494,23 @@ export default function ItemsEditor() {
                           className={`${field} num text-start`}
                         />
                       </label>
-                    </div>
+                      </div>
 
-                    <label className="flex flex-col gap-1.5 text-sm">
-                      <span className="font-medium">Status</span>
-                      <select
-                        value={it.status}
-                        onChange={(e) =>
-                          patch(it.id, { status: e.target.value as ShopItem["status"] })
+                      <StatusPick
+                        value={it.status ?? "on"}
+                        onChange={(v) =>
+                          patch(it.id, { status: v as ShopItem["status"] })
                         }
-                        className={field}
-                      >
-                        {STATUSES.map((s) => (
-                          <option key={s.v} value={s.v}>
-                            {s.label}
-                          </option>
-                        ))}
-                      </select>
-                    </label>
+                        options={STATUSES}
+                      />
 
-                    {it.hidden && (
-                      <p className="text-xs text-muted">
-                        Removed from the store — customers do not see it. Tap
-                        “Restore” above to bring it back.
-                      </p>
-                    )}
+                      {it.hidden && (
+                        <p className="text-xs text-muted">
+                          Removed from the store — customers do not see it. Tap
+                          “Restore” above to bring it back.
+                        </p>
+                      )}
+                    </section>
 
                     <button
                       type="button"

@@ -4,6 +4,7 @@ import { useCallback, useEffect, useState } from "react";
 import { useAuth } from "@/lib/auth";
 import { useAccess } from "@/lib/adminAccess";
 import DateRange from "./DateRange";
+import Fact from "./Fact";
 import { IconChevron } from "@/components/icons";
 import { csvDate, csvName, downloadCsv } from "@/lib/csv";
 import { inSpan, spanLabel, today, type Span } from "@/lib/span";
@@ -148,31 +149,6 @@ function amountOf(o: AdminOrder): string {
  *    مدىً يتحرّك تحت قدمها، ورقمُ اليوم فيه لا يساوي رقم أمس، فلا يُقارَن
  *    بشيء ولا يُطابق ما ينزل في إكسل. والتفصيل في `lib/span.ts`.
  */
-
-/**
- * سطرُ تفصيل — **يختفي إن كان فارغاً**.
- *
- * ⚠️ كانت الشاشة تطبع `—` في «القسم» و«الحساب» و«الهاتف» و«البريد»
- *    حتى حين لا شيء فيها: أربعةُ أسطرٍ تُقرأ ولا تقول شيئاً، تدفع
- *    أزرار العمل إلى أسفل الشاشة. والفارغُ لا يُعرض أصلاً.
- */
-function Fact({
-  k,
-  v,
-  tone,
-}: {
-  k: string;
-  v: React.ReactNode;
-  tone?: string;
-}) {
-  if (v === null || v === undefined || v === "" || v === "—") return null;
-  return (
-    <div className="flex gap-3 text-sm">
-      <span className="w-24 shrink-0 text-muted">{k}</span>
-      <span className={`min-w-0 flex-1 font-medium ${tone ?? ""}`}>{v}</span>
-    </div>
-  );
-}
 
 /** فاصل اليوم — «Today» و«Yesterday» ثم التاريخ */
 function dayOf(d: Date | null): string {

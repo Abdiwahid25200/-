@@ -216,7 +216,9 @@ export default function OrderQueue({ onAll }: { onAll: () => void }) {
               : "Every order is handled. Come back when one arrives."}
           </span>
         </span>
-        <button type="button" onClick={onAll} className="go">
+        {/* ⚠️ كان `className="go"` — و`.go` معرّفةٌ داخل `.adm-needs`
+            و`.adm-bar` وحدهما، فخرج الزرّ هنا بلا تنسيق. */}
+        <button type="button" onClick={onAll} className="adm-btn">
           See all orders
           <IconChevron className="size-4" />
         </button>
@@ -481,7 +483,12 @@ export default function OrderQueue({ onAll }: { onAll: () => void }) {
   );
 }
 
+/**
+ * سطرُ بيان — **يختفي إن كان فارغاً** (لغةُ اللوحة الجديدة ٠٧-٠٨).
+ * `—` تشغل سطراً في شاشةٍ كل سطرٍ فيها يبعد الزرَّ عن الإبهام.
+ */
 function Line({ k, v }: { k: string; v: string }) {
+  if (!v || v === "—") return null;
   return (
     <div className="flex items-baseline justify-between gap-3">
       <dt className="shrink-0 text-muted">{k}</dt>

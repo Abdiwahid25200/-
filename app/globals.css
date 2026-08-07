@@ -1401,6 +1401,30 @@ html[dir="rtl"] .nav a span {
   color: var(--danger);
 }
 
+/* ── زرٌّ ثانويّ — الأساس الذي كان ينقص ───────────────────────
+   ⚠️ كان `adm-btn` مكتوباً في `OrderQueue` **ولا وجود له في هذا
+      الملف**، فيخرج الزرّ بلا تنسيقٍ أصلاً: مربّعٌ رماديّ من صنع
+      المتصفّح في شاشةٍ تُفتح كل يوم. (فُحصت الأصناف كلّها بالمقارنة،
+      وهذا وحده كان معلّقاً في الهواء.) */
+.adm-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 48px;
+  padding: 0 18px;
+  border: 1px solid var(--line);
+  border-radius: 15px;
+  background: var(--surface);
+  color: var(--text);
+  font-weight: 800;
+}
+.adm-btn.hi {
+  border-color: var(--accent);
+  background: var(--accent);
+  color: var(--on-accent);
+}
+
 /* ── شريطُ المدى — يقول ما يُعرض، وضغطتُه تفتح ما تحته ────────── */
 .adm-bar {
   display: flex;
