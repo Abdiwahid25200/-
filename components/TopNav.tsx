@@ -24,6 +24,11 @@ export default function TopNav() {
   const t = useTranslations("nav");
   const isApp = useIsApp();
 
+  /* 📱 **ولا يظهر في التطبيق أبداً** — ولو كان على آيباد عريض:
+     هناك يبقى الشريط السفلي (عُرفُ المنصّة)، وشريطان لنفس الأقسام
+     في شاشةٍ واحدة يجعلان الزبون يتردّد قبل كل ضغطة. */
+  if (isApp) return null;
+
   return (
     <nav className="topnav" aria-label={t("label")}>
       {tabsFor(isApp).map(({ key, href, Icon }) => {
