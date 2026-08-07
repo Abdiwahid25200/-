@@ -541,7 +541,10 @@
         "title": "استلم",
         "note": "يصلك على حسابك خلال دقائق"
       }
-    }
+    },
+    "videoEyebrow": "شاهدي أوّلاً",
+    "videoTitle": "كيف تطلبين من رمان في دقيقة",
+    "videoPlay": "تشغيل الفيديو"
   },
   "eyebrow": {
     "home": "ELECTRONICS",

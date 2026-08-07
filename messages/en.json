@@ -541,7 +541,10 @@
         "title": "Receive",
         "note": "Delivered to your account in minutes"
       }
-    }
+    },
+    "videoEyebrow": "WATCH FIRST",
+    "videoTitle": "How to order from Ramaan in one minute",
+    "videoPlay": "Play the video"
   },
   "eyebrow": {
     "home": "ELECTRONICS",

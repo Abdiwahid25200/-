@@ -34,7 +34,16 @@ const GROUPS = [
       { k: "steps.pay.note", label: "Step 2 — line under it" },
       { k: "steps.receive.title", label: "Step 3 — title" },
       { k: "steps.receive.note", label: "Step 3 — line under it" },
-      { k: "youtubeId", label: "YouTube video id (empty hides the video)", plain: true },
+      /* 🎬 **رابطاً كان أو رمزاً** — طلبها (٠٧-٠٨). زرُّ المشاركة في
+         يوتيوب يعطي رابطاً، وكان الحقل يطلب أحدَ عشرَ محرفاً تُقتطع
+         من وسطه بيدها على شاشة جوّال. و`lib/video.ts` تقرأ الشكلين. */
+      {
+        k: "youtubeId",
+        label: "Video link — paste the YouTube share link (empty hides it)",
+        plain: true,
+      },
+      { k: "videoEyebrow", label: "Small line above the video title" },
+      { k: "videoTitle", label: "Video title" },
     ],
   },
   {

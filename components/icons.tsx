@@ -1181,3 +1181,12 @@ export function IconBellOff({ className = "" }: IconProps) {
     </svg>
   );
 }
+
+/** مثلّث التشغيل — لوحة الفيديو في صفحة الدعم */
+export function IconPlay({ className = "" }: IconProps) {
+  return (
+    <svg viewBox="0 0 24 24" className={`size-6 fill-current ${className}`} aria-hidden>
+      <path d="M9 6.2a1 1 0 0 1 1.53-.85l7.2 4.55a1.3 1.3 0 0 1 0 2.2l-7.2 4.55A1 1 0 0 1 9 15.8Z" />
+    </svg>
+  );
+}

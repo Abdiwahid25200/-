@@ -4,6 +4,8 @@ import { howItWorks } from "@/lib/content";
 import { isBuyable } from "@/lib/data";
 import { readTexts, tx } from "@/lib/overrides";
 import { mergedPay } from "@/lib/payments";
+import { youtubeId } from "@/lib/video";
+import VideoCard from "@/components/VideoCard";
 /**
  * "كيف يعمل المتجر" — **بطاقةٌ بعنوانٍ صغير** وفيها الخطوات الثلاث، كما في النموذج.
  * الفيديو يظهر فقط عند وضع `youtubeId` في lib/content.ts، فلا تبقى فجوة فارغة.
@@ -19,7 +21,9 @@ export default async function HowItWorks() {
   // نصوص اللوحة تعلو الترجمات — والفارغ يُبقي الأصل
   const d = await readTexts("how");
   const { steps } = howItWorks;
-  const youtubeId = tx(d, "youtubeId", locale, howItWorks.youtubeId ?? "");
+  /* ⚠️ **رابطاً كان أو رمزاً** — طلبها (٠٧-٠٨). و`youtubeId()` تقرأ
+     الاثنين، فلا تُطالَب باقتطاع أحدَ عشرَ محرفاً من وسط رابط. */
+  const videoId = youtubeId(tx(d, "youtubeId", locale, howItWorks.youtubeId ?? ""));
 
   /**
    * 💳 **«ادفع بأمان» يقول طرقَ دفعها هي** — قرارها (٠٤-٠٨).
@@ -72,20 +76,13 @@ export default async function HowItWorks() {
 
   return (
     <section className="flex flex-col gap-4">
-      {youtubeId && (
-        <div className="w-full overflow-hidden rounded-card border border-line bg-navy shadow-sm">
-          {/* نسبة 16:9 ثابتة حتى لا يقفز التخطيط أثناء التحميل */}
-          <div className="relative aspect-video">
-            <iframe
-              src={`https://www.youtube-nocookie.com/embed/${youtubeId}`}
-              title={t("title")}
-              allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-              allowFullScreen
-              loading="lazy"
-              className="absolute inset-0 size-full"
-            />
-          </div>
-        </div>
+      {videoId && (
+        <VideoCard
+          id={videoId}
+          eyebrow={tx(d, "videoEyebrow", locale, t("videoEyebrow"))}
+          title={tx(d, "videoTitle", locale, t("videoTitle"))}
+          play={t("videoPlay")}
+        />
       )}
 
       {/* ⚠️ **الخطوات الثلاث في بطاقةٍ واحدة** كما في النموذج، لا ثلاث
