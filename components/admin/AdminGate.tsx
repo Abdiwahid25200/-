@@ -94,7 +94,7 @@ export default function AdminGate({ children }: { children: React.ReactNode }) {
     try {
       await sendPasswordResetEmail(auth, toAdminEmail(username));
       setReset(
-        `A reset link was sent to the email on this account. Open it and choose a new password. If nothing arrives, that address has no real inbox — use the Console link below.`,
+        "A reset link was sent to the email on this account. Open it and choose a new password.",
       );
     } catch (e) {
       const code = (e as { code?: string })?.code ?? "";
@@ -103,7 +103,7 @@ export default function AdminGate({ children }: { children: React.ReactNode }) {
           ? "No account with that username."
           : code === "auth/too-many-requests"
             ? "Too many tries. Wait a minute, then try again."
-            : "Could not send it. Use the Console link below.",
+            : "Could not send it. Try again in a moment.",
       );
     } finally {
       setBusy(false);
@@ -471,21 +471,19 @@ export default function AdminGate({ children }: { children: React.ReactNode }) {
             Forgot your password?
           </button>
 
+          {/* ⚠️ **ولا رابطَ Firebase هنا** — قرارها (٠٧-٠٨): «لا تحط رابط
+              Firebase أسفل شاشة الإدارة».
+
+              وكان تحت الزرّ رابطٌ إلى Console كمخرجٍ يعمل دائماً. لكنّ
+              شاشة الدخول **يراها من يقف أمام الباب لا من دخله**، ورابطٌ
+              فيه اسمُ المشروع يقول لكل عابرٍ أين تُدار هذه اللوحة.
+              فالمخرجُ محفوظٌ برابطه وخطواته في `docs/الحالة.md` — تقرؤه
+              وهي تعرفه، ولا يقرؤه غيرُها. */}
           {reset && (
             <p className="rounded-card border border-line bg-surface p-3 text-sm">
               {reset}
             </p>
           )}
-
-          {/* 🆘 المخرج الذي يعمل دائماً — بلا بريدٍ ولا إعداد */}
-          <a
-            href="https://console.firebase.google.com/project/ramaa-store/authentication/users"
-            target="_blank"
-            rel="noopener"
-            className="text-center text-xs text-muted underline-offset-4 hover:underline"
-          >
-            Or reset it yourself in Firebase Console
-          </a>
         </form>
       </>,
     );
