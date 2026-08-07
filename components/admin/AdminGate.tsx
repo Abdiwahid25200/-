@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import {
+  browserLocalPersistence,
   browserSessionPersistence,
   inMemoryPersistence,
   setPersistence,
@@ -79,7 +80,24 @@ export default function AdminGate({ children }: { children: React.ReactNode }) {
     clearAdmin();
     setLocked(true);
     const auth = fbAuth();
-    if (auth?.currentUser) void auth.signOut();
+    if (!auth) return;
+    if (auth.currentUser) void auth.signOut();
+    /**
+     * 🧹 **وتُعاد حالةُ الحفظ إلى «دائم» بعد الخروج** — بلاغها (٠٧-٠٨):
+     *    «لا يجب على العميل تسجيل الدخول في كل مرة».
+     *
+     *    البوّابة تبدّل حفظَ الجلسة إلى **تبويبيّ** (`session`)، وهذا
+     *    إعدادٌ **للأصل كلّه** لا لهذه الصفحة — ويبقى مكتوباً بعدها.
+     *    فمن فتحت `eramaan.com/admin` مرّةً صار دخولُها في المتجر نفسه
+     *    يموت بإغلاق التبويب، فيُطلب منها في كل فتحة.
+     *
+     *    فيُعاد الإعداد هنا إلى الدائم. والحمايةُ لا تنقص: القفل الحقيقيّ
+     *    ثلاثةٌ لا واحد — مهلةُ الثلاثين دقيقة · وفحصُ «جلسةٌ بلا ختمٍ
+     *    حيّ لا تدخل» عند كل فتحة · و**الخَتْمُ الزمنيّ في القواعد**
+     *    (`otpUntil`) الذي يجعل جلسةً محفوظةً بلا رمزٍ حديث عاجزةً عن
+     *    حفظ حرفٍ واحد.
+     */
+    void setPersistence(auth, browserLocalPersistence).catch(() => {});
   }, []);
 
   /**

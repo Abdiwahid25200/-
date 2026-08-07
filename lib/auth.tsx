@@ -77,6 +77,31 @@ function prefersRedirect() {
   return touch || narrow;
 }
 
+/**
+ * علامةٌ على الجهاز: «سبق أن دخل من هنا».
+ *
+ * ⚠️ **لا تحمل شيئاً ولا تفتح شيئاً** — قيمتها `1` لا غير. كلُّ فائدتها
+ *    أن نعرف: هل ننتظر استعادةَ جلسةٍ أم لا أحد هنا أصلاً؟
+ */
+const SEEN = "ramaan.seen";
+
+function knownDevice(): boolean {
+  try {
+    return localStorage.getItem(SEEN) === "1";
+  } catch {
+    return false;
+  }
+}
+
+function remember(yes: boolean) {
+  try {
+    if (yes) localStorage.setItem(SEEN, "1");
+    else localStorage.removeItem(SEEN);
+  } catch {
+    /* متصفّحٌ يمنع التخزين — تبقى المهلة القصيرة، ولا ينكسر شيء */
+  }
+}
+
 function googleProvider() {
   const provider = new GoogleAuthProvider();
   // يطلب اختيار الحساب في كل مرة — مفيد لمن عنده أكثر من حساب جوجل
@@ -104,24 +129,55 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
      * فنُثبّت هنا صراحةً ما يليق بمتجر الزبون: **حفظٌ دائم** في الجهاز.
      * والصريح خيرٌ من الافتراضيّ متى كان لغيرك أن يبدّله.
      */
-    void setPersistence(auth, browserLocalPersistence).catch(() => {});
+    /**
+     * ⚠️ **ويُنتظَر جوابُه** (٠٧-٠٨) — لا `void`.
+     *
+     * `setPersistence` يبدّل مكان القراءة والكتابة معاً. وحين يُترك بلا
+     * انتظار يسبقه `onAuthStateChanged` فيقرأ من التخزين القديم — وهو
+     * التبويبيّ إن كانت بوّابة اللوحة قد بدّلته على هذا الأصل — فيرى
+     * الزبونَ خارجاً وهو داخل.
+     */
+    let alive = true;
+    let timer: ReturnType<typeof setTimeout> | undefined;
+    let stop: (() => void) | undefined;
 
-    // بعد العودة من شاشة جوجل نلتقط نتيجة التحويل، وإلا بقي الزبون زائراً
-    getRedirectResult(auth).catch(() => {});
+    void (async () => {
+      await setPersistence(auth, browserLocalPersistence).catch(() => {});
+      if (!alive) return;
 
-    // مهلة أمان: لو تعذّر الوصول لجوجل (شبكة ضعيفة أو حجب) لا نترك الزبون
-    // أمام شاشة انتظار أبدية — نعتبره زائراً فيبقى قادراً على التصفّح والشراء.
-    const timer = setTimeout(() => setReady(true), 6000);
+      // بعد العودة من شاشة جوجل نلتقط نتيجة التحويل، وإلا بقي الزبون زائراً
+      getRedirectResult(auth).catch(() => {});
 
-    const stop = onAuthStateChanged(auth, (u) => {
-      clearTimeout(timer);
-      setUser(u);
-      setReady(true);
-    });
+      /**
+       * مهلة أمان: لو تعذّر الوصول لجوجل (شبكة ضعيفة أو حجب) لا نترك
+       * الزبون أمام شاشة انتظار أبدية — نعتبره زائراً فيبقى قادراً على
+       * التصفّح والشراء.
+       *
+       * ⚠️ **ومن سبق أن دخل من هذا الجهاز يُنتظر له أطول** (٠٧-٠٨):
+       *    ستّ ثوانٍ على شبكةٍ بطيئة تكفي ليُعرض عليه «سجّل الدخول» وهو
+       *    مسجَّلٌ فعلاً — فيضغط، فيبدأ الدخول من أوّله بلا داعٍ. وهذا
+       *    ما يجعل الموقع يبدو كأنه ينساه في كل فتحة.
+       */
+      timer = setTimeout(
+        () => alive && setReady(true),
+        knownDevice() ? 20000 : 6000,
+      );
+
+      stop = onAuthStateChanged(auth, (u) => {
+        clearTimeout(timer);
+        if (!alive) return;
+        setUser(u);
+        setReady(true);
+        /* علامةٌ على الجهاز: «دخل من هنا مرّة» — تُطيل مهلة الانتظار
+           في الفتحات القادمة، ولا تحمل بياناتٍ ولا تفتح شيئاً */
+        remember(Boolean(u));
+      });
+    })();
 
     return () => {
+      alive = false;
       clearTimeout(timer);
-      stop();
+      stop?.();
     };
   }, []);
 
@@ -151,6 +207,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     /* ⚠️ آخر طلبٍ يُمحى مع الخروج: الجهاز يتشاركه إخوة، ولا يُعرض
        على الداخل الجديد ما اشتراه من قبله. */
     clearLast();
+    /* وخروجٌ بيده يعني «لا أحد هنا» — فلا يُنتظر استعادةُ جلسةٍ لن تعود */
+    remember(false);
     const auth = fbAuth();
     if (auth) await fbSignOut(auth);
   }
