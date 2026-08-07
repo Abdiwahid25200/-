@@ -1190,3 +1190,17 @@ export function IconPlay({ className = "" }: IconProps) {
     </svg>
   );
 }
+
+/** لوحُ فيديو — شاشة «Store video» في الإدارة (القرار المقفول ج) */
+export function IconVideo({ className = "" }: IconProps) {
+  return (
+    <svg viewBox="0 0 24 24" strokeWidth="1.8" className={`${base} ${className}`} aria-hidden>
+      <rect x="2.5" y="5" width="14" height="14" rx="3" />
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        d="m16.5 10.5 3.6-2.4a.9.9 0 0 1 1.4.75v6.3a.9.9 0 0 1-1.4.75l-3.6-2.4Z"
+      />
+    </svg>
+  );
+}

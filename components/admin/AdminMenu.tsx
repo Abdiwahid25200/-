@@ -18,6 +18,7 @@ import {
   IconText,
   IconTrash,
   IconUsers,
+  IconVideo,
 } from "@/components/icons";
 
 /**
@@ -49,6 +50,7 @@ export type AdminTab =
   | "chats"
   | "referrals"
   | "faq"
+  | "video"
   | "staff";
 
 export const ICONS: Record<
@@ -79,5 +81,8 @@ export const ICONS: Record<
   chats: IconChat,
   referrals: IconInvite,
   faq: IconHelp,
+  /* ⚠️ القرار المقفول (ج): للفيديو لوحُه هو — لا يشارك أيقونةَ الصورة
+     (`slides`) ولا أيقونةَ المساعدة (`faq`)، وكلاهما في الجوار. */
+  video: IconVideo,
   staff: IconBadge,
 };

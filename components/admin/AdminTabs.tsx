@@ -5,6 +5,7 @@ import { ICONS, type AdminTab } from "./AdminMenu";
 import SectionsEditor from "./SectionsEditor";
 import ItemsEditor from "./ItemsEditor";
 import FaqEditor from "./FaqEditor";
+import VideoEditor from "./VideoEditor";
 import OrdersEditor from "./OrdersEditor";
 import OrderQueue from "./OrderQueue";
 import PointsEditor from "./PointsEditor";
@@ -187,6 +188,17 @@ const MORE: Screen[] = [
     perm: "faq",
     group: "store",
     find: "faq answers help",
+  },
+  /* 🎬 **بابٌ باسمه** (٠٧-٠٨): كانت حقولُ الفيديو داخل «Wording» — وهي
+     شاشةُ نصوص. ومن أراد إضافة فيديو لا يفتح شاشةً اسمُها «صياغة
+     الكلمات»، فالبابُ يُسمّى باسم ما خلفه وإلّا فهو مغلقٌ عملياً. */
+  {
+    v: "video",
+    label: "Store video",
+    note: "The clip on your Help page",
+    perm: "sections",
+    group: "store",
+    find: "youtube clip movie explain how it works help",
   },
 
   /* ── Money & rewards ── */
@@ -615,6 +627,8 @@ function Body({ tab, go }: { tab: AdminTab; go: (t: AdminTab) => void }) {
       return <SiteEditor />;
     case "texts":
       return <TextsEditor />;
+    case "video":
+      return <VideoEditor />;
     case "faq":
       return <FaqEditor />;
     case "staff":

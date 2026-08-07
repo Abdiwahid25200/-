@@ -34,16 +34,11 @@ const GROUPS = [
       { k: "steps.pay.note", label: "Step 2 — line under it" },
       { k: "steps.receive.title", label: "Step 3 — title" },
       { k: "steps.receive.note", label: "Step 3 — line under it" },
-      /* 🎬 **رابطاً كان أو رمزاً** — طلبها (٠٧-٠٨). زرُّ المشاركة في
-         يوتيوب يعطي رابطاً، وكان الحقل يطلب أحدَ عشرَ محرفاً تُقتطع
-         من وسطه بيدها على شاشة جوّال. و`lib/video.ts` تقرأ الشكلين. */
-      {
-        k: "youtubeId",
-        label: "Video link — paste the YouTube share link (empty hides it)",
-        plain: true,
-      },
-      { k: "videoEyebrow", label: "Small line above the video title" },
-      { k: "videoTitle", label: "Video title" },
+      /* 🎬 **حقولُ الفيديو انتقلت إلى شاشة «Store video»** (٠٧-٠٨).
+         كانت هنا، وهذه شاشةُ **نصوص** — ومن أراد إضافة فيديو لا يفتح
+         شاشةً اسمُها «صياغة الكلمات». ولا تُترك نسخةٌ هنا: مصدران
+         للشيء الواحد يعنيان أن تُكتب في أحدهما فلا يظهر أثرُها.
+         والوثيقة نفسها (`settings/how`) لم تتغيّر. */
     ],
   },
   {
@@ -152,7 +147,9 @@ export default function TextsEditor() {
       ) : (
         <>
           {g.fields.map((f) => {
-            const plain = "plain" in f && f.plain;
+            /* ⚠️ `Boolean(...)` لازمة: بعد نقل حقول الفيديو لم يبقَ في
+               الجدول حقلٌ يحمل `plain`، فصار نوعُه `unknown` عند TS. */
+            const plain = "plain" in f && Boolean(f.plain);
             const value = plain ? (d[f.k]?.en ?? "") : (d[f.k]?.[lang] ?? "");
             return (
               <label key={f.k} className="flex flex-col gap-1.5 text-sm">
