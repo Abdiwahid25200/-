@@ -800,6 +800,11 @@
     "denied": "Ogeysiisyada waa la xannibay. Fur settings-ka browser-kaaga ee eramaan.com, oo ogolow ogeysiisyada, ka dibna soo noqo.",
     "install": "Marka hore ku dar eRamaan shaashadaada guriga, ka dibna halkaas ka fur — iPhone-ku wuxuu ogeysiis u diraa oo keliya app-yada la rakibay.",
     "unsupported": "Browser-kani ma diri karo ogeysiisyada dalabka.",
-    "failed": "Ma shaqayn. Isku day mar kale."
+    "failed": "Ma shaqayn. Isku day mar kale.",
+    "testBody": "Kani waa tijaabo. Sidan ayuu warka dalabkaagu u imanayaa.",
+    "test": "Ii soo dir ogeysiis tijaabo",
+    "testSent": "Waa la diray — hadda eeg ogeysiisyadaada.",
+    "testExpired": "Qalabkani wuu dhacay. Dami ogeysiisyada ka dibna dib u shid.",
+    "testFailed": "Lama diri karin. Dami ogeysiisyada ka dibna dib u shid."
   }
 }

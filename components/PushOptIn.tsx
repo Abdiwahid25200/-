@@ -3,7 +3,14 @@
 import { useCallback, useEffect, useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import { useAuth } from "@/lib/auth";
-import { askPush, pushReady, pushState, stopPush, type PushState } from "@/lib/push";
+import {
+  askPush,
+  pushReady,
+  pushState,
+  stopPush,
+  testPush,
+  type PushState,
+} from "@/lib/push";
 import { IconBell, IconBellOff } from "@/components/icons";
 
 /**
@@ -26,10 +33,13 @@ export default function PushOptIn() {
   const [state, setState] = useState<PushState | null>(null);
   const [busy, setBusy] = useState(false);
   const [failed, setFailed] = useState(false);
+  /** جواب زرّ التجربة — نجاحٌ أو سببٌ بعينه، لا صمت */
+  const [tried, setTried] = useState<string | null>(null);
 
   const look = useCallback(() => {
-    void pushState().then(setState);
-  }, []);
+    if (!user) return;
+    void pushState(user.uid).then(setState);
+  }, [user]);
 
   useEffect(() => {
     if (!pushReady || !user) return;
@@ -65,22 +75,61 @@ export default function PushOptIn() {
     setBusy(false);
   }
 
-  /* ── مُفعَّل: سطرٌ هادئ وزرُّ إيقاف — لا بطاقةٌ تدعوها لما فعلته ── */
+  async function tryIt() {
+    if (!user) return;
+    setBusy(true);
+    setTried(null);
+    const r = await testPush(user.uid, locale);
+    setBusy(false);
+    setTried(r.ok ? "sent" : (r.reason ?? "send"));
+    /* «لا جهاز محفوظ» يعني أنّ الحفظ سقط — تعود البطاقة إلى زرّ التفعيل */
+    if (r.reason === "no-device" || r.reason === "no-doc") setState("idle");
+  }
+
+  /* ── مُفعَّل: سطرٌ هادئ · زرُّ تجربة · زرُّ إيقاف ── */
   if (state === "on") {
     return (
-      <div className="flex items-center gap-3 rounded-card border border-line bg-surface p-3">
-        <span className="grid size-10 shrink-0 place-items-center rounded-card bg-orange/10 text-orange">
-          <IconBell className="size-5" />
-        </span>
-        <p className="min-w-0 flex-1 text-sm font-medium">{t("enabled")}</p>
+      <div className="flex flex-col gap-2.5 rounded-card border border-line bg-surface p-3">
+        <div className="flex items-center gap-3">
+          <span className="grid size-10 shrink-0 place-items-center rounded-card bg-orange/10 text-orange">
+            <IconBell className="size-5" />
+          </span>
+          <p className="min-w-0 flex-1 text-sm font-medium">{t("enabled")}</p>
+          <button
+            type="button"
+            onClick={() => void turnOff()}
+            disabled={busy}
+            className="min-h-11 shrink-0 rounded-card border border-line px-3 text-sm font-bold text-muted disabled:opacity-50"
+          >
+            {t("stop")}
+          </button>
+        </div>
+
+        {/* 🧪 **زرُّ تجربة** — بلاغها (٠٧-٠٨): «فعّلتُ ولم يصلني شيء».
+            سلسلةُ الإشعار خمسُ حلقات، وحين لا يصل شيء لا يُعرف أيّها
+            انقطعت. وهذا الزرّ يقطعها كلَّها بضغطةٍ ويقول أين وقفت. */}
         <button
           type="button"
-          onClick={() => void turnOff()}
+          onClick={() => void tryIt()}
           disabled={busy}
-          className="min-h-11 shrink-0 rounded-card border border-line px-3 text-sm font-bold text-muted disabled:opacity-50"
+          className="min-h-11 rounded-card border border-orange/50 text-sm font-bold text-orange disabled:opacity-50"
         >
-          {t("stop")}
+          {busy ? t("working") : t("test")}
         </button>
+
+        {tried && (
+          <p
+            className={`text-sm font-bold ${
+              tried === "sent" ? "text-success" : "text-danger"
+            }`}
+          >
+            {tried === "sent"
+              ? t("testSent")
+              : tried === "expired"
+                ? t("testExpired")
+                : t("testFailed")}
+          </p>
+        )}
       </div>
     );
   }

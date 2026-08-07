@@ -1,6 +1,11 @@
 import { NextResponse } from "next/server";
-import webpush from "web-push";
-import { getDocRest, patchField, type RestValue } from "@/lib/fireRest";
+import { getDocRest, patchField } from "@/lib/fireRest";
+import {
+  devicesOf,
+  encodeDevices,
+  pushReady,
+  sendToDevices,
+} from "@/lib/webpush";
 import en from "@/messages/en.json";
 import ar from "@/messages/ar.json";
 import so from "@/messages/so.json";
@@ -25,13 +30,6 @@ import so from "@/messages/so.json";
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-const PUB = (process.env.NEXT_PUBLIC_VAPID_KEY ?? "").trim();
-const PRIV = (process.env.VAPID_PRIVATE ?? "").trim();
-const SUBJ = (process.env.VAPID_SUBJECT ?? "mailto:support@eramaan.com").trim();
-
-const ready = Boolean(PUB && PRIV);
-if (ready) webpush.setVapidDetails(SUBJ, PUB, PRIV);
-
 /** الحالات التي تستحقّ إشعاراً — و`pending` ليست منها: هي البداية */
 const SAY = ["paid", "done", "cancelled"] as const;
 type Say = (typeof SAY)[number];
@@ -43,38 +41,8 @@ const PACKS: Record<string, { title: string } & Record<Say, string>> = {
   so: so.push,
 };
 
-type Device = { endpoint: string; p256dh: string; auth: string };
-
-/** ما قرأناه من Firestore قد يكون أيّ شيء — يُقبل الكامل وحده */
-function devicesOf(raw: unknown): Device[] {
-  if (!Array.isArray(raw)) return [];
-  return raw
-    .map((d) => d as Record<string, unknown>)
-    .map((d) => ({
-      endpoint: String(d?.endpoint ?? ""),
-      p256dh: String(d?.p256dh ?? ""),
-      auth: String(d?.auth ?? ""),
-    }))
-    .filter((d) => d.endpoint && d.p256dh && d.auth);
-}
-
-/** مصفوفةٌ بصيغة Firestore REST — لإعادة كتابة ما بقي بعد التنظيف */
-const encode = (list: Device[]): RestValue => ({
-  arrayValue: {
-    values: list.map((d) => ({
-      mapValue: {
-        fields: {
-          endpoint: { stringValue: d.endpoint },
-          p256dh: { stringValue: d.p256dh },
-          auth: { stringValue: d.auth },
-        },
-      },
-    })),
-  },
-});
-
 export async function POST(request: Request) {
-  if (!ready) return NextResponse.json({ ok: false, reason: "off" });
+  if (!pushReady) return NextResponse.json({ ok: false, reason: "off" });
 
   let body: Record<string, unknown>;
   try {
@@ -115,33 +83,15 @@ export async function POST(request: Request) {
     url: "/orders",
   });
 
-  const dead: string[] = [];
-  let sent = 0;
+  const out = await sendToDevices(devices, payload);
 
-  await Promise.all(
-    devices.map(async (d) => {
-      try {
-        await webpush.sendNotification(
-          { endpoint: d.endpoint, keys: { p256dh: d.p256dh, auth: d.auth } },
-          payload,
-          /* يوم واحد: إشعارُ طلبٍ بعد ثلاثة أيام خبرٌ قديم يُربك */
-          { TTL: 86400 },
-        );
-        sent += 1;
-      } catch (e) {
-        /* ⚠️ `404`/`410` = اشتراكٌ ميّت: مسح التطبيق أو أفرغ بياناته.
-           ويبقى في وثيقته إلى الأبد ما لم يُمحَ — فيُجمَع ويُنظَّف. */
-        const code2 = (e as { statusCode?: number })?.statusCode;
-        if (code2 === 404 || code2 === 410) dead.push(d.endpoint);
-      }
-    }),
-  );
-
-  if (dead.length > 0) {
-    const alive = devices.filter((d) => !dead.includes(d.endpoint));
-    /* بتوكن الإدارة نفسه — والقاعدة تسمح لها بالكتابة في `users` */
-    await patchField(`users/${uid}`, "push", encode(alive), idToken);
+  /* ⚠️ اشتراكٌ ميّت (مُسح التطبيق أو أُفرغت بياناته) يبقى في وثيقته إلى
+     الأبد ما لم يُمحَ — فيُنظَّف بتوكن الإدارة نفسه، والقاعدة تسمح لها
+     بالكتابة في `users`. */
+  if (out.dead.length > 0) {
+    const alive = devices.filter((d) => !out.dead.includes(d.endpoint));
+    await patchField(`users/${uid}`, "push", encodeDevices(alive), idToken);
   }
 
-  return NextResponse.json({ ok: true, sent });
+  return NextResponse.json({ ok: true, sent: out.sent });
 }

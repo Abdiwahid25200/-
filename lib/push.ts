@@ -93,8 +93,21 @@ async function ready(): Promise<ServiceWorkerRegistration | null> {
   }
 }
 
-/** ماذا نعرض للزبون الآن؟ — بلا أن نطلب إذناً ولا نغيّر شيئاً */
-export async function pushState(): Promise<PushState> {
+/**
+ * ماذا نعرض للزبون الآن؟ — بلا أن نطلب إذناً ولا نغيّر شيئاً.
+ *
+ * 🚨 **و`uid` ليس زينة** — بلاغها (٠٧-٠٨): «فعّلتُ الإشعارات ورفضتُ
+ *    طلباً ولم يصلني شيء».
+ *
+ *    كانت الحالة تُقرأ من المتصفّح وحده: وُجد اشتراك ⇒ «مفعّلة». وهذا
+ *    **نصفُ الحقيقة**: الاشتراك في الجهاز شيء، وحفظُه في وثيقة الزبون
+ *    شيءٌ آخر — والخادم لا يعرف إلا المحفوظ. فإن نجح الأوّل وفشل
+ *    الثاني قالت البطاقة «مفعّلة» ولا جهازَ عند الخادم يُرسل إليه.
+ *
+ *    فصارت تتأكّد من **الاثنين معاً**، وإن غاب الحفظ عادت «idle» —
+ *    فيظهر الزرّ ويُصلح نفسه بضغطة.
+ */
+export async function pushState(uid?: string): Promise<PushState> {
   if (!pushReady) return "off";
   if (typeof window === "undefined") return "off";
   if (!("Notification" in window) || !("PushManager" in window))
@@ -106,10 +119,43 @@ export async function pushState(): Promise<PushState> {
 
   const reg = await ready();
   if (!reg) return "unsupported";
+
+  let sub: PushSubscription | null = null;
   try {
-    return (await reg.pushManager.getSubscription()) ? "on" : "idle";
+    sub = await reg.pushManager.getSubscription();
   } catch {
     return "idle";
+  }
+  if (!sub) return "idle";
+  if (!uid) return "on";
+
+  /* الحلقة التي كانت تنقطع بصمت: أهذا الجهاز مكتوبٌ في وثيقته فعلاً؟ */
+  const saved = await devicesOf(uid);
+  return saved.some((d) => d.endpoint === sub!.endpoint) ? "on" : "idle";
+}
+
+/**
+ * 🧪 **اختبارٌ من الجهاز نفسه** — يقطع السلسلة الخمسية كلَّها بضغطة:
+ * الإذن · الاشتراك · الحفظ · الإرسال · العرض. وجوابُه سببٌ لا صمت.
+ */
+export async function testPush(
+  uid: string,
+  lang: string,
+): Promise<{ ok: boolean; reason?: string }> {
+  try {
+    const { getIdToken } = await import("firebase/auth");
+    const { fbAuth } = await import("./firebase");
+    const u = fbAuth()?.currentUser;
+    if (!u) return { ok: false, reason: "no-doc" };
+    const idToken = await getIdToken(u);
+    const r = await fetch("/api/push-test", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ uid, idToken, lang }),
+    });
+    return (await r.json()) as { ok: boolean; reason?: string };
+  } catch {
+    return { ok: false, reason: "net" };
   }
 }
 

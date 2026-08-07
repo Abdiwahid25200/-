@@ -800,6 +800,11 @@
     "denied": "Notifications are blocked for this site. Open your browser settings for eramaan.com and allow notifications, then come back.",
     "install": "Add eRamaan to your home screen first, then open it from there — iPhone only sends alerts to installed apps.",
     "unsupported": "This browser cannot send order alerts.",
-    "failed": "Could not turn them on. Try again."
+    "failed": "Could not turn them on. Try again.",
+    "testBody": "This is a test alert. Order updates will look like this.",
+    "test": "Send me a test alert",
+    "testSent": "Sent — check your notifications now.",
+    "testExpired": "This device expired. Turn alerts off then on again.",
+    "testFailed": "Could not send. Turn alerts off then on again."
   }
 }
