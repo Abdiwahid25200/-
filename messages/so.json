@@ -239,7 +239,10 @@
     "close": "Xir",
     "title": "Liiska dukaanka",
     "shop": "Wax iibso",
-    "mine": "Akoonkayga",
+    "account": "Akoonkayga",
+    "mine": "Xogtaada iyo settings-kaaga",
+    "orders": "Dalabkayga",
+    "ordersNote": "La soco dalabkaaga oo shid ogeysiisyada",
     "info": "Dukaanka",
     "whatsapp": "Nagala sheekayso WhatsApp"
   },

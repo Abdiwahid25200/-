@@ -239,7 +239,10 @@
     "close": "Close",
     "title": "Store menu",
     "shop": "Shop",
-    "mine": "My account",
+    "account": "My account",
+    "mine": "Your details and settings",
+    "orders": "My orders",
+    "ordersNote": "Track your order and turn on alerts",
     "info": "Store",
     "whatsapp": "Chat with us on WhatsApp"
   },

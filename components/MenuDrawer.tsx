@@ -9,6 +9,7 @@ import Logo from "./Logo";
 import {
   IconChevron,
   IconClose,
+  IconDoc,
   IconMenu,
   IconUser,
   IconWhatsApp,
@@ -242,6 +243,31 @@ export default function MenuDrawer({ phone }: { phone?: string }) {
                 <span className="min-w-0 flex-1 leading-tight">
                   <span className="block truncate font-bold">{t("account")}</span>
                   <span className="block truncate text-xs text-muted">{t("mine")}</span>
+                </span>
+                <IconChevron className="size-4 shrink-0 text-muted rtl:rotate-180" />
+              </Link>
+
+              {/* 📦 **«طلباتي» بنداً مستقلاً** — قرارها (٠٧-٠٨).
+                  كان الطريق إليها ثلاث ضغطات: ☰ ⇐ حسابي ⇐ طلباتي.
+                  وهي أكثرُ ما يفتحه الزبون بعد الشراء («أين طلبي؟»)،
+                  **وفيها زرُّ تفعيل التنبيهات** — فبندٌ مدفونٌ خلف
+                  صفحةٍ وسيطة يعني أن أحداً لا يجد الزرّ. صارت ضغطتين. */}
+              <Link
+                href="/orders"
+                onClick={() => setOpen(false)}
+                className="flex items-center gap-3 rounded-card bg-surface2 p-3"
+              >
+                <span
+                  aria-hidden
+                  className="flex size-10 shrink-0 items-center justify-center rounded-card bg-surface text-orange"
+                >
+                  <IconDoc className="size-5" />
+                </span>
+                <span className="min-w-0 flex-1 leading-tight">
+                  <span className="block truncate font-bold">{t("orders")}</span>
+                  <span className="block truncate text-xs text-muted">
+                    {t("ordersNote")}
+                  </span>
                 </span>
                 <IconChevron className="size-4 shrink-0 text-muted rtl:rotate-180" />
               </Link>
