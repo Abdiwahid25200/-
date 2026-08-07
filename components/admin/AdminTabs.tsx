@@ -6,6 +6,7 @@ import SectionsEditor from "./SectionsEditor";
 import ItemsEditor from "./ItemsEditor";
 import FaqEditor from "./FaqEditor";
 import VideoEditor from "./VideoEditor";
+import GoogleLink from "./GoogleLink";
 import OrdersEditor from "./OrdersEditor";
 import OrderQueue from "./OrderQueue";
 import PointsEditor from "./PointsEditor";
@@ -563,9 +564,15 @@ function MoreGrid({
       )}
 
       <div className="mt-1 flex flex-col gap-2">
+        {/* 🔗 **ربطُ جوجل مع أدوات الحساب** — طلبها (٠٧-٠٨): «افعل شيئاً
+            يغنيني عن هذا». وموضعُه هنا لا في شاشةٍ مستقلّة: هو من جنس
+            «اعرضي المتجر» و«خروج» — شأنُ حسابها لا شأنُ متجرها. */}
+        <p className="adm-ttl">Your sign-in</p>
+        <GoogleLink />
+
         <a
           href="https://eramaan.com"
-          className="flex min-h-12 items-center justify-center rounded-card border border-line bg-surface font-bold"
+          className="mt-1 flex min-h-12 items-center justify-center rounded-card border border-line bg-surface font-bold"
         >
           View store
         </a>
