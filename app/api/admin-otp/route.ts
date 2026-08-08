@@ -7,7 +7,7 @@ import {
 } from "@/lib/adminLogin";
 import { stampAdmin } from "@/lib/adminStamp";
 import { emailReady, looksLikeEmail, sendEmail } from "@/lib/email";
-import { getDocRest, signIn } from "@/lib/fireRest";
+import { getDocRest, lookupToken, signIn } from "@/lib/fireRest";
 import { newCode, open, sign, signReady } from "@/lib/signed";
 
 /**
@@ -117,14 +117,28 @@ export async function POST(request: Request) {
     return NextResponse.json({ ok: false, reason: "busy" }, { status: 429 });
   }
 
-  const email = toAdminEmail(clip(body.u, 120));
-  const password = clip(body.p, 200);
-  if (!email.includes("@") || !password) {
-    return NextResponse.json({ ok: false }, { status: 400 });
-  }
+  /**
+   * 🔑 **طريقان إلى الهويّة، والباقي واحد** — قرارها (٠٨-٠٨): دخولٌ
+   *    بجوجل بلا كلمة سرّ تُنسى.
+   *
+   *    كلمةُ السرّ تُفحص هنا فيُعرف صاحبُها؛ ودخولُ جوجل يتمّ في
+   *    المتصفّح فيصل ومعه توكن — **يُفكّ عند Firebase** فيُعرف صاحبُه.
+   *    وما بعد ذلك سواء: الرمزُ والبريدُ والورقةُ والخَتْم.
+   *
+   * ⚠️ **ولا يُصدَّق معرّفٌ يرسله المتصفّح**: التوكنُ وحده ما لا يُزوَّر.
+   */
+  const given = clip(body.idToken, 4000);
 
-  const who = await signIn(email, password);
-  // كلمة سرّ خاطئة: لا رمز ولا بريد — وتقولها الشاشة كما كانت تقولها
+  const who = given
+    ? await lookupToken(given)
+    : await (async () => {
+        const email = toAdminEmail(clip(body.u, 120));
+        const password = clip(body.p, 200);
+        if (!email.includes("@") || !password) return null;
+        return signIn(email, password);
+      })();
+
+  // كلمة سرّ خاطئة أو توكنٌ غير صالح: لا رمز ولا بريد
   if (!who) return NextResponse.json({ ok: false, reason: "bad" }, { status: 401 });
 
   /* وثيقة `admins` لا يقرأها إلا الأدمن نفسه، فنجاح القراءة **هو** الجواب.

@@ -4,10 +4,15 @@ import { useCallback, useEffect, useState } from "react";
 import {
   browserLocalPersistence,
   browserSessionPersistence,
+  getRedirectResult,
+  GoogleAuthProvider,
   inMemoryPersistence,
   sendPasswordResetEmail,
   setPersistence,
   signInWithEmailAndPassword,
+  signInWithPopup,
+  signInWithRedirect,
+  type User,
 } from "firebase/auth";
 import { doc, getDoc } from "firebase/firestore";
 import { useAuth } from "@/lib/auth";
@@ -23,7 +28,7 @@ import {
 } from "@/lib/adminLogin";
 import { fbAuth, fbDb } from "@/lib/firebase";
 import Logo from "@/components/Logo";
-import { IconEye, IconEyeOff, IconSpinner } from "@/components/icons";
+import { IconEye, IconEyeOff, IconGoogle, IconSpinner } from "@/components/icons";
 
 /**
  * بوّابة لوحة الإدارة — باسم مستخدم وكلمة سرّ، لا بحساب جوجل.
@@ -78,6 +83,20 @@ export default function AdminGate({ children }: { children: React.ReactNode }) {
 
   /** جوابُ «نسيت كلمة السر» — يُقال كاملاً لا يُترك تخميناً */
   const [reset, setReset] = useState("");
+
+  /** بأيّ طريقٍ دخلت هذه المرّة — يحكم ما تفعله `finish` بعد الرمز */
+  const [mode, setMode] = useState<"pass" | "google">("pass");
+  /** بريدُ جوجل — مفتاحُ ورقة الجهاز حين يكون الدخول به لا بالاسم */
+  const [gmail, setGmail] = useState("");
+
+  /** أخطاء تعني أن النافذة المنبثقة لم تعمل — لا أن الدخول فشل */
+  const POPUP_FAILED = new Set([
+    "auth/popup-blocked",
+    "auth/popup-closed-by-user",
+    "auth/cancelled-popup-request",
+    "auth/operation-not-supported-in-this-environment",
+    "auth/web-storage-unsupported",
+  ]);
 
   /**
    * 🔑 يطلب من Firebase رابطَ إعادة تعيينٍ إلى **بريد الحساب**.
@@ -252,9 +271,22 @@ export default function AdminGate({ children }: { children: React.ReactNode }) {
    * كان جسدَ `submit` كلَّه، وفُصل لأن له الآن مدخلين: كلمة السرّ وحدها
    * على الجهاز المعروف، والرمزُ على الجهاز الغريب.
    */
-  async function finish() {
+  async function finish(via: "pass" | "google" = "pass") {
     const auth = fbAuth();
     if (!auth) return;
+
+    /**
+     * 🔑 **دخولُ جوجل تمّ قبل أن نصل هنا** — والترتيب مقلوبٌ عمداً عن
+     *    كلمة السرّ: تلك تُفحص في الخادم أوّلاً ثم يُدخَل، وجوجل يُدخَل
+     *    أوّلاً لأنّ التوكن نفسه هو ما يُفحص. فلا يُعاد الدخول هنا،
+     *    ولا يُخرج ما دخل — يُختم الوقتُ وحده.
+     */
+    if (via === "google") {
+      touchAdmin();
+      setBusy(false);
+      return;
+    }
+
     try {
       /**
        * 🔒 نُخرج الجلسة القائمة أولاً.
@@ -293,6 +325,103 @@ export default function AdminGate({ children }: { children: React.ReactNode }) {
       );
     }
     setBusy(false);
+  }
+
+  /**
+   * 🔑 **الدخول بجوجل** — قرارها (٠٨-٠٨): «افعل شيئاً يغنيني عن هذا»،
+   * بعد أن تبيّن أنّ استعادة كلمة السرّ تحتاج خطوةً في Console.
+   *
+   * **وما بعد الهويّة لم يتغيّر حرفاً**: الرمزُ إلى بريدها · وورقةُ
+   * الجهاز · والخَتْم الزمنيّ · وقفلُ الثلاثين دقيقة — كلُّها كما هي.
+   * المُستبدَلُ **عاملُ الهويّة وحده**: جوجل مكان كلمة السرّ، وهو أقوى
+   * منها ولا يُنسى.
+   *
+   * ⚠️ **وحسابُ جوجل غيرُ المربوط لا يفتح شيئاً**: يدخل، فلا يجد له
+   *    وثيقةً في `admins` ولا `staff`، فتقول له الشاشة «لا صلاحية».
+   *    والقواعد تمنعه من كل كتابة على كل حال.
+   */
+  const afterGoogle = useCallback(async (user: User) => {
+    const mail = (user.email ?? "").toLowerCase();
+    setGmail(mail);
+    const idToken = await user.getIdToken();
+
+    const { status, d } = await askOtp({
+      step: "start",
+      idToken,
+      dev: devTicket(mail),
+    });
+
+    if (status === 429) {
+      setErr("Too many attempts — wait a moment and try again.");
+      return setBusy(false);
+    }
+    if (typeof d.token === "string" && d.token) {
+      setToken(d.token);
+      setSentTo(typeof d.sent === "string" ? d.sent : "your email");
+      setCode("");
+      setMode("google");
+      setStep("code");
+      return setBusy(false);
+    }
+    /* جهازٌ معروف · أو الخدمة غير مضبوطة ⇒ الدخول كما كان */
+    await finish("google");
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  /**
+   * ⚠️ **العودة من صفحة جوجل** — على الجوّال تُحجب النافذة المنبثقة
+   *    فيُستعمل التحويل، والصفحةُ تُبنى من جديد عند العودة. فلولا هذا
+   *    لَعادت وهي داخلةٌ عند Firebase وواقفةٌ أمام شاشة الدخول.
+   */
+  useEffect(() => {
+    const auth = fbAuth();
+    if (!auth) return;
+    void getRedirectResult(auth)
+      .then((res) => {
+        if (!res?.user) return;
+        setBusy(true);
+        return afterGoogle(res.user);
+      })
+      .catch(() => {});
+  }, [afterGoogle]);
+
+  async function googleIn() {
+    const auth = fbAuth();
+    if (!auth || busy) return;
+    setBusy(true);
+    setErr("");
+    setReset("");
+    setLocked(false);
+
+    const provider = new GoogleAuthProvider();
+    provider.setCustomParameters({ prompt: "select_account" });
+
+    try {
+      /* 🔒 نفسُ احتياطَي كلمة السرّ: جلسةٌ قديمة تُطرح، والجلسةُ للتبويب */
+      if (auth.currentUser) await auth.signOut();
+      await setPersistence(auth, browserSessionPersistence).catch(() =>
+        setPersistence(auth, inMemoryPersistence),
+      );
+
+      const cred = await signInWithPopup(auth, provider);
+      await afterGoogle(cred.user);
+    } catch (e) {
+      const fail = (e as { code?: string })?.code ?? "";
+      if (POPUP_FAILED.has(fail)) {
+        try {
+          await signInWithRedirect(auth, provider);
+          return;
+        } catch {
+          /* حتى التحويل تعذّر — يُقال ولا يُترك الزرّ صامتاً */
+        }
+      }
+      setErr(
+        fail === "auth/popup-closed-by-user"
+          ? "You closed the Google window."
+          : "Google sign-in failed. Use your password below.",
+      );
+      setBusy(false);
+    }
   }
 
   /** نداء بوّابة الرمز — وأي تعثّرٍ فيها يعني «امضِ بلا رمز» لا «قف» */
@@ -366,9 +495,12 @@ export default function AdminGate({ children }: { children: React.ReactNode }) {
       );
       return setBusy(false);
     }
-    // هذا الجهاز معروفٌ من اليوم: لا رمز قبل يومٍ كامل
-    if (typeof d.ticket === "string") saveDevTicket(username, d.ticket);
-    await finish();
+    /* هذا الجهاز معروفٌ من اليوم: لا رمز قبل يومٍ كامل.
+       ⚠️ وبمفتاح الطريق الذي دخلت به: ورقةٌ باسمِ المستخدم لا يجدها
+          دخولُ جوجل، فيُطلب الرمز في كل مرّة بلا سبب. */
+    if (typeof d.ticket === "string")
+      saveDevTicket(mode === "google" ? gmail : username, d.ticket);
+    await finish(mode);
   }
 
   const shell = (inner: React.ReactNode) => (
@@ -401,7 +533,25 @@ export default function AdminGate({ children }: { children: React.ReactNode }) {
         <h1 className="text-xl font-bold">Ramaan Admin</h1>
         <p className="text-sm text-muted">{note ?? "For the store owner and her helpers."}</p>
 
-        <form onSubmit={submit} className="mt-2 flex w-full flex-col gap-3">
+        {/* 🔑 **جوجل أوّلاً** (٠٨-٠٨): هو الطريق الذي لا يُنسى، وكلمةُ
+            السرّ تحته احتياطاً. والترتيب يقول أيّهما المقصود. */}
+        <button
+          type="button"
+          onClick={() => void googleIn()}
+          disabled={busy}
+          className="mt-2 flex min-h-12 w-full items-center justify-center gap-2.5 rounded-card border border-line bg-surface font-bold disabled:opacity-50"
+        >
+          {busy ? <IconSpinner className="size-4" /> : <IconGoogle className="size-5" />}
+          Continue with Google
+        </button>
+
+        <p className="flex w-full items-center gap-3 text-xs text-muted">
+          <span aria-hidden className="h-px flex-1 bg-line" />
+          or your password
+          <span aria-hidden className="h-px flex-1 bg-line" />
+        </p>
+
+        <form onSubmit={submit} className="flex w-full flex-col gap-3">
           <input
             value={username}
             onChange={(e) => setUsername(e.target.value)}

@@ -73,6 +73,41 @@ export async function signIn(email: string, password: string): Promise<Signed | 
 }
 
 /**
+ * 🔑 **مَن صاحبُ هذا التوكن؟** — يسأل Firebase نفسه.
+ *
+ * ⚠️ **ولا يُصدَّق ما يرسله المتصفّح**: من نادى الخادمَ بمعرّفٍ وبريدٍ
+ *    كتبهما بيده يستطيع أن يكتب معرّفَ غيره. والتوكنُ وحده ما لا
+ *    يُزوَّر — فيُفكّ عند Firebase، ويُؤخذ منه المعرّفُ والبريد.
+ *
+ * وبه يقبل باب الرمز **دخولَ جوجل** كما يقبل كلمة السرّ: هناك تُفحص
+ * الكلمة فيُعرف صاحبُها، وهنا يُفحص التوكن فيُعرف صاحبُه — والباقي واحد.
+ */
+export async function lookupToken(idToken: string): Promise<Signed | null> {
+  if (!fbApiKey || !idToken) return null;
+  try {
+    const r = await fetch(
+      `https://identitytoolkit.googleapis.com/v1/accounts:lookup?key=${fbApiKey}`,
+      {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ idToken }),
+        signal: AbortSignal.timeout(8000),
+        cache: "no-store",
+      },
+    );
+    if (!r.ok) return null;
+    const d = (await r.json()) as {
+      users?: { localId?: string; email?: string }[];
+    };
+    const u = d.users?.[0];
+    if (!u?.localId) return null;
+    return { idToken, uid: u.localId, email: (u.email ?? "").toLowerCase() };
+  } catch {
+    return null;
+  }
+}
+
+/**
  * وثيقةٌ واحدة. **و`null` جوابان لا واحد**: غير موجودة، أو منعتها
  * القواعد — وكلاهما هنا سواء: لا نملك قراءتها فلا نبني عليها.
  */
