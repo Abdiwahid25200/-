@@ -74,6 +74,16 @@ export const emailReady = Boolean(RESEND || (HOST && KEY && FROM));
 export const looksLikeEmail = (v: string) =>
   /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(v ?? "").trim());
 
+/**
+ * أيُّ مُرسِلٍ نجح في آخر رسالة — يقرؤه باب الاختبار وحده.
+ *
+ * ⚠️ **ولا يُبنى عليه منطق**: قيمةٌ في ذاكرة نسخةٍ من الخادم، تُمحى مع
+ *    كل بردٍ لها. كلُّ فائدتها أن تقول لمن اختبر: **بأيّ اسمٍ خرجت؟**
+ *    — فالفرقُ بين `support@eramaan.com` و`resend.dev` هو الفرقُ بين
+ *    «التوثيق اكتمل» و«الشبكةُ أنقذتها»، ولا يُعرف إلا هكذا.
+ */
+export let usedFrom = "";
+
 export async function sendEmail(opts: {
   to: string;
   subject: string;
@@ -103,7 +113,10 @@ export async function sendEmail(opts: {
         });
 
       const r = await send(RESEND_FROM);
-      if (r.ok) return true;
+      if (r.ok) {
+        usedFrom = RESEND_FROM;
+        return true;
+      }
 
       /**
        * 🛟 **وسقوطٌ آمن إلى مُرسِل Resend** (٠٧-٠٨).
@@ -123,7 +136,10 @@ export async function sendEmail(opts: {
        */
       if (RESEND_FROM !== FALLBACK_FROM) {
         const again = await send(FALLBACK_FROM);
-        return again.ok;
+        if (again.ok) {
+          usedFrom = FALLBACK_FROM;
+          return true;
+        }
       }
       return false;
     }
