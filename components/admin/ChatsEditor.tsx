@@ -201,7 +201,7 @@ export default function ChatsEditor() {
             aria-label="Back"
             className="flex size-9 shrink-0 items-center justify-center rounded-full text-muted"
           >
-            <IconChevron className="size-5 rotate-180 rtl:rotate-0" />
+            <IconChevron className="size-5 rotate-180" />
           </button>
           <Avatar name={who(open)} seed={open.uid} size={40} />
           <span className="min-w-0 flex-1">

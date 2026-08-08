@@ -27,7 +27,7 @@ export default async function PayChips() {
     <ul className="flex flex-wrap gap-2">
       {list.map((m) => {
         const soon = !isBuyable(m);
-        const name = (locale === "ar" ? m.nameAr : m.nameEn) || m.nameEn;
+        const name = m.nameEn;
 
         return (
           <li

@@ -42,17 +42,14 @@ export default async function HowItWorks() {
    *    لا يستقبل دفعاً أصلاً حتى تُفعَّل واحدة، فالصمت أصدق.
    */
   const methods = (await mergedPay()).filter(isBuyable);
-  const names = methods.map((m) =>
-    (locale === "ar" ? m.nameAr : m.nameEn) || m.nameEn || m.id,
-  );
+  const names = methods.map((m) => m.nameEn || m.id);
   const shown = names.slice(0, 4);
   const extra = names.length - shown.length;
 
   /**
-   * ⚠️ **كل اسمٍ داخل `bdi`** — ولولاها لَظهر «EVC+» في العربية
-   *    **«+EVC»**: السطر عربيّ الاتجاه، و«+» محرفٌ محايد فينجرف إلى
-   *    يسار الكلمة. و`bdi` تعزل كل اسمٍ باتجاهه هو، فيُقرأ اسمُ الطريقة
-   *    كما كتبته صاحبته — عربياً كان أو لاتينياً — في اللغات الثلاث.
+   * ⚠️ **كل اسمٍ داخل `bdi`** — الاسم يُكتب من اللوحة، و`bdi` تعزله
+   *    باتجاهه هو مهما كانت حروفه، فلا ينجرف محرفٌ محايد («+» في
+   *    «EVC+») إلى الطرف الخطأ من الكلمة.
    */
   const payNode = names.length ? (
     <>

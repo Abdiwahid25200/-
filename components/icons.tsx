@@ -571,7 +571,7 @@ export function IconClose({ className = "" }: IconProps) {
   );
 }
 
-/** إرسال — سهم ورقي، يقلب اتجاهه في العربية عبر rtl:-scale-x-100 */
+/** إرسال — سهم ورقي */
 export function IconSend({ className = "" }: IconProps) {
   return (
     <svg viewBox="0 0 24 24" strokeWidth="1.8" className={`${base} ${className}`} aria-hidden>

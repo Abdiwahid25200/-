@@ -144,7 +144,7 @@ export default function ShareReceipt({
       {/* البطاقة كما ستُحفظ — يراها قبل أن يشاركها */}
       <div
         ref={box}
-        dir={locale === "ar" ? "rtl" : "ltr"}
+        dir="ltr"
         className="relative flex flex-col items-center gap-3 overflow-hidden rounded-card p-5 text-center text-white"
         style={{
           background:
@@ -156,7 +156,7 @@ export default function ShareReceipt({
           className="pointer-events-none absolute -bottom-20 -end-10 size-44 rounded-full border border-white/10"
         />
 
-        <span className="relative inline-flex items-center rounded-full bg-white/16 px-3.5 py-1 text-xs font-bold tracking-[0.14em] rtl:tracking-normal">
+        <span className="relative inline-flex items-center rounded-full bg-white/16 px-3.5 py-1 text-xs font-bold tracking-[0.14em]">
           {word}
         </span>
 

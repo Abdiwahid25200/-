@@ -387,7 +387,7 @@ export default function LiveChat() {
                   aria-label={t("send")}
                   className="nav-tap flex size-12 shrink-0 items-center justify-center rounded-full bg-orange text-onaccent disabled:opacity-40"
                 >
-                  <IconSend className="size-5 rtl:-scale-x-100" />
+                  <IconSend className="size-5" />
                 </button>
               </div>
             </>

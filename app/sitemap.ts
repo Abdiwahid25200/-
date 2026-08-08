@@ -9,7 +9,7 @@ import { detailItems } from "@/lib/items";
  *
  * تُبنى من `lib/content.ts` لا من قائمة مكتوبة بيد: القسم الذي تُغلقه
  * صاحبة المتجر (`off`) يخرج من الخريطة وحده، ولا يُرسَل جوجل إلى صفحة
- * لا تفتح. وكل صفحة مذكورة بلغاتها الثلاث.
+ * لا تفتح. وكل صفحة مذكورة بلغتيها (الإنجليزية والصومالية).
  */
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const paths = [

@@ -66,11 +66,7 @@ export default function CartView() {
   const methodName =
     payId === "points"
       ? redeem.settings.brand
-      : method
-        ? locale === "ar"
-          ? method.nameAr
-          : method.nameEn
-        : "";
+      : (method?.nameEn ?? "");
   const detailsReady = count > 0 && name.trim() && contact.trim() && addr.trim();
   /* طريقة الدفع تُشترط إن كانت هناك طرق عاملة — وكلّها "قريباً" اليوم */
   // النقاط خيارٌ داخل قائمة الدفع، فالقسم يظهر متى وُجدت طريقة أو رصيد
@@ -448,7 +444,7 @@ export default function CartView() {
             ) : (
               <>
                 {detailsReady ? tb("goPay") : t("goDelivery")}
-                <span aria-hidden className="flex rtl:rotate-180">
+                <span aria-hidden className="flex">
                   <IconArrow className="size-5" />
                 </span>
               </>

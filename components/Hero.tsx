@@ -47,10 +47,10 @@ export default function Hero({
       />
 
       <div className="relative flex flex-col items-center gap-2 px-4 text-center">
-        <span className="text-xs font-semibold uppercase tracking-[0.2em] text-white/80 rtl:tracking-normal">
+        <span className="text-xs font-semibold uppercase tracking-[0.2em] text-white/80">
           {eyebrow}
         </span>
-        <h1 className="text-3xl font-bold tracking-tight text-white drop-shadow-sm sm:text-4xl rtl:tracking-normal">
+        <h1 className="text-3xl font-bold tracking-tight text-white drop-shadow-sm sm:text-4xl">
           {title}
         </h1>
         {badge && <Badge tone="green">⚡ {badge}</Badge>}

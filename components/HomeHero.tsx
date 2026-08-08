@@ -14,7 +14,7 @@ export default async function HomeHero() {
     <section className="flex flex-col gap-4 pt-2">
       <p className="eyebrow">{t("kicker")}</p>
 
-      <h1 className="text-[2.1rem] font-bold leading-[1.05] tracking-tight text-balance rtl:tracking-normal sm:text-5xl">
+      <h1 className="text-[2.1rem] font-bold leading-[1.05] tracking-tight text-balance sm:text-5xl">
         {t("a")} <span className="text-orange">{t("b")}</span>
         {t("c")}
       </h1>

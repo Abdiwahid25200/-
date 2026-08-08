@@ -73,8 +73,8 @@ function Words({
 }: {
   title: string;
   note: string;
-  lang: "ar" | "en" | "so";
-  setLang: (l: "ar" | "en" | "so") => void;
+  lang: "en" | "so";
+  setLang: (l: "en" | "so") => void;
   head: Partial<Multilang>;
   body: Partial<Multilang>;
   onHead: (v: Partial<Multilang>) => void;
@@ -119,7 +119,6 @@ function Words({
 }
 
 const LOCALES = [
-  { v: "ar", label: "العربية" },
   { v: "en", label: "English" },
   { v: "so", label: "Soomaali" },
 ] as const;
@@ -132,7 +131,7 @@ const LOCALES = [
  */
 export default function SiteEditor() {
   const [d, setD] = useState<SiteOverride | null>(null);
-  const [lang, setLang] = useState<"ar" | "en" | "so">("ar");
+  const [lang, setLang] = useState<"en" | "so">("en");
   const [open, setOpen] = useState<OpenSettings>(DEFAULT_OPEN);
   const [busy, setBusy] = useState(false);
   const [saved, setSaved] = useState(false);

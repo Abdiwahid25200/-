@@ -226,7 +226,7 @@ export default function PointsCard({ settings: given }: { settings?: PointsSetti
           <span className="gr f13 truncate font-bold">
             {settings.brand}
           </span>
-          <span className="shrink-0 text-xs uppercase tracking-wide opacity-60 rtl:tracking-normal">
+          <span className="shrink-0 text-xs uppercase tracking-wide opacity-60">
             {t("eyebrow")}
           </span>
         </div>

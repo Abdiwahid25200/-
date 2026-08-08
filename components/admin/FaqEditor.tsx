@@ -7,7 +7,6 @@ import { diff, hasChanges } from "@/lib/dirty";
 import { IconCheckCircle, IconSpinner } from "@/components/icons";
 
 const LOCALES: { v: FaqLocale; label: string }[] = [
-  { v: "ar", label: "العربية" },
   { v: "en", label: "English" },
   { v: "so", label: "Soomaali" },
 ];
@@ -20,7 +19,7 @@ const LOCALES: { v: FaqLocale; label: string }[] = [
  */
 export default function FaqEditor() {
   const [over, setOver] = useState<FaqDoc | null>(null);
-  const [lang, setLang] = useState<FaqLocale>("ar");
+  const [lang, setLang] = useState<FaqLocale>("en");
   const [busy, setBusy] = useState(false);
   const [saved, setSaved] = useState(false);
 

@@ -373,7 +373,7 @@ export default function OrderQueue({ onAll }: { onAll: () => void }) {
         {/* ── ما تنسخينه لتنفيذ الطلب ── */}
         {o.account && (
           <div className="rounded-card border border-dashed border-orange/50 bg-orange/5 p-3">
-            <span className="block text-xs font-bold uppercase tracking-wider text-muted rtl:tracking-normal">
+            <span className="block text-xs font-bold uppercase tracking-wider text-muted">
               {fieldLabel(o.kind)}
             </span>
             <div className="mt-1 flex items-center gap-2">

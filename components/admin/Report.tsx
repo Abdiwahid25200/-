@@ -213,7 +213,7 @@ export default function Report() {
           onClick={() => setGate(null)}
           className="flex min-h-11 items-center gap-1.5 rounded-card border border-line px-3 font-bold"
         >
-          <IconChevron className="size-4 rotate-180 rtl:rotate-0" />
+          <IconChevron className="size-4 rotate-180" />
           Back
         </button>
         <h3

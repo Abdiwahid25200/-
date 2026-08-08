@@ -67,7 +67,6 @@ export async function mergedPay(): Promise<PayMethod[]> {
       ([id, o]) =>
         ({
           id,
-          nameAr: o.nameAr ?? id,
           nameEn: o.nameEn ?? id,
           operator: o.operator,
           numbers: o.numbers ?? [],

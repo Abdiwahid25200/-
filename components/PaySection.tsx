@@ -87,7 +87,7 @@ export default function PaySection({
   const usePts = redeem?.on === true;
   // غطّت النقاط المبلغ كلّه ⇒ لا معنى لعرض طرقٍ نقدية بعدها
   const covered = usePts && redeem!.payable <= 0;
-  const label = (m: PayMethod) => (locale === "ar" ? m.nameAr : m.nameEn);
+  const label = (m: PayMethod) => m.nameEn;
 
   // المحلي أولاً: هو ما يعمل اليوم. لو صدّرنا مجموعةً كلّها "قريباً"
   // لظنّ الزبون أن الدفع كلّه معطّل قبل أن يصل للطريقة التي تخصّه.

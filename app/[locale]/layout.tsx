@@ -1,5 +1,4 @@
 import type { Metadata, Viewport } from "next";
-import { IBM_Plex_Sans_Arabic } from "next/font/google";
 import { hasLocale, NextIntlClientProvider } from "next-intl";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { notFound } from "next/navigation";
@@ -23,13 +22,6 @@ import { mergedPay } from "@/lib/payments";
 import { site, tawk } from "@/lib/content";
 import { SITE, languages, pathFor } from "@/lib/seo";
 import "../globals.css";
-
-const plexArabic = IBM_Plex_Sans_Arabic({
-  subsets: ["arabic", "latin"],
-  weight: ["400", "500", "600", "700"],
-  variable: "--font-plex-arabic",
-  display: "swap",
-});
 
 export function generateStaticParams() {
   return routing.locales.map((locale) => ({ locale }));
@@ -143,8 +135,7 @@ export default async function LocaleLayout({
   return (
     <html
       lang={locale}
-      dir={localeDir[locale as Locale]}
-      className={plexArabic.variable}
+      dir={localeDir[locale as Locale]}
       suppressHydrationWarning
     >
       <head>

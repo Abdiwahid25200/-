@@ -20,7 +20,6 @@ import { IconCheckCircle, IconSpinner, IconVideo } from "@/components/icons";
  */
 
 const LOCALES = [
-  { v: "ar", label: "العربية" },
   { v: "en", label: "English" },
   { v: "so", label: "Soomaali" },
 ] as const;
@@ -30,7 +29,7 @@ type Lang = (typeof LOCALES)[number]["v"];
 export default function VideoEditor() {
   const [d, setD] = useState<TextDoc | null>(null);
   const [base, setBase] = useState<Record<string, unknown>>({});
-  const [lang, setLang] = useState<Lang>("ar");
+  const [lang, setLang] = useState<Lang>("en");
   const [busy, setBusy] = useState(false);
   const [saved, setSaved] = useState(false);
 
@@ -41,9 +40,9 @@ export default function VideoEditor() {
     });
   }, []);
 
-  /** الرابط بلا لغات — يُكتب في الثلاث معاً فيقرأه أيّ زائر */
+  /** الرابط بلا لغات — يُكتب في اللغتين معاً فيقرأه أيّ زائر */
   function editLink(v: string) {
-    setD((p) => ({ ...(p ?? {}), youtubeId: { ar: v, en: v, so: v } }));
+    setD((p) => ({ ...(p ?? {}), youtubeId: { en: v, so: v } }));
     setSaved(false);
   }
 

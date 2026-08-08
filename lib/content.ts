@@ -8,7 +8,7 @@
 
 import { isBuyable, live, pay } from "./data";
 
-export type Multilang = { en: string; ar: string; so: string };
+export type Multilang = { en: string; so: string };
 
 /** بيانات المتجر — تُعدَّل من: الإدارة ← عام ← الإعدادات */
 /**
@@ -24,13 +24,11 @@ export const site = {
   brand: "Ramaan Store",
   tagline: {
     en: "Top-ups & electronics",
-    ar: "شدات وإلكترونيات",
     so: "Buuxin & elektaroonig",
   } as Multilang,
   /** وصف قصير يظهر بالفوتر */
   description: {
     en: "Your trusted store for game top-ups, gaming accounts and electronics — fair prices and instant delivery worldwide.",
-    ar: "متجرك الموثوق لشحن الألعاب وحسابات الألعاب والإلكترونيات — أسعار عادلة وتسليم فوري لكل العالم.",
     so: "Dukaankaaga lagu kalsoon yahay ee buuxinta ciyaaraha, akoonnada iyo elektaroonigga — qiimo cadaalad ah iyo gaarsiin degdeg ah.",
   } as Multilang,
   /** رقم واتساب بصيغة دولية بلا رموز — مثال: 252612345678 */
@@ -39,12 +37,10 @@ export const site = {
   telegram: "",
   hours: {
     en: "Sat – Thu · 9am – 11pm",
-    ar: "السبت – الخميس · ٩ص – ١١م",
     so: "Sabti – Khamiis · 9am – 11pm",
   } as Multilang,
   address: {
     en: "Mogadishu, Somalia",
-    ar: "مقديشو، الصومال",
     so: "Muqdisho, Soomaaliya",
   } as Multilang,
 };
@@ -196,5 +192,5 @@ export const trustKeys = ["instant", "secure", "support", "trusted"] as const;
 /** حالة المتجر — تُعدَّل من: الإدارة ← المتابعة ← حالة المتجر */
 export const storeStatus = {
   closed: false,
-  closedNote: { en: "", ar: "", so: "" } as Multilang,
+  closedNote: { en: "", so: "" } as Multilang,
 };

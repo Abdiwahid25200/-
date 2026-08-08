@@ -126,7 +126,6 @@ export const accounts: GameAccount[] = [];
 /** طرق الدفع — نفس شكل DB.pay في الموقع القديم، مع تجميع عالمي/محلي */
 export type PayMethod = {
   id: string;
-  nameAr: string;
   nameEn: string;
   numbers: string[];
   ussd: string;

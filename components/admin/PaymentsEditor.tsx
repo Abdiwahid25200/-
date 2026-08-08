@@ -82,7 +82,6 @@ export default function PaymentsEditor() {
     const draft: PayOverride = {
       custom: true,
       nameEn: newId.trim(),
-      nameAr: newId.trim(),
       status: "soon",
       scope: "local",
       // بلا علامة كان الموقع ينهار عند رسم قسم الدفع
@@ -291,25 +290,15 @@ export default function PaymentsEditor() {
                   </select>
                 </label>
 
-                <div className="grid grid-cols-2 gap-3">
-                  <label className="flex flex-col gap-1.5 text-sm">
-                    <span className="font-medium">Name (English)</span>
-                    <input
-                      value={d.nameEn ?? x.base?.nameEn ?? ""}
-                      onChange={(e) => edit(x.id, { nameEn: e.target.value })}
-                      dir="ltr"
-                      className={`${field} text-start`}
-                    />
-                  </label>
-                  <label className="flex flex-col gap-1.5 text-sm">
-                    <span className="font-medium">الاسم بالعربية</span>
-                    <input
-                      value={d.nameAr ?? x.base?.nameAr ?? ""}
-                      onChange={(e) => edit(x.id, { nameAr: e.target.value })}
-                      className={field}
-                    />
-                  </label>
-                </div>
+                <label className="flex flex-col gap-1.5 text-sm">
+                  <span className="font-medium">Name</span>
+                  <input
+                    value={d.nameEn ?? x.base?.nameEn ?? ""}
+                    onChange={(e) => edit(x.id, { nameEn: e.target.value })}
+                    dir="ltr"
+                    className={`${field} text-start`}
+                  />
+                </label>
 
                 <label className="flex flex-col gap-1.5 text-sm">
                   <span className="font-medium">Operator</span>

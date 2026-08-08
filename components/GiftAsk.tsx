@@ -117,7 +117,7 @@ export default function GiftAsk({
             <span className="block font-bold">{t("ask")}</span>
             <span className="block text-xs text-muted">{t("askNote")}</span>
           </span>
-          <IconArrow className="size-5 shrink-0 text-orange rtl:rotate-180" />
+          <IconArrow className="size-5 shrink-0 text-orange" />
         </button>
       </div>
     );

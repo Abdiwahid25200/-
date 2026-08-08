@@ -82,7 +82,7 @@ export default function LiveOrder({ order }: { order: SavedOrder }) {
           "radial-gradient(125% 95% at 90% 2%, rgba(224,174,86,.30) 0%, transparent 56%), linear-gradient(158deg, #0a3b45, #062730)",
       }}
     >
-      <span className="flex items-center gap-2 text-xs font-bold tracking-[0.13em] text-yellow rtl:tracking-normal">
+      <span className="flex items-center gap-2 text-xs font-bold tracking-[0.13em] text-yellow">
         <span className="live-beat size-2 rounded-full bg-yellow" aria-hidden />
         {t(`stage.${STOPS[at]}`)}
       </span>
@@ -104,7 +104,7 @@ export default function LiveOrder({ order }: { order: SavedOrder }) {
             /* ⚠️ كان المحرف `→` — ممنوعٌ بالقرار المقفول (ب): يتبدّل
                شكله بين جهازٍ وجهاز وقد يظهر مربّعاً فارغاً. أيقونةٌ مرسومة. */
             <span className="flex items-center gap-1.5 text-xs opacity-70">
-              <IconArrow aria-hidden className="size-3.5 shrink-0 rtl:rotate-180" />
+              <IconArrow aria-hidden className="size-3.5 shrink-0" />
               <span className="num truncate" dir="ltr">
                 {order.account}
               </span>
@@ -188,7 +188,7 @@ export default function LiveOrder({ order }: { order: SavedOrder }) {
           className="flex min-h-11 items-center justify-center gap-2 rounded-card border border-white/20 bg-white/12 text-sm font-bold"
         >
           <IconWhatsApp className="size-4 rounded-md" />
-          <span className="num" dir={locale === "ar" ? "rtl" : "ltr"}>
+          <span className="num" dir="ltr">
             {t("ask", { code: order.code })}
           </span>
         </a>

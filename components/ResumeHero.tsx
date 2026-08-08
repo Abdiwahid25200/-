@@ -103,7 +103,7 @@ export default function ResumeHero({
 
         {/* ── النصف الأعلى: ماذا يشتري ── */}
         <div className="relative flex flex-col gap-3.5 p-4 pb-3">
-          <span className="inline-flex w-fit items-center gap-1.5 rounded-full bg-white/15 px-3 py-1 text-xs font-bold tracking-[0.12em] rtl:tracking-normal">
+          <span className="inline-flex w-fit items-center gap-1.5 rounded-full bg-white/15 px-3 py-1 text-xs font-bold tracking-[0.12em]">
             {last ? t("again") : t("start")}
           </span>
 
@@ -149,7 +149,7 @@ export default function ResumeHero({
             className="lift ms-auto flex min-h-12 shrink-0 items-center gap-2 rounded-full bg-surface px-5 font-bold text-orange"
           >
             {last ? t("go") : t("goNew")}
-            <IconChevron className="size-4 rtl:rotate-180" />
+            <IconChevron className="size-4" />
           </Link>
         </div>
       </div>

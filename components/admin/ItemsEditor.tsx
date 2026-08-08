@@ -91,7 +91,7 @@ export default function ItemsEditor() {
       setExtra(
         list.map((c) => ({
           v: c.key as ItemKind,
-          label: c.over?.title?.ar || c.over?.title?.en || c.key,
+          label: c.over?.title?.en || c.over?.title?.so || c.key,
           titleLabel: "Item name",
         })),
       ),

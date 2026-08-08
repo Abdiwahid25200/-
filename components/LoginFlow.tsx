@@ -186,7 +186,7 @@ export default function LoginFlow() {
             </span>
             <span
               aria-hidden
-              className="flex size-10 shrink-0 items-center justify-center rounded-full bg-orange text-onaccent rtl:rotate-180"
+              className="flex size-10 shrink-0 items-center justify-center rounded-full bg-orange text-onaccent"
             >
               <IconArrow className="size-5" />
             </span>

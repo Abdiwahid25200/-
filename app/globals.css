@@ -34,7 +34,6 @@
   /* نصف قطر البطاقات — مقاس المعاينة */
   --radius-card: 20px;
 
-  --font-arabic: var(--font-plex-arabic);
   /* خطّ الواجهة — نفس خطّ المعاينة: خطّ النظام، فيبدو الموقع أصيلاً
      على كل جهاز (SF على آيفون، Roboto على أندرويد). */
   --font-ui: -apple-system, BlinkMacSystemFont, system-ui, "Segoe UI", Roboto,
@@ -122,12 +121,6 @@
 html {
   background: var(--bg);
   font-family: var(--font-ui);
-}
-
-/* العربية تبقى بخطّها الخاص — قاعدة ثابتة في المشروع.
-   العناصر اللاتينية داخلها (الأسعار والأسماء) ترث خطّها من .num وغيره. */
-html[dir="rtl"] {
-  font-family: var(--font-plex-arabic), var(--font-ui);
 }
 
 body {
@@ -1278,10 +1271,6 @@ input.field::placeholder, textarea.field::placeholder { color: var(--muted); }
 .nav a span {
   white-space: nowrap;
   letter-spacing: -0.1px;
-}
-/* والعربية خطٌّ متّصل لا يقبل التباعد ولا انقباضه */
-html[dir="rtl"] .nav a span {
-  letter-spacing: normal;
 }
 .nav a svg { width: 22px; height: 22px; }
 /* ⚠️ **القرص يشمل الأيقونة والاسم معاً** — كان خلف الأيقونة وحدها،

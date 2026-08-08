@@ -79,7 +79,7 @@ export default function ReferralCard({ settings: given }: { settings?: PointsSet
         <span className="min-w-0 flex-1 rounded-card border border-dashed border-orange bg-orange/5 px-3 py-3 text-center">
           <span className="block text-xs text-muted">{t("inviteCode")}</span>
           <strong
-            className="num block text-xl font-bold tracking-widest text-orange rtl:tracking-normal"
+            className="num block text-xl font-bold tracking-widest text-orange"
             dir="ltr"
           >
             {r.code}

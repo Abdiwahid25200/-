@@ -18,7 +18,6 @@ import {
 } from "@/components/icons";
 
 const LOCALES = [
-  { v: "ar", label: "العربية" },
   { v: "en", label: "English" },
   { v: "so", label: "Soomaali" },
 ] as const;
@@ -34,7 +33,7 @@ export default function SlidesEditor() {
   const [over, setOver] = useState<Record<string, SlideOverride>>({});
   const [loading, setLoading] = useState(true);
   const [open, setOpen] = useState<string | null>(null);
-  const [lang, setLang] = useState<"ar" | "en" | "so">("ar");
+  const [lang, setLang] = useState<"en" | "so">("en");
   const [saving, setSaving] = useState<string | null>(null);
   const [saved, setSaved] = useState<string | null>(null);
   const [newKey, setNewKey] = useState("");

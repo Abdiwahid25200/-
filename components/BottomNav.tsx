@@ -31,7 +31,7 @@ import {
  *    الاسم**: حشوةٌ جانبية أنحف وسطرٌ واحد لا يلتفّ (`.nav a span` في
  *    `globals.css`). فلا يُختصر اسمٌ تعرفه الزبونة لأجل ثلاثة بكسلات.
  *
- * ⚠️ والصومالية تبقى «Qalab» والعربية «إلكترونيات» — كلٌّ باسمه في لغته.
+ * ⚠️ والصومالية تبقى «Qalab» — كلُّ لغةٍ باسمها هي.
  */
 const WEB_FOURTH = { key: "accounts", href: "/accounts", Icon: IconNavAccounts } as const;
 const APP_FOURTH = { key: "barwaaqo", href: "/points", Icon: IconBarwaaqoLine } as const;

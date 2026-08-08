@@ -6,7 +6,6 @@ import { diff, hasChanges } from "@/lib/dirty";
 import { IconSpinner } from "@/components/icons";
 
 const LOCALES = [
-  { v: "ar", label: "العربية" },
   { v: "en", label: "English" },
   { v: "so", label: "Soomaali" },
 ] as const;
@@ -59,7 +58,7 @@ const GROUPS = [
 
 export default function TextsEditor() {
   const [group, setGroup] = useState(0);
-  const [lang, setLang] = useState<"ar" | "en" | "so">("ar");
+  const [lang, setLang] = useState<"en" | "so">("en");
   const [d, setD] = useState<TextDoc | null>(null);
   const [busy, setBusy] = useState(false);
   const [saved, setSaved] = useState(false);
@@ -82,8 +81,8 @@ export default function TextsEditor() {
   function edit(k: string, v: string, plain?: boolean) {
     setD((p) => ({
       ...p,
-      // النصّ بلا لغات يُكتب في الثلاث معاً فيقرأه أي زائر
-      [k]: plain ? { ar: v, en: v, so: v } : { ...p?.[k], [lang]: v },
+      // النصّ بلا لغات يُكتب في اللغتين معاً فيقرأه أي زائر
+      [k]: plain ? { en: v, so: v } : { ...p?.[k], [lang]: v },
     }));
     setSaved(false);
   }

@@ -22,7 +22,7 @@ export default async function BackLink({ href = "/" }: { href?: string }) {
       href={href}
       className="back -mx-2 !py-0 !px-2 min-h-11 transition-colors hover:text-orange"
     >
-      <IconBack className="rtl:rotate-180" />
+      <IconBack className="" />
       {t("back")}
     </Link>
   );

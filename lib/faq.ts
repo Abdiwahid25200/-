@@ -17,10 +17,10 @@ import { withTimeout } from "./timeout";
 export const faqSlots = ["delivery", "payment", "track", "refund"] as const;
 
 export type FaqKey = (typeof faqSlots)[number];
-export type FaqLocale = "ar" | "en" | "so";
+export type FaqLocale = "en" | "so";
 
 export type FaqEntry = { q?: string; a?: string };
-/** `{ delivery: { ar: { q, a }, en: {…} }, … }` */
+/** `{ delivery: { en: { q, a }, so: {…} }, … }` */
 export type FaqDoc = Partial<Record<FaqKey, Partial<Record<FaqLocale, FaqEntry>>>>;
 
 /** ما حفظته صاحبة المتجر. بلا Firebase أو عند البطء: كائن فارغ */

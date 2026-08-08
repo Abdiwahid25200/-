@@ -168,11 +168,7 @@ export default function BuyFlow({
     ? t("payOnWhatsapp")
     : payId === "points"
       ? redeem.settings.brand
-      : method
-        ? locale === "ar"
-          ? method.nameAr
-          : method.nameEn
-        : "";
+      : (method?.nameEn ?? "");
 
   /**
    * الشريط يرافق الزبون من أوّل الصفحة لا بعد اختيار الباقة.
@@ -282,7 +278,7 @@ export default function BuyFlow({
       if (href) window.open(href, "_blank", "noopener");
     }
 
-    setDone({ code, at: new Date().toLocaleString(locale === "ar" ? "ar" : "en") });
+    setDone({ code, at: new Date().toLocaleString("en") });
     window.scrollTo({ top: 0, behavior: "smooth" });
 
     // الحفظ لا يمنع الزبون من متابعة طلبه عبر واتساب مهما كانت نتيجته
@@ -534,7 +530,7 @@ export default function BuyFlow({
                   onClick={() => setPayOpen(false)}
                   className="back -mx-2 !px-2 !py-0 min-h-11"
                 >
-                  <IconArrow className="rtl:rotate-180" />
+                  <IconArrow className="" />
                   {tc("back")}
                 </button>
                 <h2 className="h2S">{t("payTitle")}</h2>
@@ -691,7 +687,7 @@ export default function BuyFlow({
                       : next === "pack"
                         ? t("selectPackage")
                         : t("goPay")}
-                    <span aria-hidden className="flex rtl:rotate-180">
+                    <span aria-hidden className="flex">
                       <IconArrow className="size-5" />
                     </span>
                   </>

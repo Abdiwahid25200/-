@@ -39,7 +39,7 @@ export default function VoucherLink({
           <span className="num block text-[1.75rem] font-bold leading-none text-orange">
             {amount}
           </span>
-          <span className="mt-1.5 block text-xs font-bold uppercase tracking-[0.16em] text-muted rtl:tracking-normal">
+          <span className="mt-1.5 block text-xs font-bold uppercase tracking-[0.16em] text-muted">
             {unit}
           </span>
         </span>

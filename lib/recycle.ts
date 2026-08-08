@@ -36,10 +36,10 @@ const nameOf = (v: Record<string, unknown>, id: string) => {
   if (typeof t === "string" && t.trim()) return t;
   if (t && typeof t === "object") {
     const m = t as Record<string, string>;
-    const s = m.ar || m.en || m.so;
+    const s = m.en || m.so;
     if (s) return s;
   }
-  for (const k of ["nameEn", "nameAr", "name", "sub"]) {
+  for (const k of ["nameEn", "name", "sub"]) {
     const s = v[k];
     if (typeof s === "string" && s.trim()) return s;
   }

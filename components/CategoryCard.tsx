@@ -43,7 +43,7 @@ export default function CategoryCard({
         )}
       </span>
       {!soon && (
-        <IconChevron className="size-5 shrink-0 text-muted rtl:rotate-180" />
+        <IconChevron className="size-5 shrink-0 text-muted" />
       )}
     </>
   );

@@ -213,8 +213,8 @@ function LangRow() {
           {localeNames[active as Locale]}
         </span>
         <IconChevron
-          className={`size-4 shrink-0 text-muted transition-transform rtl:rotate-180 ${
-            open ? "-rotate-90 rtl:rotate-90" : ""
+          className={`size-4 shrink-0 text-muted transition-transform ${
+            open ? "-rotate-90" : ""
           }`}
         />
       </button>
@@ -281,7 +281,7 @@ function AccountRow({
           {value}
         </span>
       )}
-      <IconChevron className="size-4 shrink-0 text-muted rtl:rotate-180" />
+      <IconChevron className="size-4 shrink-0 text-muted" />
     </Link>
   );
 }

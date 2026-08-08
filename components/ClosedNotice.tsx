@@ -207,7 +207,7 @@ function Sign({ title, note, settings, full }: Props) {
       <span aria-hidden className={`w-0.5 bg-muted/50 ${full ? "h-16" : "h-10"}`} />
 
       <div className="w-full max-w-xs -rotate-1 rounded-[6px] border-2 border-text bg-bg p-5 text-center shadow-[6px_8px_0_rgba(0,0,0,0.12)]">
-        <p className="text-3xl font-bold leading-none tracking-wide rtl:tracking-normal">
+        <p className="text-3xl font-bold leading-none tracking-wide">
           {t("signWord")}
         </p>
         <p className="mt-1.5 text-sm font-medium">{title}</p>

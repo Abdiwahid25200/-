@@ -107,7 +107,7 @@ export default function MenuDrawer({ phone }: { phone?: string }) {
             img: c.over?.img,
             group: c.over?.group ?? "games",
             label:
-              c.over?.title?.[active as "ar" | "en" | "so"] ||
+              c.over?.title?.[active as "en" | "so"] ||
               c.over?.title?.en ||
               c.key,
           })),
@@ -244,7 +244,7 @@ export default function MenuDrawer({ phone }: { phone?: string }) {
                   <span className="block truncate font-bold">{t("account")}</span>
                   <span className="block truncate text-xs text-muted">{t("mine")}</span>
                 </span>
-                <IconChevron className="size-4 shrink-0 text-muted rtl:rotate-180" />
+                <IconChevron className="size-4 shrink-0 text-muted" />
               </Link>
 
               {/* 📦 **«طلباتي» بنداً مستقلاً** — قرارها (٠٧-٠٨).
@@ -269,7 +269,7 @@ export default function MenuDrawer({ phone }: { phone?: string }) {
                     {t("ordersNote")}
                   </span>
                 </span>
-                <IconChevron className="size-4 shrink-0 text-muted rtl:rotate-180" />
+                <IconChevron className="size-4 shrink-0 text-muted" />
               </Link>
 
               {/* ⚠️ **قائمةٌ واحدة مسطّحة** — كانت ثلاث مجموعاتٍ بعناوين

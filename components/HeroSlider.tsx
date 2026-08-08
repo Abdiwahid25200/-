@@ -106,7 +106,7 @@ export default function HeroSlider({ slides }: { slides: MergedSlide[] }) {
               )}
 
               <div className="relative flex flex-col items-start gap-2">
-                <p className="text-xs font-bold uppercase tracking-[0.18em] text-white/85 rtl:tracking-normal">
+                <p className="text-xs font-bold uppercase tracking-[0.18em] text-white/85">
                   {s.kicker || (t.has(`${s.key}.kicker`) ? t(`${s.key}.kicker`) : "")}
                 </p>
                 <h2 className="text-2xl font-bold leading-tight text-balance text-white sm:text-3xl">

@@ -202,8 +202,8 @@ export default function OrderCard({
         </ol>
       )}
 
-      {/* ماذا اشترى — كل صنف داخل <bdi> فلا ينقلب "660 UC" إلى "UC 660"
-          بالعربية، وتبقى الأصناف العربية بعكسها سليمة */}
+      {/* ماذا اشترى — كل صنف داخل <bdi> فيُقرأ باتجاهه هو مهما اختلطت
+          حروفه بالأرقام ("660 UC") */}
       <p className="f13 mt-3.5 flex flex-wrap gap-x-2 gap-y-1 border-t border-line pt-3">
         {order.items.map((i, n) => (
           <span key={i.id ?? n} className="inline-flex items-center gap-2">
@@ -315,7 +315,7 @@ export default function OrderCard({
       <div className="mt-3 flex flex-wrap items-center gap-2">
         {order.createdAt && (
           <time className="num f11 mu">
-            {order.createdAt.toLocaleString(locale === "ar" ? "ar" : "en", {
+            {order.createdAt.toLocaleString("en", {
               dateStyle: "medium",
               timeStyle: "short",
             })}

@@ -1,6 +1,5 @@
 import { patchField, type RestValue } from "./fireRest";
 import en from "@/messages/en.json";
-import ar from "@/messages/ar.json";
 import so from "@/messages/so.json";
 
 /**
@@ -27,7 +26,6 @@ export const isTell = (v: unknown): v is Tell =>
 
 const PACKS: Record<string, Record<string, string>> = {
   en: en.push,
-  ar: ar.push,
   so: so.push,
 };
 

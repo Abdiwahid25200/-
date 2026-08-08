@@ -45,7 +45,6 @@ const BADGES = [
 ] as const;
 
 const LOCALES = [
-  { v: "ar", label: "العربية" },
   { v: "en", label: "English" },
   { v: "so", label: "Soomaali" },
 ] as const;
@@ -64,7 +63,7 @@ export default function SectionsEditor() {
   const [open, setOpen] = useState<string | null>(null);
   const [saving, setSaving] = useState<string | null>(null);
   const [saved, setSaved] = useState<string | null>(null);
-  const [lang, setLang] = useState<"ar" | "en" | "so">("ar");
+  const [lang, setLang] = useState<"en" | "so">("en");
   const [newKey, setNewKey] = useState("");
   const [adding, setAdding] = useState(false);
 
@@ -234,7 +233,7 @@ export default function SectionsEditor() {
               </span>
               <span className="min-w-0 flex-1">
                 <span className="block truncate font-bold">
-                  {d.title?.ar || s.key}
+                  {d.title?.en || s.key}
                 </span>
                 <span
                   className={`adm-st mt-0.5 ${

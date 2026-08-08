@@ -77,7 +77,7 @@ self.addEventListener("push", (e) => {
       icon: "/icons/icon-192.png",
       badge: "/icons/icon-192.png",
       lang: d.lang || "en",
-      dir: d.lang === "ar" ? "rtl" : "ltr",
+      dir: "ltr",
       /* رمزُ الطلب وسماً: إشعارٌ ثانٍ لنفس الطلب يحلّ محلّ الأوّل
          ولا يتكدّس فوقه — «قُبِل» ثم «سُلّم» سطرٌ واحد لا سطران */
       tag: d.tag || "order",
