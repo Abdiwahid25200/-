@@ -29,6 +29,39 @@ import { POINTS_BRAND, POINTS_ICON, readPointsSettings } from "@/lib/points";
  * ولا يُضاف "الإلكترونيات" يدوياً هنا: هو قسمٌ في `sections` أصلاً، وإضافته
  * كانت تُظهره **مرّتين** في القائمة الجانبية.
  */
+/**
+ * 🖼️ **صور الأقسام محفوظةٌ في جهاز الزبون** — طلبه: «ما بدي أي تأخير في
+ * موقعي وتطبيقي».
+ *
+ * الصورةُ كانت تُنتظر من فايرستور بعد فتح القائمة، فتُرسم الأيقونةُ أوّلاً
+ * ثم تُستبدل — وهو ما رآه. والآن تُكتب في الجهاز عند أوّل قراءةٍ ناجحة،
+ * فتُقرأ في كل فتحةٍ تالية **بلا شبكةٍ إطلاقاً** وتُرسم مع القائمة نفسها.
+ *
+ * ⚠️ **ولا قراءةَ أُضيفت ولا انتظار**: النداءُ هو هو، عند فتح القائمة
+ *    وحدها كما كان (فلا يدفع ثمنَه من لا يفتحها) — وكلُّ ما تغيّر أن
+ *    جوابه لم يعد يُنسى بإغلاق الصفحة.
+ */
+const IMGS_KEY = "ramaan:sectionImgs";
+
+function readSavedImgs(): Record<string, string> {
+  try {
+    const raw = localStorage.getItem(IMGS_KEY);
+    return raw ? (JSON.parse(raw) as Record<string, string>) : {};
+  } catch {
+    return {};
+  }
+}
+
+function saveImgs(o: Record<string, { img?: string }>): void {
+  try {
+    const m: Record<string, string> = {};
+    for (const [k, v] of Object.entries(o)) if (v?.img) m[k] = v.img;
+    localStorage.setItem(IMGS_KEY, JSON.stringify(m));
+  } catch {
+    /* خزنةٌ ممتلئة أو وضع تصفّحٍ خاصّ — القائمة تعمل بلا حفظ */
+  }
+}
+
 const shop = [
   ...sections
     .filter((s) => s.status === "on")
@@ -72,7 +105,14 @@ export default function MenuDrawer({ phone }: { phone?: string }) {
   /** رصيده — يُقرأ عند أوّل فتحٍ للقائمة، فلا يدفع ثمنَه من لم يفتحها */
   const [balance, setBalance] = useState("");
 
-  useEffect(() => setMounted(true), []);
+  /* الصور المحفوظة في الجهاز تُطبَّق فوراً — بلا شبكة ولا انتظار. وهي
+     مجرّد أحدثُ ما وصل، فوقها الأصلُ الثابت في `lib/content.ts`. */
+  useEffect(() => {
+    setMounted(true);
+    const saved = readSavedImgs();
+    if (Object.keys(saved).length)
+      setBase((b) => b.map((x) => ({ ...x, img: saved[x.key] || x.img })));
+  }, []);
 
   /**
    * الأقسام المضافة من اللوحة تُقرأ **عند أول فتح للقائمة** لا عند تحميل
@@ -86,11 +126,14 @@ export default function MenuDrawer({ phone }: { phone?: string }) {
        والأقسام المضافة كلّها. */
     void myPoints(user).then((n) => n > 0 && setBalance(String(n))).catch(() => {});
 
-    void readSections().then((o) =>
-      setBase(
-        shop.map((x) => ({ ...x, img: o[x.key]?.img || x.img })),
-      ),
-    );
+    void readSections().then((o) => {
+      /* ⚠️ **جوابٌ فارغ لا يمحو صورةً معروضة**: `readSections` تعيد `{}`
+         عند الانقطاع أيضاً، ولو بُني العرض عليه لَاختفت الصورة التي في
+         يد الزبون بسبب شبكةٍ تعثّرت لحظة. */
+      if (!Object.keys(o).length) return;
+      setBase(shop.map((x) => ({ ...x, img: o[x.key]?.img || x.img })));
+      saveImgs(o);
+    });
 
     void readPointsSettings().then((v) =>
       setPts({ brand: v.brand, logo: v.logo, on: v.on }),

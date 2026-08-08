@@ -101,12 +101,18 @@ export type Section = {
 /**
  * لإضافة قسم جديد: أضيفي عنصراً هنا بحالة "soon" — سيظهر فوراً
  * بشارة "قريباً" دون الحاجة لصفحة. وعند جاهزية الصفحة غيّري الحالة إلى "on".
+ *
+ * 🖼️ **و`img` هنا أصلٌ ثابت لا قيدٌ على اللوحة**: ما رفعه صاحب المتجر في
+ *    Firestore يعلو عليه دائماً (`over.img || s.img`). وفائدته أن الصورة
+ *    تصل **مع الكود نفسه** فتُرسم في اللحظة الأولى بلا انتظار شبكة —
+ *    وطلبه: «ما بدي أي تأخير في موقعي وتطبيقي». فإن بدّل صورةً من اللوحة
+ *    ظهرت الجديدة، وهذه تبقى شبكةَ أمانٍ تحتها لا أكثر.
  */
 export const sections: Section[] = [
-  { key: "pubg", href: "/pubg", icon: "pubg", group: "games", status: "on", badge: "instant" },
-  { key: "efootball", href: "/efootball", icon: "efoot", group: "games", status: "on", badge: "manual" },
-  { key: "efootballAccounts", href: "/efootball-accounts", icon: "efoot", group: "accounts", status: "on", badge: "manual" },
-  { key: "tiktok", href: "/tiktok", icon: "tiktok", group: "accounts", status: "on", badge: "manual" },
+  { key: "pubg", href: "/pubg", icon: "pubg", group: "games", status: "on", badge: "instant", img: "https://jn7fjdjvkqayadke.public.blob.vercel-storage.com/ramaan/sections/IMG_2571-dXD9AQcpVpDTen8JjbCHHex0n4CYIp.png" },
+  { key: "efootball", href: "/efootball", icon: "efoot", group: "games", status: "on", badge: "manual", img: "https://jn7fjdjvkqayadke.public.blob.vercel-storage.com/ramaan/sections/IMG_2575-hoKsH9ozgtTBZrePN69Ig1aq63me2J.jpeg" },
+  { key: "efootballAccounts", href: "/efootball-accounts", icon: "efoot", group: "accounts", status: "on", badge: "manual", img: "https://jn7fjdjvkqayadke.public.blob.vercel-storage.com/ramaan/sections/IMG_2575-fNR0wf4Vbb1zkWpt3hEwSYlMAa1VJu.jpeg" },
+  { key: "tiktok", href: "/tiktok", icon: "tiktok", group: "accounts", status: "on", badge: "manual", img: "https://jn7fjdjvkqayadke.public.blob.vercel-storage.com/ramaan/sections/IMG_2576-A0dy0ghXqtHtCfquKy19A6M1e4cZrS.png" },
   // ⚠️ **صفحةٌ تُفتح بالضغط، لا رفٌّ في الرئيسية** — قرار صاحبة المتجر.
   //    من فتح المتجر جاء يشحن لعبته، فلا يمرّ على شواحن قبل أن يصل.
   { key: "electronics", href: "/electronics", icon: "device", group: "home", status: "on", badge: "shipped" },

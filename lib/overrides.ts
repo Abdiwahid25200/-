@@ -69,20 +69,35 @@ export type ItemOverride = {
  */
 const READ_MS = 2500;
 
-async function readAll<T>(col: string): Promise<Record<string, T>> {
-  const db = fbDb();
-  if (!db) return {};
+/**
+ * ⏱️ **وفي المتصفّح المهلة أطول عمداً** — الـ٢٫٥ ثانية وُضعت لحماية
+ * **الخادم**: صفحةٌ تنتظر فايرستور صفحةٌ لا تصل. أمّا في جهاز الزبون فلا
+ * شيء ينتظر هذه القراءة أصلاً — الصفحة مرسومةٌ أمامه والقائمة مفتوحة،
+ * وكلُّ ما تفعله الإجابة أن تستبدل صورةً بأيقونة. فقطعُها عند ثانيتين
+ * ونصف كان يخسر الصورة على شبكةٍ بطيئة بلا أن يربح شيئاً.
+ */
+const READ_MS_CLIENT = 10_000;
 
+/** القراءة الخام — **ترمي** عند البطء أو الانقطاع، فيقرّر كلُّ نداءٍ بنفسه */
+async function readRaw<T>(col: string): Promise<Record<string, T>> {
+  const db = fbDb();
+  if (!db) throw new Error("no-db");
+
+  const ms = typeof window === "undefined" ? READ_MS : READ_MS_CLIENT;
+  const snap = await Promise.race([
+    getDocs(collection(db, col)),
+    new Promise<never>((_, reject) =>
+      setTimeout(() => reject(new Error("slow")), ms),
+    ),
+  ]);
+  const out: Record<string, T> = {};
+  snap.docs.forEach((d) => (out[d.id] = d.data() as T));
+  return out;
+}
+
+async function readAll<T>(col: string): Promise<Record<string, T>> {
   try {
-    const snap = await Promise.race([
-      getDocs(collection(db, col)),
-      new Promise<never>((_, reject) =>
-        setTimeout(() => reject(new Error("slow")), READ_MS),
-      ),
-    ]);
-    const out: Record<string, T> = {};
-    snap.docs.forEach((d) => (out[d.id] = d.data() as T));
-    return out;
+    return await readRaw<T>(col);
   } catch {
     // بطء أو انقطاع ⇒ الموقع يعمل بالأصل الثابت بلا أن يشعر الزبون
     return {};
@@ -96,11 +111,22 @@ async function readAll<T>(col: string): Promise<Record<string, T>> {
  */
 let secCache: { at: number; data: Record<string, SectionOverride> } | null = null;
 
+/**
+ * 🔴 **والفشل لا يُحفظ** — كان `readAll` يبتلع الخطأ ويعيد `{}`، فيُحفظ
+ * الفراغُ في الذاكرة **دقيقةً كاملة** كأنه جوابٌ صحيح. فانقطاعةٌ عابرة
+ * واحدة كانت تُبقي القائمة الجانبية بلا صورةٍ دقيقةً بعدها، ولو أُغلقت
+ * وأُعيد فتحها. (نفس انضباط `lib/share.ts`: ما فشل يُنسى فوراً.)
+ */
 export async function readSections(): Promise<Record<string, SectionOverride>> {
   if (secCache && Date.now() - secCache.at < 60_000) return secCache.data;
-  const data = await readAll<SectionOverride>("sections");
-  if (typeof window !== "undefined") secCache = { at: Date.now(), data };
-  return data;
+  try {
+    const data = await readRaw<SectionOverride>("sections");
+    if (typeof window !== "undefined") secCache = { at: Date.now(), data };
+    return data;
+  } catch {
+    // آخرُ جوابٍ ناجح إن وُجد، وإلا الأصل الثابت — ولا يُحفظ هذا الفشل
+    return secCache?.data ?? {};
+  }
 }
 export const readPackages = () => readAll<ItemOverride>("packages");
 export const readProducts = () => readAll<ItemOverride>("products");
