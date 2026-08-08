@@ -51,7 +51,10 @@ const RESEND = (process.env.RESEND_API_KEY ?? "").trim();
  * ⚠️ ورمزُ **المساعد** يذهب إلى بريده هو، فلا يصله حتى يُوثَّق النطاق
  *    ويُضبط `EMAIL_FROM` باسم المتجر.
  */
-const RESEND_FROM = FROM || "Ramaan <onboarding@resend.dev>";
+/** مُرسِلُ Resend الذي يعمل **بلا نطاقٍ موثَّق** — شبكةُ الأمان */
+const FALLBACK_FROM = "Ramaan <onboarding@resend.dev>";
+
+const RESEND_FROM = FROM || FALLBACK_FROM;
 
 /** أضُبطت الخدمة؟ مفتاحُ Resend وحده يكفي · أو ثلاثةُ Infobip مجتمعة */
 export const emailReady = Boolean(RESEND || (HOST && KEY && FROM));
@@ -71,22 +74,47 @@ export async function sendEmail(opts: {
   try {
     /* Resend: نداءٌ واحدٌ بـJSON — ولا نموذج ولا حدٌّ فاصل. */
     if (RESEND) {
-      const r = await fetch("https://api.resend.com/emails", {
-        method: "POST",
-        headers: {
-          authorization: `Bearer ${RESEND}`,
-          "content-type": "application/json",
-        },
-        body: JSON.stringify({
-          from: RESEND_FROM,
-          to: [to],
-          subject: opts.subject,
-          text: opts.text,
-        }),
-        signal: AbortSignal.timeout(10_000),
-        cache: "no-store",
-      });
-      return r.ok;
+      const send = (from: string) =>
+        fetch("https://api.resend.com/emails", {
+          method: "POST",
+          headers: {
+            authorization: `Bearer ${RESEND}`,
+            "content-type": "application/json",
+          },
+          body: JSON.stringify({
+            from,
+            to: [to],
+            subject: opts.subject,
+            text: opts.text,
+          }),
+          signal: AbortSignal.timeout(10_000),
+          cache: "no-store",
+        });
+
+      const r = await send(RESEND_FROM);
+      if (r.ok) return true;
+
+      /**
+       * 🛟 **وسقوطٌ آمن إلى مُرسِل Resend** (٠٧-٠٨).
+       *
+       * ضبطُ `EMAIL_FROM` على `support@eramaan.com` يعمل **فقط** ما دام
+       * النطاق موثّقاً عند Resend. ولو تعثّر التوثيق يوماً — سجلٌّ
+       * يُحذف سهواً من Namecheap، أو مهلةٌ تنتهي — لَرفض Resend كل
+       * رسالة، **فانقطع رمزُ دخولها وتنبيهُ طلباتها معاً** بلا أن يقول
+       * أحدٌ لماذا.
+       *
+       * فتُعاد المحاولة مرّةً واحدة بالمُرسِل الافتراضيّ الذي يعمل بلا
+       * توثيق. والنتيجة: العنوان قد يعود `resend.dev` يوماً، **والرسالة
+       * تصل على كل حال** — وهذا هو المهمّ.
+       *
+       * ⚠️ ولا تُعاد إن كان المُرسِل هو الافتراضيّ أصلاً: نداءٌ ثانٍ
+       *    بنفس البيانات لا يغيّر شيئاً، ويُبطئ الردّ عشر ثوانٍ أخرى.
+       */
+      if (RESEND_FROM !== FALLBACK_FROM) {
+        const again = await send(FALLBACK_FROM);
+        return again.ok;
+      }
+      return false;
     }
 
     /* ⚠️ `FormData` لا JSON: هذا ما يقبله `email/3/send` عند Infobip.
